@@ -167,7 +167,7 @@ export default function ProductDetails() {
         </button>
       </div>
 
-      <div className="px-6 -mt-10 relative z-10">
+      <div className="px-6 -mt-10 relative z-10 pb-24">
         <div className="bg-white rounded-[3rem] p-8 shadow-2xl shadow-slate-200 border border-slate-50">
           <div className="flex justify-between items-start mb-4">
             <div>
@@ -227,13 +227,19 @@ export default function ProductDetails() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 mb-6">
             <div className="grid grid-cols-2 gap-3">
               <button 
                 onClick={() => {
                     addToCart({ ...product, quantity: qty });
-                    navigate('/cart');
+                    // Provide feedback
+                    const btn = document.getElementById('add-to-cart-btn');
+                    if (btn) {
+                      btn.innerText = 'Added!';
+                      setTimeout(() => { btn.innerText = product.isPreOrder ? 'Pre-order' : t('cart.tab_title'); }, 2000);
+                    }
                 }}
+                id="add-to-cart-btn"
                 className="btn-primary py-4 rounded-3xl h-16 shadow-xl shadow-primary/20 flex items-center justify-center gap-2 text-sm"
               >
                 <ShoppingCart size={18} />
@@ -254,10 +260,12 @@ export default function ProductDetails() {
               <button 
                 onClick={async () => {
                    const snap = await getDoc(doc(db, 'settings', 'app'));
-                   if (snap.exists() && snap.data().whatsappNumber) {
-                      const num = snap.data().whatsappNumber.replace(/\D/g, '');
+                   const appWhatsapp = snap.exists() ? snap.data().whatsappNumber : null;
+                   const targetNum = (product.whatsappNumber || appWhatsapp || '').replace(/\D/g, '');
+                   
+                   if (targetNum) {
                       const msg = `আসসালামু আলাইকুম, আমি এই প্রডাক্টটি সম্পর্কে জানতে চাই: ${dData(product.name, product.nameEn)}\nলিঙ্ক: ${window.location.href}`;
-                      window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
+                      window.open(`https://wa.me/${targetNum}?text=${encodeURIComponent(msg)}`, '_blank');
                    } else {
                       alert('WhatsApp support not available.');
                    }
@@ -268,7 +276,7 @@ export default function ProductDetails() {
                 WhatsApp Inquiry
               </button>
               <a 
-                href={`tel:+8801700000000`} // Replace with real admin/shop number if available
+                href={`tel:${(product.whatsappNumber || '01700000000').replace(/\D/g, '')}`} 
                 className="py-4 bg-slate-100 text-slate-600 rounded-3xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all"
               >
                 <Phone size={18} fill="currentColor" />
@@ -279,6 +287,41 @@ export default function ProductDetails() {
         </div>
       </div>
       
+      {/* Sticky Bottom Actions - Daraz Style */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-t border-slate-100 p-4 md:hidden flex gap-3 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+        <button 
+          onClick={() => {
+              addToCart({ ...product, quantity: qty });
+          }}
+          className="flex-[1] btn-primary py-3 rounded-2xl flex items-center justify-center gap-2 text-xs font-bold"
+        >
+          <ShoppingCart size={16} />
+          {t('cart.tab_title')}
+        </button>
+        <button 
+          onClick={() => {
+            addToCart({ ...product, quantity: qty });
+            navigate('/checkout');
+          }}
+          className="flex-[1] btn-secondary py-3 rounded-2xl flex items-center justify-center gap-2 text-xs font-bold"
+        >
+          Buy Now
+        </button>
+        <button 
+          onClick={async () => {
+             const snap = await getDoc(doc(db, 'settings', 'app'));
+             const appWhatsapp = snap.exists() ? snap.data().whatsappNumber : null;
+             const targetNum = (product.whatsappNumber || appWhatsapp || '').replace(/\D/g, '');
+             if (targetNum) {
+                window.open(`https://wa.me/${targetNum}?text=${encodeURIComponent('Hi, I need help with: ' + dData(product.name, product.nameEn))}`, '_blank');
+             }
+          }}
+          className="w-12 h-12 bg-green-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-green-100"
+        >
+          <MessageCircle size={20} fill="currentColor" />
+        </button>
+      </div>
+
       <div className="p-6">
         <h3 className="font-display font-bold text-xl mb-6 px-2">Merchant Info</h3>
         <div className="glass-card p-5 flex items-center gap-4 bg-white border-slate-100 mb-8">
@@ -387,9 +430,12 @@ export default function ProductDetails() {
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-            <div className="mt-12 mb-8">
-                <h3 className="font-display font-bold text-xl mb-6 px-1">You Might Also Like</h3>
-                <div className="flex overflow-x-auto gap-4 pb-4 px-1 scrollbar-hide">
+            <div className="mt-12 mb-12">
+                <div className="flex items-center justify-between mb-6 px-1">
+                  <h3 className="font-display font-bold text-xl">People Also Viewed</h3>
+                  <Link to="/products" className="text-primary text-[10px] font-black uppercase tracking-widest">See All</Link>
+                </div>
+                <div className="grid grid-cols-2 gap-4 pb-4">
                     {relatedProducts.map((p) => (
                         <div 
                             key={p.id}
@@ -397,7 +443,7 @@ export default function ProductDetails() {
                                 navigate(`/product/${p.id}`);
                                 window.scrollTo(0, 0);
                             }}
-                            className="flex-shrink-0 w-40 bg-white rounded-3xl border border-slate-50 shadow-sm p-3 group cursor-pointer"
+                            className="bg-white rounded-3xl border border-slate-50 shadow-sm p-3 group cursor-pointer"
                         >
                             <div className="aspect-square rounded-2xl overflow-hidden mb-3">
                                 <img 
@@ -407,9 +453,9 @@ export default function ProductDetails() {
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
                                 />
                             </div>
-                            <h4 className="font-bold text-xs text-slate-800 truncate">{dData(p.name, p.nameEn)}</h4>
-                            <div className="flex items-center justify-between mt-2">
-                                <span className="text-xs font-bold text-primary">৳{p.price}</span>
+                            <h4 className="font-bold text-xs text-slate-800 truncate mb-1">{dData(p.name, p.nameEn)}</h4>
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-display font-bold text-primary">৳{p.price}</span>
                                 <div className="flex items-center gap-0.5">
                                     <Star size={8} className="text-secondary fill-secondary" />
                                     <span className="text-[8px] font-bold text-slate-400">{p.rating || '5.0'}</span>

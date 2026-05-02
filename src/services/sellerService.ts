@@ -31,6 +31,7 @@ export const sellerService = {
         farmerId: sellerId,
         status: 'pending',
         isApproved: false,
+        whatsappNumber: product.whatsappNumber || null,
         createdAt: serverTimestamp()
       });
     } catch (e) {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, ChevronRight, Star, ShoppingBag, Plus, X, Quote, Heart, Phone, Zap, Clock } from 'lucide-react';
+import { Search, ChevronRight, Star, ShoppingBag, Plus, X, Quote, Heart, Phone, Zap, Clock, ShoppingCart } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { collection, onSnapshot, query, orderBy, where } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -106,7 +106,8 @@ export default function Home() {
     { id: 2, name: 'Organic Honey', price: 450, unit: 'kg', farmer: 'Mita Sen', location: 'Sundarban', rating: 4.9, image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&h=400&fit=crop' },
   ];
 
-  const featuredProducts = dbProducts.length > 0 ? dbProducts.slice(0, 4) : fallbackProducts;
+  const featuredProducts = dbProducts.length > 0 ? dbProducts.filter(p => !p.isBundle).slice(0, 4) : fallbackProducts;
+  const bundleProducts = dbProducts.filter(p => p.isBundle);
   const flashSaleProducts = dbProducts.filter(p => p.isFlashSale).slice(0, 3);
 
   return (
@@ -319,27 +320,29 @@ export default function Home() {
                               <span className="text-2xl font-display font-bold text-slate-900 leading-none">৳{bundle.price}</span>
                               <span className="text-[10px] text-slate-300 font-bold line-through mt-1">৳{Math.round(bundle.price * 1.2)}</span>
                           </div>
-                          <div className="flex gap-2">
-                            <button 
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    addToCart(bundle);
-                                }}
-                                className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-sm"
-                            >
-                                <Plus size={20} />
-                            </button>
-                            <button 
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    addToCart(bundle);
-                                    navigate('/checkout');
-                                }}
-                                className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg"
-                            >
-                                Buy
-                            </button>
-                          </div>
+                  <div className="flex gap-2">
+                    <motion.button 
+                        whileTap={{ scale: 0.85 }}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            addToCart(bundle);
+                        }}
+                        className="flex-1 bg-primary text-white py-2 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all"
+                    >
+                        <ShoppingCart size={16} />
+                        <span className="text-[10px] font-black uppercase tracking-wider">Add</span>
+                    </motion.button>
+                    <button 
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            addToCart(bundle);
+                            navigate('/checkout');
+                        }}
+                        className="px-4 py-2 bg-slate-100 text-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all font-sans"
+                    >
+                        Buy
+                    </button>
+                  </div>
                       </div>
                   </motion.div>
               ))}
@@ -379,6 +382,41 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Bundle Offers Section */}
+      {bundleProducts.length > 0 && (
+        <div className="px-5 mb-10">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display font-bold text-lg">Bundle Offers</h2>
+            <Link to="/products?category=Bundles" className="text-[10px] font-black text-primary uppercase tracking-widest">View All</Link>
+          </div>
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+            {bundleProducts.map((bundle) => (
+              <motion.div 
+                key={bundle.id}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate(`/product/${bundle.id}`)}
+                className="flex-shrink-0 w-[280px] bg-white rounded-[2rem] border border-slate-100 p-4 shadow-sm relative overflow-hidden"
+              >
+                <div className="flex gap-4">
+                  <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-inner bg-slate-50 flex-shrink-0">
+                    <img src={bundle.image} className="w-full h-full object-cover" alt={bundle.name} />
+                  </div>
+                  <div className="flex-1 flex flex-col justify-center">
+                    <h3 className="font-bold text-sm text-slate-800 line-clamp-1">{dData(bundle.name, bundle.nameEn)}</h3>
+                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1 mb-2">Multi-Pack Savings</p>
+                    <div className="flex items-center gap-2">
+                       <span className="text-primary font-black text-base">৳{bundle.price}</span>
+                       <span className="text-[10px] text-slate-400 font-bold">Bundle Deal</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute -top-6 -right-6 w-16 h-16 bg-primary/5 rounded-full" />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Featured Products */}
       <div className="px-5 mb-20">
         <div className="flex items-center justify-between mb-6">
@@ -387,14 +425,14 @@ export default function Home() {
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Direct from fields</span>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-5">
+        <div className="grid grid-cols-2 gap-4">
           {featuredProducts.map((product) => (
             <motion.div
               layout
               key={product.id}
-              className="bg-white rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-50 relative group"
+              className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-50 relative group"
             >
-              <div className="relative aspect-square overflow-hidden m-2 rounded-[2rem] cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
+              <div className="relative aspect-square overflow-hidden m-1.5 rounded-2xl cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
                 <img 
                     src={product.image} 
                     referrerPolicy="no-referrer" 
@@ -402,49 +440,54 @@ export default function Home() {
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                     alt={dData(product.name, product.nameEn)} 
                 />
-                <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-xl flex items-center gap-1 shadow-sm">
-                  <Star size={10} className="text-secondary fill-secondary" />
-                  <span className="text-[10px] font-black text-slate-800">{product.rating || '5.0'}</span>
+                <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-sm">
+                  <Star size={8} className="text-secondary fill-secondary" />
+                  <span className="text-[9px] font-black text-slate-800">{product.rating || '5.0'}</span>
                 </div>
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();
                     toggleWish(product.id);
                   }}
-                  className={`absolute top-3 right-3 w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
-                    wishlistIds.includes(product.id) ? 'bg-red-500 text-white shadow-lg shadow-red-200' : 'bg-white/80 text-slate-400 hover:text-red-500'
+                  className={`absolute top-2 right-2 w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
+                    wishlistIds.includes(product.id) ? 'bg-red-500 text-white shadow-lg' : 'bg-white/80 text-slate-400 hover:text-red-500'
                   }`}
                 >
-                  <Heart size={14} fill={wishlistIds.includes(product.id) ? "currentColor" : "none"} />
+                  <Heart size={12} fill={wishlistIds.includes(product.id) ? "currentColor" : "none"} />
                 </button>
               </div>
-              <div className="p-4 pt-2">
-                <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em] block mb-1.5">{product.location}</span>
-                <h3 className="font-bold text-sm text-slate-800 mb-0.5 truncate leading-tight cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
+              <div className="p-3 pt-1">
+                <span className="text-[8px] font-black text-primary uppercase tracking-[0.2em] block mb-1">{product.location}</span>
+                <h3 className="font-bold text-xs text-slate-800 mb-0.5 truncate leading-tight cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
                   {dData(product.name, product.nameEn)}
                 </h3>
-                <p className="text-[10px] text-slate-400 font-medium mb-4">By {product.farmerName || product.farmer}</p>
+                <p className="text-[9px] text-slate-400 font-medium mb-3">By {product.farmerName || product.farmer}</p>
                 
-                <div className="flex flex-col gap-3 mt-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-col">
-                      <span className="text-lg font-display font-bold text-slate-900 leading-none">৳{product.price}</span>
-                      <span className="text-[10px] text-slate-400 font-bold mt-1">/{product.unit}</span>
-                    </div>
+                <div className="flex flex-col gap-2 mt-2">
+                  <div className="flex items-center justify-between gap-1.5">
                     <motion.button 
                       whileTap={{ scale: 0.85 }}
-                      onClick={() => addToCart(product)}
-                      className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center shadow-sm hover:bg-primary hover:text-white transition-all"
+                      onClick={(e) => {
+                          e.stopPropagation();
+                          addToCart(product);
+                      }}
+                      className="flex-1 bg-primary text-white py-1.5 rounded-lg flex items-center justify-center gap-1.5 shadow-md shadow-primary/10 hover:bg-primary-dark transition-all"
                     >
-                      <Plus size={20} />
+                      <ShoppingCart size={14} />
+                      <span className="text-[9px] font-black uppercase tracking-wider">Add</span>
                     </motion.button>
+                    <div className="flex flex-col text-right">
+                      <span className="text-base font-display font-bold text-slate-900 leading-none">৳{product.price}</span>
+                      <span className="text-[8px] text-slate-400 font-bold mt-0.5">/{product.unit}</span>
+                    </div>
                   </div>
                   <button 
-                    onClick={() => {
+                    onClick={(e) => {
+                        e.stopPropagation();
                         addToCart(product);
                         navigate('/checkout');
                     }}
-                    className="w-full py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-slate-200 active:scale-95 transition-all"
+                    className="w-full py-1.5 bg-slate-50 text-slate-600 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-100"
                   >
                     Buy Now
                   </button>

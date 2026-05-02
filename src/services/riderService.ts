@@ -4,7 +4,7 @@ import { handleFirestoreError, OperationType } from '../firebase';
 
 export const riderService = {
   getAvailableOrders(callback: (orders: any[]) => void) {
-    const q = query(collection(db, 'orders'), where('status', '==', 'confirmed'));
+    const q = query(collection(db, 'orders'), where('status', '==', 'ready_for_pickup'));
     return onSnapshot(q, (snap) => {
       callback(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     }, (error) => {
@@ -21,10 +21,23 @@ export const riderService = {
     });
   },
 
+  async arrivedAtMerchant(orderId: string) {
+    try {
+      await updateDoc(doc(db, 'orders', orderId), {
+        status: 'shipped',
+        subStatus: 'arrived_at_pickup',
+        arrivedAtMerchantAt: serverTimestamp()
+      });
+    } catch (e) {
+      handleFirestoreError(e, OperationType.UPDATE, `orders/${orderId}`);
+    }
+  },
+
   async pickUpOrder(orderId: string, riderId: string) {
     try {
       await updateDoc(doc(db, 'orders', orderId), {
         status: 'shipped',
+        subStatus: 'in_transit',
         riderId,
         pickedUpAt: serverTimestamp()
       });

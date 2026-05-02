@@ -31,10 +31,11 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   role: 'customer' | 'seller' | 'admin' | 'rider' | null;
+  profile: any | null;
   pwa: any;
 }
 
-export const AuthContext = createContext<AuthContextType>({ user: null, loading: true, role: null });
+export const AuthContext = createContext<AuthContextType>({ user: null, loading: true, role: null, profile: null, pwa: null });
 
 function usePWA() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -67,6 +68,7 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState<'customer' | 'seller' | 'admin' | 'rider' | null>(null);
+  const [profile, setProfile] = useState<any | null>(null);
   const pwa = usePWA();
 
   useEffect(() => {
@@ -90,13 +92,22 @@ export default function App() {
 
         try {
           const { getDoc, doc } = await import('firebase/firestore');
-          const userDoc = await getDoc(doc(db, 'users', u.uid));
+          const docRef = doc(db, 'users', u.uid);
+          const userDoc = await getDoc(docRef);
+          
           if (u.email === 'mehedihasa6682@gmail.com') {
             setRole('admin');
-          } else if (userDoc.exists()) {
-            setRole(userDoc.data().role || 'customer');
+          }
+
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            setProfile(data);
+            if (u.email !== 'mehedihasa6682@gmail.com') {
+                setRole(data.role || 'customer');
+            }
           } else {
             setRole('customer');
+            setProfile(null);
           }
         } catch (e) {
           const message = e instanceof Error ? e.message : String(e);
@@ -106,9 +117,11 @@ export default function App() {
             console.error("Error fetching role:", e);
           }
           setRole('customer');
+          setProfile(null);
         }
       } else {
         setRole(null);
+        setProfile(null);
       }
       setLoading(false);
     });
@@ -117,7 +130,7 @@ export default function App() {
 
   return (
     <HelmetProvider>
-      <AuthContext.Provider value={{ user, loading, role, pwa }}>
+      <AuthContext.Provider value={{ user, loading, role, profile, pwa }}>
         <LanguageProvider>
           <CartProvider>
             <Router>

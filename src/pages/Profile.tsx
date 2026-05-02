@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   User as UserIcon, MapPin, CreditCard, Share2, 
   Settings, LogOut, ChevronRight, ShieldCheck,
-  Gift, Bell, ClipboardList, Package, Heart, X, Trash2
+  Gift, Bell, ClipboardList, Package, Heart, X, Trash2,
+  Truck
 } from 'lucide-react';
 import { auth, db } from '../firebase';
 import { signOut, updateProfile } from 'firebase/auth';
@@ -229,7 +230,7 @@ export default function Profile() {
         </div>
         <h2 className="mt-4 font-display font-bold text-xl leading-none">{user?.displayName || 'Hello, User'}</h2>
         <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-3">
-          {role === 'admin' ? t('profile.role_admin') : role === 'seller' ? t('profile.role_seller') : t('profile.role_customer')}
+          {role === 'admin' ? t('profile.role_admin') : role === 'seller' ? t('profile.role_seller') : role === 'rider' ? 'Delivery Rider' : t('profile.role_customer')}
         </p>
       </div>
 
@@ -252,6 +253,13 @@ export default function Profile() {
                 to="/seller"
                 color="text-secondary"
               />
+              <MenuItem 
+                icon={Truck} 
+                label="Rider Dashboard" 
+                subtitle="Manage tasks, earnings & status"
+                to="/rider"
+                color="text-orange-500"
+              />
             </div>
           </div>
         )}
@@ -266,6 +274,21 @@ export default function Profile() {
                 subtitle="Orders, Products & Analytics"
                 to="/seller"
                 color="text-primary"
+              />
+            </div>
+          </div>
+        )}
+
+        {role === 'rider' && (
+          <div className="space-y-2">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-3">Delivery Partner</h3>
+            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+              <MenuItem 
+                icon={Truck} 
+                label="Rider Dashboard" 
+                subtitle="Manage tasks, earnings & status"
+                to="/rider"
+                color="text-orange-500"
               />
             </div>
           </div>
@@ -317,6 +340,22 @@ export default function Profile() {
           <div className="bg-white rounded-3xl border border-slate-50 shadow-sm overflow-hidden">
             <MenuItem icon={LogOut} label={t('profile.logout')} subtitle="Clear session and exit" color="text-red-500" onClick={handleLogout} />
           </div>
+          <button
+             onClick={() => {
+               if (user) {
+                 NotificationService.sendNotification(user.uid, {
+                   title: 'নোটিফিকেশন অ্যালার্ট!',
+                   message: 'এটি ফোনের সিস্টেম নোটিফিকেশনের মতো স্ক্রিনের উপরে দেখা যাবে।',
+                   type: 'promo',
+                   link: '/profile'
+                 });
+               }
+             }}
+             className="w-full mt-4 py-4 bg-slate-900 text-white rounded-2xl flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-widest shadow-xl shadow-slate-200 active:scale-95 transition-all outline-none"
+           >
+             <Bell size={18} />
+             Test Heads-up Alert
+           </button>
         </div>
       </div>
 

@@ -57,7 +57,8 @@ export const adminService = {
         isApproved: true,
         farmerId: 'admin',
         farmerName: 'Kishan Admin',
-        location: 'Dhaka'
+        location: 'Dhaka',
+        whatsappNumber: product.whatsappNumber || null
       });
     } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'products'); }
   },
@@ -103,10 +104,14 @@ export const adminService = {
       });
     } catch (e) { handleFirestoreError(e, OperationType.UPDATE, `users/${uid}`); }
   },
-  async deleteSeller(uid: string) {
+  async deleteUser(uid: string) {
     try {
       await deleteDoc(doc(db, 'users', uid));
     } catch (e) { handleFirestoreError(e, OperationType.DELETE, `users/${uid}`); }
+  },
+
+  async deleteSeller(uid: string) {
+    return this.deleteUser(uid);
   },
 
   // Orders
@@ -127,9 +132,11 @@ export const adminService = {
     } catch (e) { handleFirestoreError(e, OperationType.UPDATE, `users/${userId}`); }
   },
 
-  async updateUserRole(userId: string, role: string) {
+  async updateUserRole(userId: string, role: string, isVerified?: boolean) {
     try {
-      await updateDoc(doc(db, 'users', userId), { role, lastRoleUpdate: serverTimestamp() });
+      const updates: any = { role, lastRoleUpdate: serverTimestamp() };
+      if (typeof isVerified === 'boolean') updates.isVerified = isVerified;
+      await updateDoc(doc(db, 'users', userId), updates);
     } catch (e) { handleFirestoreError(e, OperationType.UPDATE, `users/${userId}`); }
   },
 
@@ -160,18 +167,22 @@ export const adminService = {
 
   async addBundle(bundle: any) {
     try {
-      return await addDoc(collection(db, 'bundles'), { 
+      return await addDoc(collection(db, 'products'), { 
         ...bundle, 
         createdAt: serverTimestamp(),
         isBundle: true,
-        status: 'approved'
+        status: 'approved',
+        isApproved: true,
+        category: 'Bundles',
+        farmerId: 'admin',
+        farmerName: 'Kishan Admin'
       });
-    } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'bundles'); }
+    } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'products'); }
   },
 
   async deleteBundle(id: string) {
     try {
-      await deleteDoc(doc(db, 'bundles', id));
-    } catch (e) { handleFirestoreError(e, OperationType.DELETE, `bundles/${id}`); }
+      await deleteDoc(doc(db, 'products', id));
+    } catch (e) { handleFirestoreError(e, OperationType.DELETE, `products/${id}`); }
   }
 };

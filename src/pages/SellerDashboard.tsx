@@ -39,7 +39,8 @@ export default function SellerDashboard() {
       image: '',
       stock: 'In Stock',
       description: '',
-      descriptionEn: ''
+      descriptionEn: '',
+      whatsappNumber: ''
   });
 
   useEffect(() => {
@@ -83,7 +84,7 @@ export default function SellerDashboard() {
     });
 
     setIsAdding(false);
-    setNewProduct({ name: '', nameEn: '', price: '', unit: 'kg', category: '', subCategory: '', image: '', stock: 'In Stock', description: '', descriptionEn: '' });
+    setNewProduct({ name: '', nameEn: '', price: '', unit: 'kg', category: '', subCategory: '', image: '', stock: 'In Stock', description: '', descriptionEn: '', whatsappNumber: '' });
   };
 
   const handleApply = async (e: FormEvent) => {
@@ -247,13 +248,14 @@ export default function SellerDashboard() {
                         <textarea placeholder="Description (English)" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs h-20 resize-none" value={newProduct.descriptionEn} onChange={e => setNewProduct({...newProduct, descriptionEn: e.target.value})} />
                         
                         <div className="grid grid-cols-2 gap-3">
-                            <input required type="number" placeholder="Price (৳)" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} />
+                            <input required type="number" placeholder="Price (৳)" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} />
+                            <input placeholder="WhatsApp (+8801...)" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-sans outline-none" value={newProduct.whatsappNumber} onChange={e => setNewProduct({...newProduct, whatsappNumber: e.target.value})} />
+                        </div>
                             <select className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs" value={newProduct.unit} onChange={e => setNewProduct({...newProduct, unit: e.target.value})}>
                                 <option value="kg">Per kg</option>
                                 <option value="pcs">Per pcs</option>
                                 <option value="litre">Per litre</option>
                             </select>
-                        </div>
                         <select required className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs" value={newProduct.category} onChange={e => setNewProduct({...newProduct, category: e.target.value, subCategory: ''})}>
                             <option value="">Select Category</option>
                             {categories.map(c => <option key={c.id} value={c.title}>{c.title}</option>)}
@@ -335,10 +337,10 @@ export default function SellerDashboard() {
                     )}
                     {order.status === 'confirmed' && (
                         <button 
-                            onClick={() => sellerService.updateOrderStatus(order.id, 'shipped')}
-                            className="flex-1 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest"
+                            onClick={() => sellerService.updateOrderStatus(order.id, 'ready_for_pickup')}
+                            className="flex-1 py-3 bg-secondary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-secondary/20"
                         >
-                            Mark Shipped
+                            Ready for Pickup
                         </button>
                     )}
                     <button className="px-4 py-3 bg-slate-50 text-slate-400 rounded-2xl">

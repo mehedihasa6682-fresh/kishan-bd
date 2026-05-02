@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, SlidersHorizontal, Star, Plus, Filter, Heart, ArrowUpDown, ChevronDown } from 'lucide-react';
+import { Search, SlidersHorizontal, Star, Plus, Filter, Heart, ArrowUpDown, ChevronDown, ShoppingCart } from 'lucide-react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useCart } from '../context/CartContext';
@@ -40,7 +40,11 @@ export default function Products() {
       
       if (initialCategory) {
           const found = cats.find(c => c.title === initialCategory);
-          if (found) setSelectedCategory(found);
+          if (found) {
+            setSelectedCategory(found);
+          } else if (initialCategory === 'Bundles') {
+            setSelectedCategory({ id: 'Bundles', title: 'Bundles' });
+          }
       }
     });
 
@@ -69,11 +73,12 @@ export default function Products() {
     socialService.toggleWishlist(user.uid, productId);
   };
    
-  let filteredProducts = (dbProducts.length > 0 ? dbProducts : []).filter(p => 
-    (selectedCategory.title === 'All' || p.category === selectedCategory.title) &&
-    (selectedSubCategory === 'All' || p.subCategory === selectedSubCategory) &&
-    matchProduct(p, searchQuery)
-  );
+  let filteredProducts = (dbProducts.length > 0 ? dbProducts : []).filter(p => {
+    if (selectedCategory.id === 'Bundles') return p.isBundle;
+    return (selectedCategory.title === 'All' || p.category === selectedCategory.title) &&
+           (selectedSubCategory === 'All' || p.subCategory === selectedSubCategory) &&
+           matchProduct(p, searchQuery) && !p.isBundle; // Don't show bundles in regular categories
+  });
 
   // Sorting logic
   if (sortBy === 'priceLow') filteredProducts.sort((a, b) => a.price - b.price);
@@ -220,14 +225,14 @@ export default function Products() {
         </AnimatePresence>
       </div>
 
-      <div className="px-5 grid grid-cols-2 gap-4">
+      <div className="px-5 grid grid-cols-2 gap-3">
         {filteredProducts.map((product) => (
           <motion.div
             layout
             key={product.id}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-[2rem] overflow-hidden border border-slate-50 shadow-sm hover:shadow-xl transition-all duration-300 group"
+            className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 group"
           >
             <div className="relative aspect-[4/5] overflow-hidden cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
               <img 
@@ -237,49 +242,54 @@ export default function Products() {
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                 alt={dData(product.name, product.nameEn)} 
               />
-              <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm">
-                <Star size={10} className="text-secondary fill-secondary" />
-                <span className="text-[10px] font-bold text-slate-700">{product.rating || '5.0'}</span>
+              <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-1.5 py-0.5 rounded-lg flex items-center gap-1 shadow-sm">
+                <Star size={8} className="text-secondary fill-secondary" />
+                <span className="text-[9px] font-bold text-slate-700">{product.rating || '5.0'}</span>
               </div>
               <button 
                 onClick={(e) => {
                     e.stopPropagation();
                     toggleWish(product.id);
                 }}
-                className={`absolute top-3 right-3 w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
+                className={`absolute top-2 right-2 w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
                     wishlistIds.includes(product.id) ? 'bg-red-500 text-white shadow-lg' : 'bg-white/80 text-slate-400 hover:text-red-500'
                 }`}
               >
-                <Heart size={14} fill={wishlistIds.includes(product.id) ? "currentColor" : "none"} />
+                <Heart size={12} fill={wishlistIds.includes(product.id) ? "currentColor" : "none"} />
               </button>
             </div>
-            <div className="p-4 flex flex-col h-[180px]">
-              <span className="text-[10px] font-bold text-primary uppercase tracking-wider mb-1">{product.category}</span>
-              <h3 className="font-bold text-sm text-slate-800 mb-0.5 truncate cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
+            <div className="p-3 flex flex-col h-[150px]">
+              <span className="text-[8px] font-bold text-primary uppercase tracking-wider mb-0.5">{product.category}</span>
+              <h3 className="font-bold text-xs text-slate-800 mb-0.5 truncate cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
                 {dData(product.name, product.nameEn)}
               </h3>
-              <p className="text-[10px] text-slate-400 mb-3 truncate">By {product.farmerName || product.farmer}</p>
+              <p className="text-[9px] text-slate-400 mb-2 truncate">By {product.farmerName || product.farmer}</p>
               
-              <div className="mt-auto space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <span className="text-xl font-display font-bold text-slate-900">৳{product.price}</span>
-                    <span className="text-[10px] text-slate-400">/{product.unit}</span>
-                  </div>
+              <div className="mt-auto space-y-2">
+                <div className="flex items-center justify-between gap-1.5">
                   <motion.button
                     whileTap={{ scale: 0.9 }}
-                    onClick={() => addToCart(product)}
-                    className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center shadow-sm hover:bg-primary hover:text-white transition-all"
+                    onClick={(e) => {
+                       e.stopPropagation();
+                       addToCart(product);
+                    }}
+                    className="flex-1 h-8 bg-primary text-white rounded-lg flex items-center justify-center gap-1.5 shadow-md shadow-primary/10 hover:bg-primary-dark transition-all"
                   >
-                    <Plus size={18} />
+                    <ShoppingCart size={14} />
+                    <span className="text-[9px] font-black uppercase tracking-wider">Add</span>
                   </motion.button>
+                  <div className="flex flex-col text-right">
+                    <span className="text-base font-display font-bold text-slate-900 leading-none">৳{product.price}</span>
+                    <span className="text-[8px] text-slate-400 font-bold tracking-tight">/{product.unit}</span>
+                  </div>
                 </div>
                 <button 
-                    onClick={() => {
+                    onClick={(e) => {
+                        e.stopPropagation();
                         addToCart(product);
                         navigate('/checkout');
                     }}
-                    className="w-full py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-slate-200 active:scale-95 transition-all"
+                    className="w-full py-1.5 bg-slate-50 text-slate-600 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-100 font-sans"
                 >
                     Buy Now
                 </button>

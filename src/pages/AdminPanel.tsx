@@ -7,7 +7,7 @@ import {
   CheckCircle, XCircle, Plus, Trash2, Layout,
   Layers, Camera, ChevronRight, Store, X, Clock, Bell,
   ArrowLeft, User, Box, Gift, Image as ImageIcon,
-  MessageSquare
+  MessageSquare, Package
 } from 'lucide-react';
 import { adminService } from '../services/adminService';
 import { collection, onSnapshot, query, orderBy, where, doc } from 'firebase/firestore';
@@ -24,7 +24,7 @@ export default function AdminPanel() {
   const [deliveryAreas, setDeliveryAreas] = useState<any[]>([]);
   const [newArea, setNewArea] = useState({ name: '', fee: 50 });
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'approvals' | 'banners' | 'stories' | 'categories' | 'users' | 'orders' | 'bundles' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'approvals' | 'banners' | 'stories' | 'categories' | 'users' | 'orders' | 'bundles' | 'settings' | 'notifications' | 'riders'>('dashboard');
   const [isAdding, setIsAdding] = useState(false);
   const [editingCategory, setEditingCategory] = useState<any>(null);
   const [newSubCategory, setNewSubCategory] = useState('');
@@ -37,16 +37,18 @@ export default function AdminPanel() {
   const [products, setProducts] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
   const [bundles, setBundles] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [appSettings, setAppSettings] = useState<any>({ logo: '' });
 
   const pendingProducts = products.filter(p => p.status === 'pending');
   const approvedProducts = products.filter(p => p.status === 'approved');
+  const pendingSellers = sellers.filter(s => s.roleRequest === 'seller' || (s.role === 'customer' && s.shopName && !s.isVerified));
 
   // Form States
   const [newBanner, setNewBanner] = useState({ title: '', subtitle: '', image: '' });
   const [newStory, setNewStory] = useState({ name: '', role: '', quote: '', image: '', type: 'Farmer' });
   const [newCategory, setNewCategory] = useState({ title: '', titleEn: '', image: '', subCategories: '', subCategoriesEn: '' });
-  const [newProduct, setNewProduct] = useState({ name: '', nameEn: '', price: '', category: '', subCategory: '', image: '', unit: 'kg', farmer: '', location: '', description: '', descriptionEn: '' });
+  const [newProduct, setNewProduct] = useState({ name: '', nameEn: '', price: '', category: '', subCategory: '', image: '', unit: 'kg', farmer: '', location: '', description: '', descriptionEn: '', whatsappNumber: '' });
   const [newBundle, setNewBundle] = useState({ name: '', nameEn: '', price: '', image: '', description: '', descriptionEn: '' });
 
   useEffect(() => {
@@ -73,7 +75,7 @@ export default function AdminPanel() {
       setProducts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     }, (error) => console.error("Admin Products:", error));
 
-    const unsubBundles = onSnapshot(collection(db, 'bundles'), (snap) => {
+    const unsubBundles = onSnapshot(query(collection(db, 'products'), where('isBundle', '==', true)), (snap) => {
       setBundles(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     }, (error) => console.error("Admin Bundles:", error));
 
@@ -115,7 +117,7 @@ export default function AdminPanel() {
   const handleAddProduct = async () => {
     if (!newProduct.name || !newProduct.price || !newProduct.image) return;
     await adminService.addProduct(newProduct);
-    setNewProduct({ name: '', nameEn: '', price: '', category: '', subCategory: '', image: '', unit: 'kg', farmer: '', location: '', description: '', descriptionEn: '' });
+    setNewProduct({ name: '', nameEn: '', price: '', category: '', subCategory: '', image: '', unit: 'kg', farmer: '', location: '', description: '', descriptionEn: '', whatsappNumber: '' });
     setIsAdding(false);
   };
 
@@ -175,14 +177,15 @@ export default function AdminPanel() {
     { id: 'dashboard', label: 'Overview', icon: BarChart3 },
     { id: 'approvals', label: 'Approvals', icon: Clock },
     { id: 'orders', label: 'Orders', icon: Truck },
+    { id: 'riders', label: 'Riders', icon: Truck },
     { id: 'products', label: 'Products', icon: ShoppingBag },
     { id: 'bundles', label: 'Bundles', icon: Gift },
     { id: 'banners', label: 'Banners', icon: Layout },
     { id: 'stories', label: 'Stories', icon: Camera },
     { id: 'categories', label: 'Categories', icon: Layers },
     { id: 'users', label: 'Users', icon: Users },
-    { id: 'notifications', label: 'Notif Log', icon: Bell },
-    { id: 'settings', label: 'Settings', icon: Settings },
+    { id: 'notifications', label: 'Mailing', icon: Bell },
+    { id: 'settings', label: 'Brand & Site', icon: Settings },
   ];
 
   if (authLoading) return (
@@ -252,9 +255,13 @@ export default function AdminPanel() {
                 { label: 'Total Orders', value: orders.length.toString(), color: 'text-blue-500', bg: 'bg-blue-50' },
                 { label: 'Processing', value: orders.filter(o => o.status === 'pending' || o.status === 'verified').length.toString(), color: 'text-orange-500', bg: 'bg-orange-50' },
                 { label: 'Net Revenue', value: `৳${orders.filter(o => o.status !== 'cancelled').reduce((acc, o) => acc + o.total, 0)}`, color: 'text-green-500', bg: 'bg-green-50' },
-                { label: 'Products', value: products.length.toString(), color: 'text-purple-500', bg: 'bg-purple-50' },
+                { label: 'All Users', value: sellers.length.toString(), color: 'text-purple-500', bg: 'bg-purple-50' },
+                { label: 'Total Sellers', value: sellers.filter(s => s.role === 'seller').length.toString(), color: 'text-indigo-500', bg: 'bg-indigo-50' },
+                { label: 'Total Riders', value: sellers.filter(s => s.role === 'rider').length.toString(), color: 'text-orange-500', bg: 'bg-orange-50' },
+                { label: 'Total Products', value: products.length.toString(), color: 'text-pink-500', bg: 'bg-pink-50' },
+                { label: 'Revenue/User', value: `৳${sellers.length > 0 ? (orders.filter(o => o.status !== 'cancelled').reduce((acc, o) => acc + o.total, 0) / sellers.length).toFixed(0) : 0}`, color: 'text-slate-600', bg: 'bg-slate-100' },
               ].map((stat) => (
-                <div key={stat.label} className="bg-white p-5 rounded-[2rem] border border-slate-50 shadow-sm">
+                <div key={stat.label} className={`${stat.bg} p-5 rounded-[2rem] border border-slate-50 shadow-sm`}>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">{stat.label}</p>
                   <h4 className={`text-xl font-display font-bold ${stat.color}`}>{stat.value}</h4>
                 </div>
@@ -293,9 +300,50 @@ export default function AdminPanel() {
         )}
 
         {activeTab === 'approvals' && (
-          <motion.div key="approvals" className="space-y-4">
-            <h3 className="font-display font-bold text-lg px-1">Product Approval Queue</h3>
-            {pendingProducts.map((prod) => (
+          <motion.div key="approvals" className="space-y-8">
+            <div className="space-y-4">
+              <h3 className="font-display font-bold text-lg px-1 flex items-center gap-2">
+                <Store size={20} className="text-secondary" />
+                Seller Verification Queue ({pendingSellers.length})
+              </h3>
+              {pendingSellers.map((seller) => (
+                <div key={seller.id} className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300">
+                        <User size={24} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-sm text-slate-800">{seller.shopName || seller.displayName}</h4>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{seller.email}</p>
+                        <p className="text-[10px] text-primary font-black mt-1">Requested Role: SELLER</p>
+                      </div>
+                    </div>
+                    <div className="bg-blue-50 text-blue-500 px-3 py-1 rounded-full text-[8px] font-black uppercase">Review Required</div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => adminService.verifySeller(seller.id)}
+                      className="flex-1 py-3 bg-primary text-white rounded-2xl text-xs font-bold shadow-lg shadow-primary/20"
+                    >
+                      Approve Seller
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {pendingSellers.length === 0 && (
+                <div className="text-center py-10 text-slate-400 text-xs bg-white rounded-[2rem] border border-dashed border-slate-200">
+                  No sellers pending verification.
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="font-display font-bold text-lg px-1 flex items-center gap-2">
+                <Package size={20} className="text-primary" />
+                Product Approval Queue ({pendingProducts.length})
+              </h3>
+              {pendingProducts.map((prod) => (
               <div key={prod.id} className="bg-white p-5 rounded-3xl border border-slate-50 shadow-sm transition-all hover:shadow-md">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-3">
@@ -336,10 +384,11 @@ export default function AdminPanel() {
                 No products pending approval.
               </div>
             )}
-          </motion.div>
-        )}
+          </div>
+        </motion.div>
+      )}
 
-        {activeTab === 'orders' && (
+      {activeTab === 'orders' && (
           <motion.div key="orders" className="space-y-4">
             <h3 className="font-display font-bold text-lg px-1">Recent Transactions</h3>
             {orders.map((order) => (
@@ -461,8 +510,14 @@ export default function AdminPanel() {
                       onChange={e => setNewProduct({...newProduct, price: e.target.value})}
                     />
                     <input 
+                      placeholder="WhatsApp (+8801...)" 
+                      className="px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none font-sans"
+                      value={newProduct.whatsappNumber}
+                      onChange={e => setNewProduct({...newProduct, whatsappNumber: e.target.value})}
+                    />
+                    <input 
                       placeholder="Unit (kg/pcs)" 
-                      className="px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none"
+                      className="col-span-2 px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none"
                       value={newProduct.unit}
                       onChange={e => setNewProduct({...newProduct, unit: e.target.value})}
                     />
@@ -792,6 +847,54 @@ export default function AdminPanel() {
                     ))}
                 </div>
             </motion.div>
+        )}
+
+        {activeTab === 'riders' && (
+          <motion.div key="riders" className="space-y-4">
+            <h3 className="font-display font-bold text-lg px-1">Delivery Partners</h3>
+            <div className="grid gap-4">
+              {sellers.filter(u => u.role === 'rider').map((rider) => (
+                <div key={rider.id} className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-orange-100 text-orange-500 rounded-2xl flex items-center justify-center">
+                      <User size={24} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm">{rider.realName || rider.displayName}</h4>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{rider.phone || 'No Phone'}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${rider.isVerified ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'}`}>
+                          {rider.isVerified ? 'Verified' : 'Unverified'}
+                        </span>
+                        <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${rider.status === 'online' ? 'bg-green-50 text-green-500' : 'bg-slate-50 text-slate-400'}`}>
+                          {rider.status || 'offline'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    {!rider.isVerified && (
+                      <button 
+                        onClick={() => adminService.updateUserRole(rider.id, 'rider', true)}
+                        className="px-4 py-2 bg-primary text-white rounded-xl text-[10px] font-black uppercase shadow-lg shadow-primary/20"
+                      >
+                        Verify
+                      </button>
+                    )}
+                    <button 
+                      onClick={() => adminService.deleteUser(rider.id)}
+                      className="p-2 text-slate-300 hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {sellers.filter(u => u.role === 'rider').length === 0 && (
+              <p className="text-center py-20 text-slate-400 text-sm bg-white rounded-[2rem] border border-dashed border-slate-200">No riders registered.</p>
+            )}
+          </motion.div>
         )}
 
         {activeTab === 'users' && (
@@ -1128,7 +1231,7 @@ export default function AdminPanel() {
                 <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm">
                     <h3 className="font-display font-bold text-lg mb-6 flex items-center gap-2">
                         <MessageSquare size={20} className="text-primary" />
-                        App Configuration & Support
+                        Site Configuration & Support
                     </h3>
                     <div className="space-y-4 max-w-sm">
                         <div className="space-y-2">
@@ -1140,20 +1243,54 @@ export default function AdminPanel() {
                               defaultValue={appSettings.whatsappNumber || ''}
                           />
                         </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Support Email</label>
+                          <input 
+                              placeholder="info@kishan.com" 
+                              className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none focus:ring-2 focus:ring-primary/20"
+                              id="supportEmail"
+                              defaultValue={appSettings.supportEmail || ''}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Shop/Office Address</label>
+                          <input 
+                              placeholder="House 0, Road 0..." 
+                              className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none focus:ring-2 focus:ring-primary/20"
+                              id="shopAddress"
+                              defaultValue={appSettings.shopAddress || ''}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Promo/Announcement Bar</label>
+                          <input 
+                              placeholder="Free delivery on orders over 1000tk!" 
+                              className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none focus:ring-2 focus:ring-primary/20"
+                              id="announcementBar"
+                              defaultValue={appSettings.announcementBar || ''}
+                          />
+                        </div>
                         <button 
                             onClick={async () => {
                                 const whatsapp = (document.getElementById('whatsappNum') as HTMLInputElement).value;
+                                const email = (document.getElementById('supportEmail') as HTMLInputElement).value;
+                                const address = (document.getElementById('shopAddress') as HTMLInputElement).value;
+                                const promo = (document.getElementById('announcementBar') as HTMLInputElement).value;
+
                                 const { updateDoc, doc } = await import('firebase/firestore');
                                 const { db } = await import('../firebase');
                                 await updateDoc(doc(db, 'settings', 'app'), { 
                                   whatsappNumber: whatsapp || null,
+                                  supportEmail: email || null,
+                                  shopAddress: address || null,
+                                  announcementBar: promo || null,
                                   updatedAt: new Date().toISOString()
                                 });
                                 alert('App Settings Updated!');
                             }}
                             className="w-full btn-primary py-4 rounded-2xl font-bold font-display"
                         >
-                            Save Settings
+                            Save Site Settings
                         </button>
                     </div>
                 </div>
@@ -1251,6 +1388,81 @@ export default function AdminPanel() {
             exit={{ opacity: 0, y: -10 }}
             className="space-y-6"
           >
+                <h3 className="font-display font-bold text-lg mb-6 flex items-center gap-2">
+                    <Bell size={20} className="text-primary" />
+                    Compose & Send Notification
+                </h3>
+                <div className="bg-slate-50 p-6 rounded-3xl space-y-4 border border-slate-100">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Target Audience</label>
+                      <select id="notifTarget" className="w-full px-4 py-3 bg-white border border-slate-100 rounded-2xl text-xs outline-none">
+                        <option value="all">All Users</option>
+                        <option value="riders">Only Riders</option>
+                        <option value="sellers">Only Sellers</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Type</label>
+                      <select id="notifType" className="w-full px-4 py-3 bg-white border border-slate-100 rounded-2xl text-xs outline-none">
+                        <option value="info">System Info</option>
+                        <option value="promo">Promotion</option>
+                        <option value="alert">Alert</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Message Title</label>
+                    <input id="notifTitle" placeholder="e.g. Weekend Rush Sale!" className="w-full px-4 py-3 bg-white border border-slate-100 rounded-2xl text-xs outline-none" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Detailed Message</label>
+                    <textarea id="notifMessage" placeholder="Type your message here..." className="w-full px-4 py-3 bg-white border border-slate-100 rounded-2xl text-xs outline-none h-24 resize-none" />
+                  </div>
+                  <button 
+                    onClick={async () => {
+                      const title = (document.getElementById('notifTitle') as HTMLInputElement).value;
+                      const message = (document.getElementById('notifMessage') as HTMLTextAreaElement).value;
+                      const target = (document.getElementById('notifTarget') as HTMLSelectElement).value;
+                      const type = (document.getElementById('notifType') as HTMLSelectElement).value;
+
+                      if (!title || !message) return alert('Fill title and message');
+
+                      try {
+                        const { NotificationService } = await import('../services/notificationService');
+                        if (target === 'all') {
+                          await NotificationService.sendNotification({
+                            userId: 'all',
+                            title,
+                            message,
+                            type: type as any
+                          });
+                        } else {
+                          // Filter users by role and send one by one for demo
+                          const roleToTarget = target === 'riders' ? 'rider' : 'seller';
+                          const targets = sellers.filter(s => s.role === roleToTarget);
+                          for (const t of targets) {
+                            await NotificationService.sendNotification({
+                              userId: t.id,
+                              title,
+                              message,
+                              type: type as any
+                            });
+                          }
+                        }
+                        alert('Notifications dispatched!');
+                        (document.getElementById('notifTitle') as HTMLInputElement).value = '';
+                        (document.getElementById('notifMessage') as HTMLTextAreaElement).value = '';
+                      } catch (e) {
+                          alert('Error sending notification');
+                      }
+                    }}
+                    className="w-full py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-xl shadow-primary/20"
+                  >
+                    Dispatch Now
+                  </button>
+                </div>
+
             <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm">
                 <h3 className="font-display font-bold text-lg mb-6 flex items-center gap-2">
                     <Bell size={20} className="text-primary" />

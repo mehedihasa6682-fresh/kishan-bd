@@ -1,5 +1,5 @@
 import { MapPin, Languages, ShoppingBag, User, Download, MessageCircle } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { useState, useEffect, useContext } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
@@ -29,7 +29,25 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 h-16 flex items-center justify-between">
+    <>
+      <AnimatePresence>
+        {appSettings.announcementBar && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="fixed top-0 left-0 right-0 z-[60] bg-slate-900 text-white py-1.5 overflow-hidden"
+          >
+            <div className="max-w-md mx-auto px-4 flex items-center justify-center gap-2">
+              <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+              <p className="text-[9px] font-black uppercase tracking-[0.2em]">{appSettings.announcementBar}</p>
+              <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <nav className={`fixed ${appSettings.announcementBar ? 'top-8' : 'top-0'} left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 h-16 flex items-center justify-between transition-all duration-300`}>
       <div className="flex items-center gap-3">
         <Link to="/" className="flex items-center gap-1">
           {appSettings.logo ? (
@@ -100,5 +118,7 @@ export default function Navbar() {
         </Link>
       </div>
     </nav>
+    <div className={`${appSettings.announcementBar ? 'h-24' : 'h-16'}`} />
+    </>
   );
 }

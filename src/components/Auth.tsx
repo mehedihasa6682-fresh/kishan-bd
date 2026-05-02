@@ -13,7 +13,7 @@ import { Mail, Lock, User, Store, ShieldCheck, Github, Chrome, ArrowRight, UserP
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
-  const [role, setRole] = useState<'customer' | 'seller'>('customer');
+  const [role, setRole] = useState<'customer' | 'seller' | 'rider'>('customer');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -37,7 +37,7 @@ export default function Auth() {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        await updateProfile(user, { displayName: role === 'seller' ? storeName : name });
+        await updateProfile(user, { displayName: role === 'seller' ? storeName : (role === 'rider' ? `Rider: ${name}` : name) });
 
         // Create user doc with role
         await setDoc(doc(db, 'users', user.uid), {
@@ -52,6 +52,12 @@ export default function Auth() {
             address,
             phone,
             isVerified: false
+          }),
+          ...(role === 'rider' && {
+            phone,
+            isVerified: false,
+            status: 'offline',
+            currentOrders: []
           })
         });
       }
@@ -111,22 +117,30 @@ export default function Auth() {
       </div>
 
       {!isLogin && (
-        <div className="flex gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 mb-6">
           <button 
             onClick={() => setRole('customer')}
-            className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+            className={`flex-1 min-w-[100px] py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${
               role === 'customer' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-400 border-slate-100'
             }`}
           >
-            I am a Customer
+            Customer
           </button>
           <button 
             onClick={() => setRole('seller')}
-            className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+            className={`flex-1 min-w-[100px] py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${
               role === 'seller' ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'bg-white text-slate-400 border-slate-100'
             }`}
           >
-            I am a Seller
+            Seller
+          </button>
+          <button 
+            onClick={() => setRole('rider')}
+            className={`flex-1 min-w-[100px] py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+              role === 'rider' ? 'bg-orange-500 text-white border-orange-500 shadow-lg shadow-orange-100' : 'bg-white text-slate-400 border-slate-100'
+            }`}
+          >
+            Rider
           </button>
         </div>
       )}
@@ -145,18 +159,20 @@ export default function Auth() {
           </div>
         )}
 
-        {role === 'seller' && !isLogin && (
+        {(role === 'seller' || role === 'rider') && !isLogin && (
           <>
-            <div className="relative group">
-              <Store className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" size={18} />
-              <input 
-                required
-                placeholder="Store Name"
-                className="w-full pl-12 pr-4 py-4 bg-white border border-slate-100 rounded-3xl text-sm outline-none focus:border-primary transition-all"
-                value={storeName}
-                onChange={e => setStoreName(e.target.value)}
-              />
-            </div>
+            {role === 'seller' && (
+              <div className="relative group">
+                <Store className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" size={18} />
+                <input 
+                  required
+                  placeholder="Store Name"
+                  className="w-full pl-12 pr-4 py-4 bg-white border border-slate-100 rounded-3xl text-sm outline-none focus:border-primary transition-all"
+                  value={storeName}
+                  onChange={e => setStoreName(e.target.value)}
+                />
+              </div>
+            )}
             <div className="relative group">
               <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" size={18} />
               <input 
@@ -167,16 +183,18 @@ export default function Auth() {
                 onChange={e => setPhone(e.target.value)}
               />
             </div>
-            <div className="relative group">
-              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" size={18} />
-              <input 
-                required
-                placeholder="Farm/Store Address"
-                className="w-full pl-12 pr-4 py-4 bg-white border border-slate-100 rounded-3xl text-sm outline-none focus:border-primary transition-all"
-                value={address}
-                onChange={e => setAddress(e.target.value)}
-              />
-            </div>
+            {role === 'seller' && (
+              <div className="relative group">
+                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" size={18} />
+                <input 
+                  required
+                  placeholder="Farm/Store Address"
+                  className="w-full pl-12 pr-4 py-4 bg-white border border-slate-100 rounded-3xl text-sm outline-none focus:border-primary transition-all"
+                  value={address}
+                  onChange={e => setAddress(e.target.value)}
+                />
+              </div>
+            )}
           </>
         )}
 
