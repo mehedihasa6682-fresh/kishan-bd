@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom';
 import Auth from '../components/Auth';
 import ImageUpload from '../components/ImageUpload';
 import { useLanguage } from '../context/LanguageContext';
+import { useSettings } from '../context/SettingsContext';
 import { NotificationService, AppNotification } from '../services/notificationService';
 import { MessagingService } from '../services/messagingService';
 import { format } from 'date-fns';
@@ -52,6 +53,7 @@ const MenuItem = ({ icon: Icon, label, subtitle, color = "text-slate-600", onCli
 export default function Profile() {
   const { user, role, loading } = useContext(AuthContext);
   const { t } = useLanguage();
+  const { settings: appSettings } = useSettings();
   const [toast, setToast] = useState('');
   const [isPushEnabled, setIsPushEnabled] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
@@ -337,25 +339,54 @@ export default function Profile() {
 
         <div className="space-y-2">
           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-3">App</h3>
-          <div className="bg-white rounded-3xl border border-slate-50 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-3xl border border-slate-50 shadow-sm overflow-hidden p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-slate-800 text-sm">System Notifications</h3>
+                <p className="text-[10px] text-slate-400">Receive alerts in your mobile notification bar</p>
+              </div>
+              <button
+                onClick={() => {
+                  if ("Notification" in window) {
+                    Notification.requestPermission().then(permission => {
+                      if (permission === 'granted') {
+                        // Assuming you have access to settings here, if not, we should import useSettings
+                        // and call it. I'll search for existing imports.
+                        new Notification("অ্যাক্টিভেট হয়েছে!", {
+                          body: "এখন থেকে আপনি নোটিফিকেশন বারে আপডেট পাবেন।",
+                          icon: appSettings.logo || '/logo.png'
+                        });
+                      }
+                    });
+                  }
+                }}
+                className="px-4 py-2 bg-blue-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-blue-100 active:scale-95 transition-all"
+              >
+                Enable
+              </button>
+            </div>
+
+            <button
+              onClick={() => {
+                if (user) {
+                  NotificationService.sendNotification(user.uid, {
+                    title: 'চেক নোটিফিকেশন!',
+                    message: 'এটি একবারে শো করবে এবং পারমিশন দিলে নোটিফিকেশন বারেও যাবে।',
+                    type: 'promo',
+                    link: '/profile'
+                  });
+                }
+              }}
+              className="w-full py-4 bg-slate-900 text-white rounded-2xl flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-widest shadow-xl shadow-slate-200 active:scale-95 transition-all"
+            >
+              <Bell size={18} />
+              Test New Alert
+            </button>
+          </div>
+
+          <div className="bg-white rounded-3xl border border-slate-50 shadow-sm overflow-hidden mt-4">
             <MenuItem icon={LogOut} label={t('profile.logout')} subtitle="Clear session and exit" color="text-red-500" onClick={handleLogout} />
           </div>
-          <button
-             onClick={() => {
-               if (user) {
-                 NotificationService.sendNotification(user.uid, {
-                   title: 'নোটিফিকেশন অ্যালার্ট!',
-                   message: 'এটি ফোনের সিস্টেম নোটিফিকেশনের মতো স্ক্রিনের উপরে দেখা যাবে।',
-                   type: 'promo',
-                   link: '/profile'
-                 });
-               }
-             }}
-             className="w-full mt-4 py-4 bg-slate-900 text-white rounded-2xl flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-widest shadow-xl shadow-slate-200 active:scale-95 transition-all outline-none"
-           >
-             <Bell size={18} />
-             Test Heads-up Alert
-           </button>
         </div>
       </div>
 

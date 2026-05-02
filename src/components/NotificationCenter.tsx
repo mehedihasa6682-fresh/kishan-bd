@@ -5,39 +5,48 @@ import { NotificationService, AppNotification } from '../services/notificationSe
 import { auth } from '../firebase';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
+import { useSettings } from '../context/SettingsContext';
 
 export default function NotificationCenter() {
+  const { settings: appSettings } = useSettings();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [activeToast, setActiveToast] = useState<AppNotification | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
+  const lastProcessedIdRef = useRef<string>('');
 
   useEffect(() => {
     const user = auth.currentUser;
     if (!user) return;
 
-    let lastNotificationId = '';
-
     const unsubscribe = NotificationService.subscribeToNotifications(user.uid, (data) => {
       setNotifications(data);
       setUnreadCount(data.filter(n => !n.read).length);
 
-      // Check for new notification to show toast
+      // Check for new notification
       const newest = data[0];
-      if (newest && !newest.read && newest.id !== lastNotificationId) {
-        lastNotificationId = newest.id;
+      if (newest && !newest.read && newest.id !== lastProcessedIdRef.current) {
+        lastProcessedIdRef.current = newest.id;
+        
+        // 1. Show In-App Heads-up (Toast)
         setActiveToast(newest);
         
-        // Play notification sound if possible
+        // 2. Try Real System Notification
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification(newest.title, {
+            body: newest.message,
+            icon: appSettings.logo || '/logo.png'
+          });
+        }
+
+        // 3. Play sound
         try {
           const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
           audio.volume = 0.5;
           audio.play().catch(() => {});
         } catch (e) {}
 
-        // Auto hide toast after 5 seconds
         setTimeout(() => {
           setActiveToast(prev => prev?.id === newest.id ? null : prev);
         }, 5000);
@@ -76,39 +85,37 @@ export default function NotificationCenter() {
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Toast Notification (Heads-up) */}
-      <div className="fixed top-4 left-4 right-4 z-[100] pointer-events-none flex justify-center">
+      <div className="fixed top-6 left-0 right-0 z-[100] pointer-events-none flex justify-center px-4">
         <AnimatePresence>
           {activeToast && (
             <motion.div
-              initial={{ y: -100, opacity: 0, scale: 0.9 }}
+              initial={{ y: -120, opacity: 0, scale: 0.8 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: -100, opacity: 0, scale: 0.9 }}
+              exit={{ y: -120, opacity: 0, scale: 0.8 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               onClick={() => {
                 if (activeToast.link) window.location.hash = activeToast.link;
                 setActiveToast(null);
               }}
-              className="w-full max-w-md bg-white/90 backdrop-blur-xl border border-slate-100 p-4 rounded-[1.5rem] shadow-[0_15px_35px_rgba(0,0,0,0.1)] pointer-events-auto flex gap-4 items-center cursor-pointer active:scale-95 transition-all"
+              className="w-full max-w-sm bg-white/95 backdrop-blur-2xl border border-white shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)] p-4 rounded-[2.5rem] pointer-events-auto flex gap-4 items-center cursor-pointer active:scale-95 transition-transform"
             >
-              <div className="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center flex-shrink-0">
-                {getTypeIcon(activeToast.type)}
+              <div className="w-12 h-12 bg-white rounded-[1.25rem] flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-200 overflow-hidden">
+                {appSettings.logo ? (
+                  <img src={appSettings.logo} className="w-full h-full object-cover" alt="App Logo" />
+                ) : (
+                  <div className="w-full h-full bg-blue-500 flex items-center justify-center text-white">
+                    {getTypeIcon(activeToast.type)}
+                  </div>
+                )}
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-[10px] font-black text-primary uppercase tracking-widest">Kishan Market</span>
+              <div className="flex-1 min-w-0 pr-2">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest px-2 py-0.5 bg-blue-50 rounded-full">System</span>
                   <span className="text-[10px] text-slate-400 font-bold">Now</span>
                 </div>
-                <h4 className="text-xs font-bold text-slate-800 truncate">{activeToast.title}</h4>
-                <p className="text-[11px] text-slate-500 truncate">{activeToast.message}</p>
+                <h4 className="text-sm font-bold text-slate-800 truncate leading-snug">{activeToast.title}</h4>
+                <p className="text-[11px] text-slate-500 truncate leading-relaxed">{activeToast.message}</p>
               </div>
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveToast(null);
-                }}
-                className="p-1 text-slate-300 hover:text-slate-500"
-              >
-                <X size={16} />
-              </button>
             </motion.div>
           )}
         </AnimatePresence>
@@ -187,11 +194,14 @@ export default function NotificationCenter() {
               )}
             </div>
 
-            <div className="p-3 bg-slate-50/50 text-center border-t border-slate-50">
-               <button className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-primary transition-colors">
-                 Clear History
-               </button>
-            </div>
+             <div className="p-3 bg-slate-50/50 text-center border-t border-slate-50">
+                <button 
+                  onClick={() => NotificationService.clearNotifications(notifications)}
+                  className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-primary transition-colors"
+                >
+                  Clear History
+                </button>
+             </div>
           </motion.div>
         )}
       </AnimatePresence>

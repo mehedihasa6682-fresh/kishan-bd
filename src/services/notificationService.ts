@@ -47,10 +47,20 @@ export const NotificationService = {
   // Mark notification as read
   async markAsRead(notificationId: string) {
     try {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      // We should only try to update the doc if it's a personal notification
+      // However, Firestore rules protect us, but to avoid Console Errors:
+      // We'll just try and catch specifically for permissions
       await updateDoc(doc(db, 'notifications', notificationId), {
         read: true
       });
-    } catch (error) {
+    } catch (error: any) {
+      if (error.message?.includes('permissions')) {
+        console.warn("Permission denied marking notification read (likely a global notification). Skipping.");
+        return;
+      }
       console.error("Error marking notification as read:", error);
     }
   },
@@ -58,10 +68,30 @@ export const NotificationService = {
   // Mark all as read
   async markAllAsRead(notifications: AppNotification[]) {
     try {
-      const unread = notifications.filter(n => !n.read);
+      const user = auth.currentUser;
+      if (!user) return;
+      
+      const unread = notifications.filter(n => !n.read && n.userId === user.uid);
+      if (unread.length === 0) return;
+      
       await Promise.all(unread.map(n => this.markAsRead(n.id)));
     } catch (error) {
       console.error("Error marking all notifications as read:", error);
+    }
+  },
+
+  // Clear all personal notifications
+  async clearNotifications(notifications: AppNotification[]) {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      
+      const { deleteDoc, doc } = await import('firebase/firestore');
+      const personal = notifications.filter(n => n.userId === user.uid);
+      
+      await Promise.all(personal.map(n => deleteDoc(doc(db, 'notifications', n.id))));
+    } catch (error) {
+      console.error("Error clearing notifications:", error);
     }
   }
 };

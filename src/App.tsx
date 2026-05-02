@@ -5,6 +5,7 @@ import { useState, useEffect, createContext, useContext } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CartProvider } from './context/CartContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { SettingsProvider } from './context/SettingsContext';
 import { HelmetProvider } from 'react-helmet-async';
 
 // Pages - to be created
@@ -131,13 +132,15 @@ export default function App() {
   return (
     <HelmetProvider>
       <AuthContext.Provider value={{ user, loading, role, profile, pwa }}>
-        <LanguageProvider>
-          <CartProvider>
-            <Router>
-              <RoutesContent />
-            </Router>
-          </CartProvider>
-        </LanguageProvider>
+        <SettingsProvider>
+          <LanguageProvider>
+            <CartProvider>
+              <Router>
+                <RoutesContent />
+              </Router>
+            </CartProvider>
+          </LanguageProvider>
+        </SettingsProvider>
       </AuthContext.Provider>
     </HelmetProvider>
   );
@@ -157,7 +160,7 @@ function RoutesContent() {
       
       <main className={`flex-1 overflow-x-hidden ${isDashboardRoute ? '' : 'pt-16'}`}>
         <AnimatePresence mode="wait">
-          <Routes>
+          <Routes location={location} key={location.pathname}>
             <Route path="/" element={<Home />} />
             <Route path="/products" element={<Products />} />
             <Route path="/product/:id" element={<ProductDetails />} />

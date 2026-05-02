@@ -6,6 +6,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useLanguage } from '../context/LanguageContext';
 import { useCart } from '../context/CartContext';
+import { useSettings } from '../context/SettingsContext';
 import { AuthContext } from '../App';
 import NotificationCenter from './NotificationCenter';
 
@@ -13,16 +14,7 @@ export default function Navbar() {
   const { language, setLanguage, t } = useLanguage();
   const { items } = useCart();
   const { user, pwa } = useContext(AuthContext);
-  const [appSettings, setAppSettings] = useState<any>({});
-
-  useEffect(() => {
-    const unsub = onSnapshot(doc(db, 'settings', 'app'), (snap) => {
-        if (snap.exists()) setAppSettings(snap.data());
-    }, (error) => {
-        console.error("Navbar Settings Listener:", error);
-    });
-    return () => unsub();
-  }, []);
+  const { settings: appSettings } = useSettings();
 
   const toggleLanguage = () => {
     setLanguage(language === 'bn' ? 'en' : 'bn');
@@ -55,9 +47,9 @@ export default function Navbar() {
           ) : (
               <>
                   <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                      <span className="text-white font-bold text-xl">K</span>
+                      <span className="text-white font-bold text-xl">{appSettings.appName ? appSettings.appName[0] : 'K'}</span>
                   </div>
-                  <span className="font-display font-bold text-xl tracking-tight">Kishan</span>
+                  <span className="font-display font-bold text-xl tracking-tight">{appSettings.appName || 'Kishan'}</span>
               </>
           )}
         </Link>
