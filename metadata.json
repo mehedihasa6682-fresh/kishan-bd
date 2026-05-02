@@ -1,0 +1,6 @@
+{
+  "name": "Kishan",
+  "description": "A premium mobile-first PWA food delivery and fresh farm marketplace inspired by Meal Mama.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["PWA", "Real-time tracking", "Firebase Backend"]
+}

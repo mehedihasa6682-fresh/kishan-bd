@@ -1,0 +1,185 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["customer", "seller", "admin", "rider"] },
+        "phoneNumber": { "type": "string" },
+        "addresses": { "type": "array", "items": { "type": "string" } },
+        "isBlocked": { "type": "boolean" },
+        "location": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "A farm product or food item",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "nameEn": { "type": "string" },
+        "price": { "type": "number" },
+        "unit": { "type": "string" },
+        "category": { "type": "string" },
+        "subCategory": { "type": "string" },
+        "subCategoryEn": { "type": "string" },
+        "description": { "type": "string" },
+        "descriptionEn": { "type": "string" },
+        "image": { "type": "string" },
+        "farmerId": { "type": "string" },
+        "farmerName": { "type": "string" },
+        "location": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "isApproved": { "type": "boolean" },
+        "isFlashSale": { "type": "boolean" },
+        "isBundle": { "type": "boolean" },
+        "isPreOrder": { "type": "boolean" },
+        "stockStatus": { "type": "string", "enum": ["In Stock", "Out of Stock"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "price", "unit", "category", "farmerId"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "A customer order",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "items": { "type": "array" },
+        "total": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "verified", "confirmed", "shipped", "delivered", "cancelled"] },
+        "address": { "type": "string" },
+        "phone": { "type": "string" },
+        "paymentMethod": { "type": "string", "enum": ["cod", "bkash", "nagad", "rocket"] },
+        "paymentStatus": { "type": "string", "enum": ["pending", "verified", "failed"] },
+        "sellerIds": { "type": "array", "items": { "type": "string" } },
+        "transactionId": { "type": "string" },
+        "riderId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "customerName", "items", "total", "status", "address", "phone", "paymentMethod", "paymentStatus", "sellerIds", "transactionId"]
+    },
+    "DeliveryArea": {
+      "title": "Delivery Area",
+      "description": "Supported delivery locations and fees",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "fee": { "type": "number" }
+      },
+      "required": ["name", "fee"]
+    },
+    "Banner": {
+      "title": "Banner",
+      "description": "Banner slider images",
+      "type": "object",
+      "properties": {
+        "image": { "type": "string" },
+        "title": { "type": "string" },
+        "link": { "type": "string" },
+        "type": { "type": "string", "enum": ["hero", "offer"] }
+      },
+      "required": ["image", "type"]
+    },
+    "Story": {
+      "title": "Story",
+      "description": "Social stories for products, customers, or sellers",
+      "type": "object",
+      "properties": {
+        "image": { "type": "string" },
+        "title": { "type": "string" },
+        "type": { "type": "string", "enum": ["product", "customer", "seller"] },
+        "userId": { "type": "string" }
+      },
+      "required": ["image", "type"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Product categories",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "titleEn": { "type": "string" },
+        "image": { "type": "string" },
+        "subCategories": { "type": "array", "items": { "type": "string" } },
+        "subCategoriesEn": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["title", "image"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Product reviews",
+      "type": "object",
+      "properties": {
+        "productId": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userPhoto": { "type": "string" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["productId", "userId", "rating", "comment"]
+    },
+    "Wishlist": {
+      "title": "Wishlist",
+      "description": "User wishlist items",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "productId": { "type": "string" },
+        "addedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "productId"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "App notifications for users",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string", "enum": ["order", "promo", "system"] },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "title", "message", "type", "read"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": { "schema": "User", "description": "Users of the platform" },
+    "/products/{productId}": { "schema": "Product", "description": "Products available in the marketplace" },
+    "/orders/{orderId}": { "schema": "Order", "description": "Customer orders" },
+    "/banners/{bannerId}": { "schema": "Banner", "description": "Promotional banners" },
+    "/stories/{storyId}": { "schema": "Story", "description": "Marketplace stories" },
+    "/categories/{categoryId}": { "schema": "Category", "description": "Product categories" },
+    "/delivery_areas/{areaId}": { "schema": "DeliveryArea", "description": "Delivery zones" },
+    "/reviews/{reviewId}": { "schema": "Review", "description": "Product reviews" },
+    "/wishlist/{wishId}": { "schema": "Wishlist", "description": "User wishlist items" },
+    "/notifications/{notificationId}": { "schema": "Notification", "description": "User notifications" },
+    "settings": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "logo": { "type": "string" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "description": "Global app settings like logo and maintenance mode"
+    },
+    "bundles": {
+      "schema": "Product",
+      "description": "Bundle offers and family packs"
+    }
+  }
+}
