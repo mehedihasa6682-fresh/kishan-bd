@@ -151,14 +151,10 @@ export const adminService = {
   // App Settings (Logo, etc)
   async updateAppSetting(key: string, value: any) {
     try {
-      await updateDoc(doc(db, 'settings', 'app'), { [key]: value, updatedAt: serverTimestamp() });
+      const { setDoc } = await import('firebase/firestore');
+      await setDoc(doc(db, 'settings', 'app'), { [key]: value, updatedAt: serverTimestamp() }, { merge: true });
     } catch (e) {
-      try {
-        // Create if doesn't exist
-        await addDoc(collection(db, 'settings'), { id: 'app', [key]: value, updatedAt: serverTimestamp() });
-      } catch (inner) {
-        handleFirestoreError(e, OperationType.UPDATE, 'settings/app');
-      }
+      handleFirestoreError(e, OperationType.UPDATE, 'settings/app');
     }
   },
 

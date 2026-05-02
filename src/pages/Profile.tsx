@@ -13,7 +13,8 @@ import { Link } from 'react-router-dom';
 import Auth from '../components/Auth';
 import ImageUpload from '../components/ImageUpload';
 import { useLanguage } from '../context/LanguageContext';
-import { notificationService, Notification } from '../services/notificationService';
+import { NotificationService, AppNotification } from '../services/notificationService';
+import { MessagingService } from '../services/messagingService';
 import { format } from 'date-fns';
 
 const MenuItem = ({ icon: Icon, label, subtitle, color = "text-slate-600", onClick, to }: any) => {
@@ -51,8 +52,25 @@ export default function Profile() {
   const { user, role, loading } = useContext(AuthContext);
   const { t } = useLanguage();
   const [toast, setToast] = useState('');
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [isPushEnabled, setIsPushEnabled] = useState(false);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [activeModal, setActiveModal] = useState<'none' | 'profile' | 'addresses' | 'notifications' | 'payments' | 'referrals'>('none');
+
+  useEffect(() => {
+    if ('Notification' in window && window.Notification.permission === 'granted') {
+      setIsPushEnabled(true);
+    }
+  }, []);
+
+  const handleEnablePush = async () => {
+    const token = await MessagingService.requestPermissionAndGetToken();
+    if (token) {
+      setIsPushEnabled(true);
+      setToast('Push Notifications Enabled! 🔔');
+    } else {
+      setToast('Please allow notifications in your browser settings.');
+    }
+  };
 
   // Form states
   const [editName, setEditName] = useState('');
@@ -80,7 +98,7 @@ export default function Profile() {
       });
 
       // Fetch notifications in real-time
-      const unsubNotif = notificationService.listenToNotifications(user.uid, (data) => {
+      const unsubNotif = NotificationService.subscribeToNotifications(user.uid, (data) => {
         setNotifications(data);
       });
       return () => {
@@ -336,6 +354,28 @@ export default function Profile() {
                             <label className="text-[10px] font-black text-slate-400 uppercase">Phone Number</label>
                             <input className="input-field" value={editPhone} onChange={e => setEditPhone(e.target.value)} />
                         </div>
+                        
+                        <div className="pt-4 border-t border-slate-100 space-y-4">
+                          <h4 className="font-bold text-sm text-slate-800">App Preferences</h4>
+                          <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                             <div className="flex items-center gap-3">
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isPushEnabled ? 'bg-primary/20 text-primary' : 'bg-slate-200 text-slate-400'}`}>
+                                   <Bell size={20} />
+                                </div>
+                                <div>
+                                   <p className="text-xs font-bold text-slate-800">Push Notifications</p>
+                                   <p className="text-[10px] text-slate-500">{isPushEnabled ? 'Enabled' : 'Disabled'}</p>
+                                </div>
+                             </div>
+                             <button 
+                               onClick={handleEnablePush}
+                               disabled={isPushEnabled}
+                               className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${isPushEnabled ? 'bg-slate-200 text-slate-400' : 'bg-primary text-white shadow-lg shadow-primary/20 hover:scale-105'}`}
+                             >
+                               {isPushEnabled ? 'Enabled' : 'Enable'}
+                             </button>
+                          </div>
+                        </div>
                         <button onClick={handleUpdateProfile} className="btn-primary w-full py-4 rounded-2xl mt-4">Save Changes</button>
                     </div>
                 )}
@@ -429,7 +469,7 @@ export default function Profile() {
                     <div className="space-y-3">
                         <div className="flex justify-between items-center mb-2">
                              <span className="text-[10px] font-black text-slate-400 uppercase">Latest Notifications</span>
-                             <button onClick={() => notificationService.markAllAsRead(user!.uid)} className="text-[10px] font-bold text-primary">Mark all as read</button>
+                             <button onClick={() => NotificationService.markAllAsRead(notifications)} className="text-[10px] font-bold text-primary">Mark all as read</button>
                         </div>
                         {notifications.map(notif => (
                             <div key={notif.id} className={`p-4 rounded-3xl border ${notif.read ? 'bg-white border-slate-100' : 'bg-primary/5 border-primary/20'} relative group`}>
@@ -443,15 +483,9 @@ export default function Profile() {
                                         <p className="text-[8px] text-slate-400 mt-2 font-bold">{format(notif.createdAt?.toDate() || new Date(), 'MMM dd, hh:mm a')}</p>
                                     </div>
                                     {!notif.read && (
-                                        <button onClick={() => notificationService.markAsRead(notif.id)} className="w-2 h-2 bg-primary rounded-full mt-1" />
+                                        <button onClick={() => NotificationService.markAsRead(notif.id)} className="w-2 h-2 bg-primary rounded-full mt-1" />
                                     )}
                                 </div>
-                                <button 
-                                    onClick={() => notificationService.deleteNotification(notif.id)}
-                                    className="absolute top-2 right-2 p-1.5 opacity-0 group-hover:opacity-100 transition-opacity text-slate-300 hover:text-red-500"
-                                >
-                                    <Trash2 size={14} />
-                                </button>
                             </div>
                         ))}
                         {notifications.length === 0 && (

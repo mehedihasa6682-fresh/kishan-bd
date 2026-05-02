@@ -147,7 +147,7 @@ export default function Home() {
               transition={{ duration: 0.6 }}
               className="absolute inset-0"
             >
-              <img src={banner.image} referrerPolicy="no-referrer" className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" alt={banner.title} />
+              <img src={banner.image} loading="lazy" referrerPolicy="no-referrer" className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" alt={banner.title} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end pb-12 px-8">
                 <motion.span 
                   initial={{ y: 20, opacity: 0 }}

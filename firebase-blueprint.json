@@ -149,11 +149,23 @@
         "userId": { "type": "string" },
         "title": { "type": "string" },
         "message": { "type": "string" },
-        "type": { "type": "string", "enum": ["order", "promo", "system"] },
+        "type": { "type": "string", "enum": ["order", "promo", "system", "payment", "inventory"] },
         "read": { "type": "boolean" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["userId", "title", "message", "type", "read"]
+    },
+    "FCMToken": {
+      "title": "FCM Token",
+      "description": "Stored device token for push notifications",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "token": { "type": "string" },
+        "platform": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "token", "updatedAt"]
     }
   },
   "firestore": {
@@ -167,11 +179,15 @@
     "/reviews/{reviewId}": { "schema": "Review", "description": "Product reviews" },
     "/wishlist/{wishId}": { "schema": "Wishlist", "description": "User wishlist items" },
     "/notifications/{notificationId}": { "schema": "Notification", "description": "User notifications" },
+    "/fcmTokens/{tokenId}": { "schema": "FCMToken", "description": "Device tokens for push" },
     "settings": {
       "schema": {
         "type": "object",
         "properties": {
           "logo": { "type": "string" },
+          "promoBanner": { "type": "string" },
+          "maintenanceMode": { "type": "boolean" },
+          "whatsappNumber": { "type": "string" },
           "updatedAt": { "type": "string", "format": "date-time" }
         }
       },

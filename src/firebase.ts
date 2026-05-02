@@ -3,18 +3,28 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
 
 // Connectivity check as per requirements
 async function testConnection() {
   try {
+    // Attempt to get the connection test doc
     await getDocFromServer(doc(db, '_connection_test_', 'ping'));
     console.log("Firebase connection established.");
   } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration or internet connection.");
+    // Be silent if it's just a permission error (the doc might not exist)
+    // or if the client is intentionally offline
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.includes('the client is offline')) {
+      console.warn("Firestore is operating in offline mode. Check your internet connection.");
+    } else if (message.includes('permission-denied')) {
+      // Permission denied is actually a "success" in terms of connectivity 
+      // because we reached the server to get the denial
+      console.log("Firebase server reached (Permission Check OK).");
+    } else {
+      console.error("Firebase connection test failed:", message);
     }
   }
 }

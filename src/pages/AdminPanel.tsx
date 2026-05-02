@@ -6,7 +6,8 @@ import {
   Settings, BarChart3, ShieldCheck, Search,
   CheckCircle, XCircle, Plus, Trash2, Layout,
   Layers, Camera, ChevronRight, Store, X, Clock, Bell,
-  ArrowLeft, User, Box, Gift, Image as ImageIcon
+  ArrowLeft, User, Box, Gift, Image as ImageIcon,
+  MessageSquare
 } from 'lucide-react';
 import { adminService } from '../services/adminService';
 import { collection, onSnapshot, query, orderBy, where, doc } from 'firebase/firestore';
@@ -93,6 +94,10 @@ export default function AdminPanel() {
       setDeliveryAreas(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     }, (error) => console.error("Admin Areas:", error));
 
+    const unsubNotifs = onSnapshot(query(collection(db, 'notifications'), orderBy('createdAt', 'desc')), (snap) => {
+      setNotifications(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (error) => console.error("Admin Notifs:", error));
+
     return () => {
       unsubBanners();
       unsubStories();
@@ -103,6 +108,7 @@ export default function AdminPanel() {
       unsubSellers();
       unsubOrders();
       unsubAreas();
+      unsubNotifs();
     };
   }, [role, authLoading, navigate]);
 
@@ -175,6 +181,7 @@ export default function AdminPanel() {
     { id: 'stories', label: 'Stories', icon: Camera },
     { id: 'categories', label: 'Categories', icon: Layers },
     { id: 'users', label: 'Users', icon: Users },
+    { id: 'notifications', label: 'Notif Log', icon: Bell },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
@@ -943,15 +950,94 @@ export default function AdminPanel() {
             <motion.div key="settings" className="space-y-6">
                 <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm">
                     <h3 className="font-display font-bold text-lg mb-6 flex items-center gap-2">
-                        <Bell size={20} className="text-primary" />
-                        Send Direct Notification
+                        <MessageSquare size={20} className="text-secondary" />
+                        Marketing Guide (Spark Plan Free Tools)
+                    </h3>
+                    <div className="space-y-4 text-xs text-slate-500 leading-relaxed">
+                        <div className="p-4 bg-secondary/5 border border-secondary/10 rounded-2xl">
+                          <p className="font-bold text-secondary mb-1">How to Send Offers for Free:</p>
+                          <ul className="list-disc ml-4 space-y-1">
+                            <li><strong>In-App:</strong> Use "Send Targeted Notification" with empty UID to reach all users. This is 100% free.</li>
+                            <li><strong>Push:</strong> Your VAPID key is active. Users who allowed notifications will see them on their phone/browser.</li>
+                            <li><strong>Email:</strong> Click "Email All Users" to open your mail app with all user addresses hidden in BCC. This bypasses the need for a paid SMTP server.</li>
+                            <li><strong>Banner:</strong> Update the Global Promo Banner below to show a message at the top of every page.</li>
+                          </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                    <h3 className="font-display font-bold text-lg mb-6 flex items-center gap-2">
+                        <Layout size={20} className="text-primary" />
+                        Global Promo Banner
                     </h3>
                     <div className="space-y-4 max-w-sm">
-                        <input 
-                            placeholder="User UID (Get from User List)" 
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none"
-                            id="targetUserId"
-                        />
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Banner Text (Eid Special etc.)</label>
+                          <input 
+                              placeholder="Type offer message here..." 
+                              className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none focus:ring-2 focus:ring-primary/20"
+                              id="promoText"
+                              defaultValue={appSettings.promoBanner || ''}
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <button 
+                              onClick={async () => {
+                                  const text = (document.getElementById('promoText') as HTMLInputElement).value;
+                                  const { updateDoc, doc } = await import('firebase/firestore');
+                                  const { db } = await import('../firebase');
+                                  await updateDoc(doc(db, 'settings', 'app'), { 
+                                    promoBanner: text || null,
+                                    updatedAt: new Date().toISOString()
+                                  });
+                                  alert('Promo Banner Updated!');
+                              }}
+                              className="btn-primary py-4 rounded-2xl font-bold font-display"
+                          >
+                              Update Banner
+                          </button>
+                          <button 
+                              onClick={async () => {
+                                  const { updateDoc, doc } = await import('firebase/firestore');
+                                  const { db } = await import('../firebase');
+                                  await updateDoc(doc(db, 'settings', 'app'), { 
+                                    promoBanner: null,
+                                    updatedAt: new Date().toISOString()
+                                  });
+                                  (document.getElementById('promoText') as HTMLInputElement).value = '';
+                                  alert('Banner Removed!');
+                              }}
+                              className="bg-slate-100 text-slate-400 py-4 rounded-2xl font-bold font-display hover:bg-slate-200"
+                          >
+                              Clear
+                          </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                    <h3 className="font-display font-bold text-lg mb-6 flex items-center gap-2">
+                        <Bell size={20} className="text-primary" />
+                        Send Targeted Notification
+                    </h3>
+                    <div className="space-y-4 max-w-sm">
+                        <div className="grid grid-cols-2 gap-3">
+                          <input 
+                              placeholder="User UID (Empty = All Users)" 
+                              className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none"
+                              id="targetUserId"
+                          />
+                          <select 
+                            id="notifType"
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] outline-none font-bold text-slate-600"
+                          >
+                            <option value="promo">Offer/Promo</option>
+                            <option value="order">Order Update</option>
+                            <option value="payment">Payment Info</option>
+                            <option value="system">System Message</option>
+                          </select>
+                        </div>
                         <input 
                             placeholder="Notification Title" 
                             className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none"
@@ -962,25 +1048,112 @@ export default function AdminPanel() {
                             className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs h-24 outline-none"
                             id="notifMessage"
                         />
+                        <div className="grid grid-cols-2 gap-3">
+                            <button 
+                                onClick={async () => {
+                                    const uid = (document.getElementById('targetUserId') as HTMLInputElement).value;
+                                    const title = (document.getElementById('notifTitle') as HTMLInputElement).value;
+                                    const msg = (document.getElementById('notifMessage') as HTMLInputElement).value;
+                                    const type = (document.getElementById('notifType') as HTMLSelectElement).value as any;
+                                    
+                                    if(title && msg) {
+                                        const { NotificationService } = await import('../services/notificationService');
+                                        const { getDocs, collection } = await import('firebase/firestore');
+                                        const { db } = await import('../firebase');
+                                        
+                                        if (uid) {
+                                            await NotificationService.sendNotification({
+                                                userId: uid,
+                                                title,
+                                                message: msg,
+                                                type: type
+                                            });
+                                            alert('Notification Sent to 1 user!');
+                                        } else {
+                                            if (confirm('Are you sure you want to send this to ALL users?')) {
+                                              await NotificationService.sendNotification({
+                                                  userId: 'all',
+                                                  title,
+                                                  message: msg,
+                                                  type: type
+                                              });
+                                              alert(`Notification Sent to ALL users!`);
+                                            }
+                                        }
+                                        
+                                        (document.getElementById('targetUserId') as HTMLInputElement).value = '';
+                                        (document.getElementById('notifTitle') as HTMLInputElement).value = '';
+                                        (document.getElementById('notifMessage') as HTMLInputElement).value = '';
+                                    } else {
+                                        alert('Please fill at least Title and Message');
+                                    }
+                                }}
+                                className="w-full btn-primary py-4 rounded-2xl font-bold text-xs"
+                            >
+                                Send Notification
+                            </button>
+                            <button 
+                                onClick={async () => {
+                                    const title = (document.getElementById('notifTitle') as HTMLInputElement).value;
+                                    const msg = (document.getElementById('notifMessage') as HTMLInputElement).value;
+                                    const { getDocs, collection } = await import('firebase/firestore');
+                                    const { db } = await import('../firebase');
+                                    
+                                    if (!title || !msg) {
+                                      alert('Please enter Title (Subject) and Message for the email');
+                                      return;
+                                    }
+
+                                    const usersSnap = await getDocs(collection(db, 'users'));
+                                    const emails = usersSnap.docs.map(d => d.data().email).filter(e => e);
+                                    
+                                    if (emails.length === 0) {
+                                      alert('No user emails found');
+                                      return;
+                                    }
+
+                                    const bcc = emails.join(',');
+                                    const mailtoUrl = `mailto:?bcc=${bcc}&subject=${encodeURIComponent(title)}&body=${encodeURIComponent(msg)}`;
+                                    window.open(mailtoUrl, '_blank');
+                                    alert('Opening mail app with all user emails in BCC...');
+                                }}
+                                className="w-full bg-slate-100 text-slate-600 py-4 rounded-2xl font-bold text-xs hover:bg-slate-200 transition-colors"
+                            >
+                                Email All Users
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                    <h3 className="font-display font-bold text-lg mb-6 flex items-center gap-2">
+                        <MessageSquare size={20} className="text-primary" />
+                        App Configuration & Support
+                    </h3>
+                    <div className="space-y-4 max-w-sm">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-400 uppercase ml-1">WhatsApp Support Number</label>
+                          <input 
+                              placeholder="+8801..." 
+                              className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none focus:ring-2 focus:ring-primary/20"
+                              id="whatsappNum"
+                              defaultValue={appSettings.whatsappNumber || ''}
+                          />
+                        </div>
                         <button 
                             onClick={async () => {
-                                const uid = (document.getElementById('targetUserId') as HTMLInputElement).value;
-                                const title = (document.getElementById('notifTitle') as HTMLInputElement).value;
-                                const msg = (document.getElementById('notifMessage') as HTMLInputElement).value;
-                                if(uid && title && msg) {
-                                    const { notificationService } = await import('../services/notificationService');
-                                    await notificationService.sendNotification(uid, title, msg, 'system');
-                                    alert('Notification Sent!');
-                                    (document.getElementById('targetUserId') as HTMLInputElement).value = '';
-                                    (document.getElementById('notifTitle') as HTMLInputElement).value = '';
-                                    (document.getElementById('notifMessage') as HTMLInputElement).value = '';
-                                } else {
-                                    alert('Please fill all fields');
-                                }
+                                const whatsapp = (document.getElementById('whatsappNum') as HTMLInputElement).value;
+                                const { updateDoc, doc } = await import('firebase/firestore');
+                                const { db } = await import('../firebase');
+                                await updateDoc(doc(db, 'settings', 'app'), { 
+                                  whatsappNumber: whatsapp || null,
+                                  updatedAt: new Date().toISOString()
+                                });
+                                alert('App Settings Updated!');
                             }}
-                            className="w-full btn-primary py-4 rounded-2xl font-bold"
+                            className="w-full btn-primary py-4 rounded-2xl font-bold font-display"
                         >
-                            Send Notification
+                            Save Settings
                         </button>
                     </div>
                 </div>
@@ -1069,6 +1242,55 @@ export default function AdminPanel() {
                     </div>
                 </div>
             </motion.div>
+        )}
+        {activeTab === 'notifications' && (
+          <motion.div
+            key="notifications"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="space-y-6"
+          >
+            <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                <h3 className="font-display font-bold text-lg mb-6 flex items-center gap-2">
+                    <Bell size={20} className="text-primary" />
+                    Sent Notifications History
+                </h3>
+                <div className="space-y-4">
+                    {notifications.length === 0 ? (
+                        <div className="text-center py-12">
+                            <p className="text-slate-400 text-sm">No notifications found.</p>
+                        </div>
+                    ) : (
+                        notifications.map(notif => (
+                            <div key={notif.id} className="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 flex flex-col gap-2">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-2">
+                                        <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase text-white ${
+                                            notif.type === 'promo' ? 'bg-secondary' :
+                                            notif.type === 'order' ? 'bg-blue-500' :
+                                            'bg-slate-400'
+                                        }`}>
+                                            {notif.type || 'system'}
+                                        </span>
+                                        <p className="text-[10px] text-slate-400 font-bold">
+                                            To: {notif.userId === 'all' ? 'ALL USERS' : `User ${notif.userId?.slice(-6) || 'N/A'}`}
+                                        </p>
+                                    </div>
+                                    <p className="text-[9px] text-slate-400 font-medium">
+                                        {notif.createdAt?.toDate ? format(notif.createdAt.toDate(), 'MMM d, h:mm a') : 'Just now'}
+                                    </p>
+                                </div>
+                                <div className="mt-1">
+                                    <h5 className="text-xs font-bold text-slate-800 mb-0.5 tracking-tight">{notif.title}</h5>
+                                    <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">{notif.message}</p>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
       </div>

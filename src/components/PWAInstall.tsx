@@ -28,9 +28,10 @@ export default function PWAInstall() {
         <div className="flex items-center gap-2">
             <button 
                 onClick={pwa.install}
-                className="bg-white text-primary px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-md"
+                className="bg-white text-primary px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-md flex items-center gap-2"
             >
-                Install Now
+                <Download size={14} strokeWidth={3} />
+                Install App
             </button>
         </div>
       </motion.div>

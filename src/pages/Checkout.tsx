@@ -6,7 +6,7 @@ import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { AuthContext } from '../App';
 import { orderService } from '../services/orderService';
-import { notificationService } from '../services/notificationService';
+import { NotificationService } from '../services/notificationService';
 import ImageUpload from '../components/ImageUpload';
 
 import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
@@ -92,12 +92,12 @@ export default function Checkout() {
         });
 
         // Send a notification to the user
-        await notificationService.sendNotification(
-          user.uid,
-          "Order Placed Successfully",
-          `Your order for ৳${total} has been received. Status: Pending.`,
-          'order'
-        );
+        await NotificationService.sendNotification({
+          userId: user.uid,
+          title: "Order Placed Successfully",
+          message: `Your order for ৳${total} has been received. Status: Pending.`,
+          type: 'order'
+        });
 
         setSuccess(true);
         clearCart();

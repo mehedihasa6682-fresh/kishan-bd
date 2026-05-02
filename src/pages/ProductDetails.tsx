@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { ShoppingCart, ArrowLeft, Star, Clock, MapPin, Plus, Minus, ShieldCheck, Store, Send, User as UserIcon, Heart, Phone } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, Star, Clock, MapPin, Plus, Minus, ShieldCheck, Store, Send, User as UserIcon, Heart, Phone, MessageCircle } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import React, { useState, useEffect, useContext } from 'react';
 import { doc, getDoc, collection, query, where, limit, getDocs } from 'firebase/firestore';
@@ -228,35 +228,53 @@ export default function ProductDetails() {
           </div>
 
           <div className="flex flex-col gap-3">
-            <div className="flex gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <button 
                 onClick={() => {
                     addToCart({ ...product, quantity: qty });
                     navigate('/cart');
                 }}
-                className="flex-1 btn-primary py-4 rounded-3xl h-16 shadow-xl shadow-primary/20 flex items-center justify-center gap-2"
+                className="btn-primary py-4 rounded-3xl h-16 shadow-xl shadow-primary/20 flex items-center justify-center gap-2 text-sm"
               >
-                <ShoppingCart size={20} />
-                {product.isPreOrder ? 'Pre-order Now' : t('cart.tab_title')}
+                <ShoppingCart size={18} />
+                {product.isPreOrder ? 'Pre-order' : t('cart.tab_title')}
               </button>
               <button 
                 onClick={() => {
                   addToCart({ ...product, quantity: qty });
                   navigate('/checkout');
                 }}
-                className="flex-1 btn-secondary py-4 rounded-3xl h-16 shadow-xl shadow-yellow-200"
+                className="btn-secondary py-4 rounded-3xl h-16 shadow-xl shadow-yellow-200 text-sm"
               >
                 Buy Now
               </button>
             </div>
             
-            <a 
-              href={`tel:+8801700000000`} // Replace with real admin/shop number if available
-              className="w-full py-4 bg-green-500 text-white rounded-3xl flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest shadow-lg shadow-green-200 active:scale-95 transition-all"
-            >
-              <Phone size={18} fill="currentColor" />
-              Order via Phone
-            </a>
+            <div className="grid grid-cols-2 gap-3">
+              <button 
+                onClick={async () => {
+                   const snap = await getDoc(doc(db, 'settings', 'app'));
+                   if (snap.exists() && snap.data().whatsappNumber) {
+                      const num = snap.data().whatsappNumber.replace(/\D/g, '');
+                      const msg = `আসসালামু আলাইকুম, আমি এই প্রডাক্টটি সম্পর্কে জানতে চাই: ${dData(product.name, product.nameEn)}\nলিঙ্ক: ${window.location.href}`;
+                      window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
+                   } else {
+                      alert('WhatsApp support not available.');
+                   }
+                }}
+                className="py-4 bg-[#25D366] text-white rounded-3xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest shadow-lg shadow-green-100 hover:scale-[1.02] active:scale-95 transition-all"
+              >
+                <MessageCircle size={18} fill="currentColor" />
+                WhatsApp Inquiry
+              </button>
+              <a 
+                href={`tel:+8801700000000`} // Replace with real admin/shop number if available
+                className="py-4 bg-slate-100 text-slate-600 rounded-3xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all"
+              >
+                <Phone size={18} fill="currentColor" />
+                Order via Phone
+              </a>
+            </div>
           </div>
         </div>
       </div>

@@ -1,40 +1,28 @@
-import { MapPin, Bell, Languages, ShoppingBag, User, Download } from 'lucide-react';
+import { MapPin, Languages, ShoppingBag, User, Download, MessageCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { useState, useEffect, useContext } from 'react';
-import { doc, onSnapshot, collection, query, where } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useLanguage } from '../context/LanguageContext';
 import { useCart } from '../context/CartContext';
 import { AuthContext } from '../App';
+import NotificationCenter from './NotificationCenter';
 
 export default function Navbar() {
   const { language, setLanguage, t } = useLanguage();
   const { items } = useCart();
   const { user, pwa } = useContext(AuthContext);
-  const [logo, setLogo] = useState('');
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [appSettings, setAppSettings] = useState<any>({});
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, 'settings', 'app'), (snap) => {
-        if (snap.exists()) setLogo(snap.data().logo || '');
+        if (snap.exists()) setAppSettings(snap.data());
     }, (error) => {
         console.error("Navbar Settings Listener:", error);
     });
     return () => unsub();
   }, []);
-
-  useEffect(() => {
-    if (user) {
-        const q = query(collection(db, 'notifications'), where('userId', '==', user.uid), where('read', '==', false));
-        const unsub = onSnapshot(q, (snap) => {
-            setUnreadCount(snap.size);
-        }, (error) => {
-            console.error("Navbar Notifications Listener:", error);
-        });
-        return () => unsub();
-    }
-  }, [user]);
 
   const toggleLanguage = () => {
     setLanguage(language === 'bn' ? 'en' : 'bn');
@@ -44,8 +32,8 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 h-16 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <Link to="/" className="flex items-center gap-1">
-          {logo ? (
-              <img src={logo} className="h-10 w-auto object-contain" alt="Kishan Logo" />
+          {appSettings.logo ? (
+              <img src={appSettings.logo} className="h-10 w-auto object-contain" alt="Kishan Logo" />
           ) : (
               <>
                   <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
@@ -85,20 +73,30 @@ export default function Navbar() {
           <span className="text-[10px] font-black uppercase tracking-widest">{t('nav.lang')}</span>
         </motion.button>
 
-        <Link to="/cart" className="p-2 relative text-slate-600 hover:text-primary transition-colors">
-          <ShoppingBag size={22} />
-          {items.length > 0 && (
-            <span className="absolute top-1 right-1 w-4 h-4 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
-              {items.length}
-            </span>
-          )}
-        </Link>
+        <NotificationCenter />
+
+        <motion.button 
+          whileTap={{ scale: 0.9 }}
+          onClick={() => {
+            if (appSettings.whatsappNumber) {
+              const num = appSettings.whatsappNumber.replace(/\D/g, '');
+              window.open(`https://wa.me/${num}?text=${encodeURIComponent('Hello, I need support regarding Kishan Marketplace.')}`, '_blank');
+            } else {
+              alert('Support number not set by admin.');
+            }
+          }}
+          className="p-2 text-slate-600 hover:text-[#25D366] transition-all group"
+        >
+          <motion.div
+            whileHover={{ scale: 1.1 }}
+            className="relative"
+          >
+            <MessageCircle size={22} className="group-hover:scale-110 transition-transform duration-300" />
+          </motion.div>
+        </motion.button>
         
-        <Link to="/profile" className="p-2 text-slate-600 hover:bg-slate-100 rounded-full relative">
+        <Link to="/profile" className="p-2 text-slate-600 hover:bg-slate-100 rounded-full">
           <User size={22} />
-          {unreadCount > 0 && (
-            <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-primary border-2 border-white rounded-full animate-pulse" />
-          )}
         </Link>
       </div>
     </nav>

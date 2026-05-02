@@ -17,9 +17,27 @@
   --animate-bounce-slow: bounce-slow 2s infinite;
 }
 
+@media print {
+  .no-print { display: none !important; }
+  body { background: white !important; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}
+
 @layer base {
   body {
     @apply bg-background text-slate-900 font-sans antialiased;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+  }
+
+  img {
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
+
+  .no-select {
+    user-select: none;
+    -webkit-user-select: none;
   }
 }
 

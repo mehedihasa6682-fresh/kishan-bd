@@ -34,9 +34,20 @@ export default function Invoice({ order, onClose }: InvoiceProps) {
               <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] print:text-slate-400">Order Invoice</p>
             </div>
           </div>
-          <div className="text-right">
-            <h3 className="font-bold text-sm mb-1 uppercase tracking-widest">#{order.id.slice(-8)}</h3>
-            <p className="text-xs text-white/60 font-medium print:text-slate-400">{format(order.createdAt?.toDate ? order.createdAt.toDate() : new Date(), 'dd MMM yyyy, hh:mm a')}</p>
+          <div className="text-right flex flex-col items-end gap-3">
+            <div className="no-print mb-2">
+              <button 
+                onClick={handlePrint}
+                className="bg-white/10 hover:bg-white/20 p-2 rounded-xl transition-colors"
+                title="Print Invoice"
+              >
+                <Printer size={18} />
+              </button>
+            </div>
+            <div>
+              <h3 className="font-bold text-sm mb-1 uppercase tracking-widest">#{order.id.slice(-8)}</h3>
+              <p className="text-xs text-white/60 font-medium print:text-slate-400">{format(order.createdAt?.toDate ? order.createdAt.toDate() : new Date(), 'dd MMM yyyy, hh:mm a')}</p>
+            </div>
           </div>
         </div>
 

@@ -24,6 +24,8 @@ import RiderDashboard from './pages/RiderDashboard';
 import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
 import PWAInstall from './components/PWAInstall';
+import WhatsAppSupport from './components/WhatsAppSupport';
+import PromoBanner from './components/PromoBanner';
 
 interface AuthContextType {
   user: User | null;
@@ -71,6 +73,21 @@ export default function App() {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       if (u) {
+        // Init settings
+        try {
+          const { getDoc, doc, setDoc } = await import('firebase/firestore');
+          const settingsRef = doc(db, 'settings', 'app');
+          const snap = await getDoc(settingsRef);
+          if (!snap.exists()) {
+            await setDoc(settingsRef, {
+              whatsappNumber: '+8801337147436',
+              updatedAt: new Date().toISOString()
+            }, { merge: true });
+          }
+        } catch (e) {
+          console.warn("Settings init skipped:", e);
+        }
+
         try {
           const { getDoc, doc } = await import('firebase/firestore');
           const userDoc = await getDoc(doc(db, 'users', u.uid));
@@ -82,7 +99,12 @@ export default function App() {
             setRole('customer');
           }
         } catch (e) {
-          console.error("Error fetching role:", e);
+          const message = e instanceof Error ? e.message : String(e);
+          if (message.includes('offline') || message.includes('unavailable')) {
+            console.warn("Using default 'customer' role (Offline)");
+          } else {
+            console.error("Error fetching role:", e);
+          }
           setRole('customer');
         }
       } else {
@@ -115,7 +137,9 @@ function RoutesContent() {
 
   return (
     <div className={`flex flex-col min-h-screen bg-background ${isDashboardRoute ? '' : 'pb-24 md:pb-0'}`}>
+      {!isDashboardRoute && <PromoBanner />}
       {!isDashboardRoute && <PWAInstall />}
+      {!isDashboardRoute && <WhatsAppSupport />}
       {!isDashboardRoute && <Navbar />}
       
       <main className={`flex-1 overflow-x-hidden ${isDashboardRoute ? '' : 'pt-16'}`}>
