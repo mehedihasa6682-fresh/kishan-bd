@@ -10,7 +10,7 @@ import {
 import { useState, useEffect, useContext, FormEvent } from 'react';
 import { AuthContext } from '../App';
 import { sellerService } from '../services/sellerService';
-import { collection, onSnapshot, doc } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -42,11 +42,19 @@ export default function SellerDashboard() {
 
   // Stats Calculations
   const stats = {
-    revenue: orders.filter(o => o.status === 'delivered').reduce((acc, o) => acc + (o.total || 0), 0),
+    revenue: orders.filter(o => o.status === 'delivered').reduce((acc, o) => {
+        const sellerItems = o.items.filter((i: any) => i.sellerId === user?.uid);
+        const sellerSubtotal = sellerItems.reduce((s: number, i: any) => s + (i.price * i.quantity), 0);
+        return acc + sellerSubtotal;
+    }, 0),
     orderCount: orders.length,
     customerCount: new Set(orders.map(o => o.userId)).size,
     successRate: orders.length > 0 ? Math.round((orders.filter(o => o.status === 'delivered').length / orders.length) * 100) : 0,
-    pendingRev: orders.filter(o => ['pending', 'verified', 'confirmed', 'shipped'].includes(o.status)).reduce((acc, o) => acc + (o.total || 0), 0)
+    pendingRev: orders.filter(o => ['pending', 'verified', 'confirmed', 'shipped'].includes(o.status)).reduce((acc, o) => {
+        const sellerItems = o.items.filter((i: any) => i.sellerId === user?.uid);
+        const sellerSubtotal = sellerItems.reduce((s: number, i: any) => s + (i.price * i.quantity), 0);
+        return acc + sellerSubtotal;
+    }, 0)
   };
 
   // Form State
@@ -415,14 +423,31 @@ export default function SellerDashboard() {
             <div className="bg-slate-900 p-8 rounded-[3rem] text-white overflow-hidden relative">
               <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
               <div className="relative z-10">
-                <TrendingUp className="text-primary mb-4" size={32} />
-                <h3 className="text-2xl font-display font-bold mb-2">Grow your Business</h3>
+                <Wallet className="text-primary mb-4" size={32} />
+                <h3 className="text-2xl font-display font-bold mb-2">Payout Settings</h3>
                 <p className="text-slate-400 text-xs leading-relaxed max-w-xs mb-6">
-                  Add more high-quality photos and descriptions to attract 3x more customers to your farm products.
+                  Set up your mobile money account to receive payments from your sales.
                 </p>
-                <button className="px-8 py-3 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl">
-                  Get Pro Tips
-                </button>
+                <div className="flex flex-col gap-3 mb-6">
+                    <div className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/10">
+                        <div>
+                            <span className="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Current Method</span>
+                            <p className="text-sm font-bold">{(user as any)?.paymentMethod || 'Not Configured'}</p>
+                        </div>
+                        <button 
+                            onClick={() => {
+                                const provider = prompt("Payment Provider (bKash/Nagad/Rocket)?");
+                                const number = prompt("Mobile Number for Payout?");
+                                if (provider && number && user) {
+                                    updateDoc(doc(db, 'users', user.uid), { paymentMethod: provider, payoutAccount: number });
+                                }
+                            }}
+                            className="text-[10px] font-black text-primary uppercase underline"
+                        >
+                            Change
+                        </button>
+                    </div>
+                </div>
               </div>
             </div>
           </motion.div>

@@ -62,14 +62,18 @@ export default function RiderDashboard() {
   };
 
   const handlePickUp = async (id: string) => {
-    if (user) await riderService.pickUpOrder(id, user.uid);
+    await riderService.pickUpOrder(id);
+  };
+
+  const handleAccept = async (id: string) => {
+    if (user) await riderService.acceptOrder(id, user.uid);
   };
 
   const handleDeliver = async (id: string) => {
     await riderService.deliverOrder(id);
   };
 
-  const earnings = myOrders.filter(o => o.status === 'delivered').length * 40; // Flat 40 per delivery for demo
+  const earnings = myOrders.filter(o => o.status === 'delivered').reduce((acc, o) => acc + (o.deliveryFee || 40), 0);
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen bg-slate-50">
@@ -297,12 +301,18 @@ export default function RiderDashboard() {
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Delivery Pay</span>
-                                    <h4 className="font-bold text-sm leading-none mb-1">৳40.00</h4>
+                                    <h4 className="font-bold text-sm leading-none mb-1">৳{order.deliveryFee || 40}</h4>
                                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{order.address.split(',')[0]}...</p>
+                                    {currentLocation && order.location && (
+                                        <p className="text-[8px] font-black text-primary mt-1 flex items-center gap-1">
+                                            <Navigation size={8} />
+                                            {formatDistance(calculateDistance(currentLocation.lat, currentLocation.lng, order.location.lat, order.location.lng))} away
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                             <button 
-                                onClick={() => handlePickUp(order.id)}
+                                onClick={() => handleAccept(order.id)}
                                 className="px-6 py-3 bg-primary text-white rounded-2xl font-black text-[9px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
                             >
                                 Accept
@@ -329,7 +339,28 @@ export default function RiderDashboard() {
                         <CreditCard size={32} className="text-primary mb-12" />
                         <p className="text-xs font-medium text-white/40 uppercase tracking-[0.2em] mb-2">Withdrawable Balance</p>
                         <h2 className="text-4xl font-display font-bold mb-8">৳{earnings}</h2>
-                        <button className="w-full py-4 bg-primary text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all">Withdraw Now</button>
+                        
+                        <div className="space-y-4">
+                            <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
+                                <span className="text-[9px] font-black text-white/30 uppercase tracking-widest block mb-1">Payout Method</span>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs font-bold">{profile?.paymentMethod || 'Not Set'}</span>
+                                    <button 
+                                        onClick={() => {
+                                            const provider = prompt("Payment Provider (bKash/Nagad/Rocket)?", profile?.paymentMethod || "");
+                                            const number = prompt("Mobile Number for Payout?");
+                                            if (provider && number && user) {
+                                                updateDoc(doc(db, 'users', user.uid), { paymentMethod: provider, payoutAccount: number });
+                                            }
+                                        }}
+                                        className="text-[10px] font-black text-primary uppercase underline"
+                                    >
+                                        Edit
+                                    </button>
+                                </div>
+                            </div>
+                            <button className="w-full py-4 bg-primary text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all">Withdraw Now</button>
+                        </div>
                     </div>
 
                     <div className="bg-white p-6 rounded-3xl border border-slate-100 divide-y divide-slate-50">

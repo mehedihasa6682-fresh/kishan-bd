@@ -21,10 +21,21 @@ export const riderService = {
     });
   },
 
+  async acceptOrder(orderId: string, riderId: string) {
+    try {
+      await updateDoc(doc(db, 'orders', orderId), {
+        status: 'shipped', // Or 'accepted' if we want more granular
+        riderId,
+        acceptedAt: serverTimestamp()
+      });
+    } catch (e) {
+      handleFirestoreError(e, OperationType.UPDATE, `orders/${orderId}`);
+    }
+  },
+
   async arrivedAtMerchant(orderId: string) {
     try {
       await updateDoc(doc(db, 'orders', orderId), {
-        status: 'shipped',
         subStatus: 'arrived_at_pickup',
         arrivedAtMerchantAt: serverTimestamp()
       });
@@ -33,12 +44,10 @@ export const riderService = {
     }
   },
 
-  async pickUpOrder(orderId: string, riderId: string) {
+  async pickUpOrder(orderId: string) {
     try {
       await updateDoc(doc(db, 'orders', orderId), {
-        status: 'shipped',
         subStatus: 'in_transit',
-        riderId,
         pickedUpAt: serverTimestamp()
       });
     } catch (e) {

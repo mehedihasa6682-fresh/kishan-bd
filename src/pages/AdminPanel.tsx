@@ -1272,10 +1272,18 @@ export default function AdminPanel() {
                                 </div>
                                 <div>
                                     <h4 className="font-bold text-sm text-slate-800">{u.displayName || 'No Name'}</h4>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{u.role || 'customer'}</span>
-                                        {u.isVerified && <CheckCircle size={12} className="text-primary" />}
-                                        {u.isBlocked && <span className="bg-red-500 text-white text-[8px] px-1.5 py-0.5 rounded-md font-black">BLOCKED</span>}
+                                    <div className="flex flex-col gap-0.5 mt-0.5">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{u.role || 'customer'}</span>
+                                            {u.isVerified && <CheckCircle size={10} className="text-primary" />}
+                                            {u.isBlocked && <span className="bg-red-500 text-white text-[8px] px-1.5 py-0.5 rounded-md font-black">BLOCKED</span>}
+                                        </div>
+                                        {u.payoutAccount && (
+                                            <div className="flex items-center gap-1.5 mt-1">
+                                                <span className="text-[8px] font-black bg-primary/10 text-primary px-1.5 py-0.5 rounded uppercase tracking-widest">{u.paymentMethod}</span>
+                                                <span className="text-[9px] font-bold text-slate-600 font-sans">{u.payoutAccount}</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
