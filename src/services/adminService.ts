@@ -83,6 +83,14 @@ export const adminService = {
       await deleteDoc(doc(db, 'products', id));
     } catch (e) { handleFirestoreError(e, OperationType.DELETE, 'products'); }
   },
+  async updateProduct(id: string, updates: any) {
+    try {
+      await updateDoc(doc(db, 'products', id), {
+        ...updates,
+        updatedAt: serverTimestamp()
+      });
+    } catch (e) { handleFirestoreError(e, OperationType.UPDATE, `products/${id}`); }
+  },
   async updateStockStatus(id: string, status: 'In Stock' | 'Out of Stock') {
     try {
       await updateDoc(doc(db, 'products', id), { stockStatus: status });

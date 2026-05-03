@@ -7,7 +7,7 @@ import {
   CheckCircle, XCircle, Plus, Trash2, Layout,
   Layers, Camera, ChevronRight, Store, X, Clock, Bell,
   ArrowLeft, User, Box, Gift, Image as ImageIcon,
-  MessageSquare, Package
+  MessageSquare, Package, Eye, EyeOff
 } from 'lucide-react';
 import { adminService } from '../services/adminService';
 import { collection, onSnapshot, query, orderBy, where, doc } from 'firebase/firestore';
@@ -26,6 +26,7 @@ export default function AdminPanel() {
 
   const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'approvals' | 'banners' | 'stories' | 'categories' | 'users' | 'orders' | 'bundles' | 'settings' | 'notifications' | 'riders'>('dashboard');
   const [isAdding, setIsAdding] = useState(false);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [editingCategory, setEditingCategory] = useState<any>(null);
   const [newSubCategory, setNewSubCategory] = useState('');
   
@@ -40,6 +41,35 @@ export default function AdminPanel() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [appSettings, setAppSettings] = useState<any>({ logo: '' });
 
+  // Filters & Bulk Actions
+  const [productFilter, setProductFilter] = useState({ category: '', status: '', seller: '', search: '' });
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  
+  const filteredProducts = products.filter(p => {
+    const matchesCat = !productFilter.category || p.category === productFilter.category;
+    const matchesStatus = !productFilter.status || p.status === productFilter.status;
+    const matchesSeller = !productFilter.seller || p.farmer === productFilter.seller || p.farmerName === productFilter.seller;
+    const searchLow = productFilter.search.toLowerCase();
+    const matchesSearch = !productFilter.search || 
+      p.name?.toLowerCase().includes(searchLow) || 
+      p.nameEn?.toLowerCase().includes(searchLow) ||
+      p.category?.toLowerCase().includes(searchLow) ||
+      p.farmer?.toLowerCase().includes(searchLow);
+    return matchesCat && matchesStatus && matchesSeller && matchesSearch;
+  });
+
+  const handleBulkAction = async (action: 'approve' | 'reject' | 'delete') => {
+    if (selectedProducts.length === 0) return;
+    if (!confirm(`Are you sure you want to ${action} ${selectedProducts.length} products?`)) return;
+    
+    for (const id of selectedProducts) {
+      if (action === 'approve') await adminService.approveProduct(id);
+      if (action === 'reject') await adminService.rejectProduct(id);
+      if (action === 'delete') await adminService.deleteProduct(id);
+    }
+    setSelectedProducts([]);
+  };
+
   const pendingProducts = products.filter(p => p.status === 'pending');
   const approvedProducts = products.filter(p => p.status === 'approved');
   const pendingSellers = sellers.filter(s => s.roleRequest === 'seller' || (s.role === 'customer' && s.shopName && !s.isVerified));
@@ -48,7 +78,23 @@ export default function AdminPanel() {
   const [newBanner, setNewBanner] = useState({ title: '', subtitle: '', image: '' });
   const [newStory, setNewStory] = useState({ name: '', role: '', quote: '', image: '', type: 'Farmer' });
   const [newCategory, setNewCategory] = useState({ title: '', titleEn: '', image: '', subCategories: '', subCategoriesEn: '' });
-  const [newProduct, setNewProduct] = useState({ name: '', nameEn: '', price: '', category: '', subCategory: '', image: '', unit: 'kg', farmer: '', location: '', description: '', descriptionEn: '', whatsappNumber: '' });
+  const [newProduct, setNewProduct] = useState({ 
+    name: '', 
+    nameEn: '', 
+    price: '', 
+    category: '', 
+    subCategory: '', 
+    image: '', 
+    unit: 'kg', 
+    minWeight: '0.1',
+    weightIncrements: '0.1',
+    farmer: '', 
+    location: '', 
+    description: '', 
+    descriptionEn: '', 
+    whatsappNumber: '',
+    enableWeightSystem: false 
+  });
   const [newBundle, setNewBundle] = useState({ name: '', nameEn: '', price: '', image: '', description: '', descriptionEn: '' });
 
   useEffect(() => {
@@ -116,9 +162,61 @@ export default function AdminPanel() {
 
   const handleAddProduct = async () => {
     if (!newProduct.name || !newProduct.price || !newProduct.image) return;
-    await adminService.addProduct(newProduct);
-    setNewProduct({ name: '', nameEn: '', price: '', category: '', subCategory: '', image: '', unit: 'kg', farmer: '', location: '', description: '', descriptionEn: '', whatsappNumber: '' });
+
+    const productData = {
+      ...newProduct,
+      price: parseFloat(newProduct.price) || 0,
+      minWeight: parseFloat(newProduct.minWeight) || 1,
+      weightIncrements: parseFloat(newProduct.weightIncrements) || 0.1
+    };
+
+    if (editingProductId) {
+      await adminService.updateProduct(editingProductId, productData);
+    } else {
+      await adminService.addProduct(productData);
+    }
+
+    setNewProduct({ 
+      name: '', 
+      nameEn: '', 
+      price: '', 
+      category: '', 
+      subCategory: '', 
+      image: '', 
+      unit: 'kg', 
+      minWeight: '0.1',
+      weightIncrements: '0.1',
+      farmer: '', 
+      location: '', 
+      description: '', 
+      descriptionEn: '', 
+      whatsappNumber: '',
+      enableWeightSystem: false 
+    });
     setIsAdding(false);
+    setEditingProductId(null);
+  };
+
+  const startEditingProduct = (product: any) => {
+    setEditingProductId(product.id);
+    setNewProduct({
+      name: product.name || '',
+      nameEn: product.nameEn || '',
+      price: product.price?.toString() || '',
+      category: product.category || '',
+      subCategory: product.subCategory || '',
+      image: product.image || '',
+      unit: product.unit || 'kg',
+      minWeight: product.minWeight?.toString() || '0.1',
+      weightIncrements: product.weightIncrements?.toString() || '0.1',
+      farmer: product.farmer || '',
+      location: product.location || '',
+      description: product.description || '',
+      descriptionEn: product.descriptionEn || '',
+      whatsappNumber: product.whatsappNumber || '',
+      enableWeightSystem: product.enableWeightSystem || false
+    });
+    setIsAdding(true);
   };
 
   const handleAddBanner = async () => {
@@ -403,6 +501,16 @@ export default function AdminPanel() {
                     <p className="font-display font-bold text-primary">৳{order.total}</p>
                     <p className="text-[10px] text-slate-400 font-bold uppercase">{order.paymentMethod}</p>
                     {order.discount > 0 && <p className="text-[9px] text-secondary font-black truncate">DISCOUNT: -৳{order.discount}</p>}
+                    {order.location && (
+                      <a 
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${order.location.lat},${order.location.lng}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-[8px] font-black text-blue-500 uppercase tracking-widest mt-2 hover:underline"
+                      >
+                        <Truck size={10} /> Navigate
+                      </a>
+                    )}
                   </div>
                 </div>
 
@@ -464,19 +572,93 @@ export default function AdminPanel() {
 
         {activeTab === 'products' && (
           <motion.div key="products" className="space-y-4">
-            <button 
-              onClick={() => setIsAdding(true)}
-              className="w-full btn-primary py-4 rounded-3xl mb-4 flex items-center justify-center gap-2"
-            >
-              <Plus size={20} /> Add New Product
-            </button>
+            <div className="flex gap-2 mb-4">
+                <button 
+                  onClick={() => setIsAdding(true)}
+                  className="flex-1 btn-primary py-4 rounded-3xl flex items-center justify-center gap-2"
+                >
+                  <Plus size={20} /> Add Product
+                </button>
+                {selectedProducts.length > 0 && (
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => handleBulkAction('approve')}
+                      className="px-4 bg-green-500 text-white rounded-2xl text-[10px] font-black uppercase"
+                    >
+                      Approve ({selectedProducts.length})
+                    </button>
+                    <button 
+                      onClick={() => handleBulkAction('delete')}
+                      className="px-4 bg-red-500 text-white rounded-2xl text-[10px] font-black uppercase"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
+            </div>
+
+            {/* Filters */}
+            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <div className="col-span-2 md:col-span-1">
+                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1 ml-1">Search</label>
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
+                        <input 
+                            placeholder="Find product..." 
+                            className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs outline-none"
+                            value={productFilter.search}
+                            onChange={e => setProductFilter({...productFilter, search: e.target.value})}
+                        />
+                    </div>
+                </div>
+                <div>
+                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1 ml-1">Category</label>
+                    <select 
+                        className="w-full px-3 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs outline-none appearance-none"
+                        value={productFilter.category}
+                        onChange={e => setProductFilter({...productFilter, category: e.target.value})}
+                    >
+                        <option value="">All Categories</option>
+                        {categories.map(c => <option key={c.id} value={c.title}>{c.title}</option>)}
+                    </select>
+                </div>
+                <div>
+                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1 ml-1">Status</label>
+                    <select 
+                        className="w-full px-3 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs outline-none appearance-none"
+                        value={productFilter.status}
+                        onChange={e => setProductFilter({...productFilter, status: e.target.value})}
+                    >
+                        <option value="">All Status</option>
+                        <option value="approved">Approved</option>
+                        <option value="pending">Pending</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div>
+                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1 ml-1">Seller</label>
+                    <select 
+                        className="w-full px-3 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs outline-none appearance-none font-sans"
+                        value={productFilter.seller}
+                        onChange={e => setProductFilter({...productFilter, seller: e.target.value})}
+                    >
+                        <option value="">All Sellers</option>
+                        {Array.from(new Set(products.map(p => p.farmer || p.farmerName))).filter(Boolean).map(s => (
+                            <option key={s} value={s}>{s}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
 
             <AnimatePresence>
               {isAdding && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="bg-white p-6 rounded-3xl border-2 border-primary/10 overflow-hidden">
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="bg-white p-6 rounded-3xl border-2 border-primary/10 overflow-hidden mb-6">
                   <div className="flex justify-between items-center mb-4">
-                    <h4 className="font-bold text-sm">Product Details</h4>
-                    <button onClick={() => setIsAdding(false)}><X size={18} className="text-slate-400" /></button>
+                    <h4 className="font-bold text-sm">{editingProductId ? 'Edit Product' : 'Product Details'}</h4>
+                    <button onClick={() => {
+                        setIsAdding(false);
+                        setEditingProductId(null);
+                    }}><X size={18} className="text-slate-400" /></button>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <input 
@@ -503,24 +685,78 @@ export default function AdminPanel() {
                       value={newProduct.descriptionEn}
                       onChange={e => setNewProduct({...newProduct, descriptionEn: e.target.value})}
                     />
-                    <input 
-                      placeholder="Price (৳)" 
-                      className="px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none"
-                      value={newProduct.price}
-                      onChange={e => setNewProduct({...newProduct, price: e.target.value})}
-                    />
-                    <input 
-                      placeholder="WhatsApp (+8801...)" 
-                      className="px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none font-sans"
-                      value={newProduct.whatsappNumber}
-                      onChange={e => setNewProduct({...newProduct, whatsappNumber: e.target.value})}
-                    />
-                    <input 
-                      placeholder="Unit (kg/pcs)" 
-                      className="col-span-2 px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none"
-                      value={newProduct.unit}
-                      onChange={e => setNewProduct({...newProduct, unit: e.target.value})}
-                    />
+                    <div className="relative">
+                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1 ml-1">Base Price (per 1 unit)</label>
+                        <input 
+                          placeholder="Price (৳) e.g. 100" 
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none focus:border-primary"
+                          value={newProduct.price}
+                          onChange={e => setNewProduct({...newProduct, price: e.target.value})}
+                        />
+                        <p className="text-[8px] text-slate-400 mt-1 ml-1">* If 1kg is ৳100, system will calculate 100gm as ৳10.</p>
+                    </div>
+                    <div className="relative">
+                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1 ml-1">WhatsApp Hub</label>
+                        <input 
+                          placeholder="+8801..." 
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none font-sans"
+                          value={newProduct.whatsappNumber}
+                          onChange={e => setNewProduct({...newProduct, whatsappNumber: e.target.value})}
+                        />
+                    </div>
+                    <div className="relative col-span-2">
+                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1 ml-1">Product Type</label>
+                        <select 
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none appearance-none font-bold"
+                          value={newProduct.unit}
+                          onChange={e => setNewProduct({...newProduct, unit: e.target.value})}
+                        >
+                            <option value="pcs">Fixed Product (Piece/Packet)</option>
+                            <option value="kg">Weight-based (kg/gm)</option>
+                            <option value="litre">Liquid (Litre)</option>
+                        </select>
+                    </div>
+
+                    <div className="relative col-span-2">
+                        <label className="flex items-center gap-2 cursor-pointer bg-slate-50 border border-slate-100 p-3 rounded-2xl transition-all hover:bg-slate-100">
+                          <input 
+                            type="checkbox"
+                            className="w-4 h-4 accent-primary rounded-lg"
+                            checked={newProduct.enableWeightSystem || false}
+                            onChange={e => setNewProduct({...newProduct, enableWeightSystem: e.target.checked})}
+                          />
+                          <div className="flex flex-col">
+                            <span className="text-[10px] font-bold text-slate-700">Enable Advanced Weight Options</span>
+                            <span className="text-[8px] text-slate-400">Allows customer to choose weights like 100g, 250g, 500g etc.</span>
+                          </div>
+                        </label>
+                    </div>
+
+                    {newProduct.enableWeightSystem && (
+                        <div className="col-span-2 grid grid-cols-2 gap-3 p-3 bg-primary/5 rounded-2xl border border-dashed border-primary/20 animate-in fade-in slide-in-from-top-2 duration-300">
+                             <div className="relative">
+                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1 ml-1">Minimum (e.g. 0.1 for 100g)</label>
+                                <input 
+                                    placeholder="e.g. 0.1" 
+                                    className="w-full px-4 py-3 bg-white border border-slate-100 rounded-xl text-xs outline-none"
+                                    value={newProduct.minWeight}
+                                    onChange={e => setNewProduct({...newProduct, minWeight: e.target.value})}
+                                />
+                             </div>
+                             <div className="relative">
+                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1 ml-1">Increments (e.g. 0.25)</label>
+                                <input 
+                                    placeholder="e.g. 0.25" 
+                                    className="w-full px-4 py-3 bg-white border border-slate-100 rounded-xl text-xs outline-none"
+                                    value={newProduct.weightIncrements}
+                                    onChange={e => setNewProduct({...newProduct, weightIncrements: e.target.value})}
+                                />
+                             </div>
+                             <p className="col-span-2 text-[8px] text-slate-400 font-medium italic mt-1">
+                                * This will show quick selection buttons (100g, 250g, 500g etc) in UI.
+                             </p>
+                        </div>
+                    )}
                     <div className="col-span-2">
                         <ImageUpload 
                             label="Product Image"
@@ -549,43 +785,98 @@ export default function AdminPanel() {
                         ))}
                       </select>
                     )}
-                    <button onClick={handleAddProduct} className="col-span-2 py-3 bg-slate-900 text-white rounded-2xl text-xs font-bold mt-2">Publish Product</button>
+                    <button onClick={handleAddProduct} className="col-span-2 py-3 bg-slate-900 text-white rounded-2xl text-xs font-bold mt-2">
+                        {editingProductId ? 'Update Product' : 'Publish Product'}
+                    </button>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <h3 className="font-display font-bold text-lg px-1 mt-6">Live Inventory ({approvedProducts.length})</h3>
-            {approvedProducts.map((prod) => (
-              <div key={prod.id} className="bg-white p-4 rounded-2xl border border-slate-50 shadow-sm flex items-center justify-between group">
+            <div className="flex items-center justify-between px-1 mt-6">
+                <h3 className="font-display font-bold text-lg">Inventory ({filteredProducts.length})</h3>
+                <button 
+                  onClick={() => {
+                    if (selectedProducts.length === filteredProducts.length) setSelectedProducts([]);
+                    else setSelectedProducts(filteredProducts.map(p => p.id));
+                  }}
+                  className="text-[10px] font-black text-primary uppercase tracking-widest"
+                >
+                  {selectedProducts.length === filteredProducts.length ? 'Deselect All' : 'Select All'}
+                </button>
+            </div>
+
+            {filteredProducts.map((prod) => (
+              <div key={prod.id} className={`bg-white p-4 rounded-2xl border transition-all flex items-center justify-between group ${selectedProducts.includes(prod.id) ? 'border-primary shadow-md' : 'border-slate-50 shadow-sm'}`}>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-slate-50 rounded-xl overflow-hidden">
+                  <button 
+                    onClick={() => {
+                      if (selectedProducts.includes(prod.id)) setSelectedProducts(selectedProducts.filter(id => id !== prod.id));
+                      else setSelectedProducts([...selectedProducts, prod.id]);
+                    }}
+                    className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${selectedProducts.includes(prod.id) ? 'bg-primary border-primary text-white' : 'border-slate-200'}`}
+                  >
+                    {selectedProducts.includes(prod.id) && <CheckCircle size={12} />}
+                  </button>
+                  <div className="w-12 h-12 bg-slate-50 rounded-xl overflow-hidden shadow-inner">
                     <img src={prod.image} className="w-full h-full object-cover" />
                   </div>
                   <div>
                     <h4 className="font-bold text-xs">{prod.name}</h4>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">৳{prod.price} / {prod.unit}</p>
-                    <button 
-                      onClick={() => adminService.updateStockStatus(prod.id, prod.stockStatus === 'In Stock' ? 'Out of Stock' : 'In Stock')}
-                      className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-md mt-1 transition-all ${
-                        prod.stockStatus === 'Out of Stock' ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500'
-                      }`}
-                    >
-                      {prod.stockStatus || 'In Stock'}
-                    </button>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">৳{prod.price} / {prod.unit} • {prod.farmerName || prod.farmer || 'Admin'}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                        <button 
+                          onClick={() => adminService.updateStockStatus(prod.id, prod.stockStatus === 'In Stock' ? 'Out of Stock' : 'In Stock')}
+                          className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-md transition-all ${
+                            prod.stockStatus === 'Out of Stock' ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500'
+                          }`}
+                        >
+                          {prod.stockStatus || 'In Stock'}
+                        </button>
+                        <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-md ${
+                            prod.status === 'approved' ? 'bg-blue-50 text-blue-500' : 
+                            prod.status === 'pending' ? 'bg-orange-50 text-orange-500' : 
+                            prod.status === 'hidden' ? 'bg-slate-100 text-slate-400' : 'bg-red-50 text-red-500'
+                        }`}>
+                            {prod.status || 'approved'}
+                        </span>
+                    </div>
                   </div>
                 </div>
-                <button 
-                  onClick={() => adminService.deleteProduct(prod.id)}
-                  className="p-2 text-slate-300 hover:text-red-500 transition-colors"
-                >
-                  <Trash2 size={16} />
-                </button>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button 
+                      onClick={() => adminService.updateProduct(prod.id, { status: prod.status === 'hidden' ? 'approved' : 'hidden' })}
+                      className={`p-2 rounded-lg transition-all active:scale-90 ${prod.status === 'hidden' ? 'text-slate-300' : 'text-blue-500 hover:bg-blue-50'}`}
+                      title={prod.status === 'hidden' ? 'Show Product' : 'Hide Product'}
+                    >
+                      {prod.status === 'hidden' ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                    <button 
+                      onClick={() => startEditingProduct(prod)}
+                      className="p-2 text-primary hover:bg-primary/5 rounded-lg transition-all active:scale-90"
+                    >
+                      <Settings size={16} />
+                    </button>
+                    {prod.status === 'pending' && (
+                        <button 
+                            onClick={() => adminService.approveProduct(prod.id)}
+                            className="p-2 text-primary hover:bg-primary/5 rounded-lg"
+                        >
+                            <CheckCircle size={16} />
+                        </button>
+                    )}
+                    <button 
+                      onClick={() => adminService.deleteProduct(prod.id)}
+                      className="p-2 text-slate-300 hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                </div>
               </div>
             ))}
-            {approvedProducts.length === 0 && (
+            {filteredProducts.length === 0 && (
               <div className="text-center py-10 text-slate-400 text-xs font-medium bg-white rounded-[2rem] border border-dashed border-slate-200">
-                No active products
+                No matching products found
               </div>
             )}
           </motion.div>

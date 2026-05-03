@@ -1,39 +1,46 @@
 
 export const searchSynonyms: Record<string, string[]> = {
-  'potato': ['alu', 'আলু', 'potato', 'potatoes', 'aloo'],
-  'fish': ['mach', 'maach', 'মাছ', 'fish'],
-  'rice': ['chal', 'chaal', 'চাল', 'rice'],
-  'egg': ['dim', 'ডিম', 'egg', 'eggs'],
-  'onion': ['peyaj', 'piyaj', 'পেঁয়াজ', 'onion'],
-  'oil': ['tel', 'তৈল', 'তেল', 'oil'],
-  'meat': ['mansho', 'mangsho', 'মাংস', 'meat', 'beef', 'chicken', 'mutton'],
-  'milk': ['dudh', 'দুধ', 'milk'],
-  'honey': ['modhu', 'মধু', 'honey'],
-  'tomato': ['tomato', 'টমেটো'],
-  'carrot': ['gajor', 'গাজর', 'carrot'],
-  'cucumber': ['shosha', 'শসা', 'cucumber'],
-  'garlic': ['rosun', 'রসুন', 'garlic'],
-  'ginger': ['ada', 'আদা', 'ginger'],
-  'chili': ['moriach', 'morich', 'মরিচ', 'chili', 'chilli'],
+  'potato': ['alu', 'আলু', 'potato', 'potatoes', 'aloo', 'alo'],
+  'fish': ['mach', 'maach', 'মাছ', 'fish', 'fishery'],
+  'rice': ['chal', 'chaal', 'চাল', 'rice', 'ricey'],
+  'egg': ['dim', 'ডিম', 'egg', 'eggs', 'anda'],
+  'onion': ['peyaj', 'piyaj', 'পেঁয়াজ', 'onion', 'onions', 'payaj'],
+  'oil': ['tel', 'তৈল', 'তেল', 'oil', 'oils'],
+  'meat': ['mansho', 'mangsho', 'মাংস', 'meat', 'beef', 'chicken', 'mutton', 'gorur mangsho', 'khashir mangsho'],
+  'milk': ['dudh', 'দুধ', 'milk', 'dudh', 'cow milk'],
+  'honey': ['modhu', 'মধু', 'honey', 'pure honey'],
+  'tomato': ['tomato', 'টমেটো', 'tamato'],
+  'carrot': ['gajor', 'গাজর', 'carrot', 'carrots'],
+  'cucumber': ['shosha', 'শসা', 'cucumber', 'shosa'],
+  'garlic': ['rosun', 'রসুন', 'garlic', 'rashun'],
+  'ginger': ['ada', 'আদা', 'ginger', 'adda'],
+  'chili': ['moriach', 'morich', 'মরিচ', 'chili', 'chilli', 'jhal'],
+  'mango': ['am', 'আম', 'mango', 'mangoes'],
+  'banana': ['kola', 'কলা', 'banana', 'sagol kola'],
+  'lemon': ['lebu', 'লেবু', 'lemon', 'lime'],
 };
 
-export function normalizeSearch(query: string): string {
+export function normalizeSearch(query: string): string[] {
   const q = query.toLowerCase().trim();
+  const words = q.split(/\s+/).filter(w => w.length > 0);
   
-  // Find synonym match
-  for (const [key, synonyms] of Object.entries(searchSynonyms)) {
-    if (synonyms.some(s => q.includes(s.toLowerCase()))) {
-      return key;
+  const expanded: string[] = [...words];
+  
+  // Find synonym match for each word
+  for (const word of words) {
+    for (const [key, synonyms] of Object.entries(searchSynonyms)) {
+      if (synonyms.some(s => word.includes(s.toLowerCase()) || s.toLowerCase().includes(word))) {
+        if (!expanded.includes(key)) expanded.push(key);
+      }
     }
   }
   
-  return q;
+  return expanded;
 }
 
 export function matchProduct(product: any, query: string): boolean {
   if (!query) return true;
-  const q = query.toLowerCase();
-  const normalized = normalizeSearch(q);
+  const normalizedWords = normalizeSearch(query);
   
   const fields = [
     product.name?.toLowerCase(),
@@ -44,7 +51,10 @@ export function matchProduct(product: any, query: string): boolean {
     product.category?.toLowerCase(),
     product.subCategory?.toLowerCase(),
     ...(product.keywords || []).map((k: string) => k.toLowerCase())
-  ];
+  ].filter(Boolean);
   
-  return fields.some(f => f?.includes(q) || f?.includes(normalized));
+  // A match happens if ANY of the normalized search words are found in ANY of the product fields
+  return normalizedWords.some(word => 
+    fields.some(f => f.includes(word))
+  );
 }

@@ -85,6 +85,28 @@ export default function Orders() {
                 </div>
                 <span className="text-lg font-display font-bold text-slate-900 leading-none">৳{order.total}</span>
               </div>
+
+              {/* Progress Timeline */}
+              <div className="mb-6 px-2">
+                  <div className="relative h-1.5 bg-slate-100 rounded-full overflow-hidden mb-3">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: 
+                            order.status === 'delivered' ? '100%' : 
+                            order.status === 'shipped' ? '75%' : 
+                            order.status === 'ready_for_pickup' ? '50%' : 
+                            order.status === 'confirmed' ? '25%' : '5%' 
+                        }}
+                        className="absolute inset-y-0 left-0 bg-primary shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                      />
+                  </div>
+                  <div className="flex justify-between items-center text-[8px] font-black text-slate-400 uppercase tracking-widest">
+                      <span className={order.status === 'pending' ? 'text-primary' : ''}>Order</span>
+                      <span className={order.status === 'confirmed' ? 'text-primary' : ''}>Confirm</span>
+                      <span className={order.status === 'shipped' ? 'text-primary' : ''}>Shipping</span>
+                      <span className={order.status === 'delivered' ? 'text-primary' : ''}>Done</span>
+                  </div>
+              </div>
               
               <div className="flex items-center gap-3 py-4 border-y border-slate-50">
                 <div className="flex -space-x-3 overflow-hidden">

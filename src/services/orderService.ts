@@ -16,10 +16,13 @@ export interface Order {
   userId: string;
   customerName: string;
   items: any[];
+  subtotal: number;
+  deliveryFee: number;
   total: number;
   discount?: number;
   status: 'pending' | 'verified' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
   paymentMethod: 'cod' | 'bkash' | 'nagad' | 'rocket';
+  paymentNumber?: string;
   transactionId?: string;
   paymentScreenshot?: string;
   paymentStatus: 'pending' | 'verified' | 'failed';

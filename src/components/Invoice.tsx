@@ -30,8 +30,8 @@ export default function Invoice({ order, onClose }: InvoiceProps) {
               <ShoppingBag size={24} className="text-white print:text-primary" />
             </div>
             <div>
-              <h2 className="font-display font-bold text-2xl leading-none mb-1">Kishan</h2>
-              <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] print:text-slate-400">Order Invoice</p>
+              <h2 className="font-display font-bold text-xl leading-none mb-1">KishanBD</h2>
+              <p className="text-[8px] font-black text-primary uppercase tracking-[0.2em] print:text-slate-400">Order Invoice</p>
             </div>
           </div>
           <div className="text-right flex flex-col items-end gap-3">
@@ -72,14 +72,17 @@ export default function Invoice({ order, onClose }: InvoiceProps) {
                 <div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Payment Info</p>
                     <div className="text-right space-y-1">
-                        <div className="bg-primary/10 text-primary px-3 py-1 rounded-lg inline-flex items-center gap-2 mb-1">
-                            <span className="text-[10px] font-black uppercase tracking-widest">{order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod.toUpperCase()}</span>
+                        <div className="bg-primary/10 text-primary px-2 py-1 rounded-lg inline-flex items-center gap-2 mb-1">
+                            <span className="text-[9px] font-black uppercase tracking-widest">{order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod.toUpperCase()}</span>
                         </div>
-                        <p className="text-[10px] font-bold text-slate-800 uppercase">৳{order.total}</p>
-                        {order.transactionId && (
-                            <p className="text-[9px] text-slate-500 font-mono">TrxID: {order.transactionId}</p>
+                        <p className="text-xs font-bold text-slate-800 uppercase">৳{order.total}</p>
+                        {order.paymentNumber && (
+                            <p className="text-[9px] text-slate-500 font-bold">Via: {order.paymentNumber}</p>
                         )}
-                        <p className="text-[9px] font-black text-primary uppercase tracking-tighter">{order.paymentStatus === 'verified' ? 'Payment Verified' : 'Awaiting verification'}</p>
+                        {order.transactionId && (
+                            <p className="text-[8px] text-slate-400 font-mono italic">TrxID: {order.transactionId}</p>
+                        )}
+                        <p className="text-[8px] font-black text-primary uppercase tracking-tighter">{order.paymentStatus === 'verified' ? 'Payment Verified' : 'Awaiting verification'}</p>
                     </div>
                 </div>
               </div>
@@ -87,46 +90,58 @@ export default function Invoice({ order, onClose }: InvoiceProps) {
           </div>
 
           {/* Table */}
-          <div className="space-y-4 mb-10">
-            <div className="flex items-center justify-between border-b pb-2">
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Item Description</span>
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subtotal</span>
-            </div>
-            {order.items?.map((item: any, idx: number) => (
-              <div key={idx} className="flex items-center justify-between py-2 group">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-slate-50 rounded-xl overflow-hidden border border-slate-100 p-0.5">
-                    <img src={item.image} className="w-full h-full object-cover rounded-lg" alt={item.name} />
-                  </div>
-                  <div>
-                    <h5 className="font-bold text-sm text-slate-800">{item.name}</h5>
-                    <p className="text-[10px] font-bold text-slate-400">৳{item.price} x {item.quantity}</p>
-                  </div>
-                </div>
-                <span className="font-bold text-slate-800">৳{item.price * item.quantity}</span>
-              </div>
-            ))}
+          <div className="space-y-4 mb-10 overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-slate-100">
+                  <th className="pb-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">Item Description</th>
+                  <th className="pb-2 text-[8px] font-black text-slate-400 uppercase tracking-widest text-center">Qty</th>
+                  <th className="pb-2 text-[8px] font-black text-slate-400 uppercase tracking-widest text-right">Price</th>
+                  <th className="pb-2 text-[8px] font-black text-slate-400 uppercase tracking-widest text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {order.items?.map((item: any, idx: number) => (
+                  <tr key={idx} className="group">
+                    <td className="py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-slate-50 rounded-lg overflow-hidden border border-slate-100 p-0.5 print:hidden">
+                          <img src={item.image} className="w-full h-full object-cover rounded-md" alt={item.name} />
+                        </div>
+                        <div>
+                          <h5 className="font-bold text-xs text-slate-800">{item.name}</h5>
+                          <p className="text-[8px] font-bold text-slate-400 italic">{item.category}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3 text-center text-[10px] font-bold text-slate-600">{item.quantity}</td>
+                    <td className="py-3 text-right text-[10px] font-medium text-slate-500">৳{item.price}</td>
+                    <td className="py-3 text-right text-[10px] font-black text-slate-900">৳{item.price * item.quantity}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
           {/* Totals */}
-          <div className="border-t pt-6 space-y-3">
-            <div className="flex justify-between items-center text-sm font-medium text-slate-500">
+          <div className="border-t pt-6 space-y-2">
+            <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
               <span>Subtotal</span>
-              <span>৳{order.total + (order.discount || 0) - order.deliveryFee}</span>
+              <span className="text-slate-800">৳{order.total + (order.discount || 0) - order.deliveryFee}</span>
             </div>
-            <div className="flex justify-between items-center text-sm font-medium text-slate-500">
+            <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
               <span>Delivery Fee</span>
-              <span>৳{order.deliveryFee}</span>
+              <span className="text-slate-800">৳{order.deliveryFee}</span>
             </div>
             {order.discount > 0 && (
-              <div className="flex justify-between items-center text-sm font-bold text-secondary">
-                <span>Discount</span>
+              <div className="flex justify-between items-center text-[10px] font-black text-secondary uppercase tracking-widest">
+                <span>Discount Applied</span>
                 <span>-৳{order.discount}</span>
               </div>
             )}
             <div className="flex justify-between items-center pt-4 border-t-2 border-slate-100">
-              <span className="font-display font-bold text-xl text-slate-900">Total Amount</span>
-              <span className="font-display font-bold text-2xl text-primary">৳{order.total}</span>
+              <span className="font-display font-black text-xs uppercase tracking-[0.2em] text-slate-900">Total Amount Payable</span>
+              <span className="font-display font-bold text-xl text-primary">৳{order.total}</span>
             </div>
           </div>
 

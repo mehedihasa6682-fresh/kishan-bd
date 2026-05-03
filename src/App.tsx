@@ -162,8 +162,15 @@ function RoutesContent() {
       
       <main className={`flex-1 overflow-x-hidden ${isDashboardRoute ? '' : 'pt-16'}`}>
         <AnimatePresence mode="wait">
-          <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<Home />} />
+          <motion.div 
+            key={location.pathname}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Routes location={location}>
+              <Route path="/" element={<Home />} />
             <Route path="/products" element={<Products />} />
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/cart" element={<Cart />} />
@@ -183,7 +190,8 @@ function RoutesContent() {
             
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
-        </AnimatePresence>
+        </motion.div>
+      </AnimatePresence>
       </main>
 
       {!isDashboardRoute && <BottomNav />}

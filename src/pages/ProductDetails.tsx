@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { ShoppingCart, ArrowLeft, Star, Clock, MapPin, Plus, Minus, ShieldCheck, Store, Send, User as UserIcon, Heart, Phone, MessageCircle } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, Star, Clock, MapPin, Plus, Minus, ShieldCheck, Store, Send, User as UserIcon, Heart, Phone, MessageCircle, ChevronDown } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import React, { useState, useEffect, useContext } from 'react';
 import { doc, getDoc, collection, query, where, limit, getDocs } from 'firebase/firestore';
@@ -19,6 +19,7 @@ export default function ProductDetails() {
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
+  
   const [reviews, setReviews] = useState<any[]>([]);
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
   const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
@@ -171,7 +172,9 @@ export default function ProductDetails() {
         <div className="bg-white rounded-[3rem] p-8 shadow-2xl shadow-slate-200 border border-slate-50">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <span className="text-primary font-bold text-xs uppercase tracking-widest mb-2 block">{product.category}</span>
+              <span className="text-primary font-bold text-xs uppercase tracking-widest mb-2 block flex items-center gap-2">
+                {product.category}
+              </span>
               <h1 className="font-display font-bold text-3xl text-slate-900 leading-tight">{dData(product.name, product.nameEn)}</h1>
               {product.isPreOrder && (
                   <div className="mt-2 bg-blue-50 text-blue-600 px-3 py-1 rounded-full w-fit flex items-center gap-1.5 border border-blue-100">
@@ -205,25 +208,47 @@ export default function ProductDetails() {
             {dData(product.description, product.descriptionEn) || `Premium quality ${dData(product.name, product.nameEn)} directly from ${product.farmerName || product.farmer}'s farm. No pesticides or chemicals used.`}
           </p>
 
-          <div className="flex items-center justify-between mb-10">
+          <div className="flex flex-col gap-6 mb-10">
+            {/* Price section */}
             <div className="flex flex-col">
-              <span className="text-3xl font-display font-bold text-slate-900 leading-none">৳{product.price}</span>
-              <span className="text-xs text-slate-400 mt-1">Price per {product.unit}</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-4xl font-display font-bold text-slate-900 leading-none tracking-tight">৳{Math.round(product.price * qty)}</span>
+                <span className="text-sm font-medium text-slate-400">
+                  / {qty}{product.unit}
+                </span>
+              </div>
+              <div className="text-[10px] text-slate-400 mt-1 font-medium bg-slate-50 self-start px-2 py-0.5 rounded-full border border-slate-100">
+                Unit Price: ৳{product.price} per {product.unit}
+              </div>
             </div>
-            <div className="flex items-center gap-5 bg-slate-50 p-2 rounded-2xl border border-slate-100">
-              <button 
-                onClick={() => setQty(Math.max(1, qty - 1))}
-                className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-slate-400 hover:text-primary transition-all"
-              >
-                <Minus size={18} />
-              </button>
-              <span className="font-bold text-lg w-6 text-center">{qty}</span>
-              <button 
-                 onClick={() => setQty(qty + 1)}
-                 className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-slate-400 hover:text-primary transition-all"
-              >
-                <Plus size={18} />
-              </button>
+
+            {/* Standard Quantity Adjuster (+/-) */}
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                <div className="w-1 h-3 bg-slate-300 rounded-full"></div>
+                Quantity
+              </label>
+              <div className="flex items-center gap-6 bg-slate-100/50 p-2 rounded-2xl border border-slate-100 w-fit">
+                <button 
+                  onClick={() => setQty(Math.max(1, qty - 1))}
+                  className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-slate-500 hover:text-primary transition-all active:scale-90 border border-slate-100"
+                >
+                  <Minus size={20} />
+                </button>
+                
+                <div className="flex flex-col items-center min-w-[80px]">
+                  <span className="font-black text-lg font-sans text-slate-900">
+                    {qty}{product.unit || 'pcs'}
+                  </span>
+                </div>
+
+                <button 
+                   onClick={() => setQty(qty + 1)}
+                   className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-slate-500 hover:text-primary transition-all active:scale-90 border border-slate-100"
+                >
+                  <Plus size={20} />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -443,9 +468,9 @@ export default function ProductDetails() {
                                 navigate(`/product/${p.id}`);
                                 window.scrollTo(0, 0);
                             }}
-                            className="bg-white rounded-3xl border border-slate-50 shadow-sm p-3 group cursor-pointer"
+                            className="bg-white rounded-2xl border border-slate-50 shadow-sm p-2 group cursor-pointer"
                         >
-                            <div className="aspect-square rounded-2xl overflow-hidden mb-3">
+                            <div className="aspect-square rounded-xl overflow-hidden mb-2">
                                 <img 
                                     src={p.image} 
                                     alt={p.name} 
@@ -453,9 +478,9 @@ export default function ProductDetails() {
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
                                 />
                             </div>
-                            <h4 className="font-bold text-xs text-slate-800 truncate mb-1">{dData(p.name, p.nameEn)}</h4>
+                            <h4 className="font-bold text-[10px] text-slate-800 truncate mb-1">{dData(p.name, p.nameEn)}</h4>
                             <div className="flex items-center justify-between">
-                                <span className="text-sm font-display font-bold text-primary">৳{p.price}</span>
+                                <span className="text-xs font-display font-bold text-primary">৳{p.price}</span>
                                 <div className="flex items-center gap-0.5">
                                     <Star size={8} className="text-secondary fill-secondary" />
                                     <span className="text-[8px] font-bold text-slate-400">{p.rating || '5.0'}</span>

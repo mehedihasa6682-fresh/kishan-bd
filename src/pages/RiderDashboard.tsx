@@ -201,22 +201,42 @@ export default function RiderDashboard() {
                                         </div>
                                         <div className="flex-1">
                                             <p className="text-[10px] font-black text-slate-400 uppercase leading-none mb-1">Deliver to</p>
-                                            <p className="text-xs font-medium text-slate-600 truncate">{order.address}</p>
+                                            <p className="text-xs font-bold text-slate-700">{order.address}</p>
+                                            {order.addressData && (
+                                                <p className="text-[9px] text-slate-400 mt-0.5">
+                                                    {order.addressData.type} • Floor: {order.addressData.floorNo || 'N/A'} • Apt: {order.addressData.apartment || 'N/A'}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
+                                    <div className="flex gap-2">
+                                        {order.location && (
+                                            <a 
+                                                href={`https://www.google.com/maps/dir/?api=1&destination=${order.location.lat},${order.location.lng}`}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="flex-1 py-4 bg-secondary text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl flex items-center justify-center gap-2"
+                                            >
+                                                <Navigation size={16} />
+                                                Start Navigation
+                                            </a>
+                                        )}
+                                        <a 
+                                            href={`tel:${order.phone}`}
+                                            className="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl flex items-center justify-center gap-2"
+                                        >
                                             <Phone size={16} />
-                                        </div>
-                                        <a href={`tel:${order.phone}`} className="text-xs font-bold text-primary">{order.phone}</a>
+                                            Call
+                                        </a>
                                     </div>
+                                    <p className="text-[9px] text-center text-slate-400 mt-2 italic">* Communication is key for fast delivery</p>
                                 </div>
 
-                                <div className="flex flex-col gap-2">
+                                <div className="flex flex-col gap-2 p-1">
                                   {order.status === 'shipped' && !order.subStatus && (
                                       <button 
                                           onClick={() => handleArrived(order.id)}
-                                          className="w-full py-4 bg-orange-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-orange-600 transition-all active:scale-95"
+                                          className="w-full py-4 bg-orange-500 text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl hover:bg-orange-600 transition-all active:scale-95"
                                       >
                                           Arrived at Merchant
                                       </button>
@@ -224,7 +244,7 @@ export default function RiderDashboard() {
                                   {order.status === 'shipped' && order.subStatus === 'arrived_at_pickup' && (
                                       <button 
                                           onClick={() => handlePickUp(order.id)}
-                                          className="w-full py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-primary/90 transition-all active:scale-95"
+                                          className="w-full py-4 bg-primary text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl hover:bg-primary/90 transition-all active:scale-95"
                                       >
                                           Picked Up & On the way
                                       </button>
@@ -232,7 +252,7 @@ export default function RiderDashboard() {
                                   {order.status === 'shipped' && order.subStatus === 'in_transit' && (
                                       <button 
                                           onClick={() => handleDeliver(order.id)}
-                                          className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-slate-800 transition-all active:scale-95"
+                                          className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl hover:bg-slate-800 transition-all active:scale-95"
                                       >
                                           Mark as Delivered
                                       </button>

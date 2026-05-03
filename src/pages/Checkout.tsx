@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { MapPin, CreditCard, Apple, CheckCircle, ArrowLeft, Send } from 'lucide-react';
+import { MapPin, CreditCard, Apple, CheckCircle, ArrowLeft, Send, Map as MapIcon, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useContext } from 'react';
 import { useCart } from '../context/CartContext';
@@ -8,6 +8,7 @@ import { AuthContext } from '../App';
 import { orderService } from '../services/orderService';
 import { NotificationService } from '../services/notificationService';
 import ImageUpload from '../components/ImageUpload';
+import AddressPicker from '../components/AddressPicker';
 
 import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -20,6 +21,7 @@ export default function Checkout() {
   
   const [step, setStep] = useState<1 | 2>(1);
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bkash' | 'nagad' | 'rocket'>('cod');
+  const [paymentNumber, setPaymentNumber] = useState('');
   const [transactionId, setTransactionId] = useState('');
   const [paymentScreenshot, setPaymentScreenshot] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,10 +30,13 @@ export default function Checkout() {
   const [customerName, setCustomerName] = useState(user?.displayName || '');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
+  const [location, setLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [addressDetails, setAddressDetails] = useState<any>(null);
   
-  const [savedAddresses, setSavedAddresses] = useState<string[]>([]);
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
   const [selectedAddressIndex, setSelectedAddressIndex] = useState<number | 'new'>('new');
   const [isEditingAddress, setIsEditingAddress] = useState(true);
+  const [showAddressPicker, setShowAddressPicker] = useState(false);
 
   useState(() => {
     if (user) {
@@ -40,7 +45,14 @@ export default function Checkout() {
                 const addrs = snap.data().addresses || [];
                 setSavedAddresses(addrs);
                 if (addrs.length > 0) {
-                    setAddress(addrs[0]);
+                    const first = addrs[0];
+                    if (typeof first === 'object') {
+                        setAddress(first.address);
+                        setLocation({ lat: first.lat, lng: first.lng });
+                        setAddressDetails(first);
+                    } else {
+                        setAddress(first);
+                    }
                     setSelectedAddressIndex(0);
                     setIsEditingAddress(false);
                 }
@@ -67,10 +79,16 @@ export default function Checkout() {
     try {
         const sellerIds: string[] = Array.from(new Set(items.map(item => String(item.sellerId || 'default-seller'))));
         
+        const fullAddressData = addressDetails || { 
+            address, 
+            lat: location?.lat || 23.8103, 
+            lng: location?.lng || 90.4125 
+        };
+
         // Save address to profile if it's new
         if (selectedAddressIndex === 'new' && user) {
             await updateDoc(doc(db, 'users', user.uid), {
-                addresses: arrayUnion(address),
+                addresses: arrayUnion(fullAddressData),
                 phoneNumber: phone
             });
         }
@@ -80,16 +98,21 @@ export default function Checkout() {
             customerName: customerName || user.displayName || 'Guest User',
             items: items,
             total: total,
+            subtotal: subtotal,
+            deliveryFee: deliveryFee,
             discount: discount,
             paymentMethod,
             transactionId,
+            paymentNumber,
             paymentScreenshot,
-            address,
+            address: typeof fullAddressData === 'string' ? fullAddressData : fullAddressData.address,
             phone,
             sellerIds,
             paymentStatus: paymentMethod === 'cod' ? 'pending' : 'pending',
-            status: 'pending'
-        });
+            status: 'pending',
+            location: location || { lat: 23.8103, lng: 90.4125 },
+            addressData: fullAddressData
+        } as any);
 
         // Send a notification to the user
         await NotificationService.sendNotification({
@@ -197,6 +220,25 @@ export default function Checkout() {
                                 )}
 
                                 <div className="space-y-4 pt-2 border-t border-slate-50">
+                                    <button 
+                                        type="button"
+                                        onClick={() => setShowAddressPicker(true)}
+                                        className="w-full flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl hover:border-primary transition-all group"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-[#FFD700] flex items-center justify-center text-slate-800 shadow-sm group-hover:scale-110 transition-transform">
+                                                <MapIcon size={20} />
+                                            </div>
+                                            <div className="text-left">
+                                                <p className="text-[11px] font-black text-slate-800 uppercase tracking-tight">Pin Location on Map</p>
+                                                <p className="text-[9px] text-slate-400 font-medium italic">Better for accurate delivery</p>
+                                            </div>
+                                        </div>
+                                        <div className="w-6 h-6 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-300">
+                                            <ChevronRight size={14} />
+                                        </div>
+                                    </button>
+                                    
                                     <div className="space-y-1">
                                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Full Name</label>
                                         <input 
@@ -237,6 +279,26 @@ export default function Checkout() {
                             </div>
                         ) : (
                             <div className="space-y-3">
+                                {addressDetails && (
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <span className={`px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest ${
+                                            addressDetails.type === 'Home' ? 'bg-primary/10 text-primary' :
+                                            addressDetails.type === 'Office' ? 'bg-blue-50 text-blue-500' : 'bg-orange-50 text-orange-500'
+                                        }`}>
+                                            {addressDetails.type || 'Home'}
+                                        </span>
+                                        {addressDetails.floorNo && (
+                                            <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-lg text-[8px] font-bold uppercase tracking-widest">
+                                                Floor: {addressDetails.floorNo}
+                                            </span>
+                                        )}
+                                        {addressDetails.apartment && (
+                                            <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-lg text-[8px] font-bold uppercase tracking-widest">
+                                                Apt: {addressDetails.apartment}
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                                         <MapPin size={16} />
@@ -316,6 +378,17 @@ export default function Checkout() {
                                     
                                     <div className="space-y-3">
                                         <div>
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Payment Phone Number (Sender)</label>
+                                            <input 
+                                                required
+                                                placeholder="e.g. 017XXXXXXXX"
+                                                className="w-full bg-white/5 border border-white/10 px-4 py-4 rounded-2xl text-xs outline-none focus:border-primary transition-all text-white font-sans"
+                                                value={paymentNumber}
+                                                onChange={e => setPaymentNumber(e.target.value)}
+                                            />
+                                        </div>
+                                        
+                                        <div>
                                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Transaction ID</label>
                                             <input 
                                                 placeholder="Enter TrxID after payment"
@@ -379,6 +452,31 @@ export default function Checkout() {
             Securely processed via Kishan Cloud. Verified for 100% freshness.
         </p>
       </div>
+
+      <AnimatePresence>
+        {showAddressPicker && (
+            <AddressPicker 
+                onClose={() => setShowAddressPicker(false)}
+                onSave={(data) => {
+                    setAddress(data.address);
+                    setLocation({ lat: data.lat, lng: data.lng });
+                    setCustomerName(`${data.firstName} ${data.lastName}`.trim());
+                    setPhone(data.phone);
+                    setAddressDetails(data);
+                    setShowAddressPicker(false);
+                    setIsEditingAddress(false);
+                }}
+                initialData={{
+                    firstName: customerName.split(' ')[0],
+                    lastName: customerName.split(' ').slice(1).join(' '),
+                    phone: phone,
+                    address: address,
+                    lat: location?.lat,
+                    lng: location?.lng
+                }}
+            />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

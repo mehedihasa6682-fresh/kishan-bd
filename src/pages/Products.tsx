@@ -258,42 +258,32 @@ export default function Products() {
                 <Heart size={12} fill={wishlistIds.includes(product.id) ? "currentColor" : "none"} />
               </button>
             </div>
-            <div className="p-3 flex flex-col h-[150px]">
-              <span className="text-[8px] font-bold text-primary uppercase tracking-wider mb-0.5">{product.category}</span>
-              <h3 className="font-bold text-xs text-slate-800 mb-0.5 truncate cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
+            <div className="p-3">
+              <h3 className="font-bold text-xs text-slate-800 mb-1 truncate cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
                 {dData(product.name, product.nameEn)}
               </h3>
-              <p className="text-[9px] text-slate-400 mb-2 truncate">By {product.farmerName || product.farmer}</p>
-              
-              <div className="mt-auto space-y-2">
-                <div className="flex items-center justify-between gap-1.5">
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    onClick={(e) => {
-                       e.stopPropagation();
-                       addToCart(product);
-                    }}
-                    className="flex-1 h-8 bg-primary text-white rounded-lg flex items-center justify-center gap-1.5 shadow-md shadow-primary/10 hover:bg-primary-dark transition-all"
-                  >
-                    <ShoppingCart size={14} />
-                    <span className="text-[9px] font-black uppercase tracking-wider">Add</span>
-                  </motion.button>
-                  <div className="flex flex-col text-right">
-                    <span className="text-base font-display font-bold text-slate-900 leading-none">৳{product.price}</span>
-                    <span className="text-[8px] text-slate-400 font-bold tracking-tight">/{product.unit}</span>
-                  </div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-baseline gap-0.5">
+                  <span className="text-sm font-display font-bold text-slate-900">৳{product.price}</span>
+                  <span className="text-[8px] text-slate-400 font-bold tracking-tight">/{product.unit}</span>
                 </div>
-                <button 
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        addToCart(product);
-                        navigate('/checkout');
-                    }}
-                    className="w-full py-1.5 bg-slate-50 text-slate-600 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-100 font-sans"
-                >
-                    Buy Now
-                </button>
+                <div className="flex items-center gap-1">
+                  <Star size={8} className="text-secondary fill-secondary" />
+                  <span className="text-[9px] font-bold text-slate-700">{product.rating || '5.0'}</span>
+                </div>
               </div>
+              
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={(e) => {
+                   e.stopPropagation();
+                   addToCart(product);
+                }}
+                className="w-full bg-primary text-white py-2 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/10 hover:bg-primary-dark transition-all"
+              >
+                <ShoppingCart size={14} />
+                <span className="text-[10px] font-black uppercase tracking-wider">Add to Cart</span>
+              </motion.button>
             </div>
           </motion.div>
         ))}

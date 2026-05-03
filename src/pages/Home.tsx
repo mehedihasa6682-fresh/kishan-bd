@@ -13,14 +13,12 @@ import { Helmet } from 'react-helmet-async';
 
 export default function Home() {
   const [activeBanner, setActiveBanner] = useState(0);
-  const [selectedStory, setSelectedStory] = useState<any>(null);
   const { user } = useContext(AuthContext);
   const { addToCart } = useCart();
   const { t, dData } = useLanguage();
   const navigate = useNavigate();
   
   const [dbBanners, setDbBanners] = useState<any[]>([]);
-  const [dbStories, setDbStories] = useState<any[]>([]);
   const [dbCategories, setDbCategories] = useState<any[]>([]);
   const [dbProducts, setDbProducts] = useState<any[]>([]);
   const [wishlistIds, setWishlistIds] = useState<string[]>([]);
@@ -42,9 +40,6 @@ export default function Home() {
     const unsubBanners = onSnapshot(query(collection(db, 'banners'), orderBy('createdAt', 'desc')), (snap) => {
       setDbBanners(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     }, (error) => console.error("Home Banners:", error));
-    const unsubStories = onSnapshot(query(collection(db, 'stories'), orderBy('createdAt', 'desc')), (snap) => {
-      setDbStories(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    }, (error) => console.error("Home Stories:", error));
     const unsubCategories = onSnapshot(collection(db, 'categories'), (snap) => {
       setDbCategories(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     }, (error) => console.error("Home Categories:", error));
@@ -58,7 +53,6 @@ export default function Home() {
         });
         return () => {
             unsubBanners();
-            unsubStories();
             unsubCategories();
             unsubProducts();
             unsubWish();
@@ -67,7 +61,6 @@ export default function Home() {
 
     return () => {
       unsubBanners();
-      unsubStories();
       unsubCategories();
       unsubProducts();
     };
@@ -84,17 +77,6 @@ export default function Home() {
   const banners = dbBanners.length > 0 ? dbBanners : [
     { id: 'default-1', title: 'Fresh from Farm', subtitle: 'Get 20% Off on Vegetables', image: 'https://images.unsplash.com/photo-1488459711615-de9b802a83ea?w=800&h=400&fit=crop' },
     { id: 'default-2', title: 'Today Fresh Fish', subtitle: 'Hilsa & more delivered', image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&h=400&fit=crop' },
-  ];
-
-  const marketStories = dbStories.length > 0 ? dbStories : [
-    { 
-      id: 1, 
-      type: 'Farmer', 
-      image: 'https://images.unsplash.com/photo-1595273670150-db0a3bf39079?w=400&h=600&fit=crop', 
-      name: 'Kashem Miya', 
-      quote: '“আগে কম দামে বিক্রি করতাম, এখন সরাসরি বিক্রি করে ভালো দাম পাচ্ছি।”',
-      role: '👨‍🌾 Farmer'
-    }
   ];
 
   const categories = dbCategories.length > 0 ? dbCategories : [
@@ -149,11 +131,11 @@ export default function Home() {
               className="absolute inset-0"
             >
               <img src={banner.image} loading="lazy" referrerPolicy="no-referrer" className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" alt={banner.title} />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end pb-12 px-8">
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end pb-10 px-8 h-2/3">
                 <motion.span 
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: activeBanner === idx ? 0 : 20, opacity: activeBanner === idx ? 1 : 0 }}
-                  className="text-secondary font-black text-[10px] uppercase tracking-[0.4em] mb-3"
+                  className="text-primary font-black text-[10px] uppercase tracking-[0.4em] mb-2 bg-white/90 backdrop-blur-md w-fit px-3 py-1 rounded-full shadow-sm"
                 >
                   Limited Offer
                 </motion.span>
@@ -161,7 +143,7 @@ export default function Home() {
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: activeBanner === idx ? 0 : 20, opacity: activeBanner === idx ? 1 : 0 }}
                   transition={{ delay: 0.1 }}
-                  className="text-white font-display font-bold text-3xl leading-tight mb-6 drop-shadow-lg"
+                  className="text-white font-display font-bold text-3xl leading-tight mb-4 drop-shadow-md"
                 >
                   {banner.title}
                 </motion.h3>
@@ -169,8 +151,9 @@ export default function Home() {
                   initial={{ y: 10, opacity: 0 }}
                   animate={{ y: activeBanner === idx ? 0 : 10, opacity: activeBanner === idx ? 1 : 0 }}
                   transition={{ delay: 0.15 }}
-                  className="text-white/80 text-xs font-medium mb-6 line-clamp-1"
+                  className="text-white/90 text-xs font-semibold mb-6 flex items-center gap-2"
                 >
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
                   {banner.subtitle}
                 </motion.div>
                 <motion.button 
@@ -246,42 +229,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Market Stories Section */}
-      <div className="mb-10">
-        <div className="px-5 flex items-center justify-between mb-5">
-          <h2 className="font-display font-bold text-xl">{t('home.stories')}</h2>
-          <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg uppercase tracking-wider">Community</span>
-        </div>
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide px-5">
-          {marketStories.map((story) => (
-            <motion.div
-              key={story.id}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setSelectedStory(story)}
-              className="flex-shrink-0 relative w-24 h-36 rounded-2xl overflow-hidden border-2 border-white shadow-lg cursor-pointer group"
-            >
-              <img src={story.image} referrerPolicy="no-referrer" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={story.name} />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-2 text-shadow-sm">
-                <span className="text-[6px] font-bold text-secondary uppercase mb-0.5 tracking-wider">{story.type}</span>
-                <span className="text-white font-bold text-[9px] truncate">{story.name}</span>
-              </div>
-              <div className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full border-2 border-white overflow-hidden shadow-md">
-                <img src={story.image} referrerPolicy="no-referrer" className="w-full h-full object-cover" alt="avatar" />
-              </div>
-            </motion.div>
-          ))}
-          <motion.div 
-            whileTap={{ scale: 0.95 }}
-            className="flex-shrink-0 w-24 h-36 rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-2 text-slate-300"
-          >
-            <div className="w-7 h-7 rounded-full bg-slate-50 flex items-center justify-center">
-              <Plus size={14} />
-            </div>
-            <span className="text-[9px] font-bold">{t('home.add_yours')}</span>
-          </motion.div>
-        </div>
-      </div>
-
       {/* Combo / Bundle Offers */}
       <section className="mb-12 px-5">
           <div className="flex justify-between items-end mb-6">
@@ -302,10 +249,9 @@ export default function Home() {
                       key={bundle.id}
                       whileHover={{ y: -5 }}
                       onClick={() => navigate(`/product/${bundle.id}`)}
-                      className="flex-shrink-0 w-72 bg-white rounded-[2.5rem] p-5 border border-slate-100 shadow-xl shadow-slate-200/50 relative group cursor-pointer"
+                      className="flex-shrink-0 w-64 bg-white rounded-[2rem] p-4 border border-slate-100 shadow-xl shadow-slate-200/50 group cursor-pointer"
                   >
-                      <div className="absolute top-6 left-6 z-10 bg-secondary text-slate-900 text-[10px] font-bold px-3 py-1 rounded-full shadow-lg">BUNDLE SAVE</div>
-                      <div className="aspect-[4/3] rounded-[2rem] overflow-hidden mb-5">
+                      <div className="aspect-video rounded-2xl overflow-hidden mb-3">
                           <img 
                             src={bundle.image} 
                             loading="lazy"
@@ -313,37 +259,25 @@ export default function Home() {
                             alt={bundle.name} 
                           />
                       </div>
-                      <h3 className="font-display font-bold text-lg text-slate-800 mb-0.5">{dData(bundle.name, bundle.nameEn)}</h3>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-4">Family Pack • Farm Fresh</p>
-                      <div className="flex items-center justify-between">
-                          <div className="flex flex-col">
-                              <span className="text-2xl font-display font-bold text-slate-900 leading-none">৳{bundle.price}</span>
-                              <span className="text-[10px] text-slate-300 font-bold line-through mt-1">৳{Math.round(bundle.price * 1.2)}</span>
+                      <h3 className="font-bold text-base text-slate-800 mb-1 truncate">{dData(bundle.name, bundle.nameEn)}</h3>
+                      <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-baseline gap-1">
+                              <span className="text-lg font-display font-bold text-slate-900">৳{bundle.price}</span>
+                              <span className="text-[10px] text-slate-400 font-bold line-through">৳{Math.round(bundle.price * 1.2)}</span>
                           </div>
-                  <div className="flex gap-2">
-                    <motion.button 
-                        whileTap={{ scale: 0.85 }}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            addToCart(bundle);
-                        }}
-                        className="flex-1 bg-primary text-white py-2 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all"
-                    >
-                        <ShoppingCart size={16} />
-                        <span className="text-[10px] font-black uppercase tracking-wider">Add</span>
-                    </motion.button>
-                    <button 
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            addToCart(bundle);
-                            navigate('/checkout');
-                        }}
-                        className="px-4 py-2 bg-slate-100 text-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all font-sans"
-                    >
-                        Buy
-                    </button>
-                  </div>
+                          <span className="text-[9px] font-black text-secondary uppercase tracking-tight bg-secondary/10 px-2 py-0.5 rounded-md">Combo</span>
                       </div>
+                      <motion.button 
+                          whileTap={{ scale: 0.95 }}
+                          onClick={(e) => {
+                              e.stopPropagation();
+                              addToCart(bundle);
+                          }}
+                          className="w-full bg-primary text-white py-2 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all"
+                      >
+                          <ShoppingCart size={16} />
+                          <span className="text-xs font-black uppercase tracking-wider">Add to Cart</span>
+                      </motion.button>
                   </motion.div>
               ))}
               {dbProducts.filter(p => p.category === 'Bundles' || p.isBundle).length === 0 && (
@@ -421,42 +355,32 @@ export default function Home() {
                   <Heart size={12} fill={wishlistIds.includes(product.id) ? "currentColor" : "none"} />
                 </button>
               </div>
-              <div className="p-3 pt-1">
-                <span className="text-[8px] font-black text-primary uppercase tracking-[0.2em] block mb-1">{product.location}</span>
-                <h3 className="font-bold text-xs text-slate-800 mb-0.5 truncate leading-tight cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
+              <div className="p-3">
+                <h3 className="font-bold text-xs text-slate-800 mb-1 truncate leading-tight cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
                   {dData(product.name, product.nameEn)}
                 </h3>
-                <p className="text-[9px] text-slate-400 font-medium mb-3">By {product.farmerName || product.farmer}</p>
-                
-                <div className="flex flex-col gap-2 mt-2">
-                  <div className="flex items-center justify-between gap-1.5">
-                    <motion.button 
-                      whileTap={{ scale: 0.85 }}
-                      onClick={(e) => {
-                          e.stopPropagation();
-                          addToCart(product);
-                      }}
-                      className="flex-1 bg-primary text-white py-1.5 rounded-lg flex items-center justify-center gap-1.5 shadow-md shadow-primary/10 hover:bg-primary-dark transition-all"
-                    >
-                      <ShoppingCart size={14} />
-                      <span className="text-[9px] font-black uppercase tracking-wider">Add</span>
-                    </motion.button>
-                    <div className="flex flex-col text-right">
-                      <span className="text-base font-display font-bold text-slate-900 leading-none">৳{product.price}</span>
-                      <span className="text-[8px] text-slate-400 font-bold mt-0.5">/{product.unit}</span>
-                    </div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-baseline gap-0.5">
+                    <span className="text-sm font-display font-bold text-slate-900">৳{product.price}</span>
+                    <span className="text-[8px] text-slate-400 font-bold">/{product.unit}</span>
                   </div>
-                  <button 
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        addToCart(product);
-                        navigate('/checkout');
-                    }}
-                    className="w-full py-1.5 bg-slate-50 text-slate-600 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-100"
-                  >
-                    Buy Now
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <Star size={8} className="text-secondary fill-secondary" />
+                    <span className="text-[9px] font-black text-slate-800">{product.rating || '5.0'}</span>
+                  </div>
                 </div>
+                
+                <motion.button 
+                  whileTap={{ scale: 0.95 }}
+                  onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(product);
+                  }}
+                  className="w-full bg-primary text-white py-2 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/10 hover:bg-primary-dark transition-all"
+                >
+                  <ShoppingCart size={14} />
+                  <span className="text-[10px] font-black uppercase tracking-wider">Add to Cart</span>
+                </motion.button>
               </div>
             </motion.div>
           ))}
@@ -468,44 +392,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Story Modal */}
-      <AnimatePresence>
-        {selectedStory && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center p-5 bg-black/90 backdrop-blur-xl"
-          >
-            <motion.div 
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="relative w-full max-w-sm aspect-[9/16] rounded-[3rem] overflow-hidden shadow-2xl bg-white"
-            >
-              <img src={selectedStory.image} referrerPolicy="no-referrer" className="w-full h-full object-cover" alt="Story" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent p-10 flex flex-col justify-end items-center text-center">
-                <div className="mb-6 w-16 h-16 rounded-full border-4 border-primary p-1 bg-white shadow-xl">
-                    <img src={selectedStory.image} referrerPolicy="no-referrer" className="w-full h-full rounded-full object-cover" alt="avatar" />
-                </div>
-                <span className="text-secondary font-black tracking-[0.3em] uppercase text-[10px] mb-4">{selectedStory.role}</span>
-                <h3 className="text-white font-display font-bold text-2xl mb-8 leading-tight">
-                    {selectedStory.quote}
-                </h3>
-                <div className="w-12 h-1 bg-primary rounded-full mb-6" />
-                <p className="text-white/60 font-bold text-xs uppercase tracking-[0.2em]">{selectedStory.name}</p>
-              </div>
-              
-              <button 
-                onClick={() => setSelectedStory(null)}
-                className="absolute top-8 right-8 w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white hover:bg-white/40 transition-all border border-white/20"
-              >
-                <X size={24} />
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 }

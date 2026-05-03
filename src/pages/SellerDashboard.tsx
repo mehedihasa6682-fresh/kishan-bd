@@ -4,15 +4,27 @@ import {
   TrendingUp, Package, Clock, Wallet, 
   Plus, Search, Edit2, Trash2, CheckCircle2, 
   X, Image as ImageIcon, MapPin, Store, Truck, 
-  CheckCircle, AlertCircle, ShoppingBag, ArrowLeft
+  CheckCircle, AlertCircle, ShoppingBag, ArrowLeft,
+  Users, DollarSign, Activity
 } from 'lucide-react';
 import { useState, useEffect, useContext, FormEvent } from 'react';
 import { AuthContext } from '../App';
 import { sellerService } from '../services/sellerService';
 import { collection, onSnapshot, doc } from 'firebase/firestore';
 import { db } from '../firebase';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 import ImageUpload from '../components/ImageUpload';
+
+const chartData = [
+  { name: 'Mon', revenue: 400 },
+  { name: 'Tue', revenue: 300 },
+  { name: 'Wed', revenue: 600 },
+  { name: 'Thu', revenue: 800 },
+  { name: 'Fri', revenue: 500 },
+  { name: 'Sat', revenue: 900 },
+  { name: 'Sun', revenue: 1200 },
+];
 
 export default function SellerDashboard() {
   const { user, role } = useContext(AuthContext);
@@ -27,6 +39,15 @@ export default function SellerDashboard() {
   const [categories, setCategories] = useState<any[]>([]);
   const [isVerified, setIsVerified] = useState(false);
   const [isPending, setIsPending] = useState(false);
+
+  // Stats Calculations
+  const stats = {
+    revenue: orders.filter(o => o.status === 'delivered').reduce((acc, o) => acc + (o.total || 0), 0),
+    orderCount: orders.length,
+    customerCount: new Set(orders.map(o => o.userId)).size,
+    successRate: orders.length > 0 ? Math.round((orders.filter(o => o.status === 'delivered').length / orders.length) * 100) : 0,
+    pendingRev: orders.filter(o => ['pending', 'verified', 'confirmed', 'shipped'].includes(o.status)).reduce((acc, o) => acc + (o.total || 0), 0)
+  };
 
   // Form State
   const [newProduct, setNewProduct] = useState({
@@ -296,6 +317,112 @@ export default function SellerDashboard() {
       </div>
 
       <AnimatePresence mode="wait">
+        {activeTab === 'analytics' && (
+          <motion.div 
+            key="analytics"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm">
+                <div className="w-10 h-10 bg-primary/5 rounded-xl flex items-center justify-center text-primary mb-4">
+                  <DollarSign size={20} />
+                </div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Revenue</p>
+                <h3 className="text-xl font-display font-bold text-slate-900">৳{stats.revenue.toLocaleString()}</h3>
+                <span className="text-[9px] font-bold text-green-500">Completed Payouts</span>
+              </div>
+              <div className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm">
+                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 mb-4">
+                  <ShoppingBag size={20} />
+                </div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Orders</p>
+                <h3 className="text-xl font-display font-bold text-slate-900">{stats.orderCount}</h3>
+                <span className="text-[9px] font-bold text-blue-500">{orders.filter(o => o.status === 'pending').length} new pending</span>
+              </div>
+              <div className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm">
+                <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500 mb-4">
+                  <Users size={20} />
+                </div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Customers</p>
+                <h3 className="text-xl font-display font-bold text-slate-900">{stats.customerCount}</h3>
+                <span className="text-[9px] font-bold text-orange-500">Unique Buyers</span>
+              </div>
+              <div className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm">
+                <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-green-500 mb-4">
+                  <Activity size={20} />
+                </div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Success Rate</p>
+                <h3 className="text-xl font-display font-bold text-slate-900">{stats.successRate}%</h3>
+                <span className="text-[9px] font-bold text-green-500">Delivery accuracy</span>
+              </div>
+            </div>
+
+            <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h3 className="font-display font-bold text-lg">Revenue Growth</h3>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Weekly performance visualization</p>
+                </div>
+                <div className="flex gap-2">
+                  <div className="flex items-center gap-2 px-3 py-1 bg-slate-50 rounded-lg text-[9px] font-bold text-slate-400">
+                    <div className="w-2 h-2 bg-primary rounded-full" /> Revenue (৳)
+                  </div>
+                </div>
+              </div>
+              <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData}>
+                    <defs>
+                      <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis 
+                      dataKey="name" 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 'bold' }}
+                      dy={10}
+                    />
+                    <YAxis 
+                      hide
+                    />
+                    <Tooltip 
+                      contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px', fontWeight: 'bold' }}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="revenue" 
+                      stroke="#10b981" 
+                      strokeWidth={3}
+                      fillOpacity={1} 
+                      fill="url(#colorRev)" 
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="bg-slate-900 p-8 rounded-[3rem] text-white overflow-hidden relative">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
+              <div className="relative z-10">
+                <TrendingUp className="text-primary mb-4" size={32} />
+                <h3 className="text-2xl font-display font-bold mb-2">Grow your Business</h3>
+                <p className="text-slate-400 text-xs leading-relaxed max-w-xs mb-6">
+                  Add more high-quality photos and descriptions to attract 3x more customers to your farm products.
+                </p>
+                <button className="px-8 py-3 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl">
+                  Get Pro Tips
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {activeTab === 'orders' && (
           <motion.div key="orders" className="space-y-6">
             <div className="flex items-center justify-between mb-2">

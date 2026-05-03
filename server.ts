@@ -9,16 +9,23 @@ app.use(express.json());
 
 // VAPID Keys
 const vapidKeys = {
-  publicKey: process.env.VITE_VAPID_PUBLIC_KEY || "BLUaQ6p_En7RjF_9QTN__g6WVViX9r9eJfy16eiryt-GADsNg46gtyJNqxDDS7qeGyYCUkhkIjvkKRKvIRHgBRw",
-  privateKey: process.env.VAPID_PRIVATE_KEY || "LooYGn1uk40EEC5vpuBLJ4Jsad0Wmpzt1AEFPM1cJ0g"
+  publicKey: process.env.VITE_VAPID_PUBLIC_KEY || process.env.VAPID_PUBLIC_KEY,
+  privateKey: process.env.VAPID_PRIVATE_KEY
 };
 
 if (vapidKeys.publicKey && vapidKeys.privateKey) {
-  webpush.setVapidDetails(
-    "mailto:example@yourdomain.com",
-    vapidKeys.publicKey,
-    vapidKeys.privateKey
-  );
+  try {
+    webpush.setVapidDetails(
+      "mailto:admin@kishanbd.com",
+      vapidKeys.publicKey,
+      vapidKeys.privateKey
+    );
+    console.log("VAPID details set successfully");
+  } catch (err) {
+    console.error("Failed to set VAPID details:", err);
+  }
+} else {
+  console.warn("VAPID keys are missing. Push notifications will not work.");
 }
 
 // API Routes

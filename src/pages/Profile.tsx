@@ -369,7 +369,8 @@ export default function Profile() {
             <button
               onClick={() => {
                 if (user) {
-                  NotificationService.sendNotification(user.uid, {
+                  NotificationService.sendNotification({
+                    userId: user.uid,
                     title: 'চেক নোটিফিকেশন!',
                     message: 'এটি একবারে শো করবে এবং পারমিশন দিলে নোটিফিকেশন বারেও যাবে।',
                     type: 'promo',

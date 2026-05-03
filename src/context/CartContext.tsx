@@ -9,6 +9,9 @@ interface CartItem {
   image: string;
   farmer?: string;
   sellerId?: string;
+  minWeight?: number;
+  weightIncrements?: number;
+  enableWeightSystem?: boolean;
 }
 
 interface CartContextType {
@@ -40,7 +43,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const addToCart = (product: any) => {
     setItems(prev => {
       const existing = prev.find(i => i.id === product.id);
-      const qty = product.quantity || 1;
+      const qty = product.quantity || product.minWeight || 1;
       
       // Normalize sellerId from farmerId if needed
       const normalizedProduct = { 
@@ -60,9 +63,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const updateQuantity = (id: string | number, delta: number) => {
-    setItems(prev => prev.map(i => 
-      i.id === id ? { ...i, quantity: Math.max(1, i.quantity + delta) } : i
-    ));
+    setItems(prev => prev.map(i => {
+      if (i.id === id) {
+          const newQty = Math.max(1, i.quantity + delta);
+          return { ...i, quantity: newQty };
+      }
+      return i;
+    }));
   };
 
   const clearCart = () => setItems([]);
