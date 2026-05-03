@@ -1300,15 +1300,49 @@ export default function AdminPanel() {
                         <ImageIcon size={20} className="text-primary" />
                         Logo & Branding
                     </h3>
-                    <div className="max-w-xs">
-                        <ImageUpload 
-                            label="App Main Logo"
-                            currentImage={appSettings.logo}
-                            onUpload={updateLogo}
-                        />
-                        <p className="text-[10px] text-slate-400 mt-4 leading-relaxed font-black uppercase tracking-widest leading-none">
-                            This logo will appear on the navbar across the entire application.
-                        </p>
+                    <div className="space-y-6">
+                        <div className="max-w-xs space-y-2">
+                          <label className="text-[10px] font-black text-slate-400 uppercase ml-1">App Name</label>
+                          <input 
+                              placeholder="e.g. Kishan Marketplace" 
+                              className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none focus:ring-2 focus:ring-primary/20"
+                              id="appNameInput"
+                              defaultValue={appSettings.appName || ''}
+                              onBlur={async (e) => {
+                                await adminService.updateAppSetting('appName', e.target.value);
+                              }}
+                          />
+                        </div>
+                        
+                        <div className="max-w-xs">
+                            <ImageUpload 
+                                label="App Main Logo"
+                                currentImage={appSettings.logo}
+                                onUpload={updateLogo}
+                            />
+                            <p className="text-[10px] text-slate-400 mt-2 leading-relaxed font-black uppercase tracking-widest">
+                                Appearing on navbar, notifications and app icon.
+                            </p>
+                        </div>
+
+                        <div className="border-t border-slate-50 pt-6">
+                          <h4 className="font-bold text-sm mb-4">PWA Install Screenshots</h4>
+                          <div className="grid grid-cols-2 gap-4">
+                            <ImageUpload 
+                                label="Mobile Screenshot (9:16)"
+                                currentImage={appSettings.screenshotMobile}
+                                onUpload={(base64) => adminService.updateAppSetting('screenshotMobile', base64)}
+                            />
+                            <ImageUpload 
+                                label="Desktop Screenshot (16:9)"
+                                currentImage={appSettings.screenshotDesktop}
+                                onUpload={(base64) => adminService.updateAppSetting('screenshotDesktop', base64)}
+                            />
+                          </div>
+                          <p className="text-[10px] text-slate-400 mt-4 leading-relaxed font-black uppercase tracking-widest">
+                              These will appear when a user tries to install the app on their phone or PC.
+                          </p>
+                        </div>
                     </div>
                 </div>
 

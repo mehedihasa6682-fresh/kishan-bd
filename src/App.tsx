@@ -7,6 +7,7 @@ import { CartProvider } from './context/CartContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { SettingsProvider } from './context/SettingsContext';
 import { HelmetProvider } from 'react-helmet-async';
+import { MessagingService } from './services/messagingService';
 
 // Pages - to be created
 import Home from './pages/Home';
@@ -76,6 +77,7 @@ export default function App() {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       if (u) {
+        MessagingService.requestPermissionAndGetToken();
         // Init settings
         try {
           const { getDoc, doc, setDoc } = await import('firebase/firestore');

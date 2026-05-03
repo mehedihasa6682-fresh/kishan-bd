@@ -187,13 +187,19 @@
         "type": "object",
         "properties": {
           "logo": { "type": "string" },
+          "appName": { "type": "string" },
+          "screenshotMobile": { "type": "string" },
+          "screenshotDesktop": { "type": "string" },
           "promoBanner": { "type": "string" },
+          "announcementBar": { "type": "string" },
+          "supportEmail": { "type": "string" },
+          "shopAddress": { "type": "string" },
           "maintenanceMode": { "type": "boolean" },
           "whatsappNumber": { "type": "string" },
           "updatedAt": { "type": "string", "format": "date-time" }
         }
       },
-      "description": "Global app settings like logo and maintenance mode"
+      "description": "Global app settings like logo, app name, screenshots and maintenance mode"
     },
     "bundles": {
       "schema": "Product",

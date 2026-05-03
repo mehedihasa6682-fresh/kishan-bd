@@ -14,7 +14,7 @@ export default function NotificationCenter() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [activeToast, setActiveToast] = useState<AppNotification | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const lastProcessedIdRef = useRef<string>('');
+  const lastProcessedIdRef = useRef<string>(localStorage.getItem('last_notif_alert') || '');
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -28,6 +28,7 @@ export default function NotificationCenter() {
       const newest = data[0];
       if (newest && !newest.read && newest.id !== lastProcessedIdRef.current) {
         lastProcessedIdRef.current = newest.id;
+        localStorage.setItem('last_notif_alert', newest.id);
         
         // 1. Show In-App Heads-up (Toast)
         setActiveToast(newest);
@@ -54,7 +55,7 @@ export default function NotificationCenter() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [appSettings.logo]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -135,12 +136,22 @@ export default function NotificationCenter() {
 
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute right-0 mt-3 w-80 bg-white rounded-3xl shadow-2xl border border-slate-100 z-50 overflow-hidden font-sans"
-          >
+          <>
+            {/* Mobile Backdrop */}
+            <motion.div 
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               exit={{ opacity: 0 }}
+               onClick={() => setIsOpen(false)}
+               className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[45] md:hidden"
+            />
+            
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+              className="fixed inset-x-4 top-24 md:absolute md:inset-auto md:right-0 md:top-full md:mt-3 w-auto md:w-96 bg-white rounded-[2.5rem] md:rounded-3xl shadow-2xl border border-slate-100 z-50 overflow-hidden font-sans"
+            >
             <div className="px-5 py-4 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
               <h3 className="font-bold text-sm text-slate-800">Notifications</h3>
               {unreadCount > 0 && (
@@ -202,7 +213,8 @@ export default function NotificationCenter() {
                   Clear History
                 </button>
              </div>
-          </motion.div>
+           </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>
