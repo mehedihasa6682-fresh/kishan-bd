@@ -1,14 +1,8 @@
 import express from "express";
-import path from "path";
-import { fileURLToPath } from "url";
-import { createServer as createViteServer } from "vite";
 import webpush from "web-push";
 import dotenv from "dotenv";
 
 dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(express.json());
@@ -45,29 +39,20 @@ app.get("/api/vapid-public-key", (req, res) => {
   res.json({ publicKey: vapidKeys.publicKey });
 });
 
-// Production serving
-if (process.env.NODE_ENV === "production" && !process.env.VERCEL) {
-  const distPath = path.join(process.cwd(), "dist");
-  app.use(express.static(distPath));
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(distPath, "index.html"));
-  });
-}
-
+// Helper for local dev only
 async function startServer() {
-  const PORT = 3000;
   if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
+    // Dynamically import Vite only during development
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
-  }
-
-  // Only listen if not on Vercel
-  if (!process.env.VERCEL) {
+    
+    const PORT = 3000;
     app.listen(PORT, "0.0.0.0", () => {
-      console.log(`Server running on http://localhost:${PORT}`);
+      console.log(`Development server running on http://localhost:${PORT}`);
     });
   }
 }
