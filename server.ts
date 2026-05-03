@@ -46,7 +46,7 @@ app.get("/api/vapid-public-key", (req, res) => {
 });
 
 // Production serving
-if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
+if (process.env.NODE_ENV === "production" && !process.env.VERCEL) {
   const distPath = path.join(process.cwd(), "dist");
   app.use(express.static(distPath));
   app.get("*", (req, res) => {
