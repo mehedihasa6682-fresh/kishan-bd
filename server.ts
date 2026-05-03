@@ -10,69 +10,68 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+const app = express();
+app.use(express.json());
 
-  app.use(express.json());
+// VAPID Keys
+const vapidKeys = {
+  publicKey: process.env.VITE_VAPID_PUBLIC_KEY || "BLUaQ6p_En7RjF_9QTN__g6WVViX9r9eJfy16eiryt-GADsNg46gtyJNqxDDS7qeGyYCUkhkIjvkKRKvIRHgBRw",
+  privateKey: process.env.VAPID_PRIVATE_KEY || "LooYGn1uk40EEC5vpuBLJ4Jsad0Wmpzt1AEFPM1cJ0g"
+};
 
-  // VAPID Keys - Should be in .env but providing defaults for demo
-  // Users can generate these using npx web-push generate-vapid-keys
-  const vapidKeys = {
-    publicKey: process.env.VITE_VAPID_PUBLIC_KEY || "BP80R2KTOd44MTHx8apVSgbQTZ_ky8Lr_c8MRyTEAtiq7jbvhRlV6fcjT3ABFpHtmOlefUR6s4CzRHK10RGYiQU",
-    privateKey: process.env.VAPID_PRIVATE_KEY || ""
-  };
+if (vapidKeys.publicKey && vapidKeys.privateKey) {
+  webpush.setVapidDetails(
+    "mailto:example@yourdomain.com",
+    vapidKeys.publicKey,
+    vapidKeys.privateKey
+  );
+}
 
-  if (vapidKeys.publicKey && vapidKeys.privateKey) {
-    webpush.setVapidDetails(
-      "mailto:example@yourdomain.com",
-      vapidKeys.publicKey,
-      vapidKeys.privateKey
-    );
+// API Routes
+app.post("/api/send-notification", async (req, res) => {
+  const { subscription, payload } = req.body;
+  if (!vapidKeys.privateKey) {
+    return res.status(400).json({ error: "Missing VAPID_PRIVATE_KEY" });
   }
+  try {
+    await webpush.sendNotification(subscription, JSON.stringify(payload));
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Push failed" });
+  }
+});
 
-  // API Route: Send Test Notification
-  app.post("/api/send-notification", async (req, res) => {
-    const { subscription, payload } = req.body;
+app.get("/api/vapid-public-key", (req, res) => {
+  res.json({ publicKey: vapidKeys.publicKey });
+});
 
-    if (!vapidKeys.privateKey) {
-      return res.status(400).json({ 
-        error: "VAPID_PRIVATE_KEY is missing. Please set it in Settings -> Secrets." 
-      });
-    }
-
-    try {
-      await webpush.sendNotification(subscription, JSON.stringify(payload));
-      res.json({ success: true, message: "Notification sent successfully!" });
-    } catch (error) {
-      console.error("Push error:", error);
-      res.status(500).json({ error: "Failed to send notification" });
-    }
+// Production serving
+if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
+  const distPath = path.join(process.cwd(), "dist");
+  app.use(express.static(distPath));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(distPath, "index.html"));
   });
+}
 
-  // API Route: Get Public VAPID Key
-  app.get("/api/vapid-public-key", (req, res) => {
-    res.json({ publicKey: vapidKeys.publicKey });
-  });
-
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
+async function startServer() {
+  const PORT = 3000;
+  if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
-    });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+  // Only listen if not on Vercel
+  if (!process.env.VERCEL) {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  }
 }
 
 startServer();
+
+export default app;

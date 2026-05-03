@@ -11,7 +11,7 @@ export const MessagingService = {
     try {
       const permission = await Notification.requestPermission();
       if (permission === 'granted') {
-        const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY || 'BP80R2KTOd44MTHx8apVSgbQTZ_ky8Lr_c8MRyTEAtiq7jbvhRlV6fcjT3ABFpHtmOlefUR6s4CzRHK10RGYiQU';
+        const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY || 'BLUaQ6p_En7RjF_9QTN__g6WVViX9r9eJfy16eiryt-GADsNg46gtyJNqxDDS7qeGyYCUkhkIjvkKRKvIRHgBRw';
         
         const token = await getToken(messaging, { vapidKey });
         
