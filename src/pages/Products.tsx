@@ -74,6 +74,7 @@ export default function Products() {
   };
    
   let filteredProducts = (dbProducts.length > 0 ? dbProducts : []).filter(p => {
+    if (p.isOutOfStock) return false;
     if (selectedCategory.id === 'Bundles') return p.isBundle;
     return (selectedCategory.title === 'All' || p.category === selectedCategory.title) &&
            (selectedSubCategory === 'All' || p.subCategory === selectedSubCategory) &&

@@ -88,9 +88,9 @@ export default function Home() {
     { id: 2, name: 'Organic Honey', price: 450, unit: 'kg', farmer: 'Mita Sen', location: 'Sundarban', rating: 4.9, image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&h=400&fit=crop' },
   ];
 
-  const featuredProducts = dbProducts.length > 0 ? dbProducts.filter(p => !p.isBundle).slice(0, 4) : fallbackProducts;
-  const bundleProducts = dbProducts.filter(p => p.isBundle);
-  const flashSaleProducts = dbProducts.filter(p => p.isFlashSale).slice(0, 3);
+  const featuredProducts = dbProducts.length > 0 ? dbProducts.filter(p => !p.isBundle && !p.isOutOfStock).slice(0, 4) : fallbackProducts;
+  const bundleProducts = dbProducts.filter(p => (p.isBundle || p.category === 'Bundles') && !p.isOutOfStock);
+  const flashSaleProducts = dbProducts.filter(p => p.isFlashSale && !p.isOutOfStock).slice(0, 3);
 
   return (
     <motion.div 
@@ -130,49 +130,15 @@ export default function Home() {
               transition={{ duration: 0.6 }}
               className="absolute inset-0"
             >
-              <img src={banner.image} loading="lazy" referrerPolicy="no-referrer" className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" alt={banner.title} />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end pb-10 px-8 h-2/3">
-                <motion.span 
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: activeBanner === idx ? 0 : 20, opacity: activeBanner === idx ? 1 : 0 }}
-                  className="text-primary font-black text-[10px] uppercase tracking-[0.4em] mb-2 bg-white/90 backdrop-blur-md w-fit px-3 py-1 rounded-full shadow-sm"
-                >
-                  Limited Offer
-                </motion.span>
-                <motion.h3 
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: activeBanner === idx ? 0 : 20, opacity: activeBanner === idx ? 1 : 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="text-white font-display font-bold text-3xl leading-tight mb-4 drop-shadow-md"
-                >
-                  {banner.title}
-                </motion.h3>
-                <motion.div
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: activeBanner === idx ? 0 : 10, opacity: activeBanner === idx ? 1 : 0 }}
-                  transition={{ delay: 0.15 }}
-                  className="text-white/90 text-xs font-semibold mb-6 flex items-center gap-2"
-                >
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-                  {banner.subtitle}
-                </motion.div>
-                <motion.button 
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: activeBanner === idx ? 1 : 0.8, opacity: activeBanner === idx ? 1 : 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="bg-white text-slate-900 w-fit px-8 py-3.5 rounded-2xl text-xs font-bold hover:bg-slate-50 transition-all shadow-2xl active:scale-95"
-                >
-                  Order Now
-                </motion.button>
-              </div>
+              <img src={banner.image} loading="lazy" referrerPolicy="no-referrer" className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" alt={banner.title || 'Banner'} />
             </motion.div>
           ))}
-          <div className="absolute bottom-5 left-8 flex gap-2">
+          <div className="absolute bottom-5 inset-x-0 flex justify-center gap-2 z-20">
             {banners.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setActiveBanner(idx)}
-                className={`h-1.5 rounded-full transition-all duration-500 ${activeBanner === idx ? 'w-8 bg-white' : 'w-1.5 bg-white/30'}`}
+                className={`h-1.5 rounded-full transition-all duration-500 shadow-md ${activeBanner === idx ? 'w-8 bg-white' : 'w-2 bg-white/50'}`}
               />
             ))}
           </div>

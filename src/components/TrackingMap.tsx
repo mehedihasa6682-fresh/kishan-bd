@@ -1,14 +1,17 @@
 import { motion } from 'motion/react';
 import { MapPin, Truck, Navigation2, CheckCircle2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { calculateDistance, formatDistance } from '../lib/geoUtils';
 
 interface TrackingMapProps {
   status: string;
   riderLocation?: { lat: number, lng: number };
+  destination?: { lat: number, lng: number };
 }
 
-export default function TrackingMap({ status, riderLocation }: TrackingMapProps) {
+export default function TrackingMap({ status, riderLocation, destination }: TrackingMapProps) {
   const [progress, setProgress] = useState(0);
+  const [distance, setDistance] = useState<string>('Calculating...');
 
   useEffect(() => {
     const statusMap: Record<string, number> = {
@@ -19,7 +22,17 @@ export default function TrackingMap({ status, riderLocation }: TrackingMapProps)
       delivered: 100
     };
     setProgress(statusMap[status] || 0);
-  }, [status]);
+
+    if (riderLocation && destination) {
+      const dist = calculateDistance(
+        riderLocation.lat, 
+        riderLocation.lng, 
+        destination.lat, 
+        destination.lng
+      );
+      setDistance(formatDistance(dist));
+    }
+  }, [status, riderLocation, destination]);
 
   return (
     <div className="relative h-48 bg-slate-100 rounded-[2rem] overflow-hidden border border-slate-200">
@@ -70,7 +83,7 @@ export default function TrackingMap({ status, riderLocation }: TrackingMapProps)
           <div className="bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-slate-100 flex items-center gap-2 shadow-sm">
               <Navigation2 size={10} className="text-primary rotate-45" />
               <span className="text-[9px] font-black uppercase text-slate-600 tracking-wider">
-                  {status === 'shipped' ? 'Live: 2.4km away' : 'Distance: 5.2km'}
+                  {status === 'shipped' ? `Live: ${distance} away` : `Distance: ${distance}`}
               </span>
           </div>
           <div className="bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-slate-100 flex items-center gap-2 shadow-sm">

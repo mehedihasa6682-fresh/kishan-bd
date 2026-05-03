@@ -30,6 +30,9 @@ export interface Order {
   address: string;
   phone: string;
   sellerIds: string[]; // List of sellers involved in this order
+  riderId?: string;
+  location?: { lat: number, lng: number };
+  addressData?: any;
 }
 
 export const orderService = {

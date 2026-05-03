@@ -8,6 +8,8 @@ import { auth, db } from '../firebase';
 import { signOut } from 'firebase/auth';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 
+import { calculateDistance, formatDistance } from '../lib/geoUtils';
+
 export default function RiderDashboard() {
   const { user, profile } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -16,11 +18,23 @@ export default function RiderDashboard() {
   const [myOrders, setMyOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState(profile?.status || 'offline');
+  const [currentLocation, setCurrentLocation] = useState<{lat: number, lng: number} | null>(null);
 
   useEffect(() => {
     if (!user) {
       navigate('/');
       return;
+    }
+
+    // Get current location
+    if ("geolocation" in navigator) {
+        navigator.geolocation.watchPosition((pos) => {
+            const { latitude, longitude } = pos.coords;
+            setCurrentLocation({ lat: latitude, lng: longitude });
+            if (status === 'online') {
+                riderService.updateLocation(user.uid, latitude, longitude);
+            }
+        });
     }
 
     const unsubAvailable = riderService.getAvailableOrders(setAvailableOrders);
@@ -29,19 +43,9 @@ export default function RiderDashboard() {
       setLoading(false);
     });
 
-    // Simulated location tracking
-    const locInterval = setInterval(() => {
-        if (status === 'online') {
-            const lat = 23.8103 + (Math.random() - 0.5) * 0.01;
-            const lng = 90.4125 + (Math.random() - 0.5) * 0.01;
-            riderService.updateLocation(user.uid, lat, lng);
-        }
-    }, 30000);
-
     return () => {
       unsubAvailable();
       unsubMy();
-      clearInterval(locInterval);
     };
   }, [user, navigate, status]);
 
@@ -201,7 +205,14 @@ export default function RiderDashboard() {
                                         </div>
                                         <div className="flex-1">
                                             <p className="text-[10px] font-black text-slate-400 uppercase leading-none mb-1">Deliver to</p>
-                                            <p className="text-xs font-bold text-slate-700">{order.address}</p>
+                                            <div className="flex items-center justify-between">
+                                              <p className="text-xs font-bold text-slate-700">{order.address}</p>
+                                              {currentLocation && order.location && (
+                                                <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+                                                  {formatDistance(calculateDistance(currentLocation.lat, currentLocation.lng, order.location.lat, order.location.lng))}
+                                                </span>
+                                              )}
+                                            </div>
                                             {order.addressData && (
                                                 <p className="text-[9px] text-slate-400 mt-0.5">
                                                     {order.addressData.type} • Floor: {order.addressData.floorNo || 'N/A'} • Apt: {order.addressData.apartment || 'N/A'}

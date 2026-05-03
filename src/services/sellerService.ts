@@ -31,6 +31,8 @@ export const sellerService = {
         farmerId: sellerId,
         status: 'pending',
         isApproved: false,
+        stockQuantity: Number(product.stockQuantity || 0),
+        isOutOfStock: product.isOutOfStock || false,
         whatsappNumber: product.whatsappNumber || null,
         createdAt: serverTimestamp()
       });
@@ -43,8 +45,19 @@ export const sellerService = {
     try {
       await updateDoc(doc(db, 'products', id), { 
         ...updates, 
-        status: 'pending',
-        isApproved: false 
+        updatedAt: serverTimestamp()
+      }); 
+    } catch (e) {
+      handleFirestoreError(e, OperationType.UPDATE, `products/${id}`);
+    }
+  },
+
+  async updateStock(id: string, quantity: number, isOutOfStock: boolean) {
+    try {
+      await updateDoc(doc(db, 'products', id), { 
+        stockQuantity: Number(quantity),
+        isOutOfStock,
+        updatedAt: serverTimestamp()
       }); 
     } catch (e) {
       handleFirestoreError(e, OperationType.UPDATE, `products/${id}`);

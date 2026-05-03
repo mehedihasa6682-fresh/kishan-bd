@@ -91,9 +91,14 @@ export const adminService = {
       });
     } catch (e) { handleFirestoreError(e, OperationType.UPDATE, `products/${id}`); }
   },
-  async updateStockStatus(id: string, status: 'In Stock' | 'Out of Stock') {
+  async updateStockStatus(id: string, statusText: string, stockQuantity: number, isOutOfStock: boolean) {
     try {
-      await updateDoc(doc(db, 'products', id), { stockStatus: status });
+      await updateDoc(doc(db, 'products', id), { 
+        stockStatus: statusText,
+        stockQuantity: stockQuantity,
+        isOutOfStock: isOutOfStock,
+        updatedAt: serverTimestamp()
+      });
     } catch (e) { handleFirestoreError(e, OperationType.UPDATE, `products/${id}`); }
   },
   async getPendingProducts(callback: (products: any[]) => void) {

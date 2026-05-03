@@ -58,7 +58,8 @@ export default function SellerDashboard() {
       category: '',
       subCategory: '',
       image: '',
-      stock: 'In Stock',
+      stockQuantity: '100',
+      isOutOfStock: false,
       description: '',
       descriptionEn: '',
       whatsappNumber: ''
@@ -99,13 +100,15 @@ export default function SellerDashboard() {
     await sellerService.addProduct({
         ...newProduct,
         price: Number(newProduct.price),
+        stockQuantity: Number(newProduct.stockQuantity),
+        isOutOfStock: newProduct.isOutOfStock,
         sellerId: user.uid,
         farmer: user.displayName || 'Farmer',
         location: 'Local Farm' // Should be from seller profile
     });
 
     setIsAdding(false);
-    setNewProduct({ name: '', nameEn: '', price: '', unit: 'kg', category: '', subCategory: '', image: '', stock: 'In Stock', description: '', descriptionEn: '', whatsappNumber: '' });
+    setNewProduct({ name: '', nameEn: '', price: '', unit: 'kg', category: '', subCategory: '', image: '', stockQuantity: '100', isOutOfStock: false, description: '', descriptionEn: '', whatsappNumber: '' });
   };
 
   const handleApply = async (e: FormEvent) => {
@@ -270,8 +273,10 @@ export default function SellerDashboard() {
                         
                         <div className="grid grid-cols-2 gap-3">
                             <input required type="number" placeholder="Price (৳)" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} />
-                            <input placeholder="WhatsApp (+8801...)" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-sans outline-none" value={newProduct.whatsappNumber} onChange={e => setNewProduct({...newProduct, whatsappNumber: e.target.value})} />
+                            <input required type="number" placeholder="Initial Stock" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none" value={newProduct.stockQuantity} onChange={e => setNewProduct({...newProduct, stockQuantity: e.target.value})} />
                         </div>
+                        <input placeholder="WhatsApp (+8801...)" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-sans outline-none" value={newProduct.whatsappNumber} onChange={e => setNewProduct({...newProduct, whatsappNumber: e.target.value})} />
+
                             <select className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs" value={newProduct.unit} onChange={e => setNewProduct({...newProduct, unit: e.target.value})}>
                                 <option value="kg">Per kg</option>
                                 <option value="pcs">Per pcs</option>
@@ -491,25 +496,54 @@ export default function SellerDashboard() {
                 <h2 className="font-display font-bold text-lg px-1">My Catalogue</h2>
                 <div className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden divide-y divide-slate-50">
                     {products.map((prod) => (
-                        <div key={prod.id} className="p-5 flex items-center gap-4 group">
-                            <div className="w-14 h-14 bg-slate-50 rounded-2xl overflow-hidden flex-shrink-0">
-                                <img src={prod.image} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <h4 className="font-bold text-sm text-slate-800 truncate">{prod.name}</h4>
-                                <div className="flex items-center gap-2 mt-1">
-                                    <span className="text-[10px] font-bold text-primary">৳{prod.price}/{prod.unit}</span>
-                                    <span className={`text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider ${
-                                        prod.status === 'approved' ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'
-                                    }`}>
-                                        {prod.status}
-                                    </span>
+                        <div key={prod.id} className="p-5 flex flex-col gap-4 group">
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 bg-slate-50 rounded-2xl overflow-hidden flex-shrink-0">
+                                    <img src={prod.image} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="font-bold text-sm text-slate-800 truncate">{prod.name}</h4>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className="text-[10px] font-bold text-primary">৳{prod.price}/{prod.unit}</span>
+                                        <span className={`text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider ${
+                                            prod.status === 'approved' ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'
+                                        }`}>
+                                            {prod.status}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="flex gap-1">
+                                    <button className="p-2 text-slate-300 hover:text-red-500 transition-colors" onClick={() => {
+                                        if(confirm("Are you sure you want to delete this product?")) {
+                                            sellerService.deleteProduct(prod.id);
+                                        }
+                                    }}>
+                                        <Trash2 size={18} />
+                                    </button>
                                 </div>
                             </div>
-                            <div className="flex gap-1">
-                                <button className="p-2 text-slate-300 hover:text-red-500 transition-colors" onClick={() => sellerService.deleteProduct(prod.id)}>
-                                    <Trash2 size={18} />
-                                </button>
+                            
+                            <div className="flex items-center justify-between gap-4 bg-slate-50 p-2 px-4 rounded-2xl border border-slate-100">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stock:</span>
+                                    <input 
+                                        type="number" 
+                                        className="w-16 bg-white border border-slate-200 rounded-lg text-xs font-bold px-2 py-1 outline-none focus:ring-1 focus:ring-primary"
+                                        value={prod.stockQuantity || 0}
+                                        onChange={(e) => sellerService.updateStock(prod.id, Number(e.target.value), prod.isOutOfStock || false)}
+                                    />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className={`text-[9px] font-black uppercase tracking-widest ${prod.isOutOfStock ? 'text-red-500' : 'text-green-500'}`}>
+                                        {prod.isOutOfStock ? 'Out of Stock' : 'In Stock'}
+                                    </span>
+                                    <button 
+                                        onClick={() => sellerService.updateStock(prod.id, prod.stockQuantity || 0, !prod.isOutOfStock)}
+                                        className={`w-10 h-5 rounded-full relative transition-colors duration-300 ${prod.isOutOfStock ? 'bg-slate-300' : 'bg-primary'}`}
+                                    >
+                                        <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-300 ${prod.isOutOfStock ? 'left-0.5' : 'left-5.5'}`} />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ))}

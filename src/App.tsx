@@ -28,6 +28,7 @@ import BottomNav from './components/BottomNav';
 import PWAInstall from './components/PWAInstall';
 import WhatsAppSupport from './components/WhatsAppSupport';
 import PromoBanner from './components/PromoBanner';
+import NotificationPrompt from './components/NotificationPrompt';
 
 interface AuthContextType {
   user: User | null;
@@ -155,6 +156,7 @@ function RoutesContent() {
 
   return (
     <div className={`flex flex-col min-h-screen bg-background ${isDashboardRoute ? '' : 'pb-24 md:pb-0'}`}>
+      {!isDashboardRoute && <NotificationPrompt />}
       {!isDashboardRoute && <PromoBanner />}
       {!isDashboardRoute && <PWAInstall />}
       {!isDashboardRoute && <WhatsAppSupport />}

@@ -28,6 +28,34 @@ const StatusBadge = ({ status }: { status: string }) => {
   );
 };
 
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
+
+const OrderTracking = ({ order }: { order: Order }) => {
+    const [riderLocation, setRiderLocation] = useState<{lat: number, lng: number} | null>(null);
+
+    useEffect(() => {
+        if (order.status === 'shipped' && order.riderId) {
+            const unsub = onSnapshot(doc(db, 'users', order.riderId), (snap) => {
+                if (snap.exists() && snap.data().location) {
+                    setRiderLocation(snap.data().location);
+                }
+            });
+            return () => unsub();
+        }
+    }, [order.status, order.riderId]);
+
+    return (
+        <div className="pt-4 overflow-hidden">
+            <TrackingMap 
+                status={order.status} 
+                riderLocation={riderLocation || undefined} 
+                destination={order.location}
+            />
+        </div>
+    );
+};
+
 export default function Orders() {
   const { user } = useContext(AuthContext);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -160,9 +188,8 @@ export default function Orders() {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        className="pt-4 overflow-hidden"
                     >
-                        <TrackingMap status={order.status} />
+                        <OrderTracking order={order} />
                     </motion.div>
                 )}
               </AnimatePresence>

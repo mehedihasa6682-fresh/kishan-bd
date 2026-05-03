@@ -7,7 +7,7 @@ import {
   CheckCircle, XCircle, Plus, Trash2, Layout,
   Layers, Camera, ChevronRight, Store, X, Clock, Bell,
   ArrowLeft, User, Box, Gift, Image as ImageIcon,
-  MessageSquare, Package, Eye, EyeOff
+  MessageSquare, Package, Eye, EyeOff, MapPin
 } from 'lucide-react';
 import { adminService } from '../services/adminService';
 import { collection, onSnapshot, query, orderBy, where, doc } from 'firebase/firestore';
@@ -17,14 +17,31 @@ import Invoice from '../components/Invoice';
 import ImageUpload from '../components/ImageUpload';
 import { format } from 'date-fns';
 
+import { calculateDistance, formatDistance } from '../lib/geoUtils';
+
 export default function AdminPanel() {
   const { user, role, loading: authLoading } = useContext(AuthContext);
   const navigate = useNavigate();
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [deliveryAreas, setDeliveryAreas] = useState<any[]>([]);
   const [newArea, setNewArea] = useState({ name: '', fee: 50 });
+  const [riderLocations, setRiderLocations] = useState<Record<string, any>>({});
+  const [sellers, setSellers] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
 
   const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'approvals' | 'banners' | 'stories' | 'categories' | 'users' | 'orders' | 'bundles' | 'settings' | 'notifications' | 'riders'>('dashboard');
+  
+  // Update rider locations
+  useEffect(() => {
+    if (activeTab === 'riders' || activeTab === 'orders') {
+        const riders = sellers.filter(s => s.role === 'rider');
+        const locs: Record<string, any> = {};
+        riders.forEach(r => {
+            if (r.location) locs[r.id] = r.location;
+        });
+        setRiderLocations(locs);
+    }
+  }, [activeTab, sellers]);
   const [isAdding, setIsAdding] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [editingCategory, setEditingCategory] = useState<any>(null);
@@ -34,9 +51,7 @@ export default function AdminPanel() {
   const [banners, setBanners] = useState<any[]>([]);
   const [stories, setStories] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
-  const [sellers, setSellers] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
-  const [orders, setOrders] = useState<any[]>([]);
   const [bundles, setBundles] = useState<any[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [appSettings, setAppSettings] = useState<any>({ logo: '' });
@@ -93,7 +108,9 @@ export default function AdminPanel() {
     description: '', 
     descriptionEn: '', 
     whatsappNumber: '',
-    enableWeightSystem: false 
+    enableWeightSystem: false,
+    stockQuantity: '100',
+    isOutOfStock: false
   });
   const [newBundle, setNewBundle] = useState({ name: '', nameEn: '', price: '', image: '', description: '', descriptionEn: '' });
 
@@ -166,6 +183,8 @@ export default function AdminPanel() {
     const productData = {
       ...newProduct,
       price: parseFloat(newProduct.price) || 0,
+      stockQuantity: parseInt(newProduct.stockQuantity) || 0,
+      isOutOfStock: newProduct.isOutOfStock,
       minWeight: parseFloat(newProduct.minWeight) || 1,
       weightIncrements: parseFloat(newProduct.weightIncrements) || 0.1
     };
@@ -191,7 +210,9 @@ export default function AdminPanel() {
       description: '', 
       descriptionEn: '', 
       whatsappNumber: '',
-      enableWeightSystem: false 
+      enableWeightSystem: false,
+      stockQuantity: '100',
+      isOutOfStock: false
     });
     setIsAdding(false);
     setEditingProductId(null);
@@ -214,13 +235,18 @@ export default function AdminPanel() {
       description: product.description || '',
       descriptionEn: product.descriptionEn || '',
       whatsappNumber: product.whatsappNumber || '',
-      enableWeightSystem: product.enableWeightSystem || false
+      enableWeightSystem: product.enableWeightSystem || false,
+      stockQuantity: product.stockQuantity?.toString() || '0',
+      isOutOfStock: product.isOutOfStock || false
     });
     setIsAdding(true);
   };
 
   const handleAddBanner = async () => {
-    if (!newBanner.title || !newBanner.image) return;
+    if (!newBanner.image) {
+      alert('Please upload an image first');
+      return;
+    }
     await adminService.addBanner(newBanner);
     setNewBanner({ title: '', subtitle: '', image: '' });
     setIsAdding(false);
@@ -502,14 +528,21 @@ export default function AdminPanel() {
                     <p className="text-[10px] text-slate-400 font-bold uppercase">{order.paymentMethod}</p>
                     {order.discount > 0 && <p className="text-[9px] text-secondary font-black truncate">DISCOUNT: -৳{order.discount}</p>}
                     {order.location && (
-                      <a 
-                        href={`https://www.google.com/maps/dir/?api=1&destination=${order.location.lat},${order.location.lng}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-[8px] font-black text-blue-500 uppercase tracking-widest mt-2 hover:underline"
-                      >
-                        <Truck size={10} /> Navigate
-                      </a>
+                      <div className="flex flex-col items-end gap-1 mt-2">
+                        <a 
+                          href={`https://www.google.com/maps/dir/?api=1&destination=${order.location.lat},${order.location.lng}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-[8px] font-black text-blue-500 uppercase tracking-widest hover:underline"
+                        >
+                          <Truck size={10} /> Navigate
+                        </a>
+                        {order.riderId && riderLocations[order.riderId] && (
+                          <span className="text-[8px] font-black text-primary bg-primary/5 px-2 py-0.5 rounded-md">
+                            Rider: {formatDistance(calculateDistance(riderLocations[order.riderId].lat, riderLocations[order.riderId].lng, order.location.lat, order.location.lng))} away
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -704,6 +737,30 @@ export default function AdminPanel() {
                           onChange={e => setNewProduct({...newProduct, whatsappNumber: e.target.value})}
                         />
                     </div>
+                    <div className="relative">
+                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1 ml-1">Initial Stock</label>
+                        <input 
+                          type="number"
+                          placeholder="Stock Quantity" 
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none"
+                          value={newProduct.stockQuantity}
+                          onChange={e => setNewProduct({...newProduct, stockQuantity: e.target.value})}
+                        />
+                    </div>
+                    <div className="relative col-span-2">
+                        <label className="flex items-center gap-2 cursor-pointer bg-slate-50 border border-slate-100 p-3 rounded-2xl transition-all hover:bg-slate-100">
+                          <input 
+                            type="checkbox"
+                            className="w-4 h-4 accent-red-500 rounded-lg"
+                            checked={newProduct.isOutOfStock || false}
+                            onChange={e => setNewProduct({...newProduct, isOutOfStock: e.target.checked})}
+                          />
+                          <div className="flex flex-col">
+                            <span className="text-[10px] font-bold text-slate-700">Mark as Out of Stock</span>
+                            <span className="text-[8px] text-slate-400">This will hide the product from the storefront.</span>
+                          </div>
+                        </label>
+                    </div>
                     <div className="relative col-span-2">
                         <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1 ml-1">Product Type</label>
                         <select 
@@ -825,13 +882,22 @@ export default function AdminPanel() {
                     <h4 className="font-bold text-xs">{prod.name}</h4>
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">৳{prod.price} / {prod.unit} • {prod.farmerName || prod.farmer || 'Admin'}</p>
                     <div className="flex items-center gap-2 mt-1">
+                        <div className="flex items-center gap-1 bg-slate-50 border border-slate-100 px-1 rounded-md">
+                            <span className="text-[8px] font-black text-slate-400 uppercase px-1">Stock:</span>
+                            <input 
+                                type="number"
+                                className="w-10 bg-transparent border-0 text-[10px] font-bold p-0 outline-none text-slate-600 focus:text-primary"
+                                value={prod.stockQuantity || 0}
+                                onChange={(e) => adminService.updateStockStatus(prod.id, prod.isOutOfStock ? 'Out of Stock' : 'In Stock', Number(e.target.value), prod.isOutOfStock || false)}
+                            />
+                        </div>
                         <button 
-                          onClick={() => adminService.updateStockStatus(prod.id, prod.stockStatus === 'In Stock' ? 'Out of Stock' : 'In Stock')}
+                          onClick={() => adminService.updateStockStatus(prod.id, !prod.isOutOfStock ? 'Out of Stock' : 'In Stock', prod.stockQuantity || 0, !prod.isOutOfStock)}
                           className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-md transition-all ${
-                            prod.stockStatus === 'Out of Stock' ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500'
+                            prod.isOutOfStock ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500'
                           }`}
                         >
-                          {prod.stockStatus || 'In Stock'}
+                          {prod.isOutOfStock ? 'Out of Stock' : 'In Stock'}
                         </button>
                         <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-md ${
                             prod.status === 'approved' ? 'bg-blue-50 text-blue-500' : 
@@ -900,13 +966,13 @@ export default function AdminPanel() {
                   </div>
                   <div className="space-y-3">
                     <input 
-                      placeholder="Title (e.g. Fresh Mangoes)" 
+                      placeholder="Title (Optional)" 
                       className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none"
                       value={newBanner.title}
                       onChange={e => setNewBanner({...newBanner, title: e.target.value})}
                     />
                     <input 
-                      placeholder="Subtitle (e.g. 20% Off)" 
+                      placeholder="Subtitle (Optional)" 
                       className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none"
                       value={newBanner.subtitle}
                       onChange={e => setNewBanner({...newBanner, subtitle: e.target.value})}
@@ -1228,18 +1294,30 @@ export default function AdminPanel() {
                                 >
                                     <XCircle size={18} />
                                 </button>
-                                <select 
-                                    value={u.role || 'customer'}
-                                    onChange={(e) => adminService.updateUserRole(u.id, e.target.value)}
-                                    className="bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black uppercase px-2 py-2 outline-none focus:ring-2 ring-primary/20"
-                                >
-                                    <option value="customer">Customer</option>
-                                    <option value="seller">Seller</option>
-                                    <option value="rider">Rider</option>
-                                    <option value="admin">Admin</option>
-                                </select>
+                                {u.email !== 'mehedihasa6682@gmail.com' ? (
+                                    <select 
+                                        value={u.role || 'customer'}
+                                        onChange={(e) => adminService.updateUserRole(u.id, e.target.value)}
+                                        className="bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black uppercase px-2 py-2 outline-none focus:ring-2 ring-primary/20"
+                                    >
+                                        <option value="customer">Customer</option>
+                                        <option value="seller">Seller</option>
+                                        <option value="rider">Rider</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                ) : (
+                                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest bg-slate-100 px-3 py-2 rounded-xl">Main Admin</span>
+                                )}
                                 <button 
-                                    onClick={() => adminService.deleteSeller(u.id)}
+                                    onClick={() => {
+                                        if (u.email === 'mehedihasa6682@gmail.com') {
+                                            alert("Cannot remove primary admin.");
+                                            return;
+                                        }
+                                        if(confirm("Are you sure you want to delete this user?")) {
+                                            adminService.deleteSeller(u.id);
+                                        }
+                                    }}
                                     className="p-2 text-slate-300 hover:text-red-500 transition-colors"
                                 >
                                     <Trash2 size={18} />
@@ -1732,6 +1810,69 @@ export default function AdminPanel() {
                     </div>
                 </div>
             </motion.div>
+        )}
+        {activeTab === 'riders' && (
+          <motion.div key="riders" className="space-y-6">
+            <h3 className="font-display font-bold text-lg px-1 flex items-center gap-2">
+                <Truck size={20} className="text-primary" />
+                Active Riders ({sellers.filter(s => s.role === 'rider').length})
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {sellers.filter(s => s.role === 'rider').map(rider => {
+                    const activeDeliveries = orders.filter(o => o.riderId === rider.id && o.status !== 'delivered' && o.status !== 'cancelled');
+                    return (
+                        <div key={rider.id} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4">
+                            <div className="flex justify-between items-start">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center relative shadow-lg">
+                                        <User size={24} />
+                                        <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white shadow-sm ${rider.status === 'online' ? 'bg-green-500' : 'bg-slate-300'}`} />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-sm text-slate-800">{rider.displayName || 'Unnamed Rider'}</h4>
+                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{rider.phone || 'No Phone'}</p>
+                                    </div>
+                                </div>
+                                <span className={`text-[9px] font-black uppercase px-2 py-1 rounded-lg ${rider.status === 'online' ? 'bg-green-50 text-green-600' : 'bg-slate-50 text-slate-400'}`}>
+                                    {rider.status || 'Offline'}
+                                </span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="bg-slate-50 p-3 rounded-2xl">
+                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Active tasks</span>
+                                    <p className="font-display font-bold text-slate-800">{activeDeliveries.length}</p>
+                                </div>
+                                <div className="bg-slate-50 p-3 rounded-2xl">
+                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Last Update</span>
+                                    <p className="text-[10px] font-bold text-slate-600">
+                                        {rider.lastLocationUpdate ? format(rider.lastLocationUpdate.toDate ? rider.lastLocationUpdate.toDate() : new Date(rider.lastLocationUpdate), 'h:mm a') : 'N/A'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {rider.location && (
+                                <a 
+                                    href={`https://www.google.com/maps?q=${rider.location.lat},${rider.location.lng}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="w-full py-3 bg-blue-50 text-blue-500 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                                >
+                                    <MapPin size={14} /> View Position on Map
+                                </a>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+            {sellers.filter(s => s.role === 'rider').length === 0 && (
+                <div className="text-center py-20 bg-white rounded-[2.5rem] border border-dashed border-slate-200">
+                    <Truck size={48} className="mx-auto text-slate-100 mb-4" />
+                    <p className="text-xs font-bold text-slate-300 uppercase tracking-[0.2em]">No riders registered</p>
+                </div>
+            )}
+          </motion.div>
         )}
         {activeTab === 'notifications' && (
           <motion.div
