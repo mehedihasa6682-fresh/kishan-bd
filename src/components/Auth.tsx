@@ -4,7 +4,8 @@ import {
   createUserWithEmailAndPassword, 
   signInWithPopup, 
   GoogleAuthProvider,
-  updateProfile
+  updateProfile,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
@@ -13,9 +14,11 @@ import { Mail, Lock, User, Store, ShieldCheck, Github, Chrome, ArrowRight, UserP
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
+  const [isResetting, setIsResetting] = useState(false);
   const [role, setRole] = useState<'customer' | 'seller' | 'rider'>('customer');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
   // Form States
   const [email, setEmail] = useState('');
@@ -24,6 +27,26 @@ export default function Auth() {
   const [storeName, setStoreName] = useState('');
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
+
+  const handleResetPassword = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      setError('Please enter your email address first.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    setSuccessMsg('');
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setSuccessMsg('Reset link sent to your email! Please check your inbox.');
+      setTimeout(() => setIsResetting(false), 3000);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleManualAuth = async (e: FormEvent) => {
     e.preventDefault();
@@ -106,17 +129,17 @@ export default function Auth() {
     <div className="w-full max-w-sm mx-auto">
       <div className="flex flex-col items-center mb-8">
         <div className="w-16 h-16 bg-primary/10 rounded-3xl flex items-center justify-center text-primary mb-4">
-          {isLogin ? <LogIn size={32} /> : <UserPlus size={32} />}
+          {isResetting ? <Mail size={32} /> : (isLogin ? <LogIn size={32} /> : <UserPlus size={32} />)}
         </div>
         <h2 className="text-2xl font-display font-bold text-slate-900">
-          {isLogin ? 'Welcome Back' : 'Create Account'}
+          {isResetting ? 'Reset Password' : (isLogin ? 'Welcome Back' : 'Create Account')}
         </h2>
         <p className="text-slate-400 text-xs font-medium mt-1">
-          {isLogin ? 'Login to your Kishan account' : 'Join our fresh food community'}
+          {isResetting ? 'Enter your email to receive a reset link' : (isLogin ? 'Login to your Kishan account' : 'Join our fresh food community')}
         </p>
       </div>
 
-      {!isLogin && (
+      {!isLogin && !isResetting && (
         <div className="flex flex-wrap gap-2 mb-6">
           <button 
             onClick={() => setRole('customer')}
@@ -145,8 +168,8 @@ export default function Auth() {
         </div>
       )}
 
-      <form onSubmit={handleManualAuth} className="space-y-4">
-        {!isLogin && (
+      <form onSubmit={isResetting ? handleResetPassword : handleManualAuth} className="space-y-4">
+        {!isLogin && !isResetting && (
           <div className="relative group">
             <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" size={18} />
             <input 
@@ -159,7 +182,7 @@ export default function Auth() {
           </div>
         )}
 
-        {(role === 'seller' || role === 'rider') && !isLogin && (
+        {(role === 'seller' || role === 'rider') && !isLogin && !isResetting && (
           <>
             {role === 'seller' && (
               <div className="relative group">
@@ -210,28 +233,53 @@ export default function Auth() {
           />
         </div>
 
-        <div className="relative group">
-          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" size={18} />
-          <input 
-            required
-            type="password"
-            placeholder="Password"
-            className="w-full pl-12 pr-4 py-4 bg-white border border-slate-100 rounded-3xl text-sm outline-none focus:border-primary transition-all"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-          />
-        </div>
+        {!isResetting && (
+          <div className="relative group">
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" size={18} />
+            <input 
+              required
+              type="password"
+              placeholder="Password"
+              className="w-full pl-12 pr-4 py-4 bg-white border border-slate-100 rounded-3xl text-sm outline-none focus:border-primary transition-all"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+            />
+          </div>
+        )}
+
+        {isLogin && !isResetting && (
+          <div className="flex justify-end pr-2">
+            <button 
+              type="button"
+              onClick={() => setIsResetting(true)}
+              className="text-[10px] font-bold text-primary hover:underline uppercase tracking-widest"
+            >
+              Forgot Password?
+            </button>
+          </div>
+        )}
 
         {error && <p className="text-red-500 text-[10px] font-bold text-center">{error}</p>}
+        {successMsg && <p className="text-primary text-[10px] font-bold text-center">{successMsg}</p>}
 
         <button 
           type="submit"
           disabled={loading}
           className="w-full py-4 bg-slate-900 text-white rounded-[2rem] font-bold text-sm shadow-xl hover:bg-slate-800 transition-all active:scale-[0.98] flex items-center justify-center gap-2 group disabled:opacity-50"
         >
-          {loading ? 'Processing...' : (isLogin ? 'Login Account' : 'Register Now')}
+          {loading ? 'Processing...' : (isResetting ? 'Send Reset Link' : (isLogin ? 'Login Account' : 'Register Now'))}
           <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
         </button>
+
+        {isResetting && (
+          <button 
+            type="button"
+            onClick={() => setIsResetting(false)}
+            className="w-full text-center text-xs text-slate-400 font-bold hover:text-slate-600 transition-colors"
+          >
+            Back to Login
+          </button>
+        )}
       </form>
 
       <div className="my-8 flex items-center gap-4">

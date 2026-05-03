@@ -32,6 +32,29 @@ messaging.onBackgroundMessage((payload) => {
   return self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
+// Handle generic push events (e.g. from web-push backend)
+self.addEventListener('push', (event) => {
+  if (event.data) {
+    try {
+      const data = event.data.json();
+      if (data.notification) {
+        const title = data.notification.title || 'New Notification';
+        const options = {
+          body: data.notification.body,
+          icon: data.notification.icon || '/logo.png',
+          badge: '/logo.png',
+          data: {
+            url: data.data?.url || '/'
+          }
+        };
+        event.waitUntil(self.registration.showNotification(title, options));
+      }
+    } catch (e) {
+      console.error('Error parsing push data', e);
+    }
+  }
+});
+
 // Handle notification click
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();

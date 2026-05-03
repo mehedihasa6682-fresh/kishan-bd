@@ -382,41 +382,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Bundle Offers Section */}
-      {bundleProducts.length > 0 && (
-        <div className="px-5 mb-10">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display font-bold text-lg">Bundle Offers</h2>
-            <Link to="/products?category=Bundles" className="text-[10px] font-black text-primary uppercase tracking-widest">View All</Link>
-          </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-            {bundleProducts.map((bundle) => (
-              <motion.div 
-                key={bundle.id}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => navigate(`/product/${bundle.id}`)}
-                className="flex-shrink-0 w-[280px] bg-white rounded-[2rem] border border-slate-100 p-4 shadow-sm relative overflow-hidden"
-              >
-                <div className="flex gap-4">
-                  <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-inner bg-slate-50 flex-shrink-0">
-                    <img src={bundle.image} className="w-full h-full object-cover" alt={bundle.name} />
-                  </div>
-                  <div className="flex-1 flex flex-col justify-center">
-                    <h3 className="font-bold text-sm text-slate-800 line-clamp-1">{dData(bundle.name, bundle.nameEn)}</h3>
-                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1 mb-2">Multi-Pack Savings</p>
-                    <div className="flex items-center gap-2">
-                       <span className="text-primary font-black text-base">৳{bundle.price}</span>
-                       <span className="text-[10px] text-slate-400 font-bold">Bundle Deal</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute -top-6 -right-6 w-16 h-16 bg-primary/5 rounded-full" />
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Featured Products */}
       <div className="px-5 mb-20">
         <div className="flex items-center justify-between mb-6">

@@ -1343,6 +1343,34 @@ export default function AdminPanel() {
                               These will appear when a user tries to install the app on their phone or PC.
                           </p>
                         </div>
+
+                        <div className="border-t border-slate-50 pt-6">
+                          <h4 className="font-bold text-sm mb-4">Push Notifications (PWA)</h4>
+                          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-3">Backend Connectivity</p>
+                            <button 
+                              onClick={async () => {
+                                try {
+                                  const { MessagingService } = await import('../services/messagingService');
+                                  const res = await MessagingService.testPush();
+                                  if (res.success) {
+                                    alert("Success! Check your device for notification.");
+                                  } else {
+                                    alert("Error: " + (res.error || "Unknown error"));
+                                  }
+                                } catch (e: any) {
+                                  alert("Error: " + e.message);
+                                }
+                              }}
+                              className="w-full py-3 bg-slate-900 text-white rounded-xl text-xs font-bold shadow-lg shadow-slate-900/10 hover:scale-[1.02] transition-transform active:scale-[0.98]"
+                            >
+                              Send Test Push from Backend
+                            </button>
+                            <p className="text-[9px] text-slate-400 mt-3 italic">
+                              * Node.js (backend) push requires VAPID_PRIVATE_KEY secret.
+                            </p>
+                          </div>
+                        </div>
                     </div>
                 </div>
 
