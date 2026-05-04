@@ -185,8 +185,8 @@ export default function Home() {
                   </div>
                   <h4 className="text-white font-bold text-[10px] truncate mb-1">{dData(product.name, product.nameEn)}</h4>
                   <div className="flex items-center gap-2">
-                    <span className="text-secondary font-black text-xs">৳{Math.round(product.price * 0.8)}</span>
-                    <span className="text-white/30 text-[8px] line-through">৳{product.price}</span>
+                    <span className="text-secondary font-black text-xs">৳{Math.round((product.price || 0) * 0.8)}</span>
+                    <span className="text-white/30 text-[8px] line-through">৳{product.price || 0}</span>
                   </div>
                 </div>
               ))}

@@ -186,7 +186,7 @@ export default function RiderDashboard() {
                                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{order.customerName}</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="font-display font-bold text-primary">৳{order.total}</p>
+                                        <p className="font-display font-bold text-primary">৳{order.total || 0}</p>
                                         <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${order.paymentMethod === 'cod' ? 'bg-orange-50 text-orange-500' : 'bg-green-50 text-green-500'}`}>
                                             {order.paymentMethod === 'cod' ? 'Collection' : 'Paid'}
                                         </span>

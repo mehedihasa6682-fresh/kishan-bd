@@ -64,13 +64,13 @@ export default function Cart() {
               <img src={item.image} referrerPolicy="no-referrer" className="w-20 h-20 rounded-2xl object-cover" alt={item.name} />
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-sm text-slate-800 mb-1 truncate">{dData(item.name, item.nameEn)}</h3>
-                <p className="text-primary font-bold text-sm mb-3">৳{item.price} <span className="text-xs text-slate-400 font-normal">/ {item.unit}</span></p>
+                <p className="text-primary font-bold text-sm mb-3">৳{item.price || 0} <span className="text-xs text-slate-400 font-normal">/ {item.unit || 'unit'}</span></p>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-4 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
                     <button onClick={() => updateQuantity(item.id, -1)} className="text-slate-400 hover:text-primary">
                       <Minus size={14} />
                     </button>
-                    <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
+                    <span className="text-xs font-bold w-4 text-center">{item.quantity || 0}</span>
                     <button onClick={() => updateQuantity(item.id, 1)} className="text-slate-400 hover:text-primary">
                       <Plus size={14} />
                     </button>
@@ -125,9 +125,9 @@ export default function Cart() {
         <div className="space-y-3 mb-6 relative z-10">
           <div className="flex justify-between items-center text-slate-400 text-sm">
             <span>{t('cart.subtotal')}</span>
-            <span className="text-white font-medium">৳{subtotal}</span>
+            <span className="text-white font-medium">৳{subtotal || 0}</span>
           </div>
-          {discount > 0 && (
+          {(discount || 0) > 0 && (
             <div className="flex justify-between items-center text-secondary text-sm">
                 <span>Discount (10%)</span>
                 <span className="font-medium">-৳{discount}</span>
@@ -135,11 +135,11 @@ export default function Cart() {
           )}
           <div className="flex justify-between items-center text-slate-400 text-sm">
             <span>{t('cart.delivery')}</span>
-            <span className="text-white font-medium">৳{deliveryFee}</span>
+            <span className="text-white font-medium">৳{deliveryFee || 0}</span>
           </div>
           <div className="border-t border-slate-800 pt-3 flex justify-between items-center">
             <span className="font-bold">{t('cart.total')}</span>
-            <span className="text-2xl font-display font-bold text-secondary">৳{total}</span>
+            <span className="text-2xl font-display font-bold text-secondary">৳{total || 0}</span>
           </div>
         </div>
 

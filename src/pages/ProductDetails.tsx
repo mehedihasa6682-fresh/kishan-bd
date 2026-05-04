@@ -212,13 +212,13 @@ export default function ProductDetails() {
             {/* Price section */}
             <div className="flex flex-col">
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-display font-bold text-slate-900 leading-none tracking-tight">৳{Math.round(product.price * qty)}</span>
+                <span className="text-4xl font-display font-bold text-slate-900 leading-none tracking-tight">৳{Math.round((product.price || 0) * qty)}</span>
                 <span className="text-sm font-medium text-slate-400">
-                  / {qty}{product.unit}
+                  / {qty}{product.unit || 'unit'}
                 </span>
               </div>
               <div className="text-[10px] text-slate-400 mt-1 font-medium bg-slate-50 self-start px-2 py-0.5 rounded-full border border-slate-100">
-                Unit Price: ৳{product.price} per {product.unit}
+                Unit Price: ৳{product.price || 0} per {product.unit || 'unit'}
               </div>
             </div>
 
@@ -480,7 +480,7 @@ export default function ProductDetails() {
                             </div>
                             <h4 className="font-bold text-[10px] text-slate-800 truncate mb-1">{dData(p.name, p.nameEn)}</h4>
                             <div className="flex items-center justify-between">
-                                <span className="text-xs font-display font-bold text-primary">৳{p.price}</span>
+                                <span className="text-xs font-display font-bold text-primary">৳{p.price || 0}</span>
                                 <div className="flex items-center gap-0.5">
                                     <Star size={8} className="text-secondary fill-secondary" />
                                     <span className="text-[8px] font-bold text-slate-400">{p.rating || '5.0'}</span>

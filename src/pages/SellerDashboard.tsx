@@ -43,16 +43,16 @@ export default function SellerDashboard() {
   // Stats Calculations
   const stats = {
     revenue: orders.filter(o => o.status === 'delivered').reduce((acc, o) => {
-        const sellerItems = o.items.filter((i: any) => i.sellerId === user?.uid);
-        const sellerSubtotal = sellerItems.reduce((s: number, i: any) => s + (i.price * i.quantity), 0);
+        const sellerItems = (o.items || []).filter((i: any) => i.sellerId === user?.uid);
+        const sellerSubtotal = sellerItems.reduce((s: number, i: any) => s + ((i.price || 0) * (i.quantity || 0)), 0);
         return acc + sellerSubtotal;
     }, 0),
-    orderCount: orders.length,
-    customerCount: new Set(orders.map(o => o.userId)).size,
+    orderCount: orders.length || 0,
+    customerCount: new Set(orders.map(o => o.userId)).size || 0,
     successRate: orders.length > 0 ? Math.round((orders.filter(o => o.status === 'delivered').length / orders.length) * 100) : 0,
     pendingRev: orders.filter(o => ['pending', 'verified', 'confirmed', 'shipped'].includes(o.status)).reduce((acc, o) => {
-        const sellerItems = o.items.filter((i: any) => i.sellerId === user?.uid);
-        const sellerSubtotal = sellerItems.reduce((s: number, i: any) => s + (i.price * i.quantity), 0);
+        const sellerItems = (o.items || []).filter((i: any) => i.sellerId === user?.uid);
+        const sellerSubtotal = sellerItems.reduce((s: number, i: any) => s + ((i.price || 0) * (i.quantity || 0)), 0);
         return acc + sellerSubtotal;
     }, 0)
   };
@@ -469,16 +469,16 @@ export default function SellerDashboard() {
                       <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-1">{order.customerName}</p>
                     </div>
                     <div className="text-right">
-                        <span className="text-lg font-display font-bold text-slate-900 leading-none">৳{order.total}</span>
+                        <span className="text-lg font-display font-bold text-slate-900 leading-none">৳{order.total || 0}</span>
                         <p className="text-[9px] font-black text-primary uppercase mt-1">{order.status}</p>
                     </div>
                   </div>
                   
                   <div className="space-y-2 mb-6">
-                      {order.items.filter((i: any) => i.sellerId === user?.uid).map((item: any, idx: number) => (
+                      {(order.items || []).filter((i: any) => i.sellerId === user?.uid).map((item: any, idx: number) => (
                           <div key={idx} className="flex justify-between items-center text-[11px] font-bold text-slate-600">
-                              <span>{item.quantity}x {item.name}</span>
-                              <span className="text-slate-400">৳{item.price * item.quantity}</span>
+                              <span>{item.quantity || 0}x {item.name}</span>
+                              <span className="text-slate-400">৳{(item.price || 0) * (item.quantity || 0)}</span>
                           </div>
                       ))}
                   </div>

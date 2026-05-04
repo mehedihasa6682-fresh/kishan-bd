@@ -378,12 +378,12 @@ export default function AdminPanel() {
               {[
                 { label: 'Total Orders', value: orders.length.toString(), color: 'text-blue-500', bg: 'bg-blue-50' },
                 { label: 'Processing', value: orders.filter(o => o.status === 'pending' || o.status === 'verified').length.toString(), color: 'text-orange-500', bg: 'bg-orange-50' },
-                { label: 'Net Revenue', value: `৳${orders.filter(o => o.status !== 'cancelled').reduce((acc, o) => acc + o.total, 0)}`, color: 'text-green-500', bg: 'bg-green-50' },
-                { label: 'All Users', value: sellers.length.toString(), color: 'text-purple-500', bg: 'bg-purple-50' },
-                { label: 'Total Sellers', value: sellers.filter(s => s.role === 'seller').length.toString(), color: 'text-indigo-500', bg: 'bg-indigo-50' },
-                { label: 'Total Riders', value: sellers.filter(s => s.role === 'rider').length.toString(), color: 'text-orange-500', bg: 'bg-orange-50' },
-                { label: 'Total Products', value: products.length.toString(), color: 'text-pink-500', bg: 'bg-pink-50' },
-                { label: 'Revenue/User', value: `৳${sellers.length > 0 ? (orders.filter(o => o.status !== 'cancelled').reduce((acc, o) => acc + o.total, 0) / sellers.length).toFixed(0) : 0}`, color: 'text-slate-600', bg: 'bg-slate-100' },
+                { label: 'Net Revenue', value: `৳${(orders.filter(o => o.status !== 'cancelled').reduce((acc, o) => acc + (o.total || 0), 0) || 0).toLocaleString()}`, color: 'text-green-500', bg: 'bg-green-50' },
+                { label: 'All Users', value: (sellers.length || 0).toString(), color: 'text-purple-500', bg: 'bg-purple-50' },
+                { label: 'Total Sellers', value: (sellers.filter(s => s.role === 'seller').length || 0).toString(), color: 'text-indigo-500', bg: 'bg-indigo-50' },
+                { label: 'Total Riders', value: (sellers.filter(s => s.role === 'rider').length || 0).toString(), color: 'text-orange-500', bg: 'bg-orange-50' },
+                { label: 'Total Products', value: (products.length || 0).toString(), color: 'text-pink-500', bg: 'bg-pink-50' },
+                { label: 'Revenue/User', value: `৳${sellers.length > 0 ? (orders.filter(o => o.status !== 'cancelled').reduce((acc, o) => acc + (o.total || 0), 0) / sellers.length).toFixed(0) : 0}`, color: 'text-slate-600', bg: 'bg-slate-100' },
               ].map((stat) => (
                 <div key={stat.label} className={`${stat.bg} p-5 rounded-[2rem] border border-slate-50 shadow-sm`}>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">{stat.label}</p>
@@ -407,7 +407,7 @@ export default function AdminPanel() {
                                 </div>
                             </div>
                             <div className="text-right">
-                                <p className="text-xs font-bold text-slate-800">৳{order.total}</p>
+                                <p className="text-xs font-bold text-slate-800">৳{order.total || 0}</p>
                                 <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${
                                     order.status === 'delivered' ? 'bg-green-50 text-green-500' :
                                     order.status === 'cancelled' ? 'bg-red-50 text-red-500' :
@@ -524,9 +524,9 @@ export default function AdminPanel() {
                     <p className="text-[10px] text-slate-400 mt-1">{order.phone} • {order.address}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-display font-bold text-primary">৳{order.total}</p>
+                    <p className="font-display font-bold text-primary">৳{order.total || 0}</p>
                     <p className="text-[10px] text-slate-400 font-bold uppercase">{order.paymentMethod}</p>
-                    {order.discount > 0 && <p className="text-[9px] text-secondary font-black truncate">DISCOUNT: -৳{order.discount}</p>}
+                    {(order.discount || 0) > 0 && <p className="text-[9px] text-secondary font-black truncate">DISCOUNT: -৳{order.discount}</p>}
                     {order.location && (
                       <div className="flex flex-col items-end gap-1 mt-2">
                         <a 
@@ -552,10 +552,10 @@ export default function AdminPanel() {
                     {order.items?.map((item: any, idx: number) => (
                         <div key={idx} className="flex justify-between items-center text-[11px]">
                             <div className="flex items-center gap-2">
-                                <span className="font-bold text-slate-700">{item.quantity}x</span>
+                                <span className="font-bold text-slate-700">{item.quantity || 0}x</span>
                                 <span className="text-slate-600">{item.name}</span>
                             </div>
-                            <span className="font-medium text-slate-400">৳{item.price * item.quantity}</span>
+                            <span className="font-medium text-slate-400">৳{(item.price || 0) * (item.quantity || 0)}</span>
                         </div>
                     ))}
                 </div>

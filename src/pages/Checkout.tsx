@@ -419,9 +419,9 @@ export default function Checkout() {
                     <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
                         <div className="flex justify-between text-xs font-bold">
                             <span className="text-slate-400">{t('cart.subtotal')}</span>
-                            <span className="text-slate-800">৳{subtotal}</span>
+                            <span className="text-slate-800">৳{subtotal || 0}</span>
                         </div>
-                        {discount > 0 && (
+                        {(discount || 0) > 0 && (
                             <div className="flex justify-between text-xs font-bold text-secondary">
                                 <span>Discount</span>
                                 <span>-৳{discount}</span>
@@ -429,11 +429,11 @@ export default function Checkout() {
                         )}
                         <div className="flex justify-between text-xs font-bold">
                             <span className="text-slate-400">{t('cart.delivery')}</span>
-                            <span className="text-slate-800">৳{deliveryFee}</span>
+                            <span className="text-slate-800">৳{deliveryFee || 0}</span>
                         </div>
                         <div className="border-t border-slate-50 pt-4 flex justify-between items-center">
                             <span className="font-display font-bold text-slate-900">{t('cart.total')}</span>
-                            <span className="text-2xl font-display font-bold text-primary">৳{total}</span>
+                            <span className="text-2xl font-display font-bold text-primary">৳{total || 0}</span>
                         </div>
                     </div>
                 </div>

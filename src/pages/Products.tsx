@@ -265,8 +265,8 @@ export default function Products() {
               </h3>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-baseline gap-0.5">
-                  <span className="text-sm font-display font-bold text-slate-900">৳{product.price}</span>
-                  <span className="text-[8px] text-slate-400 font-bold tracking-tight">/{product.unit}</span>
+                  <span className="text-sm font-display font-bold text-slate-900">৳{product.price || 0}</span>
+                  <span className="text-[8px] text-slate-400 font-bold tracking-tight">/{product.unit || 'unit'}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Star size={8} className="text-secondary fill-secondary" />
