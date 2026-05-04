@@ -176,7 +176,7 @@ export default function Home() {
         <meta property="og:url" content={window.location.origin} />
       </Helmet>
       {/* Sticky Search Header */}
-      <div className={`sticky ${appSettings.announcementBar ? 'top-24' : 'top-16'} z-40 bg-slate-50/80 backdrop-blur-md px-5 py-3 mb-6 transition-all`}>
+      <div className="sticky top-0 z-40 bg-slate-50/80 backdrop-blur-md px-5 py-3 mb-6 transition-all">
         <div className="relative group">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
             <Search size={20} />

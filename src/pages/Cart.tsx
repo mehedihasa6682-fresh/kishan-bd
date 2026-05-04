@@ -52,7 +52,7 @@ export default function Cart() {
     >
       <h1 className="font-display font-bold text-2xl mb-8">{t('cart.title')}</h1>
 
-      <div className="space-y-4 mb-8">
+      <div className="space-y-4 mb-10">
         <AnimatePresence>
           {items.map((item) => (
             <motion.div
@@ -61,30 +61,51 @@ export default function Cart() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, x: -20 }}
-              className="glass-card p-4 flex gap-4 items-center bg-white border-slate-100"
+              className="glass-card p-4 flex gap-4 items-center bg-white border-slate-100 shadow-sm"
             >
-              <img src={item.image} referrerPolicy="no-referrer" className="w-20 h-20 rounded-2xl object-cover" alt={item.name} />
+              <div className="relative shrink-0">
+                <img src={item.image} referrerPolicy="no-referrer" className="w-16 h-16 rounded-2xl object-cover" alt={item.name} />
+                <div className="absolute -top-2 -right-2 bg-slate-900 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow-lg">
+                  {item.quantity}
+                </div>
+              </div>
+              
               <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-sm text-slate-800 mb-1 truncate">{dData(item.name, item.nameEn)}</h3>
-                <p className="text-primary font-bold text-sm mb-3">৳{formatCurrency(item.price || 0)} <span className="text-xs text-slate-400 font-normal">/ {item.unit || 'unit'}</span></p>
+                <h3 className="font-bold text-xs text-slate-800 mb-0.5 truncate">{dData(item.name, item.nameEn)}</h3>
+                <div className="flex items-baseline gap-1.5 mb-2">
+                  <span className="text-primary font-black text-sm">৳{formatCurrency(item.price)}</span>
+                  <span className="text-[10px] text-slate-400 font-medium">/ {item.unit || 'unit'}</span>
+                </div>
+                
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-4 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
-                    <button onClick={() => updateQuantity(item.id, -1)} className="text-slate-400 hover:text-primary">
-                      <Minus size={14} />
+                  <div className="flex items-center gap-4 bg-slate-50 px-2.5 py-1 rounded-xl border border-slate-100">
+                    <button 
+                      onClick={() => updateQuantity(item.id, -1)} 
+                      className="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-primary transition-colors"
+                      disabled={item.quantity <= 1}
+                    >
+                      <Minus size={12} strokeWidth={3} />
                     </button>
-                    <span className="text-xs font-bold w-4 text-center">{item.quantity || 0}</span>
-                    <button onClick={() => updateQuantity(item.id, 1)} className="text-slate-400 hover:text-primary">
-                      <Plus size={14} />
+                    <span className="text-[10px] font-black w-4 text-center text-slate-800">{item.quantity}</span>
+                    <button 
+                      onClick={() => updateQuantity(item.id, 1)} 
+                      className="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-primary transition-colors"
+                    >
+                      <Plus size={12} strokeWidth={3} />
                     </button>
                   </div>
                 </div>
               </div>
-              <button 
-                onClick={() => removeFromCart(item.id)}
-                className="p-2 text-slate-300 hover:text-red-500 transition-colors"
-              >
-                <Trash2 size={20} />
-              </button>
+              
+              <div className="flex flex-col items-end gap-2">
+                <span className="font-display font-black text-slate-900 text-sm">৳{formatCurrency((item.price || 0) * (item.quantity || 1))}</span>
+                <button 
+                  onClick={() => removeFromCart(item.id)}
+                  className="p-2 text-slate-300 hover:text-red-500 transition-colors"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
             </motion.div>
           ))}
         </AnimatePresence>
@@ -121,35 +142,41 @@ export default function Cart() {
       </div>
 
       {/* Summary */}
-      <div className="max-w-md mx-auto z-20 mb-8">
+      <div className="max-w-md mx-auto z-20 mb-12">
         <div className="glass-card p-6 bg-slate-900 border-none text-white overflow-hidden shadow-2xl shadow-slate-900/40 relative">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full translate-x-1/2 -translate-y-1/2" />
           
-          <div className="space-y-3 mb-6 relative z-10">
+          <div className="space-y-4 mb-6 relative z-10">
+            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/80 border-b border-white/10 pb-2 mb-4">Order Summary</h3>
+            
             <div className="flex justify-between items-center text-slate-400 text-[11px] uppercase font-black tracking-widest">
               <span>{t('cart.subtotal')}</span>
               <span className="text-white font-display font-black text-sm">৳{formatCurrency(subtotal)}</span>
             </div>
+            
             {(discount || 0) > 0 && (
               <div className="flex justify-between items-center text-secondary text-[11px] uppercase font-black tracking-widest">
                   <span>Discount</span>
                   <span className="font-display font-black text-sm">-৳{formatCurrency(discount)}</span>
               </div>
             )}
+            
             <div className="flex justify-between items-center text-slate-400 text-[11px] uppercase font-black tracking-widest">
               <span>{t('cart.delivery')}</span>
               <span className="text-white font-display font-black text-sm">৳{formatCurrency(deliveryFee)}</span>
             </div>
-            <div className="border-t border-white/5 pt-3 flex justify-between items-center">
-              <span className="font-black text-xs uppercase tracking-[0.2em]">{t('cart.total')}</span>
-              <span className="text-2xl font-display font-black text-secondary">৳{formatCurrency(total)}</span>
+            
+            <div className="border-t border-white/5 pt-4 flex justify-between items-center">
+              <div className="flex flex-col">
+                <span className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-500 mb-1">{t('cart.total')}</span>
+                <span className="text-3xl font-display font-black text-secondary">৳{formatCurrency(total)}</span>
+              </div>
+              <Link to="/checkout" className="bg-primary text-slate-900 h-14 px-8 rounded-2xl flex items-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-all group">
+                <span className="text-xs font-black uppercase tracking-widest">{t('cart.checkout')}</span> 
+                <ArrowRight size={18} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />
+              </Link>
             </div>
           </div>
-
-          <Link to="/checkout" className="btn-secondary w-full relative z-10 shadow-lg shadow-secondary/20 h-14 rounded-2xl">
-            <span className="text-xs font-black uppercase tracking-widest">{t('cart.checkout')}</span> 
-            <ArrowRight size={18} strokeWidth={3} />
-          </Link>
         </div>
       </div>
     </motion.div>
