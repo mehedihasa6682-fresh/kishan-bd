@@ -41,16 +41,18 @@ export default function NotificationCenter() {
           });
         }
 
-        // 3. Play sound
+        // 3. Play sound (Beep / Chime)
         try {
           const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-          audio.volume = 0.5;
+          audio.volume = 0.6;
+          // Play once
           audio.play().catch(() => {});
         } catch (e) {}
 
+        const displayDuration = (newest.duration || 5) * 1000;
         setTimeout(() => {
           setActiveToast(prev => prev?.id === newest.id ? null : prev);
-        }, 5000);
+        }, displayDuration);
       }
     });
 

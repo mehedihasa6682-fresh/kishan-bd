@@ -458,7 +458,9 @@ export default function Profile() {
                             {addresses.map((addr, idx) => (
                                 <div key={idx} className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl group border border-slate-100">
                                     <MapPin size={16} className="text-primary shrink-0" />
-                                    <p className="flex-1 text-xs text-slate-700 font-medium">{addr}</p>
+                                    <p className="flex-1 text-xs text-slate-700 font-medium">
+                                        {typeof addr === 'string' ? addr : (addr?.address || 'Saved Location')}
+                                    </p>
                                     <button onClick={() => handleRemoveAddress(idx)} className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">
                                         <Trash2 size={16} />
                                     </button>

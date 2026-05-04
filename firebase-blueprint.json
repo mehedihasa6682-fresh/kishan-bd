@@ -27,13 +27,17 @@
         "name": { "type": "string" },
         "nameEn": { "type": "string" },
         "price": { "type": "number" },
+        "discountPrice": { "type": "number" },
         "unit": { "type": "string" },
         "whatsappNumber": { "type": "string" },
         "category": { "type": "string" },
         "subCategory": { "type": "string" },
         "subCategoryEn": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
         "description": { "type": "string" },
         "descriptionEn": { "type": "string" },
+        "seoDescription": { "type": "string" },
+        "seoKeywords": { "type": "string" },
         "image": { "type": "string" },
         "farmerId": { "type": "string" },
         "farmerName": { "type": "string" },
@@ -168,6 +172,21 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["userId", "token", "updatedAt"]
+    },
+    "Payout": {
+      "title": "Payout",
+      "description": "Payout requests and history for sellers or riders",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "amount": { "type": "number" },
+        "method": { "type": "string" },
+        "account": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "completed", "rejected"] },
+        "role": { "type": "string", "enum": ["seller", "rider"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "amount", "status", "role"]
     }
   },
   "firestore": {
@@ -182,6 +201,7 @@
     "/wishlist/{wishId}": { "schema": "Wishlist", "description": "User wishlist items" },
     "/notifications/{notificationId}": { "schema": "Notification", "description": "User notifications" },
     "/fcmTokens/{tokenId}": { "schema": "FCMToken", "description": "Device tokens for push" },
+    "/payouts/{payoutId}": { "schema": "Payout", "description": "Payout requests" },
     "settings": {
       "schema": {
         "type": "object",

@@ -29,6 +29,7 @@ import PWAInstall from './components/PWAInstall';
 import WhatsAppSupport from './components/WhatsAppSupport';
 import PromoBanner from './components/PromoBanner';
 import NotificationPrompt from './components/NotificationPrompt';
+import QuickCheckoutToast from './components/QuickCheckoutToast';
 
 interface AuthContextType {
   user: User | null;
@@ -161,6 +162,7 @@ function RoutesContent() {
       {!isDashboardRoute && <PWAInstall />}
       {!isDashboardRoute && <WhatsAppSupport />}
       {!isDashboardRoute && <Navbar />}
+      <QuickCheckoutToast />
       
       <main className={`flex-1 overflow-x-hidden ${isDashboardRoute ? '' : 'pt-16'}`}>
         <AnimatePresence mode="wait">

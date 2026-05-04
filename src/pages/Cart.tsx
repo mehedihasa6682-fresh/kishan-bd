@@ -5,6 +5,8 @@ import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useState } from 'react';
 
+import { formatCurrency } from '../lib/utils';
+
 export default function Cart() {
   const { items, updateQuantity, removeFromCart, subtotal, deliveryFee, total, discount, setDiscount } = useCart();
   const { t, dData } = useLanguage();
@@ -50,7 +52,7 @@ export default function Cart() {
     >
       <h1 className="font-display font-bold text-2xl mb-8">{t('cart.title')}</h1>
 
-      <div className="space-y-4 mb-10">
+      <div className="space-y-4 mb-8">
         <AnimatePresence>
           {items.map((item) => (
             <motion.div
@@ -64,7 +66,7 @@ export default function Cart() {
               <img src={item.image} referrerPolicy="no-referrer" className="w-20 h-20 rounded-2xl object-cover" alt={item.name} />
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-sm text-slate-800 mb-1 truncate">{dData(item.name, item.nameEn)}</h3>
-                <p className="text-primary font-bold text-sm mb-3">৳{item.price || 0} <span className="text-xs text-slate-400 font-normal">/ {item.unit || 'unit'}</span></p>
+                <p className="text-primary font-bold text-sm mb-3">৳{formatCurrency(item.price || 0)} <span className="text-xs text-slate-400 font-normal">/ {item.unit || 'unit'}</span></p>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-4 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
                     <button onClick={() => updateQuantity(item.id, -1)} className="text-slate-400 hover:text-primary">
@@ -119,33 +121,36 @@ export default function Cart() {
       </div>
 
       {/* Summary */}
-      <div className="glass-card p-6 bg-slate-900 border-none text-white overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full translate-x-1/2 -translate-y-1/2" />
-        
-        <div className="space-y-3 mb-6 relative z-10">
-          <div className="flex justify-between items-center text-slate-400 text-sm">
-            <span>{t('cart.subtotal')}</span>
-            <span className="text-white font-medium">৳{subtotal || 0}</span>
-          </div>
-          {(discount || 0) > 0 && (
-            <div className="flex justify-between items-center text-secondary text-sm">
-                <span>Discount (10%)</span>
-                <span className="font-medium">-৳{discount}</span>
+      <div className="max-w-md mx-auto z-20 mb-8">
+        <div className="glass-card p-6 bg-slate-900 border-none text-white overflow-hidden shadow-2xl shadow-slate-900/40 relative">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full translate-x-1/2 -translate-y-1/2" />
+          
+          <div className="space-y-3 mb-6 relative z-10">
+            <div className="flex justify-between items-center text-slate-400 text-[11px] uppercase font-black tracking-widest">
+              <span>{t('cart.subtotal')}</span>
+              <span className="text-white font-display font-black text-sm">৳{formatCurrency(subtotal)}</span>
             </div>
-          )}
-          <div className="flex justify-between items-center text-slate-400 text-sm">
-            <span>{t('cart.delivery')}</span>
-            <span className="text-white font-medium">৳{deliveryFee || 0}</span>
+            {(discount || 0) > 0 && (
+              <div className="flex justify-between items-center text-secondary text-[11px] uppercase font-black tracking-widest">
+                  <span>Discount</span>
+                  <span className="font-display font-black text-sm">-৳{formatCurrency(discount)}</span>
+              </div>
+            )}
+            <div className="flex justify-between items-center text-slate-400 text-[11px] uppercase font-black tracking-widest">
+              <span>{t('cart.delivery')}</span>
+              <span className="text-white font-display font-black text-sm">৳{formatCurrency(deliveryFee)}</span>
+            </div>
+            <div className="border-t border-white/5 pt-3 flex justify-between items-center">
+              <span className="font-black text-xs uppercase tracking-[0.2em]">{t('cart.total')}</span>
+              <span className="text-2xl font-display font-black text-secondary">৳{formatCurrency(total)}</span>
+            </div>
           </div>
-          <div className="border-t border-slate-800 pt-3 flex justify-between items-center">
-            <span className="font-bold">{t('cart.total')}</span>
-            <span className="text-2xl font-display font-bold text-secondary">৳{total || 0}</span>
-          </div>
-        </div>
 
-        <Link to="/checkout" className="btn-secondary w-full relative z-10">
-          {t('cart.checkout')} <ArrowRight size={18} />
-        </Link>
+          <Link to="/checkout" className="btn-secondary w-full relative z-10 shadow-lg shadow-secondary/20 h-14 rounded-2xl">
+            <span className="text-xs font-black uppercase tracking-widest">{t('cart.checkout')}</span> 
+            <ArrowRight size={18} strokeWidth={3} />
+          </Link>
+        </div>
       </div>
     </motion.div>
   );

@@ -264,8 +264,11 @@ export default function Products() {
                 {dData(product.name, product.nameEn)}
               </h3>
               <div className="flex items-center justify-between mb-3">
-                <div className="flex items-baseline gap-0.5">
-                  <span className="text-sm font-display font-bold text-slate-900">৳{product.price || 0}</span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-sm font-display font-bold text-slate-900">৳{product.discountPrice || product.price || 0}</span>
+                  {product.discountPrice && (
+                    <span className="text-[10px] text-slate-300 line-through">৳{product.price}</span>
+                  )}
                   <span className="text-[8px] text-slate-400 font-bold tracking-tight">/{product.unit || 'unit'}</span>
                 </div>
                 <div className="flex items-center gap-1">

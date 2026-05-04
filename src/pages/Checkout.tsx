@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { MapPin, CreditCard, Apple, CheckCircle, ArrowLeft, Send, Map as MapIcon, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { AuthContext } from '../App';
@@ -12,10 +12,11 @@ import AddressPicker from '../components/AddressPicker';
 
 import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '../firebase';
+import { formatCurrency } from '../lib/utils';
 
 export default function Checkout() {
   const navigate = useNavigate();
-  const { items, total, subtotal, deliveryFee, discount, clearCart } = useCart();
+  const { items, total, subtotal, deliveryFee, setDeliveryFee, discount, clearCart } = useCart();
   const { t } = useLanguage();
   const { user } = useContext(AuthContext);
   
@@ -32,11 +33,30 @@ export default function Checkout() {
   const [address, setAddress] = useState('');
   const [location, setLocation] = useState<{lat: number, lng: number} | null>(null);
   const [addressDetails, setAddressDetails] = useState<any>(null);
+  const [selectedAreaId, setSelectedAreaId] = useState<string>('');
+  const [deliveryAreas, setDeliveryAreas] = useState<any[]>([]);
   
   const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
   const [selectedAddressIndex, setSelectedAddressIndex] = useState<number | 'new'>('new');
   const [isEditingAddress, setIsEditingAddress] = useState(true);
   const [showAddressPicker, setShowAddressPicker] = useState(false);
+
+  useEffect(() => {
+    async function fetchAreas() {
+        const { getDocs, collection } = await import('firebase/firestore');
+        const snap = await getDocs(collection(db, 'delivery_areas'));
+        const areas = snap.docs.map(d => ({ id: d.id, ...d.data() })) as any[];
+        setDeliveryAreas(areas);
+        
+        // Default to first area if available
+        if (areas.length > 0) {
+            const mun = areas.find(a => String(a.name || '').includes('Gaibandha Municipality')) || areas[0];
+            setSelectedAreaId(mun.id);
+            setDeliveryFee(mun.fee);
+        }
+    }
+    fetchAreas();
+  }, [setDeliveryFee]);
 
   useState(() => {
     if (user) {
@@ -93,10 +113,16 @@ export default function Checkout() {
             });
         }
 
+        // Prepare items by removing large image data to prevent exceeding Firestore document size limit
+        const cleanedItems = items.map(item => {
+            const { image, ...rest } = item;
+            return rest;
+        });
+
         await orderService.placeOrder({
             userId: user.uid,
             customerName: customerName || user.displayName || 'Guest User',
-            items: items,
+            items: cleanedItems,
             total: total,
             subtotal: subtotal,
             deliveryFee: deliveryFee,
@@ -118,7 +144,7 @@ export default function Checkout() {
         await NotificationService.sendNotification({
           userId: user.uid,
           title: "Order Placed Successfully",
-          message: `Your order for ৳${total} has been received. Status: Pending.`,
+          message: `Your order for ৳${formatCurrency(total)} has been received. Status: Pending.`,
           type: 'order'
         });
 
@@ -197,13 +223,21 @@ export default function Checkout() {
                                                 <button 
                                                     key={idx}
                                                     onClick={() => {
-                                                        setAddress(addr);
+                                                        if (typeof addr === 'object') {
+                                                            setAddress(addr.address);
+                                                            setLocation({ lat: addr.lat, lng: addr.lng });
+                                                            setAddressDetails(addr);
+                                                            setCustomerName(`${addr.firstName || ''} ${addr.lastName || ''}`.trim() || customerName);
+                                                            setPhone(addr.phone || phone);
+                                                        } else {
+                                                            setAddress(addr);
+                                                        }
                                                         setSelectedAddressIndex(idx);
                                                         setIsEditingAddress(false);
                                                     }}
                                                     className="text-left p-3 rounded-xl border border-slate-100 bg-slate-50 text-[11px] font-medium text-slate-600 hover:border-primary transition-all"
                                                 >
-                                                    {addr}
+                                                    {typeof addr === 'string' ? addr : (addr?.address || 'Saved Location')}
                                                 </button>
                                             ))}
                                             <button 
@@ -239,6 +273,24 @@ export default function Checkout() {
                                         </div>
                                     </button>
                                     
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none block mb-1">Select Area (For Delivery Charge)</label>
+                                        <select 
+                                            className="input-field py-3 font-bold"
+                                            value={selectedAreaId}
+                                            onChange={e => {
+                                                const area = deliveryAreas.find(a => a.id === e.target.value);
+                                                setSelectedAreaId(e.target.value);
+                                                if (area) setDeliveryFee(area.fee);
+                                            }}
+                                        >
+                                            <option value="">Choose your location</option>
+                                            {deliveryAreas.map(area => (
+                                                <option key={area.id} value={area.id}>{area.name} (৳{formatCurrency(area.fee)})</option>
+                                            ))}
+                                        </select>
+                                        <p className="text-[9px] text-slate-400 font-medium italic mt-1 ml-1">Delivery charge varies based on your location.</p>
+                                    </div>
                                     <div className="space-y-1">
                                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Full Name</label>
                                         <input 
@@ -419,21 +471,21 @@ export default function Checkout() {
                     <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
                         <div className="flex justify-between text-xs font-bold">
                             <span className="text-slate-400">{t('cart.subtotal')}</span>
-                            <span className="text-slate-800">৳{subtotal || 0}</span>
+                            <span className="text-slate-800">৳{formatCurrency(subtotal || 0)}</span>
                         </div>
                         {(discount || 0) > 0 && (
                             <div className="flex justify-between text-xs font-bold text-secondary">
                                 <span>Discount</span>
-                                <span>-৳{discount}</span>
+                                <span>-৳{formatCurrency(discount)}</span>
                             </div>
                         )}
                         <div className="flex justify-between text-xs font-bold">
                             <span className="text-slate-400">{t('cart.delivery')}</span>
-                            <span className="text-slate-800">৳{deliveryFee || 0}</span>
+                            <span className="text-slate-800">৳{formatCurrency(deliveryFee || 0)}</span>
                         </div>
                         <div className="border-t border-slate-50 pt-4 flex justify-between items-center">
                             <span className="font-display font-bold text-slate-900">{t('cart.total')}</span>
-                            <span className="text-2xl font-display font-bold text-primary">৳{total || 0}</span>
+                            <span className="text-2xl font-display font-bold text-primary">৳{formatCurrency(total || 0)}</span>
                         </div>
                     </div>
                 </div>

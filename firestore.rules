@@ -142,6 +142,13 @@ service cloud.firestore {
       allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
     }
 
+    match /payouts/{payoutId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && (isSeller() || isRider()) && incoming().userId == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
     // Connection test path
     match /_connection_test_/ping {
       allow read: if true;

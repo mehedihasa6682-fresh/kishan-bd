@@ -15,7 +15,7 @@ export const app = initializeApp(firebaseConfig);
 // Initialize Firestore with settings to handle potential network restrictions
 export const db = initializeFirestore(app, {
   localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
-  experimentalForceLongPolling: true, // Helps with connectivity in restricted environments
+  experimentalAutoDetectLongPolling: true,
 }, firebaseConfig.firestoreDatabaseId || '(default)');
 
 export const auth = getAuth(app);

@@ -30,6 +30,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
+import { formatCurrency } from '../lib/utils';
 
 const OrderTracking = ({ order }: { order: Order }) => {
     const [riderLocation, setRiderLocation] = useState<{lat: number, lng: number} | null>(null);
@@ -111,7 +112,7 @@ export default function Orders() {
                   <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none mb-1">ID: #{order.id?.slice(-8)}</span>
                   <StatusBadge status={order.status} />
                 </div>
-                <span className="text-lg font-display font-bold text-slate-900 leading-none">৳{order.total}</span>
+                <span className="text-lg font-display font-bold text-slate-900 leading-none">৳{formatCurrency(order.total)}</span>
               </div>
 
               {/* Progress Timeline */}
@@ -160,7 +161,7 @@ export default function Orders() {
               <div className="mt-4 flex items-center justify-between">
                 <div className="flex flex-col">
                     <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Delivery To</span>
-                    <span className="text-[11px] font-bold text-slate-800 truncate max-w-[150px]">{order.address}</span>
+                    <span className="text-[11px] font-bold text-slate-800 truncate max-w-[150px]">{typeof order.address === 'string' ? order.address : (order.address?.address || 'No Address')}</span>
                 </div>
                 <div className="flex gap-2">
                     <button 

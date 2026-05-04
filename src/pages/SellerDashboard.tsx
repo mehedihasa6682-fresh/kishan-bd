@@ -13,8 +13,11 @@ import { sellerService } from '../services/sellerService';
 import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { formatCurrency } from '../lib/utils';
 
 import ImageUpload from '../components/ImageUpload';
+
+import { payoutService } from '../services/payoutService';
 
 const chartData = [
   { name: 'Mon', revenue: 400 },
@@ -27,7 +30,7 @@ const chartData = [
 ];
 
 export default function SellerDashboard() {
-  const { user, role } = useContext(AuthContext);
+  const { user, role, profile } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'analytics'>('orders');
   const [isAdding, setIsAdding] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
@@ -343,7 +346,7 @@ export default function SellerDashboard() {
                   <DollarSign size={20} />
                 </div>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Revenue</p>
-                <h3 className="text-xl font-display font-bold text-slate-900">৳{stats.revenue.toLocaleString()}</h3>
+                <h3 className="text-xl font-display font-bold text-slate-900">৳{formatCurrency(stats.revenue)}</h3>
                 <span className="text-[9px] font-bold text-green-500">Completed Payouts</span>
               </div>
               <div className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm">
@@ -423,21 +426,27 @@ export default function SellerDashboard() {
             <div className="bg-slate-900 p-8 rounded-[3rem] text-white overflow-hidden relative">
               <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
               <div className="relative z-10">
-                <Wallet className="text-primary mb-4" size={32} />
-                <h3 className="text-2xl font-display font-bold mb-2">Payout Settings</h3>
-                <p className="text-slate-400 text-xs leading-relaxed max-w-xs mb-6">
-                  Set up your mobile money account to receive payments from your sales.
+                <div className="flex justify-between items-start mb-4">
+                    <Wallet className="text-primary" size={32} />
+                    <div className="text-right">
+                         <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1">Withdrawable</p>
+                         <h4 className="text-2xl font-display font-bold text-white leading-none">৳{formatCurrency(stats.revenue)}</h4>
+                    </div>
+                </div>
+                <h3 className="text-xl font-display font-bold mb-2">Payout Settings</h3>
+                <p className="text-slate-400 text-[10px] leading-relaxed max-w-xs mb-6">
+                  Revenue is calculated from delivered orders. Request a payout once it reaches ৳500.
                 </p>
-                <div className="flex flex-col gap-3 mb-6">
+                <div className="flex flex-col gap-3">
                     <div className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/10">
                         <div>
                             <span className="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Current Method</span>
-                            <p className="text-sm font-bold">{(user as any)?.paymentMethod || 'Not Configured'}</p>
+                            <p className="text-sm font-bold">{(profile as any)?.paymentMethod || 'Not Configured'}</p>
                         </div>
                         <button 
                             onClick={() => {
-                                const provider = prompt("Payment Provider (bKash/Nagad/Rocket)?");
-                                const number = prompt("Mobile Number for Payout?");
+                                const provider = prompt("Payment Provider (bKash/Nagad/Rocket)?", (profile as any)?.paymentMethod || "");
+                                const number = prompt("Mobile Number for Payout?", (profile as any)?.payoutAccount || "");
                                 if (provider && number && user) {
                                     updateDoc(doc(db, 'users', user.uid), { paymentMethod: provider, payoutAccount: number });
                                 }
@@ -447,6 +456,27 @@ export default function SellerDashboard() {
                             Change
                         </button>
                     </div>
+                    <button 
+                        disabled={stats.revenue < 500}
+                        onClick={async () => {
+                            if (stats.revenue < 500) return alert('Minimum withdrawal is ৳500 for sellers');
+                            if (!(profile as any)?.paymentMethod || !(profile as any)?.payoutAccount) {
+                              return alert('Please set your Payout Method first');
+                            }
+                            
+                            if (confirm(`Withdraw ৳${stats.revenue} to your ${(profile as any).paymentMethod} account (${(profile as any).payoutAccount})?`)) {
+                              try {
+                                await payoutService.requestPayout(user!.uid, stats.revenue, (profile as any).paymentMethod, (profile as any).payoutAccount, 'seller');
+                                alert('Withdrawal request sent! It will be reviewed by admin.');
+                              } catch (e) {
+                                alert('Failed to request withdrawal');
+                              }
+                            }
+                        }}
+                        className={`w-full py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl transition-all ${stats.revenue >= 500 ? 'bg-primary text-white shadow-primary/20 hover:scale-[1.02]' : 'bg-white/5 text-white/20 cursor-not-allowed uppercase'}`}
+                    >
+                        Request Payout
+                    </button>
                 </div>
               </div>
             </div>
@@ -469,7 +499,7 @@ export default function SellerDashboard() {
                       <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-1">{order.customerName}</p>
                     </div>
                     <div className="text-right">
-                        <span className="text-lg font-display font-bold text-slate-900 leading-none">৳{order.total || 0}</span>
+                        <span className="text-lg font-display font-bold text-slate-900 leading-none">৳{formatCurrency(order.total || 0)}</span>
                         <p className="text-[9px] font-black text-primary uppercase mt-1">{order.status}</p>
                     </div>
                   </div>
@@ -478,7 +508,7 @@ export default function SellerDashboard() {
                       {(order.items || []).filter((i: any) => i.sellerId === user?.uid).map((item: any, idx: number) => (
                           <div key={idx} className="flex justify-between items-center text-[11px] font-bold text-slate-600">
                               <span>{item.quantity || 0}x {item.name}</span>
-                              <span className="text-slate-400">৳{(item.price || 0) * (item.quantity || 0)}</span>
+                              <span className="text-slate-400">৳{formatCurrency((item.price || 0) * (item.quantity || 0))}</span>
                           </div>
                       ))}
                   </div>
@@ -529,7 +559,7 @@ export default function SellerDashboard() {
                                 <div className="flex-1 min-w-0">
                                     <h4 className="font-bold text-sm text-slate-800 truncate">{prod.name}</h4>
                                     <div className="flex items-center gap-2 mt-1">
-                                        <span className="text-[10px] font-bold text-primary">৳{prod.price}/{prod.unit}</span>
+                                        <span className="text-[10px] font-bold text-primary">৳{formatCurrency(prod.price)}/{prod.unit}</span>
                                         <span className={`text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider ${
                                             prod.status === 'approved' ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'
                                         }`}>

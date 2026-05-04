@@ -10,6 +10,8 @@ import { AuthContext } from '../App';
 import { socialService } from '../services/socialService';
 import { Helmet } from 'react-helmet-async';
 
+import { formatCurrency } from '../lib/utils';
+
 export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -117,9 +119,10 @@ export default function ProductDetails() {
     >
       <Helmet>
         <title>{dData(product.name, product.nameEn)} - Buy Fresh at Kishan</title>
-        <meta name="description" content={dData(product.description, product.descriptionEn) || `Fresh ${dData(product.name, product.nameEn)} directly from the farm to your door at Kishan Marketplace.`} />
+        <meta name="description" content={product.seoDescription || dData(product.description, product.descriptionEn) || `Fresh ${dData(product.name, product.nameEn)} directly from the farm to your door at Kishan Marketplace.`} />
+        <meta name="keywords" content={product.seoKeywords || dData(product.name, product.nameEn) + ', Kishan, fresh, organic, vegetables, fruits'} />
         <meta property="og:title" content={`${dData(product.name, product.nameEn)} - Kishan Marketplace`} />
-        <meta property="og:description" content={`Get fresh ${dData(product.name, product.nameEn)} at the best price.`} />
+        <meta property="og:description" content={product.seoDescription || `Get fresh ${dData(product.name, product.nameEn)} at the best price.`} />
         <meta property="og:image" content={product.image} />
         <meta property="og:type" content="product" />
         
@@ -193,7 +196,7 @@ export default function ProductDetails() {
             </div>
           </div>
 
-          <div className="flex items-center gap-6 mb-8 text-slate-500">
+          <div className="flex items-center gap-6 mb-4 text-slate-500">
             <div className="flex items-center gap-1.5">
               <Clock size={16} className="text-primary" />
               <span className="text-xs font-bold font-sans">Freshly Sourced</span>
@@ -204,6 +207,16 @@ export default function ProductDetails() {
             </div>
           </div>
 
+          {product.tags && product.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-8">
+              {product.tags.map((tag: string) => (
+                <span key={tag} className="text-[9px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-md">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+
           <p className="text-slate-500 text-sm leading-relaxed mb-8">
             {dData(product.description, product.descriptionEn) || `Premium quality ${dData(product.name, product.nameEn)} directly from ${product.farmerName || product.farmer}'s farm. No pesticides or chemicals used.`}
           </p>
@@ -212,13 +225,16 @@ export default function ProductDetails() {
             {/* Price section */}
             <div className="flex flex-col">
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-display font-bold text-slate-900 leading-none tracking-tight">৳{Math.round((product.price || 0) * qty)}</span>
+                <span className="text-4xl font-display font-bold text-slate-900 leading-none tracking-tight">৳{formatCurrency((product.discountPrice || product.price || 0) * qty)}</span>
+                {product.discountPrice && (
+                    <span className="text-lg font-bold text-slate-300 line-through">৳{formatCurrency((product.price || 0) * qty)}</span>
+                )}
                 <span className="text-sm font-medium text-slate-400">
                   / {qty}{product.unit || 'unit'}
                 </span>
               </div>
               <div className="text-[10px] text-slate-400 mt-1 font-medium bg-slate-50 self-start px-2 py-0.5 rounded-full border border-slate-100">
-                Unit Price: ৳{product.price || 0} per {product.unit || 'unit'}
+                Unit Price: ৳{formatCurrency(product.discountPrice || product.price || 0)} per {product.unit || 'unit'}
               </div>
             </div>
 
@@ -480,7 +496,7 @@ export default function ProductDetails() {
                             </div>
                             <h4 className="font-bold text-[10px] text-slate-800 truncate mb-1">{dData(p.name, p.nameEn)}</h4>
                             <div className="flex items-center justify-between">
-                                <span className="text-xs font-display font-bold text-primary">৳{p.price || 0}</span>
+                                <span className="text-xs font-display font-bold text-primary">৳{formatCurrency(p.price || 0)}</span>
                                 <div className="flex items-center gap-0.5">
                                     <Star size={8} className="text-secondary fill-secondary" />
                                     <span className="text-[8px] font-bold text-slate-400">{p.rating || '5.0'}</span>

@@ -10,6 +10,7 @@ export interface AppNotification {
   read: boolean;
   createdAt: any;
   link?: string;
+  duration?: number; // duration in seconds
 }
 
 export const NotificationService = {

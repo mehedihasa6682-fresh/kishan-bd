@@ -58,7 +58,7 @@ export default function Invoice({ order, onClose }: InvoiceProps) {
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Customer Details</p>
               <h4 className="font-bold text-lg text-slate-800 leading-tight mb-1">{order.customerName}</h4>
               <p className="text-sm text-slate-500 font-medium">Phone: {order.phone}</p>
-              <p className="text-sm text-slate-500 font-medium mt-2">{order.address}</p>
+              <p className="text-sm text-slate-500 font-medium mt-2">{typeof order.address === 'string' ? order.address : (order.address?.address || 'No Address')}</p>
             </div>
             <div className="text-right">
               <div className="flex flex-col items-end gap-6">

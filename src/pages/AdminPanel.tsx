@@ -7,9 +7,11 @@ import {
   CheckCircle, XCircle, Plus, Trash2, Layout,
   Layers, Camera, ChevronRight, Store, X, Clock, Bell,
   ArrowLeft, User, Box, Gift, Image as ImageIcon,
-  MessageSquare, Package, Eye, EyeOff, MapPin
+  MessageSquare, Package, Eye, EyeOff, MapPin,
+  TrendingUp, ArrowUpRight
 } from 'lucide-react';
 import { adminService } from '../services/adminService';
+import { formatCurrency } from '../lib/utils';
 import { collection, onSnapshot, query, orderBy, where, doc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { AuthContext } from '../App';
@@ -28,8 +30,9 @@ export default function AdminPanel() {
   const [riderLocations, setRiderLocations] = useState<Record<string, any>>({});
   const [sellers, setSellers] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
+  const [payouts, setPayouts] = useState<any[]>([]);
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'approvals' | 'banners' | 'stories' | 'categories' | 'users' | 'orders' | 'bundles' | 'settings' | 'notifications' | 'riders'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'approvals' | 'banners' | 'stories' | 'categories' | 'users' | 'orders' | 'bundles' | 'settings' | 'notifications' | 'riders' | 'financials'>('dashboard');
   
   // Update rider locations
   useEffect(() => {
@@ -163,6 +166,10 @@ export default function AdminPanel() {
       setNotifications(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     }, (error) => console.error("Admin Notifs:", error));
 
+    const unsubPayouts = onSnapshot(query(collection(db, 'payouts'), orderBy('createdAt', 'desc')), (snap) => {
+      setPayouts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (error) => console.error("Admin Payouts:", error));
+
     return () => {
       unsubBanners();
       unsubStories();
@@ -174,19 +181,28 @@ export default function AdminPanel() {
       unsubOrders();
       unsubAreas();
       unsubNotifs();
+      unsubPayouts();
     };
   }, [role, authLoading, navigate]);
 
   const handleAddProduct = async () => {
     if (!newProduct.name || !newProduct.price || !newProduct.image) return;
 
+    // Auto-generate SEO fields if empty
+    const finalSeoDescription = newProduct.seoDescription || (newProduct.nameEn + ' - ' + newProduct.descriptionEn).slice(0, 160);
+    const finalSeoKeywords = newProduct.seoKeywords || [newProduct.name, newProduct.nameEn, newProduct.category, 'fresh', 'Gaibandha', 'Alu', 'Kishan'].join(', ');
+
     const productData = {
       ...newProduct,
       price: parseFloat(newProduct.price) || 0,
+      discountPrice: newProduct.discountPrice ? parseFloat(newProduct.discountPrice) : null,
       stockQuantity: parseInt(newProduct.stockQuantity) || 0,
       isOutOfStock: newProduct.isOutOfStock,
       minWeight: parseFloat(newProduct.minWeight) || 1,
-      weightIncrements: parseFloat(newProduct.weightIncrements) || 0.1
+      weightIncrements: parseFloat(newProduct.weightIncrements) || 0.1,
+      tags: newProduct.tags ? newProduct.tags.split(',').map((t: string) => t.trim()) : [],
+      seoDescription: finalSeoDescription,
+      seoKeywords: finalSeoKeywords
     };
 
     if (editingProductId) {
@@ -199,6 +215,7 @@ export default function AdminPanel() {
       name: '', 
       nameEn: '', 
       price: '', 
+      discountPrice: '',
       category: '', 
       subCategory: '', 
       image: '', 
@@ -209,6 +226,9 @@ export default function AdminPanel() {
       location: '', 
       description: '', 
       descriptionEn: '', 
+      tags: '',
+      seoDescription: '',
+      seoKeywords: '',
       whatsappNumber: '',
       enableWeightSystem: false,
       stockQuantity: '100',
@@ -224,6 +244,7 @@ export default function AdminPanel() {
       name: product.name || '',
       nameEn: product.nameEn || '',
       price: product.price?.toString() || '',
+      discountPrice: product.discountPrice?.toString() || '',
       category: product.category || '',
       subCategory: product.subCategory || '',
       image: product.image || '',
@@ -234,6 +255,9 @@ export default function AdminPanel() {
       location: product.location || '',
       description: product.description || '',
       descriptionEn: product.descriptionEn || '',
+      tags: product.tags?.join(', ') || '',
+      seoDescription: product.seoDescription || '',
+      seoKeywords: product.seoKeywords || '',
       whatsappNumber: product.whatsappNumber || '',
       enableWeightSystem: product.enableWeightSystem || false,
       stockQuantity: product.stockQuantity?.toString() || '0',
@@ -310,6 +334,7 @@ export default function AdminPanel() {
     { id: 'users', label: 'Users', icon: Users },
     { id: 'notifications', label: 'Mailing', icon: Bell },
     { id: 'settings', label: 'Brand & Site', icon: Settings },
+    { id: 'financials', label: 'Financials', icon: CreditCard },
   ];
 
   if (authLoading) return (
@@ -376,18 +401,71 @@ export default function AdminPanel() {
           >
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { label: 'Total Orders', value: orders.length.toString(), color: 'text-blue-500', bg: 'bg-blue-50' },
-                { label: 'Processing', value: orders.filter(o => o.status === 'pending' || o.status === 'verified').length.toString(), color: 'text-orange-500', bg: 'bg-orange-50' },
-                { label: 'Net Revenue', value: `৳${(orders.filter(o => o.status !== 'cancelled').reduce((acc, o) => acc + (o.total || 0), 0) || 0).toLocaleString()}`, color: 'text-green-500', bg: 'bg-green-50' },
-                { label: 'All Users', value: (sellers.length || 0).toString(), color: 'text-purple-500', bg: 'bg-purple-50' },
-                { label: 'Total Sellers', value: (sellers.filter(s => s.role === 'seller').length || 0).toString(), color: 'text-indigo-500', bg: 'bg-indigo-50' },
-                { label: 'Total Riders', value: (sellers.filter(s => s.role === 'rider').length || 0).toString(), color: 'text-orange-500', bg: 'bg-orange-50' },
-                { label: 'Total Products', value: (products.length || 0).toString(), color: 'text-pink-500', bg: 'bg-pink-50' },
-                { label: 'Revenue/User', value: `৳${sellers.length > 0 ? (orders.filter(o => o.status !== 'cancelled').reduce((acc, o) => acc + (o.total || 0), 0) / sellers.length).toFixed(0) : 0}`, color: 'text-slate-600', bg: 'bg-slate-100' },
+                { 
+                  label: 'Total Orders', 
+                  value: orders.length.toLocaleString(), 
+                  color: 'text-blue-500', 
+                  bg: 'bg-blue-50/50',
+                  icon: <Truck size={14} />
+                },
+                { 
+                  label: 'Processing', 
+                  value: orders.filter(o => ['pending', 'verified', 'confirmed'].includes(o.status)).length.toLocaleString(), 
+                  color: 'text-orange-500', 
+                  bg: 'bg-orange-50/50',
+                  icon: <Package size={14} />
+                },
+                { 
+                  label: 'Net Revenue', 
+                  value: `৳${formatCurrency(orders.filter(o => o.status !== 'cancelled').reduce((acc, o) => acc + (Number(o.total || 0)), 0))}`, 
+                  color: 'text-emerald-700', 
+                  bg: 'bg-emerald-50/50',
+                  icon: <ArrowUpRight size={14} />
+                },
+                { 
+                  label: 'All Users', 
+                  value: (sellers.length || 0).toLocaleString(), 
+                  color: 'text-slate-800', 
+                  bg: 'bg-slate-50/50',
+                  icon: <Users size={14} />
+                },
+                { 
+                  label: 'Total Sellers', 
+                  value: (sellers.filter(s => s.role === 'seller').length || 0).toLocaleString(), 
+                  color: 'text-blue-700', 
+                  bg: 'bg-blue-50/50',
+                  icon: <ShoppingBag size={14} />
+                },
+                { 
+                  label: 'Total Riders', 
+                  value: (sellers.filter(s => s.role === 'rider').length || 0).toLocaleString(), 
+                  color: 'text-orange-700', 
+                  bg: 'bg-orange-50/50',
+                  icon: <Truck size={14} />
+                },
+                { 
+                  label: 'Total Products', 
+                  value: (products.length || 0).toLocaleString(), 
+                  color: 'text-pink-700', 
+                  bg: 'bg-pink-50/50',
+                  icon: <Plus size={14} />
+                },
+                { 
+                  label: 'Avg Order Val', 
+                  value: `৳${formatCurrency(orders.length > 0 ? (orders.reduce((acc, o) => acc + (Number(o.total || 0)), 0) / orders.length) : 0)}`, 
+                  color: 'text-slate-800', 
+                  bg: 'bg-slate-50/50',
+                  icon: <TrendingUp size={14} />
+                },
               ].map((stat) => (
-                <div key={stat.label} className={`${stat.bg} p-5 rounded-[2rem] border border-slate-50 shadow-sm`}>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">{stat.label}</p>
-                  <h4 className={`text-xl font-display font-bold ${stat.color}`}>{stat.value}</h4>
+                <div key={stat.label} className={`${stat.bg} p-6 rounded-[2rem] border border-slate-100 backdrop-blur-sm shadow-sm flex flex-col justify-between group hover:shadow-xl hover:border-primary/10 transition-all duration-300`}>
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{stat.label}</p>
+                    <div className={`${stat.color} opacity-20 group-hover:opacity-100 transition-opacity`}>
+                        {stat.icon}
+                    </div>
+                  </div>
+                  <h4 className={`text-2xl font-display font-black leading-none ${stat.color}`}>{stat.value}</h4>
                 </div>
               ))}
             </div>
@@ -407,7 +485,7 @@ export default function AdminPanel() {
                                 </div>
                             </div>
                             <div className="text-right">
-                                <p className="text-xs font-bold text-slate-800">৳{order.total || 0}</p>
+                                <p className="text-xs font-bold text-slate-800">৳{formatCurrency(order.total || 0)}</p>
                                 <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${
                                     order.status === 'delivered' ? 'bg-green-50 text-green-500' :
                                     order.status === 'cancelled' ? 'bg-red-50 text-red-500' :
@@ -477,7 +555,7 @@ export default function AdminPanel() {
                     <div>
                       <h4 className="font-bold text-sm text-slate-800">{prod.name}</h4>
                       <p className="text-[10px] text-slate-400 font-bold uppercase trekking-widest">{prod.farmerName || 'Unknown Seller'}</p>
-                      <p className="text-xs text-slate-400">Price: ৳{prod.price}</p>
+                      <p className="text-xs text-slate-400">Price: ৳{formatCurrency(prod.price)}</p>
                     </div>
                   </div>
                   <div className="bg-orange-50 text-orange-500 px-3 py-1 rounded-full text-[8px] font-black uppercase">Pending</div>
@@ -521,12 +599,12 @@ export default function AdminPanel() {
                   <div>
                     <h4 className="font-bold text-sm">#{order.id.slice(-8)}</h4>
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{order.customerName}</p>
-                    <p className="text-[10px] text-slate-400 mt-1">{order.phone} • {order.address}</p>
+                    <p className="text-[10px] text-slate-400 mt-1">{order.phone} • {typeof order.address === 'string' ? order.address : (order.address?.address || 'No Address')}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-display font-bold text-primary">৳{order.total || 0}</p>
+                    <p className="font-display font-bold text-primary">৳{formatCurrency(order.total || 0)}</p>
                     <p className="text-[10px] text-slate-400 font-bold uppercase">{order.paymentMethod}</p>
-                    {(order.discount || 0) > 0 && <p className="text-[9px] text-secondary font-black truncate">DISCOUNT: -৳{order.discount}</p>}
+                    {(order.discount || 0) > 0 && <p className="text-[9px] text-secondary font-black truncate">DISCOUNT: -৳{formatCurrency(order.discount)}</p>}
                     {order.location && (
                       <div className="flex flex-col items-end gap-1 mt-2">
                         <a 
@@ -555,7 +633,7 @@ export default function AdminPanel() {
                                 <span className="font-bold text-slate-700">{item.quantity || 0}x</span>
                                 <span className="text-slate-600">{item.name}</span>
                             </div>
-                            <span className="font-medium text-slate-400">৳{(item.price || 0) * (item.quantity || 0)}</span>
+                            <span className="font-medium text-slate-400">৳{formatCurrency((item.price || 0) * (item.quantity || 0))}</span>
                         </div>
                     ))}
                 </div>
@@ -726,6 +804,26 @@ export default function AdminPanel() {
                           value={newProduct.price}
                           onChange={e => setNewProduct({...newProduct, price: e.target.value})}
                         />
+                    </div>
+                    <div className="relative">
+                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1 ml-1">Discount Price (Optional)</label>
+                        <input 
+                          placeholder="Discounted Price (৳)" 
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none focus:border-primary"
+                          value={newProduct.discountPrice || ''}
+                          onChange={e => setNewProduct({...newProduct, discountPrice: e.target.value})}
+                        />
+                    </div>
+                    <div className="col-span-2 relative">
+                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1 ml-1">Product Tags (Comma separated)</label>
+                        <input 
+                          placeholder="e.g. Fresh, Organic, No-Chemicals" 
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none focus:border-primary"
+                          value={newProduct.tags || ''}
+                          onChange={e => setNewProduct({...newProduct, tags: e.target.value})}
+                        />
+                    </div>
+                    <div className="col-span-2 relative">
                         <p className="text-[8px] text-slate-400 mt-1 ml-1">* If 1kg is ৳100, system will calculate 100gm as ৳10.</p>
                     </div>
                     <div className="relative">
@@ -842,6 +940,32 @@ export default function AdminPanel() {
                         ))}
                       </select>
                     )}
+
+                    <div className="col-span-2 pt-4 border-t border-slate-100 mt-2">
+                        <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <Search size={14} /> Search Engine Optimization (SEO)
+                        </h5>
+                        <div className="space-y-4">
+                            <div className="relative">
+                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1 ml-1">SEO Meta Description</label>
+                                <textarea 
+                                    placeholder="Write a catchy description for Google search..." 
+                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none h-20 resize-none focus:border-primary transition-all"
+                                    value={newProduct.seoDescription || ''}
+                                    onChange={e => setNewProduct({...newProduct, seoDescription: e.target.value})}
+                                />
+                            </div>
+                            <div className="relative">
+                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1 ml-1">SEO Keywords (Comma separated)</label>
+                                <input 
+                                    placeholder="e.g. Potato in Gaibandha, Fresh Vegetables, Organic Alu" 
+                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none focus:border-primary transition-all"
+                                    value={newProduct.seoKeywords || ''}
+                                    onChange={e => setNewProduct({...newProduct, seoKeywords: e.target.value})}
+                                />
+                            </div>
+                        </div>
+                    </div>
                     <button onClick={handleAddProduct} className="col-span-2 py-3 bg-slate-900 text-white rounded-2xl text-xs font-bold mt-2">
                         {editingProductId ? 'Update Product' : 'Publish Product'}
                     </button>
@@ -880,7 +1004,7 @@ export default function AdminPanel() {
                   </div>
                   <div>
                     <h4 className="font-bold text-xs">{prod.name}</h4>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">৳{prod.price} / {prod.unit} • {prod.farmerName || prod.farmer || 'Admin'}</p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">৳{formatCurrency(prod.price)} / {prod.unit} • {prod.farmerName || prod.farmer || 'Admin'}</p>
                     <div className="flex items-center gap-2 mt-1">
                         <div className="flex items-center gap-1 bg-slate-50 border border-slate-100 px-1 rounded-md">
                             <span className="text-[8px] font-black text-slate-400 uppercase px-1">Stock:</span>
@@ -1406,7 +1530,7 @@ export default function AdminPanel() {
                                 </div>
                                 <div>
                                     <h4 className="font-bold text-sm text-slate-800">{bundle.name}</h4>
-                                    <p className="text-xs font-bold text-primary">৳{bundle.price}</p>
+                                    <p className="text-xs font-bold text-primary">৳{formatCurrency(bundle.price)}</p>
                                 </div>
                             </div>
                             <button 
@@ -1762,7 +1886,7 @@ export default function AdminPanel() {
                             <div key={area.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
                                 <div>
                                     <h4 className="font-bold text-sm text-slate-800">{area.name}</h4>
-                                    <p className="text-[10px] font-black text-primary uppercase">Fee: ৳{area.fee}</p>
+                                    <p className="text-[10px] font-black text-primary uppercase">Fee: ৳{formatCurrency(area.fee)}</p>
                                 </div>
                                 <button 
                                     onClick={() => adminService.deleteDeliveryArea(area.id)}
@@ -1776,6 +1900,20 @@ export default function AdminPanel() {
 
                     <div className="bg-slate-50 p-5 rounded-3xl space-y-3">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Add New Area</p>
+                        <div className="flex flex-wrap gap-2 mb-3">
+                            <button 
+                                onClick={() => setNewArea({ name: 'গাইবান্ধা পৌরসভা (ভিতর)', fee: 40 })}
+                                className="text-[8px] font-black uppercase px-2 py-1 bg-white border border-slate-100 rounded-lg text-primary"
+                            >
+                                + গাইবান্ধা পৌরসভা (Inside)
+                            </button>
+                            <button 
+                                onClick={() => setNewArea({ name: 'গাইবান্ধা পৌরসভা (বাহির)', fee: 60 })}
+                                className="text-[8px] font-black uppercase px-2 py-1 bg-white border border-slate-100 rounded-lg text-primary"
+                            >
+                                + গাইবান্ধা পৌরসভা (Outside)
+                            </button>
+                        </div>
                         <div className="flex gap-3">
                             <input 
                                 placeholder="Area Name (e.g. Uttara)" 
@@ -1912,6 +2050,16 @@ export default function AdminPanel() {
                         <option value="alert">Alert</option>
                       </select>
                     </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Stay Time (Seconds)</label>
+                      <select id="notifDuration" className="w-full px-4 py-3 bg-white border border-slate-100 rounded-2xl text-xs outline-none">
+                        <option value="5">5 Seconds (Default)</option>
+                        <option value="10">10 Seconds</option>
+                        <option value="30">30 Seconds</option>
+                        <option value="60">1 Minute</option>
+                        <option value="0">Sticky (Stay until read)</option>
+                      </select>
+                    </div>
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Message Title</label>
@@ -1927,6 +2075,7 @@ export default function AdminPanel() {
                       const message = (document.getElementById('notifMessage') as HTMLTextAreaElement).value;
                       const target = (document.getElementById('notifTarget') as HTMLSelectElement).value;
                       const type = (document.getElementById('notifType') as HTMLSelectElement).value;
+                      const duration = parseInt((document.getElementById('notifDuration') as HTMLSelectElement).value);
 
                       if (!title || !message) return alert('Fill title and message');
 
@@ -1937,7 +2086,8 @@ export default function AdminPanel() {
                             userId: 'all',
                             title,
                             message,
-                            type: type as any
+                            type: type as any,
+                            duration: duration > 0 ? duration : undefined
                           });
                         } else {
                           // Filter users by role and send one by one for demo
@@ -1948,7 +2098,8 @@ export default function AdminPanel() {
                               userId: t.id,
                               title,
                               message,
-                              type: type as any
+                              type: type as any,
+                              duration: duration > 0 ? duration : undefined
                             });
                           }
                         }
@@ -1966,10 +2117,24 @@ export default function AdminPanel() {
                 </div>
 
             <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                <h3 className="font-display font-bold text-lg mb-6 flex items-center gap-2">
-                    <Bell size={20} className="text-primary" />
-                    Sent Notifications History
-                </h3>
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className="font-display font-bold text-lg flex items-center gap-2">
+                        <Bell size={20} className="text-primary" />
+                        Sent Notifications History
+                    </h3>
+                    {notifications.length > 0 && (
+                        <button 
+                            onClick={async () => {
+                                if(confirm('Are you sure you want to delete ALL notifications from history? This cannot be undone.')) {
+                                    await adminService.deleteAllNotifications();
+                                }
+                            }}
+                            className="text-[10px] font-black text-red-500 uppercase tracking-widest bg-red-50 px-3 py-1.5 rounded-xl hover:bg-red-100"
+                        >
+                            Delete All history
+                        </button>
+                    )}
+                </div>
                 <div className="space-y-4">
                     {notifications.length === 0 ? (
                         <div className="text-center py-12">
@@ -2002,6 +2167,112 @@ export default function AdminPanel() {
                             </div>
                         ))
                     )}
+                </div>
+            </div>
+          </motion.div>
+        )}
+        {activeTab === 'financials' && (
+          <motion.div key="financials" className="space-y-6">
+            <h3 className="font-display font-bold text-lg px-1 flex items-center gap-2">
+                <CreditCard size={20} className="text-secondary" />
+                Payout Requests & Settlements
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Payouts</p>
+                    <h4 className="text-2xl font-display font-black text-primary">৳{formatCurrency(payouts.filter(p => p.status === 'completed').reduce((acc, p) => acc + (p.amount || 0), 0))}</h4>
+                </div>
+                <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Pending Requests</p>
+                    <h4 className="text-2xl font-display font-black text-orange-500">{payouts.filter(p => p.status === 'pending').length}</h4>
+                </div>
+                <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Unpaid Earnings (EST)</p>
+                    <h4 className="text-2xl font-display font-black text-slate-400">৳{formatCurrency(orders.filter(o => o.status === 'delivered').reduce((acc, o) => acc + (o.total || 0), 0) - payouts.filter(p => p.status === 'completed').reduce((acc, p) => acc + (p.amount || 0), 0))}</h4>
+                </div>
+            </div>
+
+            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-slate-50 flex justify-between items-center">
+                    <h4 className="font-bold text-sm">Payout Log</h4>
+                    <span className="text-[10px] font-black text-slate-400 uppercase">Descending order</span>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="bg-slate-50/50 border-b border-slate-100">
+                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">User/Role</th>
+                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Amount</th>
+                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Method/Account</th>
+                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50">
+                            {payouts.map((payout) => {
+                                const targetUser = sellers.find(s => s.id === payout.userId);
+                                return (
+                                    <tr key={payout.id} className="hover:bg-slate-50/30 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                                                    <User size={14} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[11px] font-bold text-slate-800">{targetUser?.displayName || 'Unknown'}</p>
+                                                    <p className="text-[9px] font-black text-slate-400 uppercase mt-0.5">{payout.role}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <p className="text-[11px] font-black text-primary">৳{formatCurrency(payout.amount)}</p>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <p className="text-[11px] font-bold text-slate-600">{payout.method}</p>
+                                            <p className="text-[9px] text-slate-400">{payout.account}</p>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-md ${
+                                                payout.status === 'completed' ? 'bg-green-50 text-green-600' :
+                                                payout.status === 'rejected' ? 'bg-red-50 text-red-500' :
+                                                'bg-orange-50 text-orange-500'
+                                            }`}>
+                                                {payout.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            {payout.status === 'pending' && (
+                                                <div className="flex justify-end gap-2">
+                                                    <button 
+                                                        onClick={() => adminService.updatePayoutStatus(payout.id, 'rejected')}
+                                                        className="p-2 text-red-300 hover:text-red-500 transition-colors"
+                                                        title="Reject"
+                                                    >
+                                                        <XCircle size={18} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => adminService.updatePayoutStatus(payout.id, 'completed')}
+                                                        className="p-2 text-green-300 hover:text-green-500 transition-colors"
+                                                        title="Approve"
+                                                    >
+                                                        <CheckCircle size={18} />
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                            {payouts.length === 0 && (
+                                <tr>
+                                    <td colSpan={5} className="py-20 text-center text-slate-400 text-xs">
+                                        No payout records found.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
           </motion.div>

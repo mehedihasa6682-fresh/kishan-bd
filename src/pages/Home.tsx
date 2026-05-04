@@ -6,16 +6,21 @@ import { collection, onSnapshot, query, orderBy, where } from 'firebase/firestor
 import { db } from '../firebase';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useSettings } from '../context/SettingsContext';
 import { AuthContext } from '../App';
 import { useContext } from 'react';
 import { socialService } from '../services/socialService';
 import { Helmet } from 'react-helmet-async';
 
+import { matchProduct } from '../lib/searchUtils';
+import { formatCurrency } from '../lib/utils';
+
 export default function Home() {
   const [activeBanner, setActiveBanner] = useState(0);
   const { user } = useContext(AuthContext);
-  const { addToCart } = useCart();
+  const { addToCart, items: cartItems } = useCart();
   const { t, dData } = useLanguage();
+  const { settings: appSettings } = useSettings();
   const navigate = useNavigate();
   
   const [dbBanners, setDbBanners] = useState<any[]>([]);
@@ -23,6 +28,8 @@ export default function Home() {
   const [dbProducts, setDbProducts] = useState<any[]>([]);
   const [wishlistIds, setWishlistIds] = useState<string[]>([]);
   const [timeLeft, setTimeLeft] = useState({ hours: 2, minutes: 45, seconds: 0 });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showToast, setShowToast] = useState<{show: boolean, name: string}>({ show: false, name: '' });
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -74,6 +81,13 @@ export default function Home() {
     socialService.toggleWishlist(user.uid, productId);
   };
 
+  const handleAddToCart = (product: any) => {
+    addToCart(product);
+    setShowToast({ show: true, name: dData(product.name, product.nameEn) });
+    // Reset toast if already showing to restart the 5s timer
+    setTimeout(() => setShowToast({ show: false, name: '' }), 5000);
+  };
+
   const banners = dbBanners.length > 0 ? dbBanners : [
     { id: 'default-1', title: 'Fresh from Farm', subtitle: 'Get 20% Off on Vegetables', image: 'https://images.unsplash.com/photo-1488459711615-de9b802a83ea?w=800&h=400&fit=crop' },
     { id: 'default-2', title: 'Today Fresh Fish', subtitle: 'Hilsa & more delivered', image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&h=400&fit=crop' },
@@ -88,7 +102,8 @@ export default function Home() {
     { id: 2, name: 'Organic Honey', price: 450, unit: 'kg', farmer: 'Mita Sen', location: 'Sundarban', rating: 4.9, image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&h=400&fit=crop' },
   ];
 
-  const featuredProducts = dbProducts.length > 0 ? dbProducts.filter(p => !p.isBundle && !p.isOutOfStock).slice(0, 4) : fallbackProducts;
+  const featuredProducts = dbProducts.length > 0 ? dbProducts.filter(p => !p.isBundle && !p.isOutOfStock).slice(0, 12) : fallbackProducts;
+  const filteredFeatured = featuredProducts.filter(p => matchProduct(p, searchQuery));
   const bundleProducts = dbProducts.filter(p => (p.isBundle || p.category === 'Bundles') && !p.isOutOfStock);
   const flashSaleProducts = dbProducts.filter(p => p.isFlashSale && !p.isOutOfStock).slice(0, 3);
 
@@ -96,8 +111,63 @@ export default function Home() {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-md mx-auto"
+      className="max-w-md mx-auto relative min-h-screen pb-32"
     >
+      <AnimatePresence>
+        {showToast.show && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-[320px]"
+          >
+            <div className="bg-slate-900/95 backdrop-blur-md text-white p-4 rounded-3xl shadow-2xl border border-white/10 flex items-center gap-3">
+              <div className="w-10 h-10 bg-primary/20 rounded-2xl flex items-center justify-center shrink-0">
+                <ShoppingCart size={18} className="text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-0.5">Added to Cart</p>
+                <p className="text-xs font-bold truncate">{showToast.name}</p>
+              </div>
+              <button 
+                onClick={() => navigate('/cart')}
+                className="px-3 py-1.5 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20"
+              >
+                Checkout
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {cartItems.length > 0 && !showToast.show && (
+        <motion.div 
+          initial={{ opacity: 0, y: 100 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[90] w-[90%] max-w-[350px]"
+        >
+          <button 
+            onClick={() => navigate('/cart')}
+            className="w-full bg-primary text-white p-4 rounded-[2rem] shadow-2xl shadow-primary/30 flex items-center justify-between group overflow-hidden relative"
+          >
+            <motion.div 
+              className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"
+            />
+            <div className="flex items-center gap-3 relative z-10">
+              <div className="bg-white/20 w-10 h-10 rounded-2xl flex items-center justify-center">
+                <ShoppingCart size={20} />
+              </div>
+              <div className="text-left">
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-80">You have items in cart</p>
+                <p className="text-sm font-bold">Proceed to Checkout</p>
+              </div>
+            </div>
+            <div className="bg-white/20 px-3 py-1 rounded-xl relative z-10">
+              <span className="text-xs font-black">৳{formatCurrency(cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0))}</span>
+            </div>
+          </button>
+        </motion.div>
+      )}
       <Helmet>
         <title>Kishan - Fresh Farm Marketplace | কিষান - সরাসরি কৃষক থেকে সরাসরি পণ্য</title>
         <meta name="description" content="Buy fresh farm products, organic vegetables, fish, and meat directly from farmers through Kishan marketplace." />
@@ -105,14 +175,16 @@ export default function Home() {
         <meta property="og:description" content="Kishan connects farmers and consumers directly for fresh organic products." />
         <meta property="og:url" content={window.location.origin} />
       </Helmet>
-      {/* Search Header */}
-      <div className="px-5 mb-6">
+      {/* Sticky Search Header */}
+      <div className={`sticky ${appSettings.announcementBar ? 'top-24' : 'top-16'} z-40 bg-slate-50/80 backdrop-blur-md px-5 py-3 mb-6 transition-all`}>
         <div className="relative group">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
             <Search size={20} />
           </div>
           <input
             type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('home.search_placeholder')}
             className="block w-full pl-11 pr-4 py-4 bg-white border border-slate-100 rounded-3xl shadow-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm font-medium"
           />
@@ -185,8 +257,8 @@ export default function Home() {
                   </div>
                   <h4 className="text-white font-bold text-[10px] truncate mb-1">{dData(product.name, product.nameEn)}</h4>
                   <div className="flex items-center gap-2">
-                    <span className="text-secondary font-black text-xs">৳{Math.round((product.price || 0) * 0.8)}</span>
-                    <span className="text-white/30 text-[8px] line-through">৳{product.price || 0}</span>
+                    <span className="text-secondary font-black text-xs">৳{formatCurrency(Math.round((product.price || 0) * 0.8))}</span>
+                    <span className="text-white/30 text-[8px] line-through">৳{formatCurrency(product.price || 0)}</span>
                   </div>
                 </div>
               ))}
@@ -228,8 +300,10 @@ export default function Home() {
                       <h3 className="font-bold text-base text-slate-800 mb-1 truncate">{dData(bundle.name, bundle.nameEn)}</h3>
                       <div className="flex items-center justify-between mb-4">
                           <div className="flex items-baseline gap-1">
-                              <span className="text-lg font-display font-bold text-slate-900">৳{bundle.price}</span>
-                              <span className="text-[10px] text-slate-400 font-bold line-through">৳{Math.round(bundle.price * 1.2)}</span>
+                              <span className="text-lg font-display font-bold text-slate-900">৳{formatCurrency(bundle.discountPrice || bundle.price || 0)}</span>
+                              {(bundle.discountPrice || bundle.price * 1.2) && (
+                                <span className="text-[10px] text-slate-400 font-bold line-through">৳{formatCurrency(bundle.discountPrice ? bundle.price : Math.round(bundle.price * 1.2))}</span>
+                              )}
                           </div>
                           <span className="text-[9px] font-black text-secondary uppercase tracking-tight bg-secondary/10 px-2 py-0.5 rounded-md">Combo</span>
                       </div>
@@ -237,7 +311,7 @@ export default function Home() {
                           whileTap={{ scale: 0.95 }}
                           onClick={(e) => {
                               e.stopPropagation();
-                              addToCart(bundle);
+                              handleAddToCart(bundle);
                           }}
                           className="w-full bg-primary text-white py-2 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all"
                       >
@@ -290,67 +364,75 @@ export default function Home() {
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Direct from fields</span>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          {featuredProducts.map((product) => (
-            <motion.div
-              layout
-              key={product.id}
-              className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-50 relative group"
-            >
-              <div className="relative aspect-square overflow-hidden m-1.5 rounded-2xl cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
-                <img 
-                    src={product.image} 
-                    referrerPolicy="no-referrer" 
-                    loading="lazy"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                    alt={dData(product.name, product.nameEn)} 
-                />
-                <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-sm">
-                  <Star size={8} className="text-secondary fill-secondary" />
-                  <span className="text-[9px] font-black text-slate-800">{product.rating || '5.0'}</span>
-                </div>
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleWish(product.id);
-                  }}
-                  className={`absolute top-2 right-2 w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
-                    wishlistIds.includes(product.id) ? 'bg-red-500 text-white shadow-lg' : 'bg-white/80 text-slate-400 hover:text-red-500'
-                  }`}
-                >
-                  <Heart size={12} fill={wishlistIds.includes(product.id) ? "currentColor" : "none"} />
-                </button>
-              </div>
-              <div className="p-3">
-                <h3 className="font-bold text-xs text-slate-800 mb-1 truncate leading-tight cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
-                  {dData(product.name, product.nameEn)}
-                </h3>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-baseline gap-0.5">
-                    <span className="text-sm font-display font-bold text-slate-900">৳{product.price}</span>
-                    <span className="text-[8px] text-slate-400 font-bold">/{product.unit}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
+          <div className="grid grid-cols-2 gap-4">
+            {filteredFeatured.map((product) => (
+              <motion.div
+                layout
+                key={product.id}
+                className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-50 relative group"
+              >
+                <div className="relative aspect-square overflow-hidden m-1.5 rounded-2xl cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
+                  <img 
+                      src={product.image} 
+                      referrerPolicy="no-referrer" 
+                      loading="lazy"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                      alt={dData(product.name, product.nameEn)} 
+                  />
+                  <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-sm">
                     <Star size={8} className="text-secondary fill-secondary" />
                     <span className="text-[9px] font-black text-slate-800">{product.rating || '5.0'}</span>
                   </div>
-                </div>
-                
-                <motion.button 
-                  whileTap={{ scale: 0.95 }}
-                  onClick={(e) => {
+                  <button 
+                    onClick={(e) => {
                       e.stopPropagation();
-                      addToCart(product);
-                  }}
-                  className="w-full bg-primary text-white py-2 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/10 hover:bg-primary-dark transition-all"
-                >
-                  <ShoppingCart size={14} />
-                  <span className="text-[10px] font-black uppercase tracking-wider">Add to Cart</span>
-                </motion.button>
+                      toggleWish(product.id);
+                    }}
+                    className={`absolute top-2 right-2 w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
+                      wishlistIds.includes(product.id) ? 'bg-red-500 text-white shadow-lg' : 'bg-white/80 text-slate-400 hover:text-red-500'
+                    }`}
+                  >
+                    <Heart size={12} fill={wishlistIds.includes(product.id) ? "currentColor" : "none"} />
+                  </button>
+                </div>
+                <div className="p-3">
+                  <h3 className="font-bold text-xs text-slate-800 mb-1 truncate leading-tight cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
+                    {dData(product.name, product.nameEn)}
+                  </h3>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-baseline gap-0.5">
+                      <span className="text-sm font-display font-bold text-slate-900">৳{formatCurrency(product.price)}</span>
+                      <span className="text-[8px] text-slate-400 font-bold">/{product.unit}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Star size={8} className="text-secondary fill-secondary" />
+                      <span className="text-[9px] font-black text-slate-800">{product.rating || '5.0'}</span>
+                    </div>
+                  </div>
+                  
+                  <motion.button 
+                    whileTap={{ scale: 0.95 }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToCart(product);
+                    }}
+                    className="w-full bg-primary text-white py-2 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/10 hover:bg-primary-dark transition-all"
+                  >
+                    <ShoppingCart size={14} />
+                    <span className="text-[10px] font-black uppercase tracking-wider">Add to Cart</span>
+                  </motion.button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          {filteredFeatured.length === 0 && (
+            <div className="py-20 text-center">
+              <div className="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="text-slate-300" size={32} />
               </div>
-            </motion.div>
-          ))}
-        </div>
+              <p className="text-slate-400 text-sm font-bold">No products found matching "{searchQuery}"</p>
+            </div>
+          )}
         <div className="mt-10 flex justify-center">
             <Link to="/products" className="btn-primary w-full max-w-[200px] shadow-primary/10">
                 Browse All Foods

@@ -197,5 +197,24 @@ export const adminService = {
     try {
       await deleteDoc(doc(db, 'products', id));
     } catch (e) { handleFirestoreError(e, OperationType.DELETE, `products/${id}`); }
+  },
+
+  async deleteAllNotifications() {
+    try {
+      const snap = await getDocs(collection(db, 'notifications'));
+      const batch: any[] = [];
+      snap.forEach(d => batch.push(deleteDoc(doc(db, 'notifications', d.id))));
+      await Promise.all(batch);
+    } catch (e) { handleFirestoreError(e, OperationType.DELETE, 'notifications'); }
+  },
+
+  // Payouts
+  async updatePayoutStatus(id: string, status: 'completed' | 'rejected') {
+    try {
+      await updateDoc(doc(db, 'payouts', id), { 
+        status, 
+        updatedAt: serverTimestamp() 
+      });
+    } catch (e) { handleFirestoreError(e, OperationType.UPDATE, `payouts/${id}`); }
   }
 };

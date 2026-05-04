@@ -22,9 +22,12 @@ interface CartContextType {
   clearCart: () => void;
   subtotal: number;
   deliveryFee: number;
+  setDeliveryFee: (fee: number) => void;
   discount: number;
   total: number;
   setDiscount: (amount: number) => void;
+  showCheckoutToast: boolean;
+  setShowCheckoutToast: (val: boolean) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -35,6 +38,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return saved ? JSON.parse(saved) : [];
   });
   const [discount, setDiscount] = useState(0);
+  const [deliveryFee, setDeliveryFee] = useState(50); // Default fee
+  const [showCheckoutToast, setShowCheckoutToast] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(items));
@@ -48,7 +53,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       // Normalize sellerId from farmerId if needed
       const normalizedProduct = { 
         ...product, 
-        sellerId: product.sellerId || product.farmerId || 'default-seller' 
+        sellerId: product.sellerId || product.farmerId || 'default-seller',
+        price: product.discountPrice || product.price // Use discounted price if exists
       };
 
       if (existing) {
@@ -56,6 +62,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { ...normalizedProduct, quantity: qty }];
     });
+
+    // Show checkout toast for 5 seconds
+    setShowCheckoutToast(true);
+    setTimeout(() => {
+      setShowCheckoutToast(false);
+    }, 5000);
   };
 
   const removeFromCart = (id: string | number) => {
@@ -72,16 +84,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  const clearCart = () => setItems([]);
+  const clearCart = () => {
+    setItems([]);
+    setDeliveryFee(50);
+  };
 
   const subtotal = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 0), 0) || 0;
-  const deliveryFee = items.length > 0 ? 50 : 0;
-  const total = (subtotal + deliveryFee - discount) || 0;
+  const currentFee = items.length > 0 ? deliveryFee : 0;
+  const total = (subtotal + currentFee - discount) || 0;
 
   return (
     <CartContext.Provider value={{ 
       items, addToCart, removeFromCart, updateQuantity, clearCart,
-      subtotal, deliveryFee, discount, total, setDiscount 
+      subtotal, deliveryFee: currentFee, setDeliveryFee, discount, total, setDiscount,
+      showCheckoutToast, setShowCheckoutToast
     }}>
       {children}
     </CartContext.Provider>

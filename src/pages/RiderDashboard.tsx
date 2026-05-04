@@ -6,9 +6,12 @@ import { riderService } from '../services/riderService';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import { signOut } from 'firebase/auth';
-import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { formatCurrency } from '../lib/utils';
 
 import { calculateDistance, formatDistance } from '../lib/geoUtils';
+
+import { payoutService } from '../services/payoutService';
 
 export default function RiderDashboard() {
   const { user, profile } = useContext(AuthContext);
@@ -121,7 +124,7 @@ export default function RiderDashboard() {
             </div>
             <div className="bg-white/10 p-4 rounded-3xl backdrop-blur-sm border border-white/10">
                 <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">Earnings</span>
-                <p className="text-xl font-display font-bold text-green-400">৳{earnings}</p>
+                <p className="text-xl font-display font-bold text-green-400">৳{formatCurrency(earnings)}</p>
                 <div className="mt-2 h-1 bg-white/5 rounded-full overflow-hidden">
                     <div className="h-full bg-green-400 w-1/2" />
                 </div>
@@ -186,7 +189,7 @@ export default function RiderDashboard() {
                                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{order.customerName}</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="font-display font-bold text-primary">৳{order.total || 0}</p>
+                                        <p className="font-display font-bold text-primary">৳{formatCurrency(order.total || 0)}</p>
                                         <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${order.paymentMethod === 'cod' ? 'bg-orange-50 text-orange-500' : 'bg-green-50 text-green-500'}`}>
                                             {order.paymentMethod === 'cod' ? 'Collection' : 'Paid'}
                                         </span>
@@ -210,7 +213,7 @@ export default function RiderDashboard() {
                                         <div className="flex-1">
                                             <p className="text-[10px] font-black text-slate-400 uppercase leading-none mb-1">Deliver to</p>
                                             <div className="flex items-center justify-between">
-                                              <p className="text-xs font-bold text-slate-700">{order.address}</p>
+                                              <p className="text-xs font-bold text-slate-700">{typeof order.address === 'string' ? order.address : (order.address?.address || 'No Address')}</p>
                                               {currentLocation && order.location && (
                                                 <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-md">
                                                   {formatDistance(calculateDistance(currentLocation.lat, currentLocation.lng, order.location.lat, order.location.lng))}
@@ -301,8 +304,10 @@ export default function RiderDashboard() {
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Delivery Pay</span>
-                                    <h4 className="font-bold text-sm leading-none mb-1">৳{order.deliveryFee || 40}</h4>
-                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{order.address.split(',')[0]}...</p>
+                                    <h4 className="font-bold text-sm leading-none mb-1">৳{formatCurrency(order.deliveryFee || 40)}</h4>
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                                        {(typeof order.address === 'string' ? order.address : (order.address?.address || '')).split(',')[0]}...
+                                    </p>
                                     {currentLocation && order.location && (
                                         <p className="text-[8px] font-black text-primary mt-1 flex items-center gap-1">
                                             <Navigation size={8} />
@@ -338,7 +343,7 @@ export default function RiderDashboard() {
                         <div className="absolute top-0 right-0 w-40 h-40 bg-primary/20 rounded-full translate-x-1/2 -translate-y-1/2 blur-3xl" />
                         <CreditCard size={32} className="text-primary mb-12" />
                         <p className="text-xs font-medium text-white/40 uppercase tracking-[0.2em] mb-2">Withdrawable Balance</p>
-                        <h2 className="text-4xl font-display font-bold mb-8">৳{earnings}</h2>
+                        <h2 className="text-4xl font-display font-bold mb-8">৳{formatCurrency(earnings)}</h2>
                         
                         <div className="space-y-4">
                             <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
@@ -359,7 +364,26 @@ export default function RiderDashboard() {
                                     </button>
                                 </div>
                             </div>
-                            <button className="w-full py-4 bg-primary text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all">Withdraw Now</button>
+                            <button 
+                               onClick={async () => {
+                                 if (earnings < 50) return alert('Minimum withdrawal is ৳50');
+                                 if (!profile?.paymentMethod || !profile?.payoutAccount) {
+                                   return alert('Please set your Payout Method first');
+                                 }
+                                 
+                                 if (confirm(`Withdraw ৳${earnings} to your ${profile.paymentMethod} account (${profile.payoutAccount})?`)) {
+                                   try {
+                                     await payoutService.requestPayout(user!.uid, earnings, profile.paymentMethod, profile.payoutAccount, 'rider');
+                                     alert('Withdrawal request sent! It will be processed within 24 hours.');
+                                   } catch (e) {
+                                     alert('Failed to request withdrawal');
+                                   }
+                                 }
+                               }}
+                               className="w-full py-4 bg-primary text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all"
+                             >
+                               Withdraw Now
+                             </button>
                         </div>
                     </div>
 

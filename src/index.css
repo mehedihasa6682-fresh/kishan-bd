@@ -5,10 +5,11 @@
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Outfit", sans-serif;
 
-  --color-primary: #16A34A;
-  --color-primary-dark: #15803D;
-  --color-secondary: #FACC15;
-  --color-background: #F8FAFC;
+  --color-primary: #064e3b;
+  --color-primary-dark: #064e3b;
+  --color-secondary: #f59e0b;
+  --color-accent: #059669;
+  --color-background: #ffffff;
 
   @keyframes bounce-slow {
     0%, 100% { transform: translateY(-10%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
@@ -52,6 +53,14 @@
 
   .btn-secondary {
     @apply bg-secondary hover:bg-yellow-500 text-slate-900 font-semibold py-3 px-6 rounded-2xl transition-all duration-300 shadow-md active:scale-95 flex items-center justify-center gap-2;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
 
