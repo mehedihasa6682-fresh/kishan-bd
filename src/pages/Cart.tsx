@@ -73,26 +73,43 @@ export default function Cart() {
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-xs text-slate-800 mb-0.5 truncate">{dData(item.name, item.nameEn)}</h3>
                 <div className="flex items-baseline gap-1.5 mb-2">
-                  <span className="text-primary font-black text-sm">৳{formatCurrency(item.price)}</span>
+                  <span className="text-primary font-black text-sm">৳{formatCurrency(item.price || 0)}</span>
                   <span className="text-[10px] text-slate-400 font-medium">/ {item.unit || 'unit'}</span>
                 </div>
                 
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-4 bg-slate-50 px-2.5 py-1 rounded-xl border border-slate-100">
-                    <button 
+                  <div className="flex items-center bg-slate-100/50 rounded-2xl p-1 w-fit border border-slate-200/50">
+                    <motion.button 
+                      whileTap={{ scale: 0.9 }}
                       onClick={() => updateQuantity(item.id, -1)} 
-                      className="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-primary transition-colors"
+                      className="w-8 h-8 flex items-center justify-center bg-white rounded-xl shadow-sm text-slate-600 disabled:opacity-30 disabled:shadow-none transition-all"
                       disabled={item.quantity <= 1}
                     >
-                      <Minus size={12} strokeWidth={3} />
-                    </button>
-                    <span className="text-[10px] font-black w-4 text-center text-slate-800">{item.quantity}</span>
-                    <button 
+                      <Minus size={14} strokeWidth={3} />
+                    </motion.button>
+                    
+                    <div className="px-3 min-w-[2.5rem] flex items-center justify-center">
+                      <AnimatePresence mode="wait">
+                        <motion.span 
+                          key={item.quantity}
+                          initial={{ y: 5, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: -5, opacity: 0 }}
+                          transition={{ duration: 0.15 }}
+                          className="text-xs font-black text-slate-800"
+                        >
+                          {item.quantity}
+                        </motion.span>
+                      </AnimatePresence>
+                    </div>
+
+                    <motion.button 
+                      whileTap={{ scale: 0.9 }}
                       onClick={() => updateQuantity(item.id, 1)} 
-                      className="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-primary transition-colors"
+                      className="w-8 h-8 flex items-center justify-center bg-primary text-slate-900 rounded-xl shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
                     >
-                      <Plus size={12} strokeWidth={3} />
-                    </button>
+                      <Plus size={14} strokeWidth={3} />
+                    </motion.button>
                   </div>
                 </div>
               </div>

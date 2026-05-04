@@ -113,61 +113,6 @@ export default function Home() {
       animate={{ opacity: 1 }}
       className="max-w-md mx-auto relative min-h-screen pb-32"
     >
-      <AnimatePresence>
-        {showToast.show && (
-          <motion.div 
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-[320px]"
-          >
-            <div className="bg-slate-900/95 backdrop-blur-md text-white p-4 rounded-3xl shadow-2xl border border-white/10 flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary/20 rounded-2xl flex items-center justify-center shrink-0">
-                <ShoppingCart size={18} className="text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-0.5">Added to Cart</p>
-                <p className="text-xs font-bold truncate">{showToast.name}</p>
-              </div>
-              <button 
-                onClick={() => navigate('/cart')}
-                className="px-3 py-1.5 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20"
-              >
-                Checkout
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {cartItems.length > 0 && !showToast.show && (
-        <motion.div 
-          initial={{ opacity: 0, y: 100 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[90] w-[90%] max-w-[350px]"
-        >
-          <button 
-            onClick={() => navigate('/cart')}
-            className="w-full bg-primary text-white p-4 rounded-[2rem] shadow-2xl shadow-primary/30 flex items-center justify-between group overflow-hidden relative"
-          >
-            <motion.div 
-              className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"
-            />
-            <div className="flex items-center gap-3 relative z-10">
-              <div className="bg-white/20 w-10 h-10 rounded-2xl flex items-center justify-center">
-                <ShoppingCart size={20} />
-              </div>
-              <div className="text-left">
-                <p className="text-[10px] font-black uppercase tracking-widest opacity-80">You have items in cart</p>
-                <p className="text-sm font-bold">Proceed to Checkout</p>
-              </div>
-            </div>
-            <div className="bg-white/20 px-3 py-1 rounded-xl relative z-10">
-              <span className="text-xs font-black">৳{formatCurrency(cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0))}</span>
-            </div>
-          </button>
-        </motion.div>
-      )}
       <Helmet>
         <title>Kishan - Fresh Farm Marketplace | কিষান - সরাসরি কৃষক থেকে সরাসরি পণ্য</title>
         <meta name="description" content="Buy fresh farm products, organic vegetables, fish, and meat directly from farmers through Kishan marketplace." />
@@ -176,7 +121,7 @@ export default function Home() {
         <meta property="og:url" content={window.location.origin} />
       </Helmet>
       {/* Sticky Search Header */}
-      <div className="sticky top-0 z-40 bg-slate-50/80 backdrop-blur-md px-5 py-3 mb-6 transition-all">
+      <div className={`sticky ${appSettings.announcementBar ? 'top-24' : 'top-16'} z-40 bg-slate-50/80 backdrop-blur-md px-5 py-3 mb-6 transition-all`}>
         <div className="relative group">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
             <Search size={20} />

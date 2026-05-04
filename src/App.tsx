@@ -164,7 +164,7 @@ function RoutesContent() {
       {!isDashboardRoute && <Navbar />}
       <QuickCheckoutToast />
       
-      <main className={`flex-1 overflow-x-hidden ${isDashboardRoute ? '' : 'pt-16'}`}>
+      <main className="flex-1 overflow-x-hidden">
         <AnimatePresence mode="wait">
           <motion.div 
             key={location.pathname}

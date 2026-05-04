@@ -51,10 +51,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const qty = product.quantity || product.minWeight || 1;
       
       // Normalize sellerId from farmerId if needed
+      const price = parseFloat(String(product.discountPrice || product.price || 0));
       const normalizedProduct = { 
         ...product, 
         sellerId: product.sellerId || product.farmerId || 'default-seller',
-        price: product.discountPrice || product.price // Use discounted price if exists
+        price: price
       };
 
       if (existing) {
