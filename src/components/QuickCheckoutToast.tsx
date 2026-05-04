@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingCart, ArrowRight, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { formatCurrency } from '../lib/utils';
@@ -8,8 +8,11 @@ import { formatCurrency } from '../lib/utils';
 export default function QuickCheckoutToast() {
   const { showCheckoutToast, setShowCheckoutToast, total, items } = useCart();
   const { t } = useLanguage();
+  const location = useLocation();
 
-  if (items.length === 0) return null;
+  const isHiddenRoute = location.pathname === '/cart' || location.pathname === '/checkout';
+
+  if (items.length === 0 || isHiddenRoute) return null;
 
   return (
     <AnimatePresence>

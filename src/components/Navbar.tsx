@@ -26,21 +26,21 @@ export default function Navbar() {
         {appSettings.announcementBar && (
           <motion.div 
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
+            animate={{ height: 32, opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="fixed top-0 left-0 right-0 z-[60] bg-slate-900 text-white py-1.5 overflow-hidden"
+            className="fixed top-0 left-0 right-0 z-[60] bg-slate-900 text-white h-8 overflow-hidden"
           >
-            <div className="max-w-md mx-auto px-4 flex items-center justify-between gap-2">
+            <div className="max-w-md mx-auto h-full px-4 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-                <p className="text-[9px] font-black uppercase tracking-[0.2em]">{appSettings.announcementBar}</p>
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] truncate">{appSettings.announcementBar}</p>
               </div>
               
               {pwa?.deferredPrompt && !pwa?.isInstalled && (
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   onClick={pwa.install}
-                  className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary text-white text-[8px] font-black uppercase tracking-widest border border-primary/50 shadow-sm transition-all"
+                  className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary text-white text-[8px] font-black uppercase tracking-widest border border-primary/50 shadow-sm transition-all shrink-0"
                 >
                   <Download size={10} /> Install
                 </motion.button>

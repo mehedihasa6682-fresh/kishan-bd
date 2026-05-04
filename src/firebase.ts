@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { 
   initializeFirestore, 
   doc, 
@@ -23,6 +23,13 @@ export const auth = getAuth(app);
 // Connectivity check as per requirements
 async function testConnection() {
   try {
+    // Explicitly set persistence to ensure login persists across sessions
+    try {
+        await setPersistence(auth, browserLocalPersistence);
+    } catch (err) {
+        console.warn("Persistence set failed:", err);
+    }
+
     // Attempt to get the connection test doc
     await getDocFromServer(doc(db, '_connection_test_', 'ping'));
     console.log("Firebase connection established.");

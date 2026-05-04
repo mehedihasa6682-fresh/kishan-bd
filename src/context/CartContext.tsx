@@ -51,7 +51,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const qty = product.quantity || product.minWeight || 1;
       
       // Normalize sellerId from farmerId if needed
-      const price = parseFloat(String(product.discountPrice || product.price || 0));
+      const rawPrice = product.discountPrice ?? product.price ?? 0;
+      const price = parseFloat(String(rawPrice).replace(/[^\d.-]/g, '')) || 0;
+      
       const normalizedProduct = { 
         ...product, 
         sellerId: product.sellerId || product.farmerId || 'default-seller',
