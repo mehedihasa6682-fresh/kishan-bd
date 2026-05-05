@@ -45,8 +45,13 @@ function usePWA() {
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
-    if (isStandalone) setIsInstalled(true);
+    try {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                          ('standalone' in window.navigator && (window.navigator as any).standalone === true);
+      if (isStandalone) setIsInstalled(true);
+    } catch (e) {
+      console.warn("PWA check error:", e);
+    }
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();

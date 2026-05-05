@@ -20,36 +20,22 @@ export const db = initializeFirestore(app, {
 
 export const auth = getAuth(app);
 
-// Connectivity check as per requirements
+// connectivity check as per requirements
 async function testConnection() {
   try {
-    // Explicitly set persistence to ensure login persists across sessions
-    try {
-        await setPersistence(auth, browserLocalPersistence);
-    } catch (err) {
-        console.warn("Persistence set failed:", err);
-    }
-
     // Attempt to get the connection test doc
     await getDocFromServer(doc(db, '_connection_test_', 'ping'));
     console.log("Firebase connection established.");
   } catch (error) {
     // Be silent if it's just a permission error (the doc might not exist)
-    // or if the client is intentionally offline
     const message = error instanceof Error ? error.message : String(error);
-    if (message.includes('the client is offline')) {
-      console.warn("Firestore is operating in offline mode. Check your internet connection.");
-    } else if (message.includes('permission-denied')) {
-      // Permission denied is actually a "success" in terms of connectivity 
-      // because we reached the server to get the denial
-      console.log("Firebase server reached (Permission Check OK).");
-    } else {
-      console.error("Firebase connection test failed:", message);
+    if (message.includes('permission-denied')) {
+      console.log("Firebase server reached.");
     }
   }
 }
-
-testConnection();
+// Do not call testConnection at module level to avoid blocking or side effects
+// testConnection();
 
 export enum OperationType {
   CREATE = 'create',
