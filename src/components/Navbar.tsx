@@ -35,16 +35,6 @@ export default function Navbar() {
                 <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
                 <p className="text-[9px] font-black uppercase tracking-[0.2em] truncate">{appSettings.announcementBar}</p>
               </div>
-              
-              {pwa?.deferredPrompt && !pwa?.isInstalled && (
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={pwa.install}
-                  className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary text-white text-[8px] font-black uppercase tracking-widest border border-primary/50 shadow-sm transition-all shrink-0"
-                >
-                  <Download size={10} /> Install
-                </motion.button>
-              )}
             </div>
           </motion.div>
         )}
@@ -60,18 +50,24 @@ export default function Navbar() {
                   <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                       <span className="text-white font-bold text-xl">{appSettings.appName ? appSettings.appName[0] : 'K'}</span>
                   </div>
-                  <span className="font-display font-bold text-xl tracking-tight">{appSettings.appName || 'Kishan'}</span>
+                  <span className="font-display font-bold text-xl tracking-tight hidden sm:block">{appSettings.appName || 'Kishan'}</span>
               </>
           )}
         </Link>
       </div>
 
-      <div className="hidden sm:flex items-center gap-1 text-slate-500 bg-slate-100 rounded-full px-3 py-1.5 max-w-[180px]">
-        <MapPin size={14} className="text-primary" />
-        <span className="text-[10px] font-bold truncate uppercase tracking-widest">Dhaka, Bangladesh</span>
-      </div>
+      <div className="flex items-center gap-2 sm:gap-3">
+        {pwa?.deferredPrompt && !pwa?.isInstalled && (
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={pwa.install}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary text-white text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 transition-all"
+          >
+            <Download size={14} />
+            <span className="hidden xs:inline">Install</span>
+          </motion.button>
+        )}
 
-      <div className="flex items-center gap-3">
         <motion.button 
           whileTap={{ scale: 0.9 }}
           onClick={toggleLanguage}

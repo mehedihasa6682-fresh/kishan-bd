@@ -11,27 +11,26 @@ export default function PWAInstall() {
   return (
     <AnimatePresence>
       <motion.div 
-        initial={{ y: -100, opacity: 0 }}
+        initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        exit={{ y: -100, opacity: 0 }}
-        className="bg-primary p-3 flex items-center justify-between shadow-xl"
+        exit={{ y: 100, opacity: 0 }}
+        className="fixed bottom-24 left-4 right-4 z-[100] bg-slate-900 text-white p-4 rounded-3xl flex items-center justify-between shadow-2xl md:max-w-xs md:left-auto md:right-8"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
             <Download size={20} className="text-primary" />
           </div>
           <div>
             <h4 className="text-white font-bold text-xs leading-none mb-1">Install Kishan App</h4>
-            <p className="text-white/70 text-[9px] font-medium">Faster, lighter & direct notifications</p>
+            <p className="text-white/50 text-[9px] font-medium italic">Direct access & updates</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
             <button 
                 onClick={pwa.install}
-                className="bg-white text-primary px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-md flex items-center gap-2"
+                className="bg-primary text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg flex items-center gap-2"
             >
-                <Download size={14} strokeWidth={3} />
-                Install App
+                Install
             </button>
         </div>
       </motion.div>

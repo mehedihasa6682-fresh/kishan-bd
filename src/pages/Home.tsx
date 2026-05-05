@@ -141,9 +141,9 @@ export default function Home() {
       </Helmet>
       {/* Sticky Search Header */}
       <div 
-        className={`z-40 bg-white px-5 py-3 border-b border-slate-100 shadow-sm ${
+        className={`z-40 bg-white px-5 pb-3 pt-0 border-b border-slate-100 shadow-sm ${
            isSticky 
-           ? `sticky ${appSettings.announcementBar ? 'top-[96px]' : 'top-[64px]'}` 
+           ? `sticky ${appSettings.announcementBar ? 'top-[95px]' : 'top-[63px]'}` 
            : 'relative'
         }`}
       >
@@ -162,7 +162,7 @@ export default function Home() {
       </div>
 
       {/* Hero Banner Slider - Directly below Search */}
-      <div className="px-5 mt-6 mb-10">
+      <div className="px-5 mt-2 mb-10">
         <div className="relative h-60 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-primary/10 group">
           {banners.map((banner, idx) => (
             <motion.div

@@ -45,14 +45,19 @@ function usePWA() {
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
+    if (isStandalone) setIsInstalled(true);
+
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
+      console.log('PWA: install prompt captured');
     });
 
     window.addEventListener('appinstalled', () => {
       setIsInstalled(true);
       setDeferredPrompt(null);
+      console.log('PWA: App installed successfully');
     });
   }, []);
 
@@ -157,7 +162,6 @@ function RoutesContent() {
   return (
     <div className={`flex flex-col min-h-screen bg-background ${isDashboardRoute ? '' : 'pb-24 md:pb-0'}`}>
       {!isDashboardRoute && <NotificationPrompt />}
-      {!isDashboardRoute && <PWAInstall />}
       {!isDashboardRoute && <WhatsAppSupport />}
       {!isDashboardRoute && <Navbar />}
       <QuickCheckoutToast />

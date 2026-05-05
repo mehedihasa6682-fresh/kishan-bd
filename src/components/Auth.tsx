@@ -5,7 +5,9 @@ import {
   signInWithPopup, 
   GoogleAuthProvider,
   updateProfile,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  setPersistence,
+  browserLocalPersistence
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
@@ -54,6 +56,7 @@ export default function Auth() {
     setError('');
 
     try {
+      await setPersistence(auth, browserLocalPersistence);
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
       } else {
@@ -96,6 +99,7 @@ export default function Auth() {
     setError('');
     const provider = new GoogleAuthProvider();
     try {
+      await setPersistence(auth, browserLocalPersistence);
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       
