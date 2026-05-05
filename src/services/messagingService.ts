@@ -2,7 +2,12 @@ import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import { app, db, auth } from "../firebase";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
-const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
+let messaging: any = null;
+try {
+  messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
+} catch (e) {
+  console.warn("Firebase Messaging initialization failed:", e);
+}
 
 export const MessagingService = {
   async requestPermissionAndGetToken() {

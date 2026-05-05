@@ -6,7 +6,7 @@
       "destination": "/api/index.ts"
     },
     {
-      "source": "/((?!api|assets|static|favicon.ico|manifest.json).*)",
+      "source": "/((?!api|assets|static|favicon.ico|manifest.json|sw.js|firebase-messaging-sw.js|robots.txt|sitemap.xml).*)",
       "destination": "/index.html"
     }
   ],
