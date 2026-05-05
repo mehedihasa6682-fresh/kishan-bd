@@ -30,6 +30,25 @@ export default function Home() {
   const [timeLeft, setTimeLeft] = useState({ hours: 2, minutes: 45, seconds: 0 });
   const [searchQuery, setSearchQuery] = useState('');
   const [showToast, setShowToast] = useState<{show: boolean, name: string}>({ show: false, name: '' });
+  const [isSticky, setIsSticky] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down - stick it
+        setIsSticky(true);
+      } else if (currentScrollY < lastScrollY) {
+        // Scrolling up - dont lock (can scroll with content)
+        if (currentScrollY < 100) setIsSticky(true);
+        else setIsSticky(false);
+      }
+      setLastScrollY(currentScrollY);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -121,23 +140,29 @@ export default function Home() {
         <meta property="og:url" content={window.location.origin} />
       </Helmet>
       {/* Sticky Search Header */}
-      <div className={`sticky ${appSettings.announcementBar ? 'top-24' : 'top-16'} z-40 bg-slate-50/80 backdrop-blur-md px-5 py-3 mb-6 transition-all`}>
+      <div 
+        className={`z-40 bg-white px-5 py-2 border-b border-slate-100 transition-all duration-300 shadow-sm ${
+           isSticky 
+           ? `sticky ${appSettings.announcementBar ? 'top-[96px]' : 'top-[64px]'} opacity-100 translate-y-0` 
+           : 'relative opacity-100'
+        }`}
+      >
         <div className="relative group">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
-            <Search size={20} />
+            <Search size={18} />
           </div>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('home.search_placeholder')}
-            className="block w-full pl-11 pr-4 py-4 bg-white border border-slate-100 rounded-3xl shadow-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm font-medium"
+            className="block w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white outline-none transition-all text-sm font-medium"
           />
         </div>
       </div>
 
       {/* Hero Banner Slider - Directly below Search */}
-      <div className="px-5 mb-10">
+      <div className="px-5 mt-6 mb-10">
         <div className="relative h-60 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-primary/10 group">
           {banners.map((banner, idx) => (
             <motion.div

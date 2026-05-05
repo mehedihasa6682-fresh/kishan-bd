@@ -59,7 +59,21 @@ export const riderService = {
     try {
       await updateDoc(doc(db, 'orders', orderId), {
         status: 'delivered',
-        deliveredAt: serverTimestamp()
+        subStatus: 'delivered_by_rider',
+        deliveredAt: serverTimestamp(),
+        customerConfirmation: 'pending' // Added for two-way confirmation
+      });
+    } catch (e) {
+      handleFirestoreError(e, OperationType.UPDATE, `orders/${orderId}`);
+    }
+  },
+
+  async confirmReceipt(orderId: string) {
+    try {
+      await updateDoc(doc(db, 'orders', orderId), {
+        status: 'completed',
+        customerConfirmation: 'confirmed',
+        completedAt: serverTimestamp()
       });
     } catch (e) {
       handleFirestoreError(e, OperationType.UPDATE, `orders/${orderId}`);

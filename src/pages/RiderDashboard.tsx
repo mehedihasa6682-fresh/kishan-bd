@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Truck, MapPin, CheckCircle2, Navigation, Package, User, LogOut, Phone, CreditCard, Power } from 'lucide-react';
+import { Truck, MapPin, CheckCircle2, Navigation, Package, User, LogOut, Phone, CreditCard, Power, Map as MapIcon } from 'lucide-react';
 import { AuthContext } from '../App';
 import { riderService } from '../services/riderService';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +10,7 @@ import { doc, updateDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { formatCurrency } from '../lib/utils';
 
 import { calculateDistance, formatDistance } from '../lib/geoUtils';
+import TrackingMap from '../components/TrackingMap';
 
 import { payoutService } from '../services/payoutService';
 
@@ -22,6 +23,7 @@ export default function RiderDashboard() {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState(profile?.status || 'offline');
   const [currentLocation, setCurrentLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [showMap, setShowMap] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -228,17 +230,13 @@ export default function RiderDashboard() {
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
-                                        {order.location && (
-                                            <a 
-                                                href={`https://www.google.com/maps/dir/?api=1&destination=${order.location.lat},${order.location.lng}`}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="flex-1 py-4 bg-secondary text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl flex items-center justify-center gap-2"
-                                            >
-                                                <Navigation size={16} />
-                                                Start Navigation
-                                            </a>
-                                        )}
+                                        <button 
+                                            onClick={() => setShowMap(showMap === order.id ? null : order.id)}
+                                            className={`flex-1 py-4 ${showMap === order.id ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'} rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl flex items-center justify-center gap-2 transition-all`}
+                                        >
+                                            <MapIcon size={16} />
+                                            {showMap === order.id ? 'Close Map' : 'View Map'}
+                                        </button>
                                         <a 
                                             href={`tel:${order.phone}`}
                                             className="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl flex items-center justify-center gap-2"
@@ -247,6 +245,32 @@ export default function RiderDashboard() {
                                             Call
                                         </a>
                                     </div>
+                                    <AnimatePresence>
+                                        {showMap === order.id && (
+                                            <motion.div 
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: 'auto', opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                className="mt-4"
+                                            >
+                                                <TrackingMap 
+                                                    status={order.status}
+                                                    riderLocation={currentLocation || undefined}
+                                                    destination={order.location}
+                                                />
+                                                <div className="mt-2 text-center">
+                                                    <a 
+                                                        href={`https://www.google.com/maps/dir/?api=1&destination=${order.location?.lat},${order.location?.lng}`}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="text-[9px] font-black text-primary uppercase underline"
+                                                    >
+                                                        Open in Google Maps
+                                                    </a>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                     <p className="text-[9px] text-center text-slate-400 mt-2 italic">* Communication is key for fast delivery</p>
                                 </div>
 
@@ -272,8 +296,13 @@ export default function RiderDashboard() {
                                           onClick={() => handleDeliver(order.id)}
                                           className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl hover:bg-slate-800 transition-all active:scale-95"
                                       >
-                                          Mark as Delivered
+                                          Delivery Done (Notify Customer)
                                       </button>
+                                  )}
+                                  {order.status === 'delivered' && order.customerConfirmation === 'pending' && (
+                                      <div className="w-full py-4 bg-emerald-50 text-emerald-600 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-center border border-emerald-100 italic">
+                                          Waiting for customer to confirm...
+                                      </div>
                                   )}
                                 </div>
                             </div>

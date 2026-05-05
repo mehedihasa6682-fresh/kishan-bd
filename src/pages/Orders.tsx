@@ -31,6 +31,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { formatCurrency } from '../lib/utils';
+import { riderService } from '../services/riderService';
 
 const OrderTracking = ({ order }: { order: Order }) => {
     const [riderLocation, setRiderLocation] = useState<{lat: number, lng: number} | null>(null);
@@ -164,6 +165,20 @@ export default function Orders() {
                     <span className="text-[11px] font-bold text-slate-800 truncate max-w-[150px]">{typeof order.address === 'string' ? order.address : (order.address?.address || 'No Address')}</span>
                 </div>
                 <div className="flex gap-2">
+                    {order.status === 'delivered' && order.customerConfirmation !== 'confirmed' && (
+                        <motion.button 
+                            whileTap={{ scale: 0.95 }}
+                            onClick={async () => {
+                                if (confirm('Confirm you have received all items?')) {
+                                    await riderService.confirmReceipt(order.id);
+                                }
+                            }}
+                            className="flex items-center gap-2 bg-emerald-500 text-white px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-200"
+                        >
+                            <CheckCircle size={14} />
+                            Received (Done)
+                        </motion.button>
+                    )}
                     <button 
                         onClick={() => setViewInvoice(order)}
                         className="p-2 text-slate-400 hover:text-primary transition-colors"
