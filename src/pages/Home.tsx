@@ -141,10 +141,10 @@ export default function Home() {
       </Helmet>
       {/* Sticky Search Header */}
       <div 
-        className={`z-40 bg-white px-5 py-2 border-b border-slate-100 transition-all duration-300 shadow-sm ${
+        className={`z-40 bg-white px-5 py-3 border-b border-slate-100 shadow-sm ${
            isSticky 
-           ? `sticky ${appSettings.announcementBar ? 'top-[96px]' : 'top-[64px]'} opacity-100 translate-y-0` 
-           : 'relative opacity-100'
+           ? `sticky ${appSettings.announcementBar ? 'top-[96px]' : 'top-[64px]'}` 
+           : 'relative'
         }`}
       >
         <div className="relative group">

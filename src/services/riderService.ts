@@ -4,7 +4,7 @@ import { handleFirestoreError, OperationType } from '../firebase';
 
 export const riderService = {
   getAvailableOrders(callback: (orders: any[]) => void) {
-    const q = query(collection(db, 'orders'), where('status', '==', 'ready_for_pickup'));
+    const q = query(collection(db, 'orders'), where('status', 'in', ['confirmed', 'ready_for_pickup']));
     return onSnapshot(q, (snap) => {
       callback(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     }, (error) => {
