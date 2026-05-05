@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kishan.com/sitemap.xml
+Sitemap: https://kishan-market.web.app/sitemap.xml

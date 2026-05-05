@@ -16,8 +16,20 @@
     <meta property="og:description" content="গাইবান্ধার টাটকা ও অর্গানিক শাক-সবজি সরাসরি কৃষক থেকে কিনুন। Fresh produce delivered in Gaibandha." />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/3081/3081840.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Kishan - Fresh Farm Marketplace Gaibandha" />
+    <meta name="twitter:description" content="গাইবান্ধার টাটকা ও অর্গানিক শাক-সবজি সরাসরি কৃষক থেকে কিনুন।" />
+    <meta name="twitter:image" content="https://cdn-icons-png.flaticon.com/512/3081/3081840.png" />
     <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://kishan-market.web.app/" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed: ', err));
+        });
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
