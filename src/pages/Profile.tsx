@@ -19,21 +19,21 @@ import { NotificationService, AppNotification } from '../services/notificationSe
 import { MessagingService } from '../services/messagingService';
 import { format } from 'date-fns';
 
-const MenuItem = ({ icon: Icon, label, subtitle, color = "text-slate-600", onClick, to }: any) => {
+const MenuItem = ({ icon: Icon, label, subtitle, color = "text-white/60", onClick, to }: any) => {
   const content = (
     <>
-      <div className={`w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform ${color}`}>
+      <div className={`w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform ${color}`}>
         <Icon size={22} />
       </div>
       <div className="flex-1">
-        <h4 className="font-bold text-sm text-slate-800">{label}</h4>
-        {subtitle && <p className="text-[10px] text-slate-400 font-medium">{subtitle}</p>}
+        <h4 className="font-bold text-sm text-white">{label}</h4>
+        {subtitle && <p className="text-[10px] text-white/40 font-medium">{subtitle}</p>}
       </div>
-      <ChevronRight size={18} className="text-slate-300 group-hover:text-primary transition-colors" />
+      <ChevronRight size={18} className="text-white/20 group-hover:text-primary transition-colors" />
     </>
   );
 
-  const className = "w-full flex items-center gap-4 p-4 hover:bg-slate-50 transition-all rounded-2xl group text-left";
+  const className = "w-full flex items-center gap-4 p-4 hover:bg-white/5 transition-all rounded-2xl group text-left";
 
   if (to) {
     return (
@@ -217,7 +217,7 @@ export default function Profile() {
       {/* Header */}
       <div className="flex flex-col items-center mt-6 mb-10 text-center">
         <div className="relative group cursor-pointer">
-          <div className="w-28 h-28 rounded-[2.5rem] p-1 bg-gradient-to-tr from-primary to-secondary shadow-xl shadow-primary/20 overflow-hidden">
+          <div className="w-28 h-28 rounded-[2.5rem] p-1 bg-gradient-to-tr from-primary to-accent shadow-2xl shadow-primary/40 overflow-hidden">
              <ImageUpload 
                 currentImage={user?.photoURL || ''}
                 onUpload={handlePhotoUpload}
@@ -225,13 +225,13 @@ export default function Profile() {
              />
           </div>
           {role === 'admin' && (
-            <div className="absolute -bottom-1 -right-1 bg-primary text-white p-1.5 rounded-xl border-4 border-white">
+            <div className="absolute -bottom-1 -right-1 bg-primary text-black p-1.5 rounded-xl border-4 border-background">
               <ShieldCheck size={16} />
             </div>
           )}
         </div>
-        <h2 className="mt-4 font-display font-bold text-xl leading-none">{user?.displayName || 'Hello, User'}</h2>
-        <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-3">
+        <h2 className="mt-4 font-display font-bold text-xl leading-none text-white">{user?.displayName || 'Hello, User'}</h2>
+        <p className="text-primary text-[10px] font-black uppercase tracking-[0.2em] mt-3">
           {role === 'admin' ? t('profile.role_admin') : role === 'seller' ? t('profile.role_seller') : role === 'rider' ? 'Delivery Rider' : t('profile.role_customer')}
         </p>
       </div>
@@ -239,8 +239,8 @@ export default function Profile() {
       <div className="space-y-6">
         {role === 'admin' && (
           <div className="space-y-2">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-3">{t('profile.management')}</h3>
-            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+            <h3 className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1 mb-3">{t('profile.management')}</h3>
+            <div className="bg-white/5 rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
               <MenuItem 
                 icon={ShieldCheck} 
                 label={t('profile.admin_console')} 
@@ -253,14 +253,14 @@ export default function Profile() {
                 label={t('profile.seller_console')} 
                 subtitle="Review pending products and inventory"
                 to="/seller"
-                color="text-secondary"
+                color="text-primary"
               />
               <MenuItem 
                 icon={Truck} 
                 label="Rider Dashboard" 
                 subtitle="Manage tasks, earnings & status"
                 to="/rider"
-                color="text-orange-500"
+                color="text-primary"
               />
             </div>
           </div>

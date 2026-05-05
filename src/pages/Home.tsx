@@ -141,14 +141,14 @@ export default function Home() {
       </Helmet>
       {/* Sticky Search Header */}
       <div 
-        className={`z-40 bg-white px-5 pb-3 pt-0 border-b border-slate-100 shadow-sm ${
+        className={`z-40 bg-background/80 backdrop-blur-md px-5 pb-3 pt-0 border-b border-white/5 shadow-sm ${
            isSticky 
            ? `sticky ${appSettings.announcementBar ? 'top-[95px]' : 'top-[63px]'}` 
            : 'relative'
         }`}
       >
         <div className="relative group">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/40 group-focus-within:text-primary transition-colors">
             <Search size={18} />
           </div>
           <input
@@ -156,7 +156,7 @@ export default function Home() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('home.search_placeholder')}
-            className="block w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white outline-none transition-all text-sm font-medium"
+            className="block w-full pl-11 pr-4 py-3 bg-white/5 border-none rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white/10 outline-none transition-all text-sm font-medium text-white"
           />
         </div>
       </div>
@@ -190,13 +190,13 @@ export default function Home() {
       {/* Flash Sale Section */}
       {flashSaleProducts.length > 0 && (
         <div className="px-5 mb-10">
-          <div className="bg-slate-900 rounded-[2.5rem] p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full translate-x-1/2 -translate-y-1/2 blur-2xl" />
+          <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full translate-x-1/2 -translate-y-1/2 blur-2xl" />
             
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-secondary rounded-xl flex items-center justify-center animate-pulse">
-                  <Zap size={16} className="text-slate-900 fill-slate-900" />
+                <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center animate-pulse">
+                  <Zap size={16} className="text-black fill-black" />
                 </div>
                 <h2 className="text-white font-display font-bold text-lg">Flash Sale</h2>
               </div>
@@ -219,15 +219,15 @@ export default function Home() {
                   className="flex-shrink-0 w-32 group cursor-pointer"
                   onClick={() => navigate(`/product/${product.id}`)}
                 >
-                  <div className="relative aspect-square rounded-2xl overflow-hidden mb-2">
+                  <div className="relative aspect-square rounded-2xl overflow-hidden mb-2 border border-white/5">
                     <img src={product.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                    <div className="absolute top-2 left-2 bg-secondary text-slate-900 font-black text-[8px] px-1.5 py-0.5 rounded-md">
+                    <div className="absolute top-2 left-2 bg-primary text-black font-black text-[8px] px-1.5 py-0.5 rounded-md shadow-lg shadow-black/20">
                       -20%
                     </div>
                   </div>
                   <h4 className="text-white font-bold text-[10px] truncate mb-1">{dData(product.name, product.nameEn)}</h4>
                   <div className="flex items-center gap-2">
-                    <span className="text-secondary font-black text-xs">৳{formatCurrency(Math.round((product.price || 0) * 0.8))}</span>
+                    <span className="text-primary font-black text-xs">৳{formatCurrency(Math.round((product.price || 0) * 0.8))}</span>
                     <span className="text-white/30 text-[8px] line-through">৳{formatCurrency(product.price || 0)}</span>
                   </div>
                 </div>
@@ -241,12 +241,12 @@ export default function Home() {
       <section className="mb-12 px-5">
           <div className="flex justify-between items-end mb-6">
               <div>
-                  <h2 className="font-display font-bold text-2xl text-slate-900 leading-tight">Bundle Offers</h2>
-                  <p className="text-xs text-slate-400 font-medium mt-1">Save more with family packs</p>
+                  <h2 className="font-display font-bold text-2xl text-white leading-tight">Bundle Offers</h2>
+                  <p className="text-xs text-white/40 font-medium mt-1">Save more with family packs</p>
               </div>
               <button 
                   onClick={() => navigate('/products?category=Bundles')}
-                  className="bg-primary/5 text-primary p-3 rounded-2xl hover:bg-primary hover:text-white transition-all shadow-sm"
+                  className="bg-white/5 text-primary p-3 rounded-2xl hover:bg-primary hover:text-black transition-all shadow-sm border border-white/5"
               >
                   <ChevronRight size={20} />
               </button>
@@ -257,7 +257,7 @@ export default function Home() {
                       key={bundle.id}
                       whileHover={{ y: -5 }}
                       onClick={() => navigate(`/product/${bundle.id}`)}
-                      className="flex-shrink-0 w-64 bg-white rounded-[2rem] p-4 border border-slate-100 shadow-xl shadow-slate-200/50 group cursor-pointer"
+                      className="flex-shrink-0 w-64 bg-white/5 rounded-[2rem] p-4 border border-white/10 shadow-2xl shadow-black/50 group cursor-pointer"
                   >
                       <div className="aspect-video rounded-2xl overflow-hidden mb-3">
                           <img 
@@ -267,15 +267,15 @@ export default function Home() {
                             alt={bundle.name} 
                           />
                       </div>
-                      <h3 className="font-bold text-base text-slate-800 mb-1 truncate">{dData(bundle.name, bundle.nameEn)}</h3>
+                      <h3 className="font-bold text-base text-white mb-1 truncate">{dData(bundle.name, bundle.nameEn)}</h3>
                       <div className="flex items-center justify-between mb-4">
                           <div className="flex items-baseline gap-1">
-                              <span className="text-lg font-display font-bold text-slate-900">৳{formatCurrency(bundle.discountPrice || bundle.price || 0)}</span>
+                              <span className="text-lg font-display font-bold text-primary">৳{formatCurrency(bundle.discountPrice || bundle.price || 0)}</span>
                               {(bundle.discountPrice || bundle.price * 1.2) && (
-                                <span className="text-[10px] text-slate-400 font-bold line-through">৳{formatCurrency(bundle.discountPrice ? bundle.price : Math.round(bundle.price * 1.2))}</span>
+                                <span className="text-[10px] text-white/30 font-bold line-through">৳{formatCurrency(bundle.discountPrice ? bundle.price : Math.round(bundle.price * 1.2))}</span>
                               )}
                           </div>
-                          <span className="text-[9px] font-black text-secondary uppercase tracking-tight bg-secondary/10 px-2 py-0.5 rounded-md">Combo</span>
+                          <span className="text-[9px] font-black text-black uppercase tracking-tight bg-primary px-2 py-0.5 rounded-md">Combo</span>
                       </div>
                       <motion.button 
                           whileTap={{ scale: 0.95 }}
@@ -283,7 +283,7 @@ export default function Home() {
                               e.stopPropagation();
                               handleAddToCart(bundle);
                           }}
-                          className="w-full bg-primary text-white py-2 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all"
+                          className="w-full bg-primary text-black py-2 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all font-bold"
                       >
                           <ShoppingCart size={16} />
                           <span className="text-xs font-black uppercase tracking-wider">Add to Cart</span>
@@ -302,7 +302,7 @@ export default function Home() {
       {/* Popular Categories */}
       <div className="px-5 mb-10">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="font-display font-bold text-xl">{t('home.categories')}</h2>
+          <h2 className="font-display font-bold text-xl text-white">{t('home.categories')}</h2>
           <Link to="/products" className="text-primary font-bold text-xs flex items-center gap-1 hover:gap-2 transition-all">
             {t('home.see_all')} <ChevronRight size={14} />
           </Link>
@@ -315,10 +315,10 @@ export default function Home() {
               onClick={() => navigate(`/products?category=${cat.title}`)}
               className="flex flex-col items-center gap-3 group cursor-pointer"
             >
-              <div className="w-full aspect-square rounded-[2rem] bg-white border border-slate-50 p-4 shadow-sm group-hover:shadow-xl group-hover:border-primary/10 transition-all duration-300">
+              <div className="w-full aspect-square rounded-[2rem] bg-white/5 border border-white/5 p-4 shadow-sm group-hover:shadow-xl group-hover:border-primary/10 transition-all duration-300">
                 <img src={cat.image} referrerPolicy="no-referrer" alt={dData(cat.title, cat.titleEn)} className="w-full h-full object-cover rounded-2xl group-hover:scale-110 transition-transform duration-500" />
               </div>
-              <span className="text-[11px] font-bold text-slate-500 group-hover:text-primary transition-colors tracking-tight text-center">
+              <span className="text-[11px] font-bold text-white/40 group-hover:text-primary transition-colors tracking-tight text-center">
                 {dData(cat.title, cat.titleEn)}
               </span>
             </motion.div>
@@ -330,8 +330,8 @@ export default function Home() {
       <div className="px-5 mb-20">
         <div className="flex items-center justify-between mb-6">
           <div className="flex flex-col">
-            <h2 className="font-display font-bold text-xl">{t('home.featured')}</h2>
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Direct from fields</span>
+            <h2 className="font-display font-bold text-xl text-white">{t('home.featured')}</h2>
+            <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1">Direct from fields</span>
           </div>
         </div>
           <div className="grid grid-cols-2 gap-4">
@@ -339,7 +339,7 @@ export default function Home() {
               <motion.div
                 layout
                 key={product.id}
-                className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-50 relative group"
+                className="bg-white/5 rounded-3xl overflow-hidden shadow-2xl transition-all duration-500 border border-white/5 relative group"
               >
                 <div className="relative aspect-square overflow-hidden m-1.5 rounded-2xl cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
                   <img 
@@ -349,9 +349,9 @@ export default function Home() {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                       alt={dData(product.name, product.nameEn)} 
                   />
-                  <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-sm">
-                    <Star size={8} className="text-secondary fill-secondary" />
-                    <span className="text-[9px] font-black text-slate-800">{product.rating || '5.0'}</span>
+                  <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-sm">
+                    <Star size={8} className="text-primary fill-primary" />
+                    <span className="text-[9px] font-black text-white">{product.rating || '5.0'}</span>
                   </div>
                   <button 
                     onClick={(e) => {
@@ -359,24 +359,24 @@ export default function Home() {
                       toggleWish(product.id);
                     }}
                     className={`absolute top-2 right-2 w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
-                      wishlistIds.includes(product.id) ? 'bg-red-500 text-white shadow-lg' : 'bg-white/80 text-slate-400 hover:text-red-500'
+                      wishlistIds.includes(product.id) ? 'bg-red-500 text-white shadow-lg' : 'bg-black/40 backdrop-blur-md text-white/40 hover:text-red-500'
                     }`}
                   >
                     <Heart size={12} fill={wishlistIds.includes(product.id) ? "currentColor" : "none"} />
                   </button>
                 </div>
                 <div className="p-3">
-                  <h3 className="font-bold text-xs text-slate-800 mb-1 truncate leading-tight cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
+                  <h3 className="font-bold text-xs text-white mb-1 truncate leading-tight cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
                     {dData(product.name, product.nameEn)}
                   </h3>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-baseline gap-0.5">
-                      <span className="text-sm font-display font-bold text-slate-900">৳{formatCurrency(product.price)}</span>
-                      <span className="text-[8px] text-slate-400 font-bold">/{product.unit}</span>
+                      <span className="text-sm font-display font-bold text-primary">৳{formatCurrency(product.price)}</span>
+                      <span className="text-[8px] text-white/40 font-bold">/{product.unit}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Star size={8} className="text-secondary fill-secondary" />
-                      <span className="text-[9px] font-black text-slate-800">{product.rating || '5.0'}</span>
+                      <Star size={8} className="text-primary fill-primary" />
+                      <span className="text-[9px] font-black text-white/60">{product.rating || '5.0'}</span>
                     </div>
                   </div>
                   
@@ -386,7 +386,7 @@ export default function Home() {
                         e.stopPropagation();
                         handleAddToCart(product);
                     }}
-                    className="w-full bg-primary text-white py-2 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/10 hover:bg-primary-dark transition-all"
+                    className="w-full bg-primary text-black font-bold py-2 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all"
                   >
                     <ShoppingCart size={14} />
                     <span className="text-[10px] font-black uppercase tracking-wider">Add to Cart</span>

@@ -40,17 +40,17 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
-      <nav className={`fixed ${appSettings.announcementBar ? 'top-8' : 'top-0'} left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 h-16 flex items-center justify-between transition-all duration-300`}>
+      <nav className={`fixed ${appSettings.announcementBar ? 'top-8' : 'top-0'} left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/5 px-4 h-16 flex items-center justify-between transition-all duration-300`}>
       <div className="flex items-center gap-3">
-        <Link to="/" className="flex items-center gap-1">
+        <Link to="/" className="flex items-center gap-1 text-white">
           {appSettings.logo ? (
               <img src={appSettings.logo} className="h-10 w-auto object-contain" alt="Kishan Logo" />
           ) : (
               <>
                   <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                      <span className="text-white font-bold text-xl">{appSettings.appName ? appSettings.appName[0] : 'K'}</span>
+                      <span className="text-black font-bold text-xl">{appSettings.appName ? appSettings.appName[0] : 'K'}</span>
                   </div>
-                  <span className="font-display font-bold text-xl tracking-tight hidden sm:block">{appSettings.appName || 'Kishan'}</span>
+                  <span className="font-display font-bold text-xl tracking-tight hidden sm:block text-white">{appSettings.appName || 'Kishan'}</span>
               </>
           )}
         </Link>
@@ -61,7 +61,7 @@ export default function Navbar() {
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={pwa.install}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary text-white text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 transition-all"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary text-black text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 transition-all"
           >
             <Download size={14} />
             <span className="hidden xs:inline">Install</span>
@@ -71,7 +71,7 @@ export default function Navbar() {
         <motion.button 
           whileTap={{ scale: 0.9 }}
           onClick={toggleLanguage}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 text-slate-800 hover:bg-slate-100 transition-all border border-slate-100 shadow-sm"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 text-white hover:bg-white/10 transition-all border border-white/10 shadow-sm"
         >
           <Languages size={14} className="text-primary" />
           <span className="text-[10px] font-black uppercase tracking-widest">{t('nav.lang')}</span>
@@ -79,7 +79,7 @@ export default function Navbar() {
 
         <NotificationCenter />
 
-        <Link to="/cart" className="p-2.5 text-slate-600 hover:bg-primary/5 hover:text-primary rounded-full relative transition-all group">
+        <Link to="/cart" className="p-2.5 text-white/70 hover:bg-primary/5 hover:text-primary rounded-full relative transition-all group">
             <ShoppingBag size={22} className="group-hover:scale-110 transition-transform" />
             <AnimatePresence>
                 {items.length > 0 && (
@@ -87,7 +87,7 @@ export default function Navbar() {
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         exit={{ scale: 0 }}
-                        className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-secondary text-slate-900 text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm"
+                        className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-primary text-black text-[10px] font-black rounded-full flex items-center justify-center border-2 border-black shadow-sm"
                     >
                         {items.length}
                     </motion.div>
@@ -95,7 +95,7 @@ export default function Navbar() {
             </AnimatePresence>
         </Link>
         
-        <Link to="/profile" className="p-2 text-slate-600 hover:bg-slate-100 rounded-full">
+        <Link to="/profile" className="p-2 text-white/70 hover:bg-white/5 rounded-full text-white">
           <User size={22} />
         </Link>
       </div>

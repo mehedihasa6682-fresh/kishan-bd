@@ -5,11 +5,13 @@
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Outfit", sans-serif;
 
-  --color-primary: #064e3b;
-  --color-primary-dark: #064e3b;
-  --color-secondary: #f59e0b;
-  --color-accent: #059669;
-  --color-background: #ffffff;
+  --color-primary: #D4AF37;
+  --color-primary-dark: #B8860B;
+  --color-secondary: #1F2937;
+  --color-accent: #fbbf24;
+  --color-background: #050505;
+  --color-surface: #111111;
+  --color-card: #171717;
 
   @keyframes bounce-slow {
     0%, 100% { transform: translateY(-10%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
@@ -26,7 +28,7 @@
 
 @layer base {
   body {
-    @apply bg-background text-slate-900 font-sans antialiased;
+    @apply bg-background text-white font-sans antialiased;
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior-y: none;
   }
@@ -44,15 +46,15 @@
 
 @layer components {
   .glass-card {
-    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-lg rounded-3xl;
+    @apply bg-card/40 backdrop-blur-md border border-white/10 shadow-2xl rounded-3xl;
   }
   
   .btn-primary {
-    @apply bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-6 rounded-2xl transition-all duration-300 shadow-md active:scale-95 flex items-center justify-center gap-2;
+    @apply bg-primary hover:bg-primary-dark text-black font-bold py-3 px-6 rounded-2xl transition-all duration-300 shadow-[0_0_15px_rgba(212,175,55,0.3)] active:scale-95 flex items-center justify-center gap-2;
   }
 
   .btn-secondary {
-    @apply bg-secondary hover:bg-yellow-500 text-slate-900 font-semibold py-3 px-6 rounded-2xl transition-all duration-300 shadow-md active:scale-95 flex items-center justify-center gap-2;
+    @apply bg-secondary hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-2xl transition-all duration-300 border border-white/10 shadow-md active:scale-95 flex items-center justify-center gap-2;
   }
 
   .scrollbar-hide::-webkit-scrollbar {

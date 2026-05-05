@@ -116,31 +116,31 @@ export default function Products() {
         <meta property="og:title" content={`${selectedCategory.title === 'All' ? 'Products' : dData(selectedCategory.title, selectedCategory.titleEn)} - Kishan`} />
       </Helmet>
       <div className="px-5 mb-6">
-        <h1 className="font-display font-bold text-2xl mb-6">Explore Products</h1>
+        <h1 className="font-display font-bold text-2xl mb-6 text-white">Explore Products</h1>
         
         <div className="flex gap-3 mb-6">
           <div className="relative flex-1 group">
-            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" />
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary transition-colors" />
             <input
               type="text"
               placeholder={t('home.search_placeholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-white border border-slate-100 rounded-2xl shadow-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm"
+              className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/5 rounded-2xl shadow-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm text-white"
             />
           </div>
           <div className="relative">
             <select
               value={sortBy}
               onChange={(e: any) => setSortBy(e.target.value)}
-              className="appearance-none p-3 pr-8 bg-white border border-slate-100 rounded-2xl shadow-sm text-xs font-bold outline-none focus:ring-2 focus:ring-primary transition-all text-slate-500"
+              className="appearance-none p-3 pr-8 bg-white/5 border border-white/5 rounded-2xl shadow-sm text-xs font-bold outline-none focus:ring-2 focus:ring-primary transition-all text-white/60"
             >
-              <option value="default">Default</option>
-              <option value="priceLow">Price: Low to High</option>
-              <option value="priceHigh">Price: High to Low</option>
-              <option value="rating">Top Rated</option>
+              <option value="default" className="bg-black text-white">Default</option>
+              <option value="priceLow" className="bg-black text-white">Price: Low to High</option>
+              <option value="priceHigh" className="bg-black text-white">Price: High to Low</option>
+              <option value="rating" className="bg-black text-white">Top Rated</option>
             </select>
-            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
           </div>
         </div>
 
@@ -152,15 +152,15 @@ export default function Products() {
                 setSelectedSubCategory('All');
             }}
             className={`flex flex-col items-center gap-2 group min-w-[70px] transition-all ${
-              selectedCategory.title === 'All' ? 'opacity-100' : 'opacity-60 grayscale'
+              selectedCategory.title === 'All' ? 'opacity-100' : 'opacity-40 grayscale'
             }`}
           >
             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
-              selectedCategory.title === 'All' ? 'bg-primary text-white shadow-lg' : 'bg-white border border-slate-100'
+              selectedCategory.title === 'All' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'bg-white/5 border border-white/5 text-white/60'
             }`}>
               <Filter size={20} />
             </div>
-            <span className="text-[10px] font-bold">All</span>
+            <span className="text-[10px] font-bold text-white/80">All</span>
           </button>
 
           {categoriesToShow.map((cat) => (
@@ -171,11 +171,11 @@ export default function Products() {
                   setSelectedSubCategory('All');
               }}
               className={`flex flex-col items-center gap-2 group min-w-[70px] transition-all ${
-                selectedCategory.title === cat.title ? 'opacity-100' : 'opacity-60 grayscale'
+                selectedCategory.title === cat.title ? 'opacity-100' : 'opacity-40 grayscale'
               }`}
             >
               <div className={`w-14 h-14 rounded-2xl overflow-hidden transition-all ${
-                selectedCategory.title === cat.title ? 'ring-2 ring-primary ring-offset-2 shadow-lg shadow-primary/20' : 'bg-white border border-slate-100'
+                selectedCategory.title === cat.title ? 'ring-2 ring-primary ring-offset-2 ring-offset-black shadow-lg shadow-primary/20' : 'bg-white/5 border border-white/5'
               }`}>
                 <img 
                   src={cat.image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&h=200&fit=crop'} 
@@ -184,7 +184,7 @@ export default function Products() {
                   alt={dData(cat.title, cat.titleEn)} 
                 />
               </div>
-              <span className="text-[10px] font-bold whitespace-nowrap">{dData(cat.title, cat.titleEn)}</span>
+              <span className="text-[10px] font-bold whitespace-nowrap text-white/80">{dData(cat.title, cat.titleEn)}</span>
             </button>
           ))}
         </div>
@@ -233,7 +233,7 @@ export default function Products() {
             key={product.id}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 group"
+            className="bg-white/5 rounded-3xl overflow-hidden border border-white/5 shadow-2xl transition-all duration-300 group"
           >
             <div className="relative aspect-[4/5] overflow-hidden cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
               <img 
@@ -243,9 +243,9 @@ export default function Products() {
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                 alt={dData(product.name, product.nameEn)} 
               />
-              <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-1.5 py-0.5 rounded-lg flex items-center gap-1 shadow-sm">
-                <Star size={8} className="text-secondary fill-secondary" />
-                <span className="text-[9px] font-bold text-slate-700">{product.rating || '5.0'}</span>
+              <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded-lg flex items-center gap-1 shadow-sm">
+                <Star size={8} className="text-primary fill-primary" />
+                <span className="text-[9px] font-bold text-white/80">{product.rating || '5.0'}</span>
               </div>
               <button 
                 onClick={(e) => {
@@ -253,27 +253,27 @@ export default function Products() {
                     toggleWish(product.id);
                 }}
                 className={`absolute top-2 right-2 w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
-                    wishlistIds.includes(product.id) ? 'bg-red-500 text-white shadow-lg' : 'bg-white/80 text-slate-400 hover:text-red-500'
+                    wishlistIds.includes(product.id) ? 'bg-red-500 text-white shadow-lg' : 'bg-black/40 backdrop-blur-md text-white/40 hover:text-red-500'
                 }`}
               >
                 <Heart size={12} fill={wishlistIds.includes(product.id) ? "currentColor" : "none"} />
               </button>
             </div>
             <div className="p-3">
-              <h3 className="font-bold text-xs text-slate-800 mb-1 truncate cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
+              <h3 className="font-bold text-xs text-white mb-1 truncate cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
                 {dData(product.name, product.nameEn)}
               </h3>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-sm font-display font-bold text-slate-900">৳{product.discountPrice || product.price || 0}</span>
+                  <span className="text-sm font-display font-bold text-primary">৳{product.discountPrice || product.price || 0}</span>
                   {product.discountPrice && (
-                    <span className="text-[10px] text-slate-300 line-through">৳{product.price}</span>
+                    <span className="text-[10px] text-white/20 line-through">৳{product.price}</span>
                   )}
-                  <span className="text-[8px] text-slate-400 font-bold tracking-tight">/{product.unit || 'unit'}</span>
+                  <span className="text-[8px] text-white/40 font-bold tracking-tight">/{product.unit || 'unit'}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Star size={8} className="text-secondary fill-secondary" />
-                  <span className="text-[9px] font-bold text-slate-700">{product.rating || '5.0'}</span>
+                  <Star size={8} className="text-primary fill-primary" />
+                  <span className="text-[9px] font-bold text-white/60">{product.rating || '5.0'}</span>
                 </div>
               </div>
               
@@ -283,7 +283,7 @@ export default function Products() {
                    e.stopPropagation();
                    addToCart(product);
                 }}
-                className="w-full bg-primary text-white py-2 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/10 hover:bg-primary-dark transition-all"
+                className="w-full bg-primary text-black font-bold py-2 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all"
               >
                 <ShoppingCart size={14} />
                 <span className="text-[10px] font-black uppercase tracking-wider">Add to Cart</span>
