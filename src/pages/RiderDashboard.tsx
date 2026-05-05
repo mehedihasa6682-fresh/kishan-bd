@@ -4,7 +4,7 @@ import { Truck, MapPin, CheckCircle2, Navigation, Package, User, LogOut, Phone, 
 import { AuthContext } from '../App';
 import { riderService } from '../services/riderService';
 import { useNavigate } from 'react-router-dom';
-import { auth, db } from '../firebase';
+import { auth, db, OperationType, handleFirestoreError } from '../firebase';
 import { signOut } from 'firebase/auth';
 import { doc, updateDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { formatCurrency } from '../lib/utils';
@@ -32,11 +32,12 @@ export default function RiderDashboard() {
     }
 
     // Get current location
+    let watchId: number | null = null;
     if ("geolocation" in navigator) {
-        navigator.geolocation.watchPosition((pos) => {
+        watchId = navigator.geolocation.watchPosition((pos) => {
             const { latitude, longitude } = pos.coords;
             setCurrentLocation({ lat: latitude, lng: longitude });
-            if (status === 'online') {
+            if (status === 'online' && user) {
                 riderService.updateLocation(user.uid, latitude, longitude);
             }
         });
@@ -51,6 +52,9 @@ export default function RiderDashboard() {
     return () => {
       unsubAvailable();
       unsubMy();
+      if (watchId !== null) {
+          navigator.geolocation.clearWatch(watchId);
+      }
     };
   }, [user, navigate, status]);
 
@@ -58,7 +62,11 @@ export default function RiderDashboard() {
     const newStatus = status === 'online' ? 'offline' : 'online';
     setStatus(newStatus);
     if (user) {
-      await updateDoc(doc(db, 'users', user.uid), { status: newStatus, lastStatusUpdate: serverTimestamp() });
+      try {
+        await updateDoc(doc(db, 'users', user.uid), { status: newStatus, lastStatusUpdate: serverTimestamp() });
+      } catch (err) {
+        handleFirestoreError(err, OperationType.UPDATE, `users/${user.uid}`);
+      }
     }
   };
 
@@ -380,11 +388,15 @@ export default function RiderDashboard() {
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs font-bold">{profile?.paymentMethod || 'Not Set'}</span>
                                     <button 
-                                        onClick={() => {
+                                        onClick={async () => {
                                             const provider = prompt("Payment Provider (bKash/Nagad/Rocket)?", profile?.paymentMethod || "");
                                             const number = prompt("Mobile Number for Payout?");
                                             if (provider && number && user) {
-                                                updateDoc(doc(db, 'users', user.uid), { paymentMethod: provider, payoutAccount: number });
+                                            try {
+                                                await updateDoc(doc(db, 'users', user.uid), { paymentMethod: provider, payoutAccount: number });
+                                            } catch (err) {
+                                                handleFirestoreError(err, OperationType.UPDATE, `users/${user.uid}`);
+                                            }
                                             }
                                         }}
                                         className="text-[10px] font-black text-primary uppercase underline"

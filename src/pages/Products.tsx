@@ -95,14 +95,7 @@ export default function Products() {
     ? selectedCatData?.subCategoriesEn || []
     : [];
 
-  const categoriesFallbacks = [
-    { id: 'veg', title: 'Vegetable', titleEn: 'Vegetables', image: 'https://images.unsplash.com/photo-1566385270613-5f10394eb126?w=200&h=200&fit=crop' },
-    { id: 'fruits', title: 'Phol', titleEn: 'Fruits', image: 'https://images.unsplash.com/photo-1619566636858-adb3ef26402b?w=200&h=200&fit=crop' },
-    { id: 'fish', title: 'Maach', titleEn: 'Fish', image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=200&h=200&fit=crop' },
-    { id: 'meat', title: 'Mangsho', titleEn: 'Meat', image: 'https://images.unsplash.com/photo-1551028150-64b9f398f678?w=200&h=200&fit=crop' },
-  ];
-
-  const categoriesToShow = dbCategories.length > 0 ? dbCategories : categoriesFallbacks;
+  const categoriesToShow = dbCategories;
 
   return (
     <motion.div 
@@ -111,9 +104,9 @@ export default function Products() {
       className="max-w-md mx-auto pb-10"
     >
       <Helmet>
-        <title>{selectedCategory.title === 'All' ? 'Products' : dData(selectedCategory.title, selectedCategory.titleEn)} - Kishan Marketplace</title>
-        <meta name="description" content={`Browse ${selectedCategory.title === 'All' ? 'fresh products' : dData(selectedCategory.title, selectedCategory.titleEn)} at Kishan Marketplace. Directly from farmers.`} />
-        <meta property="og:title" content={`${selectedCategory.title === 'All' ? 'Products' : dData(selectedCategory.title, selectedCategory.titleEn)} - Kishan`} />
+        <title>{selectedCategory.title === 'All' ? 'Products' : dData(selectedCategory.title, selectedCategory.titleEn)} - {t('app.name') || 'Grocery Store'}</title>
+        <meta name="description" content={`Browse ${selectedCategory.title === 'All' ? 'fresh products' : dData(selectedCategory.title, selectedCategory.titleEn)} at our Online Store. Quality guaranteed.`} />
+        <meta property="og:title" content={`${selectedCategory.title === 'All' ? 'Products' : dData(selectedCategory.title, selectedCategory.titleEn)} - Store`} />
       </Helmet>
       <div className="px-5 mb-6">
         <h1 className="font-display font-bold text-2xl mb-6 text-white">Explore Products</h1>
@@ -200,10 +193,10 @@ export default function Products() {
                 >
                     <button
                         onClick={() => setSelectedSubCategory('All')}
-                        className={`px-4 py-1.5 rounded-full text-[10px] font-bold whitespace-nowrap transition-all ${
+                        className={`px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all border ${
                             selectedSubCategory === 'All'
-                                ? 'bg-slate-900 text-white'
-                                : 'bg-white text-slate-500 border border-slate-100'
+                                ? 'bg-primary text-black border-primary shadow-lg shadow-primary/20'
+                                : 'bg-white/5 text-white/40 border-white/5 hover:border-white/20'
                         }`}
                     >
                         Everything
@@ -212,15 +205,16 @@ export default function Products() {
                         <button
                             key={sub}
                             onClick={() => setSelectedSubCategory(sub)}
-                            className={`px-4 py-1.5 rounded-full text-[10px] font-bold whitespace-nowrap transition-all ${
+                            className={`px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all border ${
                                 selectedSubCategory === sub
-                                    ? 'bg-primary text-white shadow-md'
-                                    : 'bg-white text-slate-500 border border-slate-100'
+                                    ? 'bg-primary text-black border-primary shadow-lg shadow-primary/20'
+                                    : 'bg-white/5 text-white/40 border-white/5 hover:border-white/20'
                             }`}
                         >
                             {dData(sub, subCategoriesEn[index])}
                         </button>
                     ))}
+
                 </motion.div>
             )}
         </AnimatePresence>

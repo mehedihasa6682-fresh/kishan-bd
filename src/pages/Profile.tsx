@@ -7,7 +7,7 @@ import {
   Gift, Bell, ClipboardList, Package, Heart, X, Trash2,
   Truck
 } from 'lucide-react';
-import { auth, db } from '../firebase';
+import { auth, db, OperationType, handleFirestoreError } from '../firebase';
 import { signOut, updateProfile } from 'firebase/auth';
 import { doc, updateDoc, onSnapshot, collection, query, where, orderBy } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
@@ -118,7 +118,9 @@ export default function Profile() {
         await updateDoc(doc(db, 'users', user.uid), { addresses: updatedAddresses });
         setNewAddress('');
         setToast('Address added!');
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+        handleFirestoreError(err, OperationType.UPDATE, `users/${user.uid}`);
+    }
   };
 
   const handleRemoveAddress = async (index: number) => {
@@ -127,7 +129,9 @@ export default function Profile() {
         const updatedAddresses = addresses.filter((_, i) => i !== index);
         await updateDoc(doc(db, 'users', user.uid), { addresses: updatedAddresses });
         setToast('Address removed');
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+        handleFirestoreError(err, OperationType.UPDATE, `users/${user.uid}`);
+    }
   };
 
   const handleUpdatePayment = async () => {
@@ -136,7 +140,9 @@ export default function Profile() {
         await updateDoc(doc(db, 'users', user.uid), { paymentMethods: editPayment });
         setToast('Payment details saved!');
         setActiveModal('none');
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+        handleFirestoreError(err, OperationType.UPDATE, `users/${user.uid}`);
+    }
   };
 
   const handleLogout = () => {
@@ -155,7 +161,7 @@ export default function Profile() {
         setActiveModal('none');
         setTimeout(() => setToast(''), 3000);
     } catch (err) {
-        console.error(err);
+        handleFirestoreError(err, OperationType.UPDATE, `users/${user.uid}`);
     }
   };
 
@@ -167,7 +173,7 @@ export default function Profile() {
         setToast('Profile photo updated!');
         setTimeout(() => setToast(''), 3000);
     } catch (err) {
-        console.error(err);
+        handleFirestoreError(err, OperationType.UPDATE, `users/${user.uid}`);
     }
   };
 
@@ -268,8 +274,8 @@ export default function Profile() {
 
         {role === 'seller' && (
           <div className="space-y-2">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-3">{t('profile.seller_center')}</h3>
-            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+            <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1 mb-3">{t('profile.seller_center')}</h3>
+            <div className="bg-white/5 rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
               <MenuItem 
                 icon={Package} 
                 label={t('profile.shop_management')} 
@@ -283,8 +289,8 @@ export default function Profile() {
 
         {role === 'rider' && (
           <div className="space-y-2">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-3">Delivery Partner</h3>
-            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+            <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1 mb-3">Delivery Partner</h3>
+            <div className="bg-white/5 rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
               <MenuItem 
                 icon={Truck} 
                 label="Rider Dashboard" 
@@ -298,8 +304,8 @@ export default function Profile() {
 
         {role === 'customer' && (
           <div className="space-y-2">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-3">{t('profile.partnerships')}</h3>
-            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+            <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1 mb-3">{t('profile.partnerships')}</h3>
+            <div className="bg-white/5 rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
               <MenuItem 
                 icon={ShieldCheck} 
                 label={t('profile.become_seller')} 
@@ -312,8 +318,8 @@ export default function Profile() {
         )}
 
         <div className="space-y-2">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-3">{t('profile.orders_activity')}</h3>
-          <div className="bg-white rounded-3xl border border-slate-50 shadow-sm overflow-hidden">
+          <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1 mb-3">{t('profile.orders_activity')}</h3>
+          <div className="bg-white/5 rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
             <MenuItem icon={ClipboardList} label={t('profile.orders')} subtitle="Track and view past orders" to="/orders" />
             <MenuItem icon={Heart} label="My Wishlist" subtitle="Favorite products saved for later" to="/wishlist" color="text-red-500" />
             <MenuItem icon={Bell} label="Notifications" subtitle="App updates and order status" onClick={() => setActiveModal('notifications')} />
@@ -321,8 +327,8 @@ export default function Profile() {
         </div>
 
         <div className="space-y-2">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-3">{t('profile.settings')}</h3>
-          <div className="bg-white rounded-3xl border border-slate-50 shadow-sm overflow-hidden">
+          <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1 mb-3">{t('profile.settings')}</h3>
+          <div className="bg-white/5 rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
             <MenuItem icon={UserIcon} label="Personal Info" subtitle="Edit your profile details" onClick={() => setActiveModal('profile')} />
             <MenuItem icon={MapPin} label="Saved Addresses" subtitle="Manage your delivery locations" onClick={() => setActiveModal('addresses')} />
             <MenuItem icon={CreditCard} label="Payment Methods" subtitle="Manage your cards & wallets" onClick={() => setActiveModal('payments')} />
@@ -330,28 +336,26 @@ export default function Profile() {
         </div>
 
         <div className="space-y-2">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-3">Rewards</h3>
-          <div className="bg-white rounded-3xl border border-slate-50 shadow-sm overflow-hidden">
+          <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1 mb-3">Rewards</h3>
+          <div className="bg-white/5 rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
             <MenuItem icon={Gift} label="Referral System" subtitle="Invite friends & earn rewards" color="text-yellow-600" onClick={() => setActiveModal('referrals')} />
             <MenuItem icon={Share2} label="Promo Codes" subtitle="Check available discounts" onClick={() => showUnderMaintenance('Promo System')} />
           </div>
         </div>
 
         <div className="space-y-2">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-3">App</h3>
-          <div className="bg-white rounded-3xl border border-slate-50 shadow-sm overflow-hidden p-6 space-y-4">
+          <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1 mb-3">App</h3>
+          <div className="bg-white/5 rounded-3xl border border-white/10 shadow-2xl overflow-hidden p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-slate-800 text-sm">System Notifications</h3>
-                <p className="text-[10px] text-slate-400">Receive alerts in your mobile notification bar</p>
+                <h3 className="font-bold text-white text-sm">System Notifications</h3>
+                <p className="text-[10px] text-white/30">Receive alerts in your mobile notification bar</p>
               </div>
               <button
                 onClick={() => {
                   if ("Notification" in window) {
                     Notification.requestPermission().then(permission => {
                       if (permission === 'granted') {
-                        // Assuming you have access to settings here, if not, we should import useSettings
-                        // and call it. I'll search for existing imports.
                         new Notification("অ্যাক্টিভেট হয়েছে!", {
                           body: "এখন থেকে আপনি নোটিফিকেশন বারে আপডেট পাবেন।",
                           icon: appSettings.logo || '/logo.png'
@@ -360,7 +364,7 @@ export default function Profile() {
                     });
                   }
                 }}
-                className="px-4 py-2 bg-blue-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-blue-100 active:scale-95 transition-all"
+                className="px-4 py-2 bg-primary text-black text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 active:scale-95 transition-all"
               >
                 Enable
               </button>
@@ -378,17 +382,18 @@ export default function Profile() {
                   });
                 }
               }}
-              className="w-full py-4 bg-slate-900 text-white rounded-2xl flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-widest shadow-xl shadow-slate-200 active:scale-95 transition-all"
+              className="w-full py-4 bg-white/5 border border-white/10 text-white rounded-2xl flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-widest shadow-xl shadow-black/20 active:scale-95 transition-all"
             >
-              <Bell size={18} />
+              <Bell size={18} className="text-primary" />
               Test New Alert
             </button>
           </div>
 
-          <div className="bg-white rounded-3xl border border-slate-50 shadow-sm overflow-hidden mt-4">
+          <div className="bg-white/5 rounded-3xl border border-white/10 shadow-2xl overflow-hidden mt-4">
             <MenuItem icon={LogOut} label={t('profile.logout')} subtitle="Clear session and exit" color="text-red-500" onClick={handleLogout} />
           </div>
         </div>
+
       </div>
 
       {/* Modals */}
@@ -405,164 +410,173 @@ export default function Profile() {
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}
                 exit={{ y: '100%' }}
-                className="bg-white w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] p-6 max-h-[80vh] overflow-y-auto"
+                className="bg-zinc-950 w-full max-w-md rounded-t-[3rem] sm:rounded-[3rem] p-8 max-h-[85vh] overflow-y-auto border border-white/10 shadow-2xl relative"
                 onClick={e => e.stopPropagation()}
             >
-                <div className="flex justify-between items-center mb-6">
-                    <h3 className="font-display font-bold text-xl capitalize">{activeModal.replace('_', ' ')}</h3>
-                    <button onClick={() => setActiveModal('none')} className="p-2 bg-slate-100 rounded-full">
-                        <X size={20} className="text-slate-500" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-white/10 rounded-full mt-3" />
+                <div className="flex justify-between items-center mb-10 mt-2">
+                    <h3 className="font-display font-black text-2xl capitalize text-white tracking-tight">{activeModal.replace('_', ' ')}</h3>
+                    <button onClick={() => setActiveModal('none')} className="p-3 bg-white/5 border border-white/5 rounded-2xl text-white/40 hover:text-white transition-all">
+                        <X size={24} />
                     </button>
                 </div>
 
                 {activeModal === 'profile' && (
-                    <div className="space-y-4">
-                        <div className="space-y-1">
-                            <label className="text-[10px] font-black text-slate-400 uppercase">Display Name</label>
+                    <div className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Display Name</label>
                             <input className="input-field" value={editName} onChange={e => setEditName(e.target.value)} />
                         </div>
-                        <div className="space-y-1">
-                            <label className="text-[10px] font-black text-slate-400 uppercase">Phone Number</label>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Phone Number</label>
                             <input className="input-field" value={editPhone} onChange={e => setEditPhone(e.target.value)} />
                         </div>
                         
-                        <div className="pt-4 border-t border-slate-100 space-y-4">
-                          <h4 className="font-bold text-sm text-slate-800">App Preferences</h4>
-                          <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                             <div className="flex items-center gap-3">
-                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isPushEnabled ? 'bg-primary/20 text-primary' : 'bg-slate-200 text-slate-400'}`}>
-                                   <Bell size={20} />
+                        <div className="pt-8 border-t border-white/5 space-y-6">
+                          <h4 className="font-display font-black text-sm text-white uppercase tracking-widest pl-1">App Intelligence</h4>
+                          <div className="flex items-center justify-between p-6 bg-white/5 rounded-3xl border border-white/5 shadow-inner">
+                             <div className="flex items-center gap-4">
+                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg ${isPushEnabled ? 'bg-primary/20 text-primary border border-primary/20' : 'bg-white/5 text-white/20 border border-white/5'}`}>
+                                   <Bell size={24} />
                                 </div>
-                                <div>
-                                   <p className="text-xs font-bold text-slate-800">Push Notifications</p>
-                                   <p className="text-[10px] text-slate-500">{isPushEnabled ? 'Enabled' : 'Disabled'}</p>
+                                <div className="space-y-0.5">
+                                   <p className="text-sm font-bold text-white">Neural Status Updates</p>
+                                   <p className="text-[10px] text-white/30 font-black uppercase tracking-widest">{isPushEnabled ? 'Channel active' : 'Offline'}</p>
                                 </div>
                              </div>
                              <button 
                                onClick={handleEnablePush}
                                disabled={isPushEnabled}
-                               className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${isPushEnabled ? 'bg-slate-200 text-slate-400' : 'bg-primary text-white shadow-lg shadow-primary/20 hover:scale-105'}`}
+                               className={`px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${isPushEnabled ? 'bg-white/10 text-white/20 border border-white/5' : 'bg-primary text-black shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95'}`}
                              >
-                               {isPushEnabled ? 'Enabled' : 'Enable'}
+                               {isPushEnabled ? 'Active' : 'Enable'}
                              </button>
                           </div>
                         </div>
-                        <button onClick={handleUpdateProfile} className="btn-primary w-full py-4 rounded-2xl mt-4">Save Changes</button>
+                        <button onClick={handleUpdateProfile} className="btn-primary w-full py-5 rounded-[2rem] mt-6 text-sm">Save Intelligence Profile</button>
                     </div>
                 )}
 
                 {activeModal === 'addresses' && (
-                    <div className="space-y-6">
-                        <div className="space-y-3">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">My Saved Addresses</span>
+                    <div className="space-y-8">
+                        <div className="space-y-4">
+                            <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Verified Drop Zones</span>
                             {addresses.map((addr, idx) => (
-                                <div key={idx} className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl group border border-slate-100">
-                                    <MapPin size={16} className="text-primary shrink-0" />
-                                    <p className="flex-1 text-xs text-slate-700 font-medium">
+                                <div key={idx} className="flex items-center gap-4 p-6 bg-white/5 rounded-[2rem] group border border-white/5 hover:border-primary/30 transition-all">
+                                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                                      <MapPin size={20} />
+                                    </div>
+                                    <p className="flex-1 text-[13px] text-white/80 font-medium leading-relaxed">
                                         {typeof addr === 'string' ? addr : (addr?.address || 'Saved Location')}
                                     </p>
-                                    <button onClick={() => handleRemoveAddress(idx)} className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">
-                                        <Trash2 size={16} />
+                                    <button onClick={() => handleRemoveAddress(idx)} className="p-3 text-white/20 hover:text-red-500 hover:bg-red-500/5 rounded-2xl transition-all border border-transparent hover:border-red-500/20">
+                                        <Trash2 size={20} />
                                     </button>
                                 </div>
                             ))}
                             {addresses.length === 0 && (
-                                <div className="text-center py-6 text-slate-400 text-xs border-2 border-dashed border-slate-100 rounded-3xl">No addresses saved</div>
+                                <div className="text-center py-12 text-white/20 text-[11px] font-black uppercase tracking-[0.3em] border-2 border-dashed border-white/5 rounded-[3rem]">Zero saved locations identified</div>
                             )}
                         </div>
-                        <div className="space-y-2 pt-4 border-t border-slate-100">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Add New Address</label>
+                        <div className="space-y-4 pt-8 border-t border-white/5">
+                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] block ml-2">Establish New Drop Zone</label>
                             <textarea 
-                                placeholder="House, Road, Area..." 
-                                className="input-field h-24 resize-none"
+                                placeholder="Sector, Building, Landmark..." 
+                                className="input-field h-32 resize-none leading-relaxed"
                                 value={newAddress}
                                 onChange={e => setNewAddress(e.target.value)}
                             />
-                            <button onClick={handleAddAddress} className="btn-primary w-full py-4 rounded-2xl">Add Address</button>
+                            <button onClick={handleAddAddress} className="btn-primary w-full py-5 rounded-[2rem] text-sm">Update Grid Coordinates</button>
                         </div>
                     </div>
                 )}
 
                 {activeModal === 'referrals' && (
-                    <div className="space-y-6 text-center">
-                        <div className="w-20 h-20 bg-yellow-50 rounded-full flex items-center justify-center mx-auto text-yellow-500 shadow-inner">
-                            <Gift size={40} />
+                    <div className="space-y-8 text-center pt-4">
+                        <div className="w-24 h-24 bg-primary/10 rounded-[2.5rem] flex items-center justify-center mx-auto text-primary border border-primary/20 shadow-2xl relative group">
+                            <div className="absolute inset-0 bg-primary/20 rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition-all" />
+                            <Gift size={48} className="relative z-10" />
                         </div>
                         <div>
-                            <h4 className="font-bold text-lg">Invite & Earn</h4>
-                            <p className="text-xs text-slate-500 mt-2 leading-relaxed">Share your code with friends and get ৳50 discount on your next order when they join!</p>
+                            <h4 className="font-display font-black text-2xl text-white uppercase tracking-tight">Expand the Neural Network</h4>
+                            <p className="text-[13px] text-white/40 mt-3 leading-relaxed font-medium">Transmit your access code to peers. Secure ৳50 asset credits for every successful integration.</p>
                         </div>
-                        <div className="p-4 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Your Referral Code</span>
-                            <span className="text-2xl font-black tracking-[0.2em] text-slate-900">{user?.uid.substring(0, 6).toUpperCase()}</span>
+                        <div className="p-8 bg-black/40 rounded-[3rem] border border-white/10 shadow-inner relative overflow-hidden group">
+                           <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-all" />
+                            <span className="relative z-10 text-[10px] font-black text-white/20 uppercase tracking-[0.3em] block mb-4">Unique Identity Signature</span>
+                            <span className="relative z-10 text-4xl font-display font-black tracking-[0.3em] text-white">{user?.uid.substring(0, 6).toUpperCase()}</span>
                         </div>
-                        <button onClick={() => showUnderMaintenance('Share API')} className="btn-primary w-full py-4 rounded-2xl">Share My Code</button>
+                        <button onClick={() => showUnderMaintenance('Share API')} className="btn-primary w-full py-5 rounded-[2rem] text-sm shadow-2xl shadow-primary/20">Initiate Broadcast</button>
                     </div>
                 )}
 
                 {activeModal === 'payments' && (
-                    <div className="space-y-6">
-                        <div className="p-4 bg-slate-50 rounded-3xl border border-slate-100 flex items-center gap-3">
-                            <ShieldCheck className="text-primary" size={24} />
-                            <p className="text-[10px] text-slate-500 font-bold leading-tight">Your payment details are saved locally for faster checkout and are never shared with third parties.</p>
+                    <div className="space-y-8">
+                        <div className="p-6 bg-white/5 rounded-[2rem] border border-white/5 flex items-center gap-4">
+                            <ShieldCheck className="text-primary shrink-0" size={32} />
+                            <p className="text-[11px] text-white/40 font-bold leading-relaxed uppercase tracking-wider">Neural encryption active. Financial manifests are localized for maximum security.</p>
                         </div>
-                        <div className="space-y-4">
-                            <div className="space-y-1">
-                                <label className="text-[10px] font-black text-slate-400 uppercase">bKash Number</label>
+                        <div className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">bKash Node</label>
                                 <input 
-                                    className="input-field" 
+                                    className="input-field py-4" 
                                     placeholder="017xxxxxxxx" 
                                     value={editPayment.bkash} 
                                     onChange={e => setEditPayment({...editPayment, bkash: e.target.value})} 
                                 />
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-[10px] font-black text-slate-400 uppercase">Nagad Number</label>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Nagad Node</label>
                                 <input 
-                                    className="input-field" 
+                                    className="input-field py-4" 
                                     placeholder="017xxxxxxxx" 
                                     value={editPayment.nagad} 
                                     onChange={e => setEditPayment({...editPayment, nagad: e.target.value})} 
                                 />
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-[10px] font-black text-slate-400 uppercase">Rocket Number</label>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Rocket Node</label>
                                 <input 
-                                    className="input-field" 
+                                    className="input-field py-4" 
                                     placeholder="017xxxxxxxx" 
                                     value={editPayment.rocket} 
                                     onChange={e => setEditPayment({...editPayment, rocket: e.target.value})} 
                                 />
                             </div>
-                            <button onClick={handleUpdatePayment} className="btn-primary w-full py-4 rounded-2xl mt-4">Save Payment Details</button>
+                            <button onClick={handleUpdatePayment} className="btn-primary w-full py-5 rounded-[2rem] mt-4 text-sm">Save Virtual Assets</button>
                         </div>
                     </div>
                 )}
                 {activeModal === 'notifications' && (
-                    <div className="space-y-3">
-                        <div className="flex justify-between items-center mb-2">
-                             <span className="text-[10px] font-black text-slate-400 uppercase">Latest Notifications</span>
-                             <button onClick={() => NotificationService.markAllAsRead(notifications)} className="text-[10px] font-bold text-primary">Mark all as read</button>
+                    <div className="space-y-6">
+                        <div className="flex justify-between items-center mb-2 px-2">
+                             <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Transmission Buffer</span>
+                             <button onClick={() => NotificationService.markAllAsRead(notifications)} className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Flush All</button>
                         </div>
-                        {notifications.map(notif => (
-                            <div key={notif.id} className={`p-4 rounded-3xl border ${notif.read ? 'bg-white border-slate-100' : 'bg-primary/5 border-primary/20'} relative group`}>
-                                <div className="flex gap-3">
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${notif.type === 'order' ? 'bg-blue-100 text-blue-600' : notif.type === 'promo' ? 'bg-pink-100 text-pink-600' : 'bg-slate-100 text-slate-600'}`}>
-                                        <Bell size={14} />
+                        <div className="space-y-4">
+                            {notifications.map(notif => (
+                                <div key={notif.id} className={`p-6 rounded-[2.5rem] border transition-all ${notif.read ? 'bg-black/20 border-white/5 opacity-60' : 'bg-primary/5 border-primary/20'} relative group`}>
+                                    <div className="flex gap-4">
+                                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${notif.type === 'order' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' : notif.type === 'promo' ? 'bg-primary/10 text-primary border-primary/20' : 'bg-white/5 text-white/20 border-white/5'}`}>
+                                            <Bell size={18} />
+                                        </div>
+                                        <div className="flex-1 space-y-1">
+                                            <h4 className="font-bold text-sm text-white tracking-tight">{notif.title}</h4>
+                                            <p className="text-[12px] text-white/50 leading-relaxed font-medium">{notif.message}</p>
+                                            <p className="text-[9px] text-white/20 mt-3 font-mono italic">{format(notif.createdAt?.toDate() || new Date(), 'MMM dd, hh:mm a')}</p>
+                                        </div>
+                                        {!notif.read && (
+                                            <button onClick={() => NotificationService.markAsRead(notif.id)} className="w-2.5 h-2.5 bg-primary rounded-full mt-1.5 shadow-[0_0_10px_rgba(212,175,55,0.8)]" />
+                                        )}
                                     </div>
-                                    <div className="flex-1">
-                                        <h4 className="font-bold text-xs text-slate-800">{notif.title}</h4>
-                                        <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">{notif.message}</p>
-                                        <p className="text-[8px] text-slate-400 mt-2 font-bold">{format(notif.createdAt?.toDate() || new Date(), 'MMM dd, hh:mm a')}</p>
-                                    </div>
-                                    {!notif.read && (
-                                        <button onClick={() => NotificationService.markAsRead(notif.id)} className="w-2 h-2 bg-primary rounded-full mt-1" />
-                                    )}
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                         {notifications.length === 0 && (
-                            <div className="text-center py-10 text-slate-400 text-sm">No notifications yet</div>
+                            <div className="text-center py-20 bg-black/40 rounded-[3rem] border border-dashed border-white/5">
+                                <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.4em]">Zero incoming signals identified</p>
+                            </div>
                         )}
                     </div>
                 )}

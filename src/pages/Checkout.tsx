@@ -11,7 +11,7 @@ import ImageUpload from '../components/ImageUpload';
 import AddressPicker from '../components/AddressPicker';
 
 import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
-import { db } from '../firebase';
+import { auth, db, OperationType, handleFirestoreError } from '../firebase';
 import { formatCurrency } from '../lib/utils';
 
 export default function Checkout() {
@@ -58,7 +58,7 @@ export default function Checkout() {
     fetchAreas();
   }, [setDeliveryFee]);
 
-  useState(() => {
+  useEffect(() => {
     if (user) {
         getDoc(doc(db, 'users', user.uid)).then(snap => {
             if (snap.exists()) {
@@ -79,9 +79,11 @@ export default function Checkout() {
                 setPhone(snap.data().phoneNumber || user.phoneNumber || '');
                 setCustomerName(snap.data().displayName || user.displayName || '');
             }
+        }).catch(err => {
+            handleFirestoreError(err, OperationType.GET, `users/${user.uid}`);
         });
     }
-  });
+  }, [user]);
 
   const handlePlaceOrder = async () => {
     if (!user) {
@@ -107,10 +109,14 @@ export default function Checkout() {
 
         // Save address to profile if it's new
         if (selectedAddressIndex === 'new' && user) {
-            await updateDoc(doc(db, 'users', user.uid), {
-                addresses: arrayUnion(fullAddressData),
-                phoneNumber: phone
-            });
+            try {
+                await updateDoc(doc(db, 'users', user.uid), {
+                    addresses: arrayUnion(fullAddressData),
+                    phoneNumber: phone
+                });
+            } catch (err) {
+                handleFirestoreError(err, OperationType.UPDATE, `users/${user.uid}`);
+            }
         }
 
         // Prepare items by removing large image data to prevent exceeding Firestore document size limit
@@ -187,10 +193,10 @@ export default function Checkout() {
       className="max-w-md mx-auto px-5 pb-10"
     >
       <div className="flex items-center gap-4 mb-8 pt-4">
-        <button onClick={() => step === 2 ? setStep(1) : navigate(-1)} className="w-10 h-10 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-slate-600">
+        <button onClick={() => step === 2 ? setStep(1) : navigate(-1)} className="w-10 h-10 bg-white/5 border border-white/5 rounded-xl flex items-center justify-center text-white">
           <ArrowLeft size={20} />
         </button>
-        <h1 className="font-display font-bold text-2xl">
+        <h1 className="font-display font-bold text-2xl text-white">
             {step === 1 ? "Checkout Details" : "Payment Options"}
         </h1>
       </div>
@@ -201,7 +207,7 @@ export default function Checkout() {
                 {/* Delivery Address */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Contact & Delivery</h3>
+                        <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Contact & Delivery</h3>
                         {savedAddresses.length > 0 && !isEditingAddress && (
                             <button 
                                 onClick={() => setIsEditingAddress(true)}
@@ -212,12 +218,12 @@ export default function Checkout() {
                         )}
                     </div>
                     
-                    <div className="glass-card p-5 border-slate-100 bg-white space-y-4">
+                    <div className="glass-card p-5 border border-white/5 bg-white/5 space-y-4">
                         {isEditingAddress ? (
                             <div className="space-y-4">
                                 {savedAddresses.length > 0 && (
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Select Saved Address</label>
+                                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Select Saved Address</label>
                                         <div className="grid grid-cols-1 gap-2">
                                             {savedAddresses.map((addr, idx) => (
                                                 <button 
@@ -235,7 +241,7 @@ export default function Checkout() {
                                                         setSelectedAddressIndex(idx);
                                                         setIsEditingAddress(false);
                                                     }}
-                                                    className="text-left p-3 rounded-xl border border-slate-100 bg-slate-50 text-[11px] font-medium text-slate-600 hover:border-primary transition-all"
+                                                    className="text-left p-3 rounded-xl border border-white/5 bg-white/5 text-[11px] font-medium text-white/60 hover:border-primary transition-all"
                                                 >
                                                     {typeof addr === 'string' ? addr : (addr?.address || 'Saved Location')}
                                                 </button>
@@ -245,7 +251,7 @@ export default function Checkout() {
                                                     setSelectedAddressIndex('new');
                                                     setAddress('');
                                                 }}
-                                                className="text-center p-3 rounded-xl border border-dashed border-slate-200 text-[10px] font-bold text-primary"
+                                                className="text-center p-3 rounded-xl border border-dashed border-white/20 text-[10px] font-bold text-primary"
                                             >
                                                 + Use Different Address
                                             </button>
@@ -253,28 +259,28 @@ export default function Checkout() {
                                     </div>
                                 )}
 
-                                <div className="space-y-4 pt-2 border-t border-slate-50">
+                                <div className="space-y-4 pt-2 border-t border-white/5">
                                     <button 
                                         type="button"
                                         onClick={() => setShowAddressPicker(true)}
-                                        className="w-full flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl hover:border-primary transition-all group"
+                                        className="w-full flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-2xl hover:border-primary transition-all group"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl bg-[#FFD700] flex items-center justify-center text-slate-800 shadow-sm group-hover:scale-110 transition-transform">
+                                            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-black shadow-sm group-hover:scale-110 transition-transform">
                                                 <MapIcon size={20} />
                                             </div>
                                             <div className="text-left">
-                                                <p className="text-[11px] font-black text-slate-800 uppercase tracking-tight">Pin Location on Map</p>
-                                                <p className="text-[9px] text-slate-400 font-medium italic">Better for accurate delivery</p>
+                                                <p className="text-[11px] font-black text-white uppercase tracking-tight">Pin Location on Map</p>
+                                                <p className="text-[9px] text-white/40 font-medium italic">Better for accurate delivery</p>
                                             </div>
                                         </div>
-                                        <div className="w-6 h-6 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-300">
+                                        <div className="w-6 h-6 rounded-full bg-white/5 border border-white/5 flex items-center justify-center text-white/20">
                                             <ChevronRight size={14} />
                                         </div>
                                     </button>
                                     
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none block mb-1">Select Area (For Delivery Charge)</label>
+                                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-none block mb-1">Select Area (For Delivery Charge)</label>
                                         <select 
                                             className="input-field py-3 font-bold"
                                             value={selectedAreaId}
@@ -284,15 +290,15 @@ export default function Checkout() {
                                                 if (area) setDeliveryFee(area.fee);
                                             }}
                                         >
-                                            <option value="">Choose your location</option>
+                                            <option value="" className="bg-black text-white">Choose your location</option>
                                             {deliveryAreas.map(area => (
-                                                <option key={area.id} value={area.id}>{area.name} (৳{formatCurrency(area.fee)})</option>
+                                                <option key={area.id} value={area.id} className="bg-black text-white">{area.name} (৳{formatCurrency(area.fee)})</option>
                                             ))}
                                         </select>
-                                        <p className="text-[9px] text-slate-400 font-medium italic mt-1 ml-1">Delivery charge varies based on your location.</p>
+                                        <p className="text-[9px] text-white/40 font-medium italic mt-1 ml-1">Delivery charge varies based on your location.</p>
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Full Name</label>
+                                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Full Name</label>
                                         <input 
                                             placeholder="Your Name"
                                             className="input-field"
@@ -301,7 +307,7 @@ export default function Checkout() {
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Phone Number</label>
+                                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Phone Number</label>
                                         <input 
                                             type="tel"
                                             placeholder="017xxxxxxxx"
@@ -311,7 +317,7 @@ export default function Checkout() {
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Delivery Address</label>
+                                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Delivery Address</label>
                                         <textarea 
                                             placeholder="Sector, Road, House No..."
                                             className="input-field h-24 resize-none"
@@ -322,7 +328,7 @@ export default function Checkout() {
                                     {selectedAddressIndex !== 'new' && (
                                         <button 
                                             onClick={() => setIsEditingAddress(false)}
-                                            className="w-full py-3 bg-slate-100 rounded-xl text-[10px] font-bold text-slate-500"
+                                            className="w-full py-3 bg-white/5 rounded-xl text-[10px] font-bold text-white/40"
                                         >
                                             Cancel
                                         </button>
@@ -335,17 +341,17 @@ export default function Checkout() {
                                     <div className="flex items-center gap-2 mb-2">
                                         <span className={`px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest ${
                                             addressDetails.type === 'Home' ? 'bg-primary/10 text-primary' :
-                                            addressDetails.type === 'Office' ? 'bg-blue-50 text-blue-500' : 'bg-orange-50 text-orange-500'
+                                            addressDetails.type === 'Office' ? 'bg-blue-500/10 text-blue-500' : 'bg-orange-500/10 text-orange-500'
                                         }`}>
                                             {addressDetails.type || 'Home'}
                                         </span>
                                         {addressDetails.floorNo && (
-                                            <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-lg text-[8px] font-bold uppercase tracking-widest">
+                                            <span className="bg-white/10 text-white/40 px-2 py-0.5 rounded-lg text-[8px] font-bold uppercase tracking-widest">
                                                 Floor: {addressDetails.floorNo}
                                             </span>
                                         )}
                                         {addressDetails.apartment && (
-                                            <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-lg text-[8px] font-bold uppercase tracking-widest">
+                                            <span className="bg-white/10 text-white/40 px-2 py-0.5 rounded-lg text-[8px] font-bold uppercase tracking-widest">
                                                 Apt: {addressDetails.apartment}
                                             </span>
                                         )}
@@ -356,33 +362,46 @@ export default function Checkout() {
                                         <MapPin size={16} />
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-xs font-bold text-slate-800">{customerName}</p>
-                                        <p className="text-[10px] text-slate-500 font-medium">{phone}</p>
+                                        <p className="text-xs font-bold text-white">{customerName}</p>
+                                        <p className="text-[10px] text-white/40 font-medium">{phone}</p>
                                     </div>
                                 </div>
-                                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                                    <p className="text-[11px] text-slate-600 font-medium leading-relaxed">{address}</p>
+                                <div className="p-4 bg-white/5 rounded-3xl border border-white/5 shadow-inner">
+                                    <p className="text-[11px] text-white/80 font-medium leading-[1.6]">{address}</p>
                                 </div>
                             </div>
                         )}
                     </div>
                 </div>
 
-                <button 
-                    disabled={!phone || !address || !customerName}
-                    onClick={() => setStep(2)}
-                    className="btn-primary w-full py-5 rounded-[2rem] disabled:opacity-50"
-                >
-                    Proceed to Payment
-                </button>
+                <div className="flex bg-white/5 p-1.5 rounded-[2.5rem] border border-white/10 shadow-2xl">
+                    <button 
+                        onClick={() => setStep(1)}
+                        className={`flex-1 py-4 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all ${
+                            step === 1 ? 'bg-primary text-black shadow-lg shadow-primary/20 scale-[1.02]' : 'text-white/20 hover:text-white/40'
+                        }`}
+                    >
+                        Grid Setup
+                    </button>
+                    <button 
+                        disabled={!phone || !address || !customerName}
+                        onClick={() => setStep(2)}
+                        className={`flex-1 py-4 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all ${
+                            step === 2 ? 'bg-primary text-black shadow-lg shadow-primary/20 scale-[1.02]' : 'text-white/20 hover:text-white/40 disabled:opacity-20'
+                        }`}
+                    >
+                        Bio-Payment
+                    </button>
+                </div>
             </motion.div>
         )}
+
 
         {step === 2 && (
             <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="space-y-6">
                 {/* Payment Method */}
                 <div className="space-y-4">
-                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Select Payment Method</h3>
+                    <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Select Payment Method</h3>
                     <div className="grid grid-cols-2 gap-3">
                         {[
                         { id: 'cod', label: 'Cash on Delivery', icon: CreditCard },
@@ -393,19 +412,25 @@ export default function Checkout() {
                         <button 
                             key={method.id}
                             onClick={() => setPaymentMethod(method.id as any)}
-                            className={`p-4 rounded-3xl border text-center transition-all flex flex-col items-center justify-center gap-2 group ${
+                            className={`p-5 rounded-[2rem] border text-center transition-all flex flex-col items-center justify-center gap-3 group relative overflow-hidden ${
                                 paymentMethod === method.id 
-                                ? 'border-primary bg-primary/[0.03] ring-1 ring-primary' 
-                                : 'border-slate-100 bg-white hover:border-slate-200 shadow-sm'
+                                ? 'border-primary bg-primary/10 shadow-[0_0_20px_rgba(212,175,55,0.15)] scale-[1.02]' 
+                                : 'border-white/5 bg-white/5 hover:border-white/20'
                             }`}
                         >
-                            {method.img ? (
-                                <img src={method.img} className="h-8 object-contain transition-all" alt={method.label} />
-                            ) : (
-                                <method.icon className={`h-8 w-8 ${paymentMethod === method.id ? 'text-primary' : 'text-slate-400'}`} />
+                            {paymentMethod === method.id && (
+                                <div className="absolute top-0 right-0 w-8 h-8 bg-primary text-black flex items-center justify-center rounded-bl-2xl">
+                                    <div className="w-1 h-1 bg-black rounded-full" />
+                                </div>
                             )}
-                            <span className={`text-[10px] font-bold ${paymentMethod === method.id ? 'text-slate-900' : 'text-slate-500'}`}>{method.label}</span>
+                            {method.img ? (
+                                <img src={method.img} className={`h-10 object-contain transition-all ${paymentMethod === method.id ? 'grayscale-0' : 'grayscale opacity-40 group-hover:opacity-60'}`} alt={method.label} />
+                            ) : (
+                                <method.icon className={`h-10 w-10 ${paymentMethod === method.id ? 'text-primary' : 'text-white/20'}`} />
+                            )}
+                            <span className={`text-[9px] font-black uppercase tracking-widest ${paymentMethod === method.id ? 'text-white' : 'text-white/20'}`}>{method.label}</span>
                         </button>
+
                         ))}
                     </div>
 
@@ -417,20 +442,20 @@ export default function Checkout() {
                                 exit={{ height: 0, opacity: 0 }}
                                 className="overflow-hidden"
                             >
-                                <div className="bg-slate-900 text-white p-6 rounded-3xl space-y-4 shadow-xl">
+                                <div className="bg-white/5 border border-white/10 p-6 rounded-3xl space-y-4 shadow-xl">
                                     <div className="flex justify-between items-center bg-white/10 p-3 rounded-2xl border border-white/5">
                                         <div className="flex flex-col">
-                                            <span className="text-[10px] font-bold uppercase opacity-60">Send Money to Personal</span>
-                                            <span className="text-sm font-black tracking-widest text-secondary">01700-000000</span>
+                                            <span className="text-[10px] font-bold uppercase opacity-60 text-white/60">Send Money to Personal</span>
+                                            <span className="text-sm font-black tracking-widest text-primary">01700-000000</span>
                                         </div>
-                                        <div className="px-2 py-1 bg-secondary/20 rounded-lg">
-                                            <span className="text-[10px] font-bold text-secondary">PERSONAL</span>
+                                        <div className="px-2 py-1 bg-primary/20 rounded-lg">
+                                            <span className="text-[10px] font-bold text-primary">PERSONAL</span>
                                         </div>
                                     </div>
                                     
                                     <div className="space-y-3">
                                         <div>
-                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Payment Phone Number (Sender)</label>
+                                            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1 block">Payment Phone Number (Sender)</label>
                                             <input 
                                                 required
                                                 placeholder="e.g. 017XXXXXXXX"
@@ -441,7 +466,7 @@ export default function Checkout() {
                                         </div>
                                         
                                         <div>
-                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Transaction ID</label>
+                                            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1 block">Transaction ID</label>
                                             <input 
                                                 placeholder="Enter TrxID after payment"
                                                 className="w-full bg-white/5 border border-white/10 px-4 py-4 rounded-2xl text-xs outline-none focus:border-primary transition-all text-white font-mono"
@@ -451,7 +476,7 @@ export default function Checkout() {
                                         </div>
                                         
                                         <div>
-                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Or Upload Payment Screenshot</label>
+                                            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1 block">Or Upload Payment Screenshot</label>
                                             <ImageUpload 
                                                 currentImage={paymentScreenshot}
                                                 onUpload={(base64) => setPaymentScreenshot(base64)}
@@ -467,24 +492,24 @@ export default function Checkout() {
 
                 {/* Order Summary */}
                 <div className="space-y-4">
-                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Order Summary</h3>
-                    <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
-                        <div className="flex justify-between text-xs font-bold">
-                            <span className="text-slate-400">{t('cart.subtotal')}</span>
-                            <span className="text-slate-800">৳{formatCurrency(subtotal || 0)}</span>
+                    <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Order Summary</h3>
+                    <div className="bg-white/5 rounded-3xl p-6 border border-white/5 shadow-sm space-y-4">
+                        <div className="flex justify-between text-xs font-bold text-white">
+                            <span className="text-white/40">{t('cart.subtotal')}</span>
+                            <span className="text-white">৳{formatCurrency(subtotal || 0)}</span>
                         </div>
                         {(discount || 0) > 0 && (
-                            <div className="flex justify-between text-xs font-bold text-secondary">
+                            <div className="flex justify-between text-xs font-bold text-primary">
                                 <span>Discount</span>
                                 <span>-৳{formatCurrency(discount)}</span>
                             </div>
                         )}
-                        <div className="flex justify-between text-xs font-bold">
-                            <span className="text-slate-400">{t('cart.delivery')}</span>
-                            <span className="text-slate-800">৳{formatCurrency(deliveryFee || 0)}</span>
+                        <div className="flex justify-between text-xs font-bold text-white">
+                            <span className="text-white/40">{t('cart.delivery')}</span>
+                            <span className="text-white">৳{formatCurrency(deliveryFee || 0)}</span>
                         </div>
-                        <div className="border-t border-slate-50 pt-4 flex justify-between items-center">
-                            <span className="font-display font-bold text-slate-900">{t('cart.total')}</span>
+                        <div className="border-t border-white/5 pt-4 flex justify-between items-center">
+                            <span className="font-display font-bold text-white">{t('cart.total')}</span>
                             <span className="text-2xl font-display font-bold text-primary">৳{formatCurrency(total || 0)}</span>
                         </div>
                     </div>

@@ -107,21 +107,9 @@ export default function Home() {
     setTimeout(() => setShowToast({ show: false, name: '' }), 5000);
   };
 
-  const banners = dbBanners.length > 0 ? dbBanners : [
-    { id: 'default-1', title: 'Fresh from Farm', subtitle: 'Get 20% Off on Vegetables', image: 'https://images.unsplash.com/photo-1488459711615-de9b802a83ea?w=800&h=400&fit=crop' },
-    { id: 'default-2', title: 'Today Fresh Fish', subtitle: 'Hilsa & more delivered', image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&h=400&fit=crop' },
-  ];
-
-  const categories = dbCategories.length > 0 ? dbCategories : [
-    { id: 'veg', title: 'Vegetable', image: 'https://images.unsplash.com/photo-1566385270613-5f10394eb126?w=200&h=200&fit=crop' }
-  ];
-
-  const fallbackProducts = [
-    { id: 1, name: 'Premium Rice', price: 85, unit: 'kg', farmer: 'Rahimullah', location: 'Sylhet', rating: 4.8, image: 'https://images.unsplash.com/photo-1586201327693-86629f7bb1f3?w=400&h=400&fit=crop' },
-    { id: 2, name: 'Organic Honey', price: 450, unit: 'kg', farmer: 'Mita Sen', location: 'Sundarban', rating: 4.9, image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&h=400&fit=crop' },
-  ];
-
-  const featuredProducts = dbProducts.length > 0 ? dbProducts.filter(p => !p.isBundle && !p.isOutOfStock).slice(0, 12) : fallbackProducts;
+  const banners = dbBanners;
+  const categories = dbCategories;
+  const featuredProducts = dbProducts.filter(p => !p.isBundle && !p.isOutOfStock).slice(0, 12);
   const filteredFeatured = featuredProducts.filter(p => matchProduct(p, searchQuery));
   const bundleProducts = dbProducts.filter(p => (p.isBundle || p.category === 'Bundles') && !p.isOutOfStock);
   const flashSaleProducts = dbProducts.filter(p => p.isFlashSale && !p.isOutOfStock).slice(0, 3);
@@ -133,10 +121,10 @@ export default function Home() {
       className="max-w-md mx-auto relative min-h-screen pb-32"
     >
       <Helmet>
-        <title>Kishan - Fresh Farm Marketplace | কিষান - সরাসরি কৃষক থেকে সরাসরি পণ্য</title>
-        <meta name="description" content="Buy fresh farm products, organic vegetables, fish, and meat directly from farmers through Kishan marketplace." />
-        <meta property="og:title" content="Kishan - Fresh Farm Marketplace" />
-        <meta property="og:description" content="Kishan connects farmers and consumers directly for fresh organic products." />
+        <title>{appSettings.appName || 'Grocery Store'} - Premium Supermarket | প্রিমিয়াম গ্রোছারি এবং সুপারমার্কেট</title>
+        <meta name="description" content={`Buy fresh groceries, organic vegetables, fish, and meat directly from our supermarket store. ${appSettings.appName || 'Our store'} ensures premium quality.`} />
+        <meta property="og:title" content={`${appSettings.appName || 'Grocery Store'} - Supermarket`} />
+        <meta property="og:description" content="Shop fresh groceries and daily needs from our modern supermarket." />
         <meta property="og:url" content={window.location.origin} />
       </Helmet>
       {/* Sticky Search Header */}
@@ -148,15 +136,18 @@ export default function Home() {
         }`}
       >
         <div className="relative group">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/40 group-focus-within:text-primary transition-colors">
-            <Search size={18} />
+          <div className="absolute inset-y-0 left-0 pl-11 flex items-center pointer-events-none text-white/30 group-focus-within:text-primary transition-colors">
+            <div className="relative">
+              <Search size={18} />
+              <div className="absolute -inset-1 bg-primary/20 blur-lg rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity" />
+            </div>
           </div>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('home.search_placeholder')}
-            className="block w-full pl-11 pr-4 py-3 bg-white/5 border-none rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white/10 outline-none transition-all text-sm font-medium text-white"
+            className="block w-full pl-22 pr-6 py-5 bg-zinc-900/50 border border-white/5 rounded-[2rem] focus:ring-4 focus:ring-primary/10 focus:border-primary/40 outline-none transition-all text-xs font-black uppercase tracking-widest text-white shadow-2xl placeholder:text-white/20"
           />
         </div>
       </div>
@@ -291,9 +282,11 @@ export default function Home() {
                   </motion.div>
               ))}
               {dbProducts.filter(p => p.category === 'Bundles' || p.isBundle).length === 0 && (
-                  <div className="w-full py-10 bg-slate-50 rounded-[2rem] border border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 gap-2">
-                       <ShoppingBag size={24} />
-                       <span className="text-xs font-bold">New bundles coming soon!</span>
+                  <div className="w-full py-16 bg-white/5 rounded-[3rem] border border-dashed border-white/10 flex flex-col items-center justify-center text-white/20 gap-4">
+                       <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center border border-white/5 shadow-inner">
+                           <ShoppingBag size={28} />
+                       </div>
+                       <span className="text-[10px] font-black uppercase tracking-[0.3em]">Grid expansion pending...</span>
                   </div>
               )}
           </div>
@@ -339,9 +332,9 @@ export default function Home() {
               <motion.div
                 layout
                 key={product.id}
-                className="bg-white/5 rounded-3xl overflow-hidden shadow-2xl transition-all duration-500 border border-white/5 relative group"
+                className="bg-zinc-900/50 rounded-3xl overflow-hidden shadow-2xl transition-all duration-500 border border-white/5 relative group hover:border-primary/20 backdrop-blur-sm"
               >
-                <div className="relative aspect-square overflow-hidden m-1.5 rounded-2xl cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
+                <div className="relative aspect-square overflow-hidden m-2 rounded-2xl cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
                   <img 
                       src={product.image} 
                       referrerPolicy="no-referrer" 
@@ -349,7 +342,7 @@ export default function Home() {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                       alt={dData(product.name, product.nameEn)} 
                   />
-                  <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-sm">
+                  <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-sm border border-white/5">
                     <Star size={8} className="text-primary fill-primary" />
                     <span className="text-[9px] font-black text-white">{product.rating || '5.0'}</span>
                   </div>
@@ -358,25 +351,21 @@ export default function Home() {
                       e.stopPropagation();
                       toggleWish(product.id);
                     }}
-                    className={`absolute top-2 right-2 w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
-                      wishlistIds.includes(product.id) ? 'bg-red-500 text-white shadow-lg' : 'bg-black/40 backdrop-blur-md text-white/40 hover:text-red-500'
+                    className={`absolute top-2 right-2 w-8 h-8 rounded-xl flex items-center justify-center transition-all border ${
+                      wishlistIds.includes(product.id) ? 'bg-red-500 text-white border-red-400 shadow-lg' : 'bg-black/40 backdrop-blur-md text-white/40 hover:text-red-500 border-white/5'
                     }`}
                   >
-                    <Heart size={12} fill={wishlistIds.includes(product.id) ? "currentColor" : "none"} />
+                    <Heart size={14} fill={wishlistIds.includes(product.id) ? "currentColor" : "none"} />
                   </button>
                 </div>
-                <div className="p-3">
-                  <h3 className="font-bold text-xs text-white mb-1 truncate leading-tight cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
+                <div className="p-4 pt-1">
+                  <h3 className="font-bold text-[13px] text-white mb-1 truncate leading-tight cursor-pointer group-hover:text-primary transition-colors" onClick={() => navigate(`/product/${product.id}`)}>
                     {dData(product.name, product.nameEn)}
                   </h3>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-baseline gap-0.5">
-                      <span className="text-sm font-display font-bold text-primary">৳{formatCurrency(product.price)}</span>
-                      <span className="text-[8px] text-white/40 font-bold">/{product.unit}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Star size={8} className="text-primary fill-primary" />
-                      <span className="text-[9px] font-black text-white/60">{product.rating || '5.0'}</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-base font-display font-black text-primary">৳{formatCurrency(product.price)}</span>
+                      <span className="text-[9px] text-white/30 font-bold uppercase tracking-tighter">/{product.unit}</span>
                     </div>
                   </div>
                   
@@ -386,23 +375,24 @@ export default function Home() {
                         e.stopPropagation();
                         handleAddToCart(product);
                     }}
-                    className="w-full bg-primary text-black font-bold py-2 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all"
+                    className="w-full bg-primary text-black font-bold py-3 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all"
                   >
-                    <ShoppingCart size={14} />
-                    <span className="text-[10px] font-black uppercase tracking-wider">Add to Cart</span>
+                    <ShoppingCart size={16} />
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Add to Cart</span>
                   </motion.button>
                 </div>
               </motion.div>
             ))}
           </div>
           {filteredFeatured.length === 0 && (
-            <div className="py-20 text-center">
-              <div className="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search className="text-slate-300" size={32} />
+            <div className="py-20 text-center bg-white/5 rounded-[3rem] border border-dashed border-white/10">
+              <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/5 shadow-inner">
+                <Search className="text-white/20" size={40} />
               </div>
-              <p className="text-slate-400 text-sm font-bold">No products found matching "{searchQuery}"</p>
+              <p className="text-white/40 text-[11px] font-black uppercase tracking-[0.2em]">Zero results for "{searchQuery}"</p>
             </div>
           )}
+
         <div className="mt-10 flex justify-center">
             <Link to="/products" className="btn-primary w-full max-w-[200px] shadow-primary/10">
                 Browse All Foods

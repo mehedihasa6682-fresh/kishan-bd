@@ -11,7 +11,7 @@ import { useState, useEffect, useContext, FormEvent } from 'react';
 import { AuthContext } from '../App';
 import { sellerService } from '../services/sellerService';
 import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { auth, db, OperationType, handleFirestoreError } from '../firebase';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatCurrency } from '../lib/utils';
 
@@ -142,9 +142,9 @@ export default function SellerDashboard() {
           <div className="w-20 h-20 bg-primary/10 rounded-[2rem] flex items-center justify-center text-primary mx-auto mb-6">
             <Store size={40} />
           </div>
-          <h2 className="text-2xl font-display font-bold text-slate-900 mb-2">Sell on Kishan</h2>
+          <h2 className="text-2xl font-display font-bold text-slate-900 mb-2">Sell on Our Platform</h2>
           <p className="text-slate-500 text-sm leading-relaxed">
-            Reach thousands of customers directly. Join our community of verified farmers and sellers.
+            Reach thousands of customers directly. Join our community of verified sellers.
           </p>
         </div>
 
@@ -444,11 +444,19 @@ export default function SellerDashboard() {
                             <p className="text-sm font-bold">{(profile as any)?.paymentMethod || 'Not Configured'}</p>
                         </div>
                         <button 
-                            onClick={() => {
+                            onClick={async () => {
                                 const provider = prompt("Payment Provider (bKash/Nagad/Rocket)?", (profile as any)?.paymentMethod || "");
                                 const number = prompt("Mobile Number for Payout?", (profile as any)?.payoutAccount || "");
                                 if (provider && number && user) {
-                                    updateDoc(doc(db, 'users', user.uid), { paymentMethod: provider, payoutAccount: number });
+                                    try {
+                                        await updateDoc(doc(db, 'users', user.uid), { 
+                                            paymentMethod: provider, 
+                                            payoutAccount: number 
+                                        });
+                                        setToast('Payout method updated!');
+                                    } catch (err) {
+                                        handleFirestoreError(err, OperationType.UPDATE, `users/${user.uid}`);
+                                    }
                                 }
                             }}
                             className="text-[10px] font-black text-primary uppercase underline"

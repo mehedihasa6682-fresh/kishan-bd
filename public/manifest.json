@@ -1,7 +1,7 @@
 {
-  "short_name": "Kishan",
-  "name": "Kishan - Farm Fresh Marketplace",
-  "description": "Connect with farmers directly and buy fresh, organic farm products.",
+  "short_name": "Grocery&Supermarket",
+  "name": "Grocery & Supermarket Online Store",
+  "description": "Premium grocery and supermarket shopping experience. Fresh organic products delivered to your door.",
   "categories": ["shopping", "food"],
   "icons": [
     {

@@ -173,23 +173,23 @@ export default function AddressPicker({ onSave, onClose, initialData }: AddressP
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[9999] bg-white flex flex-col md:max-w-md md:mx-auto md:relative md:h-[90vh] md:rounded-[2.5rem] md:shadow-2xl overflow-hidden"
+      className="fixed inset-0 z-[9999] bg-zinc-950 flex flex-col md:max-w-md md:mx-auto md:relative md:h-[90vh] md:rounded-[3rem] md:shadow-2xl overflow-hidden border-x border-white/5"
     >
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-[1001] p-4 flex items-center justify-between">
+      <div className="absolute top-0 left-0 right-0 z-[1001] p-5 flex items-center justify-between">
         <button 
           onClick={onClose}
-          className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-slate-700 active:scale-95 transition-all"
+          className="w-12 h-12 bg-black/40 backdrop-blur-md rounded-2xl shadow-xl flex items-center justify-center text-white border border-white/10 active:scale-95 transition-all"
         >
-          <X size={20} />
+          <X size={24} />
         </button>
         <div className="relative flex-1 mx-4">
-             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                <Search size={16} />
+             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
+                <Search size={18} />
              </div>
              <input 
-                placeholder="Search location..."
-                className="w-full bg-white/90 backdrop-blur-md rounded-2xl py-2.5 pl-10 pr-4 text-xs shadow-lg border border-slate-100 outline-none focus:border-primary"
+                placeholder="Search global grid..."
+                className="w-full bg-black/40 backdrop-blur-md rounded-2xl py-3.5 pl-12 pr-4 text-xs shadow-2xl border border-white/10 outline-none focus:border-primary text-white font-medium"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 onKeyDown={async (e) => {
@@ -241,29 +241,30 @@ export default function AddressPicker({ onSave, onClose, initialData }: AddressP
         <button 
           onClick={locateMe}
           disabled={locating}
-          className="absolute bottom-20 right-4 z-[1001] w-12 h-12 bg-white rounded-2xl shadow-xl flex items-center justify-center text-primary active:scale-95 transition-all"
+          className="absolute bottom-24 right-5 z-[1001] w-14 h-14 bg-primary rounded-2xl shadow-2xl flex items-center justify-center text-black active:scale-95 transition-all border-4 border-black"
         >
-          <Navigation2 size={24} className={locating ? 'animate-pulse' : ''} />
+          <Navigation2 size={28} className={locating ? 'animate-pulse' : ''} />
         </button>
 
         {/* Manual Input Toggle Button */}
         <button 
           onClick={() => setManualMode(!manualMode)}
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1001] bg-[#FF0000] text-white px-6 py-2.5 rounded-full font-bold text-xs shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-[1001] bg-white/10 backdrop-blur-md text-white px-8 py-3.5 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3 border border-white/10"
         >
-          {manualMode ? <MapIcon size={16} /> : <Search size={16} />}
-          {manualMode ? 'Use Map' : 'Manual Input'}
+          {manualMode ? <MapIcon size={18} className="text-primary" /> : <Search size={18} className="text-primary" />}
+          {manualMode ? 'View Terrain' : 'Manual Coordinates'}
         </button>
       </div>
 
+
       {/* Form Section (Bottom Sheet Style) */}
-      <div className="flex-1 bg-white rounded-t-[2.5rem] -mt-8 relative z-[1002] shadow-[0_-10px_30px_rgba(0,0,0,0.05)] px-6 pt-8 pb-10 overflow-y-auto no-scrollbar">
-        <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto mb-6"></div>
+      <div className="flex-1 bg-zinc-950 rounded-t-[3.5rem] -mt-10 relative z-[1002] shadow-[0_-20px_50px_rgba(0,0,0,0.5)] px-8 pt-10 pb-12 overflow-y-auto no-scrollbar border-t border-white/10">
+        <div className="w-16 h-1.5 bg-white/10 rounded-full mx-auto mb-8"></div>
         
-        <h3 className="text-xl font-display font-bold text-slate-800 mb-6">Address Type</h3>
+        <h3 className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-6 ml-1">Drop Zone Classification</h3>
         
         {/* Address Type Selectors */}
-        <div className="flex gap-3 mb-8">
+        <div className="flex gap-4 mb-10">
           {[
             { id: 'Home', icon: Home },
             { id: 'Office', icon: Briefcase },
@@ -272,65 +273,56 @@ export default function AddressPicker({ onSave, onClose, initialData }: AddressP
             <button
               key={type.id}
               onClick={() => setData(prev => ({ ...prev, type: type.id as any }))}
-              className={`flex-1 py-3 px-4 rounded-2xl flex items-center justify-center gap-2 font-bold transition-all border ${
+              className={`flex-1 py-4 px-2 rounded-2xl flex flex-col items-center justify-center gap-2 font-black transition-all border ${
                 data.type === type.id 
-                ? 'bg-[#FFD700] border-[#FFD700] text-slate-900 shadow-lg shadow-yellow-400/20' 
-                : 'bg-slate-50 border-slate-100 text-slate-500'
+                ? 'bg-primary border-primary text-black shadow-2xl shadow-primary/20 scale-105' 
+                : 'bg-white/5 border-white/5 text-white/40'
               }`}
             >
-              <type.icon size={18} />
-              <span className="text-xs">{type.id}</span>
+              <type.icon size={20} />
+              <span className="text-[9px] uppercase tracking-widest">{type.id}</span>
             </button>
           ))}
         </div>
 
         {/* Form Fields */}
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">First Name</label>
-              <div className="relative">
-                <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Personal Identifier</label>
+              <div className="relative group">
+                <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" />
                 <input 
-                  placeholder="John"
-                  className="w-full bg-slate-50 border border-slate-100 px-10 py-3.5 rounded-2xl text-sm outline-none focus:border-primary transition-all font-medium"
+                  placeholder="Receiver Name"
+                  className="input-field pl-12"
                   value={data.firstName}
                   onChange={e => setData(prev => ({ ...prev, firstName: e.target.value }))}
                 />
               </div>
             </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Last Name</label>
-              <input 
-                placeholder="Doe"
-                className="w-full bg-slate-50 border border-slate-100 px-4 py-3.5 rounded-2xl text-sm outline-none focus:border-primary transition-all font-medium"
-                value={data.lastName}
-                onChange={e => setData(prev => ({ ...prev, lastName: e.target.value }))}
-              />
-            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone</label>
-              <div className="relative">
-                <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Signal Core (Phone)</label>
+              <div className="relative group">
+                <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" />
                 <input 
-                  placeholder="+880 1XXX-XXXXXX"
-                  className="w-full bg-slate-50 border border-slate-100 px-10 py-3.5 rounded-2xl text-sm outline-none focus:border-primary transition-all font-medium"
+                  placeholder="017xxxxxxxx"
+                  className="input-field pl-12"
                   value={data.phone}
                   onChange={e => setData(prev => ({ ...prev, phone: e.target.value }))}
                 />
               </div>
             </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email</label>
-              <div className="relative">
-                <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Digital Tag (Email)</label>
+              <div className="relative group">
+                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" />
                 <input 
                   type="email"
-                  placeholder="john@example.com"
-                  className="w-full bg-slate-50 border border-slate-100 px-10 py-3.5 rounded-2xl text-sm outline-none focus:border-primary transition-all font-medium"
+                  placeholder="user@neuron.io"
+                  className="input-field pl-12"
                   value={data.email}
                   onChange={e => setData(prev => ({ ...prev, email: e.target.value }))}
                 />
@@ -338,34 +330,34 @@ export default function AddressPicker({ onSave, onClose, initialData }: AddressP
             </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Address</label>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Sector Manifest (Address)</label>
             <textarea 
-              placeholder={loading ? 'Detecting address...' : 'Sector, Road, House No...'}
-              className="w-full bg-slate-50 border border-slate-100 px-4 py-3.5 rounded-2xl text-sm outline-none focus:border-primary transition-all font-medium h-20 resize-none"
+              placeholder={loading ? 'Scanning terrain...' : 'Sector, Road, Grid Coordinates...'}
+              className="input-field h-28 resize-none leading-relaxed py-4"
               value={data.address}
               onChange={e => setData(prev => ({ ...prev, address: e.target.value }))}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Floor No.</label>
-              <div className="relative">
-                <Building size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Elevation (Floor)</label>
+              <div className="relative group">
+                <Building size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" />
                 <input 
-                  placeholder="e.g. 4th"
-                  className="w-full bg-slate-50 border border-slate-100 px-10 py-3.5 rounded-2xl text-sm outline-none focus:border-primary transition-all font-medium"
+                  placeholder="Level 04"
+                  className="input-field pl-12"
                   value={data.floorNo}
                   onChange={e => setData(prev => ({ ...prev, floorNo: e.target.value }))}
                 />
               </div>
             </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Apartment</label>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Unit ID (Apartment)</label>
               <input 
-                placeholder="e.g. 402"
-                className="w-full bg-slate-50 border border-slate-100 px-4 py-3.5 rounded-2xl text-sm outline-none focus:border-primary transition-all font-medium"
+                placeholder="ID-402"
+                className="input-field px-6"
                 value={data.apartment}
                 onChange={e => setData(prev => ({ ...prev, apartment: e.target.value }))}
               />
@@ -375,9 +367,9 @@ export default function AddressPicker({ onSave, onClose, initialData }: AddressP
           <button 
             onClick={handleSave}
             disabled={loading}
-            className="w-full bg-[#FFD700] hover:bg-yellow-500 text-slate-900 font-black py-5 rounded-[2rem] shadow-xl shadow-yellow-400/20 active:scale-95 transition-all mt-6"
+            className="w-full bg-primary hover:bg-primary-dark text-black font-black py-5 rounded-[2.5rem] shadow-2xl shadow-primary/30 active:scale-95 transition-all mt-8 uppercase text-xs tracking-[0.3em]"
           >
-            Save Address
+            Authenticate Location
           </button>
         </div>
       </div>

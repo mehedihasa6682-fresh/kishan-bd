@@ -1,6 +1,6 @@
 {
-  "name": "Kishan",
-  "description": "Kishan - গাইবান্ধার টাটকা ও অর্গানিক শাক-সবজি ও ফলমূল সরাসরি কৃষক থেকে আপনার দোরগোড়ায়। Buy fresh farm products in Gaibandha directly from farmers.",
+  "name": "Grocery & Supermarket",
+  "description": "Grocery & Supermarket - Modern grocery shopping experience. Buy fresh groceries, organic vegetables, fish, and meat directly from your local supermarket.",
   "requestFramePermissions": ["geolocation"],
   "majorCapabilities": ["PWA", "Real-time tracking", "Firebase Backend"]
 }

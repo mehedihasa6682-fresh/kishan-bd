@@ -14,8 +14,11 @@ service cloud.firestore {
     function existing() { return resource.data; }
     function isSignedIn() { return request.auth != null; }
     function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
-    function isEmailVerified() { return request.auth.token.email_verified == true; }
     
+    function isVerified() { 
+      return isSignedIn() && (request.auth.token.email_verified == true || request.auth.token.firebase.sign_in_provider == 'google.com'); 
+    }
+
     // Admin check - bootstrap mehedihasa6682@gmail.com
     function isAdmin() {
       return isSignedIn() && (
@@ -32,61 +35,31 @@ service cloud.firestore {
       return isSignedIn() && (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'seller');
     }
 
-    // --- Entity Validations ---
-    
-    function isValidUser(data) {
-      return data.keys().hasAll(['uid', 'email', 'role']) &&
-             data.uid == request.auth.uid &&
-             data.email is string &&
-             data.role in ['customer', 'seller', 'admin', 'rider'];
-    }
-
-    function isValidProduct(data) {
-      return data.keys().hasAll(['name', 'price', 'unit', 'category', 'farmerId', 'status', 'isApproved']) &&
-             data.name is string && data.name.size() <= 100 &&
-             data.price is number && data.price > 0 &&
-             data.unit is string &&
-             data.category is string &&
-             data.farmerId is string;
-    }
-
-    function isOrderSchema(data) {
-      return data.keys().hasAll(['userId', 'customerName', 'items', 'total', 'status', 'address', 'phone', 'paymentMethod', 'paymentStatus', 'sellerIds', 'createdAt', 'transactionId']) &&
-             data.customerName is string &&
-             data.items is list &&
-             data.total is number &&
-             data.address is string &&
-             data.phone is string;
-    }
-
-    function isValidOrder(data) {
-      return isOrderSchema(data) &&
-             data.userId == request.auth.uid &&
-             data.createdAt == request.time;
-    }
-
-    // --- Rules ---
-
     match /users/{userId} {
-      allow get: if isSignedIn() && (isOwner(userId) || isAdmin() || isRider());
+      allow get: if isSignedIn();
       allow list: if isAdmin();
-      allow create: if isSignedIn() && isOwner(userId);
-      allow update: if isSignedIn() && (isAdmin() || isOwner(userId));
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (isOwner(userId) || isAdmin());
       allow delete: if isAdmin();
     }
 
     match /products/{productId} {
-      allow read: if resource.data.status == 'approved' || isAdmin() || isOwner(resource.data.farmerId);
+      allow read: if true;
       allow create: if isSignedIn() && (isAdmin() || isSeller());
       allow update: if isSignedIn() && (isAdmin() || (isOwner(existing().farmerId)));
       allow delete: if isAdmin();
     }
 
     match /orders/{orderId} {
-      allow get: if isSignedIn() && (isOwner(resource.data.userId) || isAdmin() || request.auth.uid in resource.data.sellerIds || isRider());
-      allow list: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid || request.auth.uid in resource.data.sellerIds || (isRider() && (resource.data.status == 'ready_for_pickup' || resource.data.riderId == request.auth.uid)));
+      allow get: if isSignedIn() && (isOwner(resource.data.userId) || isAdmin() || (existing() != null && (request.auth.uid in existing().sellerIds)) || isRider());
+      allow list: if isSignedIn() && (isAdmin() || resource.data.userId == request.auth.uid || isRider());
       allow create: if isSignedIn();
-      allow update: if isSignedIn() && (isAdmin() || (isOwner(existing().userId) && incoming().diff(existing()).affectedKeys().hasOnly(['status'])) || (request.auth.uid in existing().sellerIds && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'paymentStatus'])) || (isRider() && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'subStatus', 'riderId', 'pickedUpAt', 'deliveredAt', 'arrivedAtMerchantAt'])));
+      allow update: if isSignedIn() && (
+        isAdmin() || 
+        (isOwner(existing().userId) && incoming().diff(existing()).affectedKeys().hasOnly(['status'])) || 
+        (existing() != null && request.auth.uid in existing().sellerIds && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'paymentStatus'])) || 
+        (isRider() && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'subStatus', 'riderId', 'pickedUpAt', 'deliveredAt', 'arrivedAtMerchantAt']))
+      );
     }
 
     match /delivery_areas/{areaId} {
@@ -118,7 +91,7 @@ service cloud.firestore {
 
     match /wishlist/{wishId} {
       allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if isSignedIn();
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
       allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
     }
 
@@ -149,7 +122,6 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Connection test path
     match /_connection_test_/ping {
       allow read: if true;
     }

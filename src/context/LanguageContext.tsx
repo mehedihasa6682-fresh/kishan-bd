@@ -20,12 +20,12 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.lang': 'EN',
     
     // Home
-    'home.search_placeholder': 'তাজাতাজা সবজি বা ফল খুঁজুন...',
+    'home.search_placeholder': 'তাজাতাজা গ্রোসারি বা পণ্য খুঁজুন...',
     'home.categories': 'ক্যাটাগরি',
     'home.see_all': 'সব দেখুন',
-    'home.featured': 'সেরা পণ্যসমূহ',
-    'home.stories': 'কৃষকের গল্প',
-    'home.add_yours': 'আপনার গল্প লিখুন',
+    'home.featured': 'সেরা গ্রোসারি পণ্য',
+    'home.stories': 'সুপারমার্কেট স্টোরি',
+    'home.add_yours': 'মতামত দিন',
     
     // Cart & Checkout
     'cart.title': 'আপনার ব্যাগ',
@@ -43,7 +43,7 @@ const translations: Record<Language, Record<string, string>> = {
     // Profile
     'profile.title': 'আমার প্রোফাইল',
     'profile.logout': 'লগআউট',
-    'profile.seller_center': 'সেলার সেন্টার',
+    'profile.seller_center': 'মার্কেট ড্যাশবোর্ড',
     'profile.history': 'অর্ডার হিস্ট্রি',
     
     // Auth
@@ -52,7 +52,7 @@ const translations: Record<Language, Record<string, string>> = {
     'auth.register': 'রেজিস্ট্রেশন',
     'auth.google': 'গুগল দিয়ে লগইন',
     'auth.customer_role': 'আমি কাস্টমার',
-    'auth.seller_role': 'আমি বিক্রেতা/কৃষক',
+    'auth.seller_role': 'আমি পার্টনার সেলার',
   },
   en: {
     // Navbar
@@ -64,12 +64,12 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.lang': 'বাংলা',
     
     // Home
-    'home.search_placeholder': 'Search fresh vegetables, fruits...',
+    'home.search_placeholder': 'Search fresh grocery, fruits...',
     'home.categories': 'Categories',
     'home.see_all': 'See All',
-    'home.featured': 'Featured Products',
-    'home.stories': 'Farmer Stories',
-    'home.add_yours': 'Add Yours',
+    'home.featured': 'Fresh Groceries',
+    'home.stories': 'Store Reviews',
+    'home.add_yours': 'Add Feedback',
     
     // Cart & Checkout
     'cart.title': 'Your Cart',
@@ -87,7 +87,7 @@ const translations: Record<Language, Record<string, string>> = {
     // Profile
     'profile.title': 'My Profile',
     'profile.logout': 'Logout',
-    'profile.seller_center': 'Seller Center',
+    'profile.seller_center': 'Partner Dashboard',
     'profile.history': 'Order History',
     
     // Auth
@@ -96,7 +96,7 @@ const translations: Record<Language, Record<string, string>> = {
     'auth.register': 'Register',
     'auth.google': 'Login with Google',
     'auth.customer_role': 'I am Customer',
-    'auth.seller_role': 'I am Seller',
+    'auth.seller_role': 'I am Partner Seller',
   }
 };
 

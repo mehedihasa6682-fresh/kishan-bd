@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, handleFirestoreError, OperationType } from '../firebase';
 
 interface AppSettings {
   logo?: string;
@@ -102,7 +102,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
       setLoading(false);
     }, (error) => {
-      console.error("Settings Listener Error:", error);
+      handleFirestoreError(error, OperationType.GET, 'settings/app');
       setLoading(false);
     });
 

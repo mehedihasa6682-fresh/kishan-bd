@@ -118,10 +118,10 @@ export default function ProductDetails() {
       className="max-w-md mx-auto"
     >
       <Helmet>
-        <title>{dData(product.name, product.nameEn)} - Buy Fresh at Kishan</title>
-        <meta name="description" content={product.seoDescription || dData(product.description, product.descriptionEn) || `Fresh ${dData(product.name, product.nameEn)} directly from the farm to your door at Kishan Marketplace.`} />
-        <meta name="keywords" content={product.seoKeywords || dData(product.name, product.nameEn) + ', Kishan, fresh, organic, vegetables, fruits'} />
-        <meta property="og:title" content={`${dData(product.name, product.nameEn)} - Kishan Marketplace`} />
+        <title>{dData(product.name, product.nameEn)} - Buy Fresh Online</title>
+        <meta name="description" content={product.seoDescription || dData(product.description, product.descriptionEn) || `Fresh ${dData(product.name, product.nameEn)} delivered to your door from our premium supermarket.`} />
+        <meta name="keywords" content={product.seoKeywords || dData(product.name, product.nameEn) + ', supermarket, grocery, fresh, organic'} />
+        <meta property="og:title" content={`${dData(product.name, product.nameEn)} - Online Store`} />
         <meta property="og:description" content={product.seoDescription || `Get fresh ${dData(product.name, product.nameEn)} at the best price.`} />
         <meta property="og:image" content={product.image} />
         <meta property="og:type" content="product" />
@@ -137,7 +137,7 @@ export default function ProductDetails() {
             "sku": product.id,
             "brand": {
               "@type": "Brand",
-              "name": "Kishan"
+              "name": "Supermarket"
             },
             "offers": {
               "@type": "Offer",
@@ -376,7 +376,7 @@ export default function ProductDetails() {
                 <p className="text-[10px] text-primary font-black uppercase">Verified Seller</p>
             </div>
           </div>
-          <button className="text-primary font-bold text-xs px-4 py-2 bg-primary/5 rounded-xl">View Farm</button>
+          <button className="text-primary font-bold text-xs px-4 py-2 bg-primary/5 rounded-xl">View Store</button>
         </div>
 
         {/* Reviews Section */}

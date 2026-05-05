@@ -44,13 +44,13 @@ export default function Navbar() {
       <div className="flex items-center gap-3">
         <Link to="/" className="flex items-center gap-1 text-white">
           {appSettings.logo ? (
-              <img src={appSettings.logo} className="h-10 w-auto object-contain" alt="Kishan Logo" />
+              <img src={appSettings.logo} className="h-10 w-auto object-contain" alt="Store Logo" />
           ) : (
               <>
                   <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                      <span className="text-black font-bold text-xl">{appSettings.appName ? appSettings.appName[0] : 'K'}</span>
+                      <span className="text-black font-bold text-xl">{appSettings.appName ? appSettings.appName[0] : 'S'}</span>
                   </div>
-                  <span className="font-display font-bold text-xl tracking-tight hidden sm:block text-white">{appSettings.appName || 'Kishan'}</span>
+                  <span className="font-display font-bold text-xl tracking-tight hidden sm:block text-white">{appSettings.appName || 'Supermarket'}</span>
               </>
           )}
         </Link>

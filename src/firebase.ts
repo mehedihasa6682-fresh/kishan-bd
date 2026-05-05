@@ -14,11 +14,13 @@ export const app = initializeApp(firebaseConfig);
 
 // Initialize Firestore with settings to handle potential network restrictions
 export const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
-  experimentalAutoDetectLongPolling: true,
+  experimentalForceLongPolling: true,
 }, firebaseConfig.firestoreDatabaseId || '(default)');
 
 export const auth = getAuth(app);
+setPersistence(auth, browserLocalPersistence).catch((error) => {
+  console.error("Auth persistence error:", error);
+});
 
 // connectivity check as per requirements
 async function testConnection() {
