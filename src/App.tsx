@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { auth, db } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { useState, useEffect, createContext, useContext } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CartProvider } from './context/CartContext';
@@ -31,16 +32,27 @@ import PWAInstall from './components/PWAInstall';
 import WhatsAppSupport from './components/WhatsAppSupport';
 import NotificationPrompt from './components/NotificationPrompt';
 import QuickCheckoutToast from './components/QuickCheckoutToast';
+import { LoadingScreen } from './components/LoadingScreen';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  dataLoading: boolean;
+  setDataLoading: (loading: boolean) => void;
   role: 'customer' | 'seller' | 'admin' | 'rider' | null;
   profile: any | null;
   pwa: any;
 }
 
-export const AuthContext = createContext<AuthContextType>({ user: null, loading: true, role: null, profile: null, pwa: null });
+export const AuthContext = createContext<AuthContextType>({ 
+  user: null, 
+  loading: true, 
+  dataLoading: true,
+  setDataLoading: () => {},
+  role: null, 
+  profile: null, 
+  pwa: null 
+});
 
 function usePWA() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -82,9 +94,45 @@ function usePWA() {
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(true);
   const [role, setRole] = useState<'customer' | 'seller' | 'admin' | 'rider' | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
   const pwa = usePWA();
+
+  useEffect(() => {
+    let bannersLoaded = false;
+    let categoriesLoaded = false;
+    let productsLoaded = false;
+
+    const checkAllLoaded = () => {
+      if (bannersLoaded && categoriesLoaded && productsLoaded) {
+        setTimeout(() => setDataLoading(false), 800);
+      }
+    };
+
+    const unsubBanners = onSnapshot(query(collection(db, 'banners')), () => {
+      bannersLoaded = true;
+      checkAllLoaded();
+    });
+    const unsubCategories = onSnapshot(query(collection(db, 'categories')), () => {
+      categoriesLoaded = true;
+      checkAllLoaded();
+    });
+    const unsubProducts = onSnapshot(query(collection(db, 'products'), where('status', '==', 'approved')), () => {
+      productsLoaded = true;
+      checkAllLoaded();
+    });
+
+    // Fallback if data is empty or taking too long
+    const timeout = setTimeout(() => setDataLoading(false), 5000);
+
+    return () => {
+      unsubBanners();
+      unsubCategories();
+      unsubProducts();
+      clearTimeout(timeout);
+    };
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
@@ -146,7 +194,7 @@ export default function App() {
 
   return (
     <HelmetProvider>
-      <AuthContext.Provider value={{ user, loading, role, profile, pwa }}>
+      <AuthContext.Provider value={{ user, loading, dataLoading, setDataLoading, role, profile, pwa }}>
         <SettingsProvider>
           <LanguageProvider>
             <CartProvider>
@@ -162,12 +210,15 @@ export default function App() {
 }
 
 function RoutesContent() {
-  const { role } = useContext(AuthContext);
+  const { role, dataLoading } = useContext(AuthContext);
   const location = useLocation();
   const isDashboardRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/seller') || location.pathname.startsWith('/rider');
 
   return (
     <div className={`flex flex-col min-h-screen bg-background ${isDashboardRoute ? '' : 'pb-24 md:pb-0'}`}>
+      <AnimatePresence>
+        {dataLoading && <LoadingScreen />}
+      </AnimatePresence>
       <OfflineIndicator />
       {!isDashboardRoute && <NotificationPrompt />}
       {!isDashboardRoute && <WhatsAppSupport />}

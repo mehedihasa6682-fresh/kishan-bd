@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 
 interface CartItem {
   id: string | number;
@@ -41,6 +41,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [discount, setDiscount] = useState(0);
   const [deliveryFee, setDeliveryFee] = useState(50); // Default fee
   const [showCheckoutToast, setShowCheckoutToast] = useState(false);
+  const toastTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(items));
@@ -51,7 +52,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const existing = prev.find(i => i.id === product.id);
       const qty = product.quantity || product.minWeight || 1;
       
-      // Normalize sellerId from farmerId if needed
       const rawPrice = product.discountPrice ?? product.price ?? 0;
       const price = parseFloat(String(rawPrice).replace(/[^\d.-]/g, '')) || 0;
       
@@ -67,11 +67,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return [...prev, { ...normalizedProduct, quantity: qty }];
     });
 
-    // Show checkout toast for 5 seconds
+    // Clear existing timer if any
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
+
+    // Show checkout toast for 2 seconds
     setShowCheckoutToast(true);
-    setTimeout(() => {
+    toastTimerRef.current = setTimeout(() => {
       setShowCheckoutToast(false);
-    }, 5000);
+      toastTimerRef.current = null;
+    }, 2000);
   };
 
   const removeFromCart = (id: string | number) => {

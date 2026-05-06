@@ -1,10 +1,9 @@
-import { motion, AnimatePresence } from 'motion/react';
-import { Plus, ShoppingCart } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { formatCurrency } from '../lib/utils';
-import { useState } from 'react';
+import { AddToCart } from './AddToCart';
 
 interface ProductCardProps {
   product: any;
@@ -17,7 +16,6 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
     const { dData } = useLanguage();
     const navigate = useNavigate();
     const quantity = getItemQuantity(product.id);
-    const [selectedWeight, setSelectedWeight] = useState(product.weight || product.unit);
 
     if (variant === 'horizontal') {
         return (
@@ -40,31 +38,19 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
                     </div>
                 </div>
 
-                <div className="relative h-10 overflow-hidden">
-                    {quantity === 0 ? (
-                        <button
-                            onClick={() => addToCart(product)}
-                            className="w-full h-full bg-primary text-[#050E21] font-black text-[11px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all flex items-center justify-center gap-2"
-                        >
-                            <Plus size={16} /> Add
-                        </button>
-                    ) : (
-                        <div className="w-full h-full bg-white/10 backdrop-blur-md flex items-center justify-between p-1 rounded-xl border border-white/10">
-                             <button 
-                                onClick={() => updateQuantity(product.id, quantity - 1)}
-                                className="w-8 h-8 flex items-center justify-center text-primary hover:bg-white/10 rounded-lg transition-colors font-bold text-lg"
-                            >
-                                -
-                            </button>
-                            <span className="text-white font-black text-sm">{quantity}</span>
-                            <button 
-                                onClick={() => updateQuantity(product.id, quantity + 1)}
-                                className="w-8 h-8 flex items-center justify-center text-primary hover:bg-white/10 rounded-lg transition-colors"
-                            >
-                                <Plus size={16} />
-                            </button>
-                        </div>
-                    )}
+                <div className="relative mt-auto">
+                    <AddToCart 
+                      initialQuantity={quantity}
+                      onUpdate={(qty) => {
+                        if (qty === 0) {
+                          updateQuantity(product.id, 0);
+                        } else if (qty === 1 && quantity === 0) {
+                          addToCart(product);
+                        } else {
+                          updateQuantity(product.id, qty);
+                        }
+                      }}
+                    />
                 </div>
             </motion.div>
         );
@@ -88,29 +74,34 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
                         ৳{product.price - product.discountPrice} OFF
                     </div>
                 )}
-
-                {/* Circular Add Button */}
-                <motion.button
-                    whileTap={{ scale: 0.8 }}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        addToCart(product);
-                    }}
-                    className="absolute bottom-2 right-2 w-10 h-10 bg-white shadow-xl rounded-full flex items-center justify-center text-red-600 hover:bg-slate-50 transition-all border border-slate-100"
-                >
-                    <Plus size={24} strokeWidth={3} />
-                </motion.button>
             </div>
             
             <div className="flex flex-col flex-1">
                 <span className="text-[10px] text-white/40 font-bold uppercase tracking-tight mb-0.5 mt-auto">Per {product.unit || 'Piece'}</span>
                 <h3 className="font-bold text-[14px] text-white truncate mb-2 leading-tight">{dData(product.name, product.nameEn)}</h3>
                 
-                <div className="flex items-center gap-2">
-                    <span className="text-lg font-black text-white">৳{formatCurrency(product.discountPrice || product.price)}</span>
-                    {product.discountPrice && (
-                        <span className="text-[11px] text-white/30 font-bold line-through">৳{formatCurrency(product.price)}</span>
-                    )}
+                <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                        <span className="text-lg font-black text-white">৳{formatCurrency(product.discountPrice || product.price)}</span>
+                        {product.discountPrice && (
+                            <span className="text-[11px] text-white/30 font-bold line-through">৳{formatCurrency(product.price)}</span>
+                        )}
+                    </div>
+                </div>
+
+                <div className="mt-3">
+                    <AddToCart 
+                      initialQuantity={quantity}
+                      onUpdate={(qty) => {
+                        if (qty === 0) {
+                          updateQuantity(product.id, 0);
+                        } else if (qty === 1 && quantity === 0) {
+                          addToCart(product);
+                        } else {
+                          updateQuantity(product.id, qty);
+                        }
+                      }}
+                    />
                 </div>
             </div>
         </motion.div>

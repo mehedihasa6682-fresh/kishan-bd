@@ -1,9 +1,10 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { MapPin, CreditCard, Apple, CheckCircle, ArrowLeft, Send, Map as MapIcon, ChevronRight } from 'lucide-react';
+import { MapPin, CreditCard, Apple, CheckCircle, ArrowLeft, Send, Map as MapIcon, ChevronRight, Phone } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useContext, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useSettings } from '../context/SettingsContext';
 import { AuthContext } from '../App';
 import { orderService } from '../services/orderService';
 import { NotificationService } from '../services/notificationService';
@@ -17,7 +18,8 @@ import { formatCurrency } from '../lib/utils';
 export default function Checkout() {
   const navigate = useNavigate();
   const { items, total, subtotal, deliveryFee, setDeliveryFee, discount, clearCart } = useCart();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const { settings: appSettings } = useSettings();
   const { user } = useContext(AuthContext);
   
   const [step, setStep] = useState<1 | 2>(1);
@@ -333,6 +335,26 @@ export default function Checkout() {
                                             Cancel
                                         </button>
                                     )}
+
+                                    <div className="pt-2 border-t border-white/5">
+                                        <button 
+                                            onClick={() => {
+                                                const text = language === 'bn' 
+                                                    ? `হ্যালো, আমি নিচের পণ্যগুলো অর্ডার করতে চাই:\n${items.map(i => `- ${i.name} (x${i.quantity})`).join('\n')}\nমোট: ৳${total}`
+                                                    : `Hello, I want to order the following items:\n${items.map(i => `- ${i.name} (x${i.quantity})`).join('\n')}\nTotal: ৳${total}`;
+                                                window.open(`https://wa.me/${appSettings.whatsappNumber?.replace(/\+/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
+                                            }}
+                                            className="w-full py-4 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center justify-center gap-3 text-green-500 hover:bg-green-500/20 transition-all group"
+                                        >
+                                            <div className="w-8 h-8 rounded-lg bg-green-500 flex items-center justify-center text-white shadow-lg shadow-green-500/20 group-hover:scale-110 transition-transform">
+                                                <Phone size={16} />
+                                            </div>
+                                            <div className="text-left">
+                                                <p className="text-[11px] font-black uppercase tracking-tight">Order via WhatsApp</p>
+                                                <p className="text-[9px] font-medium opacity-60 italic">Fastest way to order</p>
+                                            </div>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ) : (

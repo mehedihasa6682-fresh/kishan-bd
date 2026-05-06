@@ -12,10 +12,11 @@ import { useContext } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { formatCurrency } from '../lib/utils';
 import ProductCard from '../components/ProductCard';
+import { InstallButton } from '../components/InstallButton';
 
 export default function Home() {
   const [activeBanner, setActiveBanner] = useState(0);
-  const { user } = useContext(AuthContext);
+  const { user, setDataLoading } = useContext(AuthContext);
   const { t, dData } = useLanguage();
   const { settings: appSettings } = useSettings();
   const navigate = useNavigate();
@@ -24,7 +25,6 @@ export default function Home() {
   const [dbCategories, setDbCategories] = useState<any[]>([]);
   const [dbProducts, setDbProducts] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isScrolled, setIsScrolled] = useState(false);
 
   const banners = dbBanners.length > 0 ? dbBanners : [
     { id: '1', title: 'Fresh Offers', image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800' },
@@ -52,14 +52,6 @@ export default function Home() {
   const recommendedProducts = dbProducts
     .filter(p => !p.isOutOfStock)
     .sort((a, b) => (b.salesCount || 0) - (a.salesCount || 0));
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   useEffect(() => {
     if (banners.length > 0) {
@@ -99,23 +91,8 @@ export default function Home() {
         <title>{appSettings.appName || 'Supermarket'} - আধুনিক গ্রোছারি শপিং</title>
       </Helmet>
 
-      {/* Sticky Search Header */}
-      <div className={`px-4 py-3 transition-all duration-300 sticky top-0 z-40 ${isScrolled ? 'bg-white shadow-md' : 'bg-white/95 backdrop-blur-md'}`}>
-        <div className="relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="আপনার কি প্রয়োজন?"
-            className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:bg-white focus:border-primary/50 transition-all font-medium"
-          />
-          <Mic className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer hover:text-primary transition-colors" size={20} />
-        </div>
-      </div>
-
       {/* Hero Banner Slider */}
-      <div className="px-4 mt-2">
+      <div className="px-4 mt-4">
         <div className="relative h-48 rounded-[2rem] overflow-hidden shadow-2xl border border-white/10">
           <AnimatePresence mode="wait">
             <motion.div
