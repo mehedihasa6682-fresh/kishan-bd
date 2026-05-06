@@ -194,6 +194,7 @@ export default function AdminPanel() {
 
     const productData = {
       ...newProduct,
+      salesCount: parseInt(newProduct.salesCount as any) || 0,
       price: parseFloat(newProduct.price) || 0,
       discountPrice: newProduct.discountPrice ? parseFloat(newProduct.discountPrice) : null,
       stockQuantity: parseInt(newProduct.stockQuantity) || 0,
@@ -292,9 +293,10 @@ export default function AdminPanel() {
       titleEn: newCategory.titleEn,
       image: newCategory.image, 
       subCategories: subCats,
-      subCategoriesEn: subCatsEn
+      subCategoriesEn: subCatsEn,
+      salesCount: parseInt(newCategory.salesCount as any) || 0
     });
-    setNewCategory({ title: '', titleEn: '', image: '', subCategories: '', subCategoriesEn: '' });
+    setNewCategory({ title: '', titleEn: '', image: '', subCategories: '', subCategoriesEn: '', salesCount: 0 });
     setIsAdding(false);
   };
 
@@ -903,6 +905,19 @@ export default function AdminPanel() {
                         </div>
                     </div>
                     <div className="col-span-1">
+                        <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Sales Trajectory</label>
+                        <div className="relative">
+                          <TrendingUp className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                          <input 
+                            type="number"
+                            placeholder="Initial Sales Volume" 
+                            className="w-full pl-14 pr-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all font-mono"
+                            value={newProduct.salesCount || 0}
+                            onChange={e => setNewProduct({...newProduct, salesCount: parseInt(e.target.value) || 0})}
+                          />
+                        </div>
+                    </div>
+                    <div className="col-span-1">
                         <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Registry Supply</label>
                         <div className="relative">
                           <Box className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20" size={18} />
@@ -1001,6 +1016,7 @@ export default function AdminPanel() {
                             <tr className="bg-white/5 border-b border-white/5">
                                 <th className="px-10 py-7 text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Identity</th>
                                 <th className="px-10 py-7 text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Guardian</th>
+                                <th className="px-10 py-7 text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Sales</th>
                                 <th className="px-10 py-7 text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Supply</th>
                                 <th className="px-10 py-7 text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Audit Status</th>
                                 <th className="px-10 py-7 text-center text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Actions</th>
@@ -1034,6 +1050,13 @@ export default function AdminPanel() {
                                     <td className="px-10 py-7">
                                         <p className="text-xs text-white/60 font-bold tracking-wide">{p.farmerName || p.farmer || 'System Admin'}</p>
                                         <p className="text-[9px] text-white/20 font-black uppercase tracking-widest mt-1">Authorized Seller</p>
+                                    </td>
+                                    <td className="px-10 py-7">
+                                        <div className="flex items-center gap-2">
+                                            <TrendingUp size={14} className="text-primary" />
+                                            <span className="text-sm font-black text-white">{p.salesCount || 0}</span>
+                                        </div>
+                                        <p className="text-[9px] text-white/20 font-black uppercase tracking-widest mt-1">Total Sold</p>
                                     </td>
                                     <td className="px-10 py-7">
                                       <div className="flex flex-col gap-2">
@@ -1335,6 +1358,16 @@ export default function AdminPanel() {
                                   onChange={e => setNewCategory({...newCategory, titleEn: e.target.value})}
                                 />
                             </div>
+                            <div className="col-span-2">
+                                <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Institutional Sales Volume</label>
+                                <input 
+                                  type="number"
+                                  placeholder="Initial aggregate sales..." 
+                                  className="w-full px-5 py-4 bg-black/40 border border-white/5 rounded-2xl text-sm text-white outline-none focus:border-primary/40 transition-all font-mono"
+                                  value={newCategory.salesCount || 0}
+                                  onChange={e => setNewCategory({...newCategory, salesCount: parseInt(e.target.value) || 0})}
+                                />
+                            </div>
                         </div>
                         <div>
                             <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Iconography Visual</label>
@@ -1391,6 +1424,10 @@ export default function AdminPanel() {
                                           </p>
                                           <span className="w-1 h-1 bg-white/10 rounded-full" />
                                           <p className="text-[10px] text-primary/60 font-medium italic">{(cat as any).titleEn}</p>
+                                          <span className="w-1 h-1 bg-white/10 rounded-full" />
+                                          <p className="text-[10px] text-green-400/60 font-black tracking-widest">
+                                              SALES: {cat.salesCount || 0}
+                                          </p>
                                         </div>
                                     </div>
                                 </div>
@@ -1459,7 +1496,7 @@ export default function AdminPanel() {
         )}
 
         {activeTab === 'riders' && (
-          <motion.div key="riders" className="space-y-8">
+          <motion.div key="riders-management" className="space-y-8">
             <div className="flex items-center justify-between px-2">
                 <h3 className="font-display font-black text-2xl text-white tracking-tight">Delivery Elite Force</h3>
                 <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] bg-white/5 px-4 py-1.5 rounded-full border border-white/5">
@@ -2217,7 +2254,7 @@ export default function AdminPanel() {
             </motion.div>
         )}
         {activeTab === 'riders' && (
-          <motion.div key="riders" className="space-y-10">
+          <motion.div key="riders-tracking" className="space-y-10">
             <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-white uppercase tracking-[0.2em]">
                 <Truck size={32} className="text-primary" />
                 Live Fleet Tracking ({sellers.filter(s => s.role === 'rider').length})

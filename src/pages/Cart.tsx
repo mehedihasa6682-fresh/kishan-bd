@@ -81,7 +81,7 @@ export default function Cart() {
                   <div className="flex items-center bg-white/5 rounded-2xl p-1 w-fit border border-white/5">
                     <motion.button 
                       whileTap={{ scale: 0.9 }}
-                      onClick={() => updateQuantity(item.id, -1)} 
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)} 
                       className="w-8 h-8 flex items-center justify-center bg-white/10 rounded-xl shadow-sm text-white disabled:opacity-30 disabled:shadow-none transition-all"
                       disabled={item.quantity <= 1}
                     >
@@ -105,7 +105,7 @@ export default function Cart() {
 
                     <motion.button 
                       whileTap={{ scale: 0.9 }}
-                      onClick={() => updateQuantity(item.id, 1)} 
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)} 
                       className="w-8 h-8 flex items-center justify-center bg-primary text-black rounded-xl shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
                     >
                       <Plus size={14} strokeWidth={3} />

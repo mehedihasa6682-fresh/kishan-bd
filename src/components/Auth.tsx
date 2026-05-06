@@ -57,6 +57,7 @@ export default function Auth() {
 
     try {
       if (isLogin) {
+        await setPersistence(auth, browserLocalPersistence);
         await signInWithEmailAndPassword(auth, email, password);
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -102,6 +103,7 @@ export default function Auth() {
     setError('');
     const provider = new GoogleAuthProvider();
     try {
+      await setPersistence(auth, browserLocalPersistence);
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       
@@ -149,7 +151,7 @@ export default function Auth() {
           {isResetting ? 'Reset Password' : (isLogin ? 'Welcome Back' : 'Create Account')}
         </h2>
         <p className="text-white/40 text-xs font-medium mt-1">
-          {isResetting ? 'Enter your email to receive a reset link' : (isLogin ? 'Login to your Kishan account' : 'Join our fresh food community')}
+          {isResetting ? 'Enter your email to receive a reset link' : (isLogin ? 'Login to your account' : 'Join our grocery community')}
         </p>
       </div>
 

@@ -35,6 +35,7 @@ export default function SellerDashboard() {
   const [isAdding, setIsAdding] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
   const [shopName, setShopName] = useState('');
+  const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   
   // Data States
   const [products, setProducts] = useState<any[]>([]);

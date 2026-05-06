@@ -48,6 +48,7 @@
         "isBundle": { "type": "boolean" },
         "isPreOrder": { "type": "boolean" },
         "stockStatus": { "type": "string", "enum": ["In Stock", "Out of Stock"] },
+        "salesCount": { "type": "integer", "description": "Number of times this product has been sold" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["name", "price", "unit", "category", "farmerId"]
@@ -117,7 +118,8 @@
         "titleEn": { "type": "string" },
         "image": { "type": "string" },
         "subCategories": { "type": "array", "items": { "type": "string" } },
-        "subCategoriesEn": { "type": "array", "items": { "type": "string" } }
+        "subCategoriesEn": { "type": "array", "items": { "type": "string" } },
+        "salesCount": { "type": "integer", "description": "Aggregate sales of all products in this category" }
       },
       "required": ["title", "image"]
     },

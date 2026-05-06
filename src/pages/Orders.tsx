@@ -9,19 +9,19 @@ import Invoice from '../components/Invoice';
 
 const StatusBadge = ({ status }: { status: string }) => {
   const configs: Record<string, { label: string, color: string, icon: any }> = {
-    pending: { label: 'Pending Payment', color: 'bg-yellow-50 text-yellow-600', icon: Clock },
-    verified: { label: 'Payment Verified', color: 'bg-blue-50 text-blue-600', icon: CheckCircle },
-    confirmed: { label: 'Seller Confirmed', color: 'bg-primary/10 text-primary', icon: Package },
-    shipped: { label: 'On its way', color: 'bg-indigo-50 text-indigo-600', icon: Truck },
-    delivered: { label: 'Handed Over', color: 'bg-emerald-50 text-emerald-600', icon: CheckCircle },
-    cancelled: { label: 'Cancelled', color: 'bg-red-50 text-red-600', icon: XCircle }
+    pending: { label: 'Pending Payment', color: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30', icon: Clock },
+    verified: { label: 'Payment Verified', color: 'bg-blue-500/20 text-blue-300 border-blue-500/30', icon: CheckCircle },
+    confirmed: { label: 'Seller Confirmed', color: 'bg-primary/20 text-primary border-primary/30', icon: Package },
+    shipped: { label: 'On its way', color: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30', icon: Truck },
+    delivered: { label: 'Handed Over', color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', icon: CheckCircle },
+    cancelled: { label: 'Cancelled', color: 'bg-red-500/20 text-red-300 border-red-500/30', icon: XCircle }
   };
 
   const config = configs[status] || configs.pending;
   const Icon = config.icon;
 
   return (
-    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${config.color}`}>
+    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border backdrop-blur-sm ${config.color}`}>
       <Icon size={12} />
       <span className="text-[9px] font-black uppercase tracking-wider">{config.label}</span>
     </div>
@@ -79,8 +79,8 @@ export default function Orders() {
   if (!user) {
       return (
           <div className="max-w-md mx-auto pt-20 px-10 text-center">
-              <ShoppingBag size={48} className="mx-auto text-slate-200 mb-4" />
-              <h2 className="text-xl font-bold mb-2">Please login</h2>
+              <ShoppingBag size={48} className="mx-auto text-white/20 mb-4" />
+              <h2 className="text-xl font-bold mb-4 text-white">Please login</h2>
               <Link to="/profile" className="btn-primary">Go to Profile</Link>
           </div>
       )
@@ -90,35 +90,38 @@ export default function Orders() {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-md mx-auto px-5 pb-10"
+      className="max-w-md mx-auto px-5 pb-24 pt-20"
     >
-      <h1 className="font-display font-bold text-2xl mb-8 pt-4">My Orders</h1>
+      <h1 className="font-display font-black text-2xl mb-8 text-white uppercase tracking-tight">My Orders</h1>
 
       {loading ? (
           <div className="space-y-4">
-              {[1,2,3].map(i => <div key={i} className="h-24 bg-slate-100 rounded-3xl animate-pulse" />)}
+              {[1,2,3].map(i => <div key={i} className="h-40 glass-card animate-pulse shadow-2xl" />)}
           </div>
       ) : orders.length === 0 ? (
-          <div className="text-center py-20">
-              <Package size={48} className="mx-auto text-slate-200 mb-4" />
-              <p className="text-slate-400 font-bold text-sm">No orders yet</p>
-              <Link to="/products" className="text-primary font-bold text-xs mt-2 inline-block">Start Shopping</Link>
+          <div className="text-center py-20 glass-card">
+              <Package size={48} className="mx-auto text-white/20 mb-4" />
+              <p className="text-white/60 font-bold text-sm">No orders yet</p>
+              <Link to="/products" className="text-primary font-bold text-xs mt-4 inline-block uppercase tracking-widest bg-primary/10 px-6 py-2 rounded-full border border-primary/20">Start Shopping</Link>
           </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {orders.map((order) => (
-            <div key={order.id} className="bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-sm transition-all hover:shadow-xl group">
-              <div className="flex justify-between items-start mb-4">
+            <div key={order.id} className="glass-card p-5 border-white/20 shadow-2xl transition-all hover:bg-white/15 group relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-3 opacity-10">
+                <ShoppingBag size={80} className="text-white" />
+              </div>
+              <div className="flex justify-between items-start mb-6 relative z-10">
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none mb-1">ID: #{order.id?.slice(-8)}</span>
+                  <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] leading-none mb-2">Order ID: #{order.id?.slice(-8)}</span>
                   <StatusBadge status={order.status} />
                 </div>
-                <span className="text-lg font-display font-bold text-slate-900 leading-none">৳{formatCurrency(order.total)}</span>
+                <span className="text-2xl font-display font-black text-primary leading-none drop-shadow-sm">৳{formatCurrency(order.total)}</span>
               </div>
 
               {/* Progress Timeline */}
-              <div className="mb-6 px-2">
-                  <div className="relative h-1.5 bg-slate-100 rounded-full overflow-hidden mb-3">
+              <div className="mb-6 px-1 relative z-10">
+                  <div className="relative h-1.5 bg-white/10 rounded-full overflow-hidden mb-3">
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: 
@@ -127,44 +130,44 @@ export default function Orders() {
                             order.status === 'ready_for_pickup' ? '50%' : 
                             order.status === 'confirmed' ? '25%' : '5%' 
                         }}
-                        className="absolute inset-y-0 left-0 bg-primary shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                        className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-primary-dark shadow-[0_0_15px_rgba(212,175,55,0.4)]"
                       />
                   </div>
-                  <div className="flex justify-between items-center text-[8px] font-black text-slate-400 uppercase tracking-widest">
-                      <span className={order.status === 'pending' ? 'text-primary' : ''}>Order</span>
-                      <span className={order.status === 'confirmed' ? 'text-primary' : ''}>Confirm</span>
-                      <span className={order.status === 'shipped' ? 'text-primary' : ''}>Shipping</span>
-                      <span className={order.status === 'delivered' ? 'text-primary' : ''}>Done</span>
+                  <div className="flex justify-between items-center text-[8px] font-black text-white/30 uppercase tracking-[0.15em]">
+                      <span className={order.status === 'pending' ? 'text-primary' : ''}>Placed</span>
+                      <span className={order.status === 'confirmed' ? 'text-primary' : ''}>Confirmed</span>
+                      <span className={order.status === 'shipped' ? 'text-primary' : ''}>Transit</span>
+                      <span className={order.status === 'delivered' ? 'text-primary' : ''}>Completed</span>
                   </div>
               </div>
               
-              <div className="flex items-center gap-3 py-4 border-y border-slate-50">
+              <div className="flex items-center gap-4 py-5 border-y border-white/10 relative z-10">
                 <div className="flex -space-x-3 overflow-hidden">
                   {order.items.slice(0, 3).map((item, idx) => (
-                    <div key={idx} className="inline-block h-10 w-10 rounded-full ring-2 ring-white overflow-hidden bg-slate-100">
+                    <div key={idx} className="inline-block h-12 w-12 rounded-2xl ring-2 ring-[#0A1F44] overflow-hidden bg-white/10 backdrop-blur-md">
                       <img src={item.image} referrerPolicy="no-referrer" className="w-full h-full object-cover" alt="" />
                     </div>
                   ))}
                   {order.items.length > 3 && (
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 ring-2 ring-white text-[10px] font-bold text-slate-400">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 ring-2 ring-[#0A1F44] text-[11px] font-black text-white">
                       +{order.items.length - 3}
                     </div>
                   )}
                 </div>
                 <div className="flex-1">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                    {order.items.length} {order.items.length === 1 ? 'Item' : 'Items'}
+                  <p className="text-[10px] text-white/40 font-black uppercase tracking-[0.15em] mb-1">
+                    {order.items.length} {order.items.length === 1 ? 'Item' : 'Items'} Ordered
                   </p>
-                  <p className="text-[11px] font-bold text-slate-600 truncate">{order.items[0].name}...</p>
+                  <p className="text-[12px] font-bold text-white/90 truncate">{order.items[0].nameEn || order.items[0].name}</p>
                 </div>
               </div>
 
-              <div className="mt-4 flex items-center justify-between">
+              <div className="mt-6 flex items-center justify-between relative z-10">
                 <div className="flex flex-col">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Delivery To</span>
-                    <span className="text-[11px] font-bold text-slate-800 truncate max-w-[150px]">{typeof order.address === 'string' ? order.address : (order.address?.address || 'No Address')}</span>
+                    <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">Delivery Destination</span>
+                    <span className="text-[11px] font-bold text-white/80 truncate max-w-[140px]">{typeof order.address === 'string' ? order.address : (order.address?.address || 'No Address')}</span>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                     {order.status === 'delivered' && order.customerConfirmation !== 'confirmed' && (
                         <motion.button 
                             whileTap={{ scale: 0.95 }}
@@ -173,26 +176,30 @@ export default function Orders() {
                                     await riderService.confirmReceipt(order.id);
                                 }
                             }}
-                            className="flex items-center gap-2 bg-emerald-500 text-white px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-200"
+                            className="flex items-center gap-2 bg-emerald-500 text-white px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-[0_10px_20px_rgba(16,185,129,0.3)]"
                         >
                             <CheckCircle size={14} />
-                            Received (Done)
+                            Received
                         </motion.button>
                     )}
                     <button 
                         onClick={() => setViewInvoice(order)}
-                        className="p-2 text-slate-400 hover:text-primary transition-colors"
+                        className="w-10 h-10 flex items-center justify-center bg-white/5 rounded-xl text-white/40 hover:text-primary transition-all border border-white/10"
                     >
                         <ReceiptText size={20} />
                     </button>
                     {(order.status === 'shipped' || order.status === 'confirmed' || order.status === 'delivered') && (
                         <button 
                             onClick={() => setTrackingOrder(trackingOrder?.id === order.id ? null : order)}
-                            className={`flex items-center gap-1 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-2xl transition-all ${
-                                trackingOrder?.id === order.id ? 'bg-slate-900 text-white' : 'bg-primary/5 text-primary group-hover:bg-primary group-hover:text-white'
+                            className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-5 py-2.5 rounded-2xl transition-all shadow-lg ${
+                                trackingOrder?.id === order.id ? 'bg-white text-black' : 'bg-primary text-black hover:bg-white'
                             }`}
                         >
-                            {trackingOrder?.id === order.id ? 'Close Map' : 'Track Order'} <ChevronRight size={14} className={trackingOrder?.id === order.id ? 'rotate-90' : ''} />
+                            {trackingOrder?.id === order.id ? (
+                              <>Close <XCircle size={14} /></>
+                            ) : (
+                              <>Track <ChevronRight size={14} /></>
+                            )}
                         </button>
                     )}
                 </div>

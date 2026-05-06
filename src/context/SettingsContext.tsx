@@ -44,9 +44,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
         // Generate Dynamic Manifest
         const manifest = {
-          "short_name": data.appName || "Kishan",
-          "name": data.appName || "Kishan - Farm Fresh Marketplace",
-          "description": "Connect with farmers directly and buy fresh, organic farm products.",
+          "short_name": data.appName || "Grocery Store",
+          "name": data.appName || "Grocery Store - Supermarket App",
+          "description": "Premium grocery shopping experience with fresh products and fast delivery.",
           "icons": [
             {
               "src": data.logo || "https://cdn-icons-png.flaticon.com/512/3081/3081840.png",
@@ -64,8 +64,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           "start_url": "/",
           "display": "standalone",
           "orientation": "portrait",
-          "theme_color": "#16A34A",
-          "background_color": "#F8FAFC",
+          "theme_color": "#0A1F44",
+          "background_color": "#0A1F44",
           "lang": "bn-BD",
           "dir": "ltr",
           "screenshots": [
@@ -74,14 +74,14 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               "sizes": "1080x1920",
               "type": "image/png",
               "form_factor": "narrow",
-              "label": `${data.appName || 'Kishan'} Mobile View`
+              "label": `${data.appName || 'Grocery Store'} Mobile View`
             }] : []),
             ...(data.screenshotDesktop ? [{
               "src": data.screenshotDesktop,
               "sizes": "1920x1080",
               "type": "image/png",
               "form_factor": "wide",
-              "label": `${data.appName || 'Kishan'} Desktop View`
+              "label": `${data.appName || 'Grocery Store'} Desktop View`
             }] : [])
           ]
         };

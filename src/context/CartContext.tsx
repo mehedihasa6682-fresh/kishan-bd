@@ -18,7 +18,8 @@ interface CartContextType {
   items: CartItem[];
   addToCart: (product: any) => void;
   removeFromCart: (id: string | number) => void;
-  updateQuantity: (id: string | number, delta: number) => void;
+  updateQuantity: (id: string | number, newQty: number) => void;
+  getItemQuantity: (id: string | number) => number;
   clearCart: () => void;
   subtotal: number;
   deliveryFee: number;
@@ -77,14 +78,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems(prev => prev.filter(i => i.id !== id));
   };
 
-  const updateQuantity = (id: string | number, delta: number) => {
+  const updateQuantity = (id: string | number, newQty: number) => {
+    if (newQty <= 0) {
+      removeFromCart(id);
+      return;
+    }
     setItems(prev => prev.map(i => {
       if (i.id === id) {
-          const newQty = Math.max(1, i.quantity + delta);
           return { ...i, quantity: newQty };
       }
       return i;
     }));
+  };
+
+  const getItemQuantity = (id: string | number) => {
+    return items.find(i => i.id === id)?.quantity || 0;
   };
 
   const clearCart = () => {
@@ -98,7 +106,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider value={{ 
-      items, addToCart, removeFromCart, updateQuantity, clearCart,
+      items, addToCart, removeFromCart, updateQuantity, getItemQuantity, clearCart,
       subtotal, deliveryFee: currentFee, setDeliveryFee, discount, total, setDiscount,
       showCheckoutToast, setShowCheckoutToast
     }}>

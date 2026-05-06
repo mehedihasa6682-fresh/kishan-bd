@@ -21,10 +21,12 @@ import SellerDashboard from './pages/SellerDashboard';
 import AdminPanel from './pages/AdminPanel';
 import Wishlist from './pages/Wishlist';
 import RiderDashboard from './pages/RiderDashboard';
+import Discounts from './pages/Discounts';
 
 // Components
 import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
+import OfflineIndicator from './components/OfflineIndicator';
 import PWAInstall from './components/PWAInstall';
 import WhatsAppSupport from './components/WhatsAppSupport';
 import NotificationPrompt from './components/NotificationPrompt';
@@ -166,6 +168,7 @@ function RoutesContent() {
 
   return (
     <div className={`flex flex-col min-h-screen bg-background ${isDashboardRoute ? '' : 'pb-24 md:pb-0'}`}>
+      <OfflineIndicator />
       {!isDashboardRoute && <NotificationPrompt />}
       {!isDashboardRoute && <WhatsAppSupport />}
       {!isDashboardRoute && <Navbar />}
@@ -189,6 +192,7 @@ function RoutesContent() {
             <Route path="/orders" element={<Orders />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/discounts" element={<Discounts />} />
             
             {/* Seller/Apply Routes */}
             <Route path="/seller/*" element={role ? <SellerDashboard /> : <Navigate to="/profile" />} />

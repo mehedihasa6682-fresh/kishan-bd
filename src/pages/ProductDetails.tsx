@@ -105,9 +105,9 @@ export default function ProductDetails() {
   );
 
   if (!product) return (
-    <div className="text-center py-20 px-10">
-        <h2 className="font-display font-bold text-2xl text-slate-800">Product not found</h2>
-        <Link to="/products" className="mt-4 text-primary font-bold">Return to shop</Link>
+    <div className="text-center py-24 px-10">
+        <h2 className="font-display font-black text-2xl text-white tracking-tight">Product not found</h2>
+        <Link to="/products" className="mt-6 text-primary font-black uppercase tracking-widest bg-primary/10 px-8 py-3 rounded-full border border-primary/20 inline-block">Return to shop</Link>
     </div>
   );
 
@@ -115,80 +115,55 @@ export default function ProductDetails() {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-md mx-auto"
+      className="max-w-md mx-auto min-h-screen"
     >
       <Helmet>
-        <title>{dData(product.name, product.nameEn)} - Buy Fresh Online</title>
-        <meta name="description" content={product.seoDescription || dData(product.description, product.descriptionEn) || `Fresh ${dData(product.name, product.nameEn)} delivered to your door from our premium supermarket.`} />
-        <meta name="keywords" content={product.seoKeywords || dData(product.name, product.nameEn) + ', supermarket, grocery, fresh, organic'} />
-        <meta property="og:title" content={`${dData(product.name, product.nameEn)} - Online Store`} />
-        <meta property="og:description" content={product.seoDescription || `Get fresh ${dData(product.name, product.nameEn)} at the best price.`} />
-        <meta property="og:image" content={product.image} />
-        <meta property="og:type" content="product" />
-        
-        {/* Structured Data for SEO */}
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org/",
-            "@type": "Product",
-            "name": dData(product.name, product.nameEn),
-            "image": [product.image],
-            "description": dData(product.description, product.descriptionEn),
-            "sku": product.id,
-            "brand": {
-              "@type": "Brand",
-              "name": "Supermarket"
-            },
-            "offers": {
-              "@type": "Offer",
-              "url": window.location.href,
-              "priceCurrency": "BDT",
-              "price": product.price,
-              "availability": "https://schema.org/InStock",
-              "itemCondition": "https://schema.org/NewCondition"
-            }
-          })}
-        </script>
+        <title>{dData(product.name, product.nameEn)} - Premium Mall</title>
+        <meta name="description" content={product.seoDescription || dData(product.description, product.descriptionEn) || `Fresh ${dData(product.name, product.nameEn)} delivered to your door.`} />
       </Helmet>
-      <div className="relative h-[400px]">
+
+      <div className="relative h-[480px]">
         <img 
           src={product.image || "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800&h=1000&fit=crop"} 
           referrerPolicy="no-referrer"
           loading="eager"
-          className="w-full h-full object-cover rounded-b-[3rem]" 
+          className="w-full h-full object-cover rounded-b-[4rem] shadow-2xl" 
           alt={dData(product.name, product.nameEn)} 
         />
-        <button onClick={() => navigate(-1)} className="absolute top-6 left-6 w-12 h-12 bg-white/50 backdrop-blur-md rounded-full flex items-center justify-center text-slate-800 hover:bg-white transition-all">
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050E21]/60 via-transparent to-black/30 rounded-b-[4rem]" />
+        
+        <button onClick={() => navigate(-1)} className="absolute top-8 left-6 w-12 h-12 glass-card rounded-full flex items-center justify-center text-white hover:bg-primary hover:text-black transition-all border-white/20">
           <ArrowLeft size={24} />
         </button>
         <button 
           onClick={toggleWishlist}
-          className={`absolute top-6 right-6 w-12 h-12 backdrop-blur-md rounded-full flex items-center justify-center transition-all ${
-            isWishlisted ? 'bg-red-500 text-white' : 'bg-white/50 text-slate-800 hover:bg-white'
+          className={`absolute top-8 right-6 w-12 h-12 glass-card rounded-full flex items-center justify-center transition-all ${
+            isWishlisted ? 'bg-red-500 text-white border-red-400' : 'text-white hover:bg-white hover:text-red-500 border-white/20'
           }`}
         >
           <Heart size={24} fill={isWishlisted ? "currentColor" : "none"} />
         </button>
       </div>
 
-      <div className="px-6 -mt-10 relative z-10 pb-24">
-        <div className="bg-white rounded-[3rem] p-8 shadow-2xl shadow-slate-200 border border-slate-50">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <span className="text-primary font-bold text-xs uppercase tracking-widest mb-2 block flex items-center gap-2">
+      <div className="px-6 -mt-20 relative z-10 pb-32">
+        <div className="glass-card p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-white/20">
+          <div className="flex justify-between items-start mb-6">
+            <div className="flex-1 mr-4">
+              <span className="text-primary font-black text-[10px] uppercase tracking-[0.3em] mb-3 block flex items-center gap-2">
+                <div className="w-4 h-[1px] bg-primary"></div>
                 {product.category}
               </span>
-              <h1 className="font-display font-bold text-3xl text-slate-900 leading-tight">{dData(product.name, product.nameEn)}</h1>
+              <h1 className="font-display font-black text-3xl text-white leading-tight tracking-tight">{dData(product.name, product.nameEn)}</h1>
               {product.isPreOrder && (
-                  <div className="mt-2 bg-blue-50 text-blue-600 px-3 py-1 rounded-full w-fit flex items-center gap-1.5 border border-blue-100">
+                  <div className="mt-3 bg-blue-500/20 text-blue-300 px-3 py-1.5 rounded-full w-fit flex items-center gap-1.5 border border-blue-500/30 backdrop-blur-md">
                       <Clock size={12} />
-                      <span className="text-[9px] font-black uppercase tracking-widest">Pre-order Special</span>
+                      <span className="text-[9px] font-black uppercase tracking-widest">Pre-order Specialist</span>
                   </div>
               )}
             </div>
-            <div className="bg-secondary/10 px-3 py-2 rounded-2xl flex items-center gap-1">
-              <Star size={16} className="text-secondary fill-secondary" />
-              <span className="text-sm font-bold text-slate-800">
+            <div className="glass-card bg-white/10 px-4 py-2 flex items-center gap-2 border-white/10 rounded-2xl">
+              <Star size={18} className="text-primary fill-primary" />
+              <span className="text-sm font-black text-white">
                 {reviews.length > 0 
                   ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
                   : (product.rating || '4.5')}
@@ -196,213 +171,210 @@ export default function ProductDetails() {
             </div>
           </div>
 
-          <div className="flex items-center gap-6 mb-4 text-slate-500">
-            <div className="flex items-center gap-1.5">
-              <Clock size={16} className="text-primary" />
-              <span className="text-xs font-bold font-sans">Freshly Sourced</span>
+          <div className="flex items-center gap-6 mb-6 text-white/40">
+            <div className="flex items-center gap-2">
+              <ShieldCheck size={18} className="text-primary" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Premium quality</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <MapPin size={16} className="text-primary" />
-              <span className="text-xs font-bold font-sans">{product.location || 'Local BD'}</span>
+            <div className="flex items-center gap-2">
+              <MapPin size={18} className="text-primary" />
+              <span className="text-[10px] font-black uppercase tracking-widest">{product.location || 'Dhaka Mall'}</span>
             </div>
           </div>
 
           {product.tags && product.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-8">
               {product.tags.map((tag: string) => (
-                <span key={tag} className="text-[9px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-md">
+                <span key={tag} className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 bg-white/5 border border-white/10 px-3 py-1 rounded-lg">
                   #{tag}
                 </span>
               ))}
             </div>
           )}
 
-          <p className="text-slate-500 text-sm leading-relaxed mb-8">
-            {dData(product.description, product.descriptionEn) || `Premium quality ${dData(product.name, product.nameEn)} directly from ${product.farmerName || product.farmer}'s farm. No pesticides or chemicals used.`}
+          <p className="text-white/60 text-sm leading-relaxed mb-10 font-medium">
+            {dData(product.description, product.descriptionEn) || `Experience the finest ${dData(product.name, product.nameEn)} sourced directly from our verified premium merchants.`}
           </p>
 
-          <div className="flex flex-col gap-6 mb-10">
+          <div className="flex flex-col gap-8 mb-10">
             {/* Price section */}
             <div className="flex flex-col">
-              <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-display font-bold text-slate-900 leading-none tracking-tight">৳{formatCurrency((product.discountPrice || product.price || 0) * qty)}</span>
+              <div className="flex items-baseline gap-3">
+                <span className="text-4xl font-display font-black text-primary leading-none tracking-tight drop-shadow-md">৳{formatCurrency((product.discountPrice || product.price || 0) * qty)}</span>
                 {product.discountPrice && (
-                    <span className="text-lg font-bold text-slate-300 line-through">৳{formatCurrency((product.price || 0) * qty)}</span>
+                    <span className="text-xl font-bold text-white/20 line-through">৳{formatCurrency((product.price || 0) * qty)}</span>
                 )}
-                <span className="text-sm font-medium text-slate-400">
-                  / {qty}{product.unit || 'unit'}
+                <span className="text-xs font-black text-white/30 uppercase tracking-widest">
+                  / {qty}{product.unit || 'pkt'}
                 </span>
               </div>
-              <div className="text-[10px] text-slate-400 mt-1 font-medium bg-slate-50 self-start px-2 py-0.5 rounded-full border border-slate-100">
-                Unit Price: ৳{formatCurrency(product.discountPrice || product.price || 0)} per {product.unit || 'unit'}
+              <div className="text-[9px] text-white/40 mt-3 font-black uppercase tracking-widest bg-white/5 self-start px-4 py-1.5 rounded-full border border-white/5">
+                Targeting: ৳{formatCurrency(product.discountPrice || product.price || 0)} PER {product.unit || 'UNIT'}
               </div>
             </div>
 
-            {/* Standard Quantity Adjuster (+/-) */}
-            <div className="space-y-3">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                <div className="w-1 h-3 bg-slate-300 rounded-full"></div>
-                Quantity
+            {/* Quantity Selector */}
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] flex items-center gap-3">
+                <div className="w-10 h-[1px] bg-white/10"></div>
+                Quantity Selection
               </label>
-              <div className="flex items-center gap-6 bg-slate-100/50 p-2 rounded-2xl border border-slate-100 w-fit">
-                <button 
+              <div className="flex items-center gap-8 bg-white/5 p-2 rounded-3xl border border-white/5 w-fit backdrop-blur-md">
+                <motion.button 
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => setQty(Math.max(1, qty - 1))}
-                  className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-slate-500 hover:text-primary transition-all active:scale-90 border border-slate-100"
+                  className="w-14 h-14 bg-white/10 rounded-2xl shadow-xl flex items-center justify-center text-white hover:bg-white/20 transition-all border border-white/10"
                 >
-                  <Minus size={20} />
-                </button>
+                  <Minus size={24} strokeWidth={3} />
+                </motion.button>
                 
-                <div className="flex flex-col items-center min-w-[80px]">
-                  <span className="font-black text-lg font-sans text-slate-900">
-                    {qty}{product.unit || 'pcs'}
+                <div className="flex flex-col items-center min-w-[100px]">
+                  <span className="font-black text-2xl font-display text-white tracking-tighter">
+                    {qty} <span className="text-primary text-sm uppercase tracking-widest ml-1">{product.unit || 'pcs'}</span>
                   </span>
                 </div>
 
-                <button 
+                <motion.button 
+                   whileTap={{ scale: 0.9 }}
                    onClick={() => setQty(qty + 1)}
-                   className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-slate-500 hover:text-primary transition-all active:scale-90 border border-slate-100"
+                   className="w-14 h-14 bg-primary rounded-2xl shadow-[0_10px_25px_rgba(212,175,55,0.3)] flex items-center justify-center text-black transition-all hover:bg-white"
                 >
-                  <Plus size={20} />
-                </button>
+                  <Plus size={24} strokeWidth={3} />
+                </motion.button>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 mb-6">
-            <div className="grid grid-cols-2 gap-3">
-              <button 
+          <div className="flex flex-col gap-4 mb-8">
+            <div className="grid grid-cols-2 gap-4">
+              <motion.button 
+                whileTap={{ scale: 0.95 }}
                 onClick={() => {
                     addToCart({ ...product, quantity: qty });
-                    // Provide feedback
-                    const btn = document.getElementById('add-to-cart-btn');
+                    const btn = document.getElementById('add-to-cart-btn-main');
                     if (btn) {
                       btn.innerText = 'Added!';
                       setTimeout(() => { btn.innerText = product.isPreOrder ? 'Pre-order' : t('cart.tab_title'); }, 2000);
                     }
                 }}
-                id="add-to-cart-btn"
-                className="btn-primary py-4 rounded-3xl h-16 shadow-xl shadow-primary/20 flex items-center justify-center gap-2 text-sm"
+                id="add-to-cart-btn-main"
+                className="bg-primary hover:bg-white text-black font-black uppercase tracking-[0.2em] text-xs py-5 rounded-[1.5rem] shadow-[0_15px_35px_rgba(212,175,55,0.2)] transition-all flex items-center justify-center gap-3 h-16"
               >
-                <ShoppingCart size={18} />
+                <ShoppingCart size={20} />
                 {product.isPreOrder ? 'Pre-order' : t('cart.tab_title')}
-              </button>
-              <button 
+              </motion.button>
+              <motion.button 
+                whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   addToCart({ ...product, quantity: qty });
                   navigate('/checkout');
                 }}
-                className="btn-secondary py-4 rounded-3xl h-16 shadow-xl shadow-yellow-200 text-sm"
+                className="bg-white/10 hover:bg-white/20 text-white font-black uppercase tracking-[0.2em] text-xs py-5 rounded-[1.5rem] border border-white/20 transition-all flex items-center justify-center shadow-2xl h-16"
               >
                 Buy Now
-              </button>
+              </motion.button>
             </div>
             
-            <div className="grid grid-cols-2 gap-3">
-              <button 
+            <div className="grid grid-cols-2 gap-4">
+              <motion.button 
+                whileTap={{ scale: 0.95 }}
                 onClick={async () => {
                    const snap = await getDoc(doc(db, 'settings', 'app'));
                    const appWhatsapp = snap.exists() ? snap.data().whatsappNumber : null;
                    const targetNum = (product.whatsappNumber || appWhatsapp || '').replace(/\D/g, '');
-                   
                    if (targetNum) {
-                      const msg = `আসসালামু আলাইকুম, আমি এই প্রডাক্টটি সম্পর্কে জানতে চাই: ${dData(product.name, product.nameEn)}\nলিঙ্ক: ${window.location.href}`;
+                      const msg = `Hi, I'm interested in: ${dData(product.name, product.nameEn)}\nLink: ${window.location.href}`;
                       window.open(`https://wa.me/${targetNum}?text=${encodeURIComponent(msg)}`, '_blank');
                    } else {
-                      alert('WhatsApp support not available.');
+                      alert('Service not available.');
                    }
                 }}
-                className="py-4 bg-[#25D366] text-white rounded-3xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest shadow-lg shadow-green-100 hover:scale-[1.02] active:scale-95 transition-all"
+                className="py-4 bg-[#25D366] text-white rounded-[1.5rem] flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-widest shadow-xl shadow-green-900/20"
               >
-                <MessageCircle size={18} fill="currentColor" />
-                WhatsApp Inquiry
-              </button>
+                <MessageCircle size={20} fill="currentColor" />
+                Live Chat (WA)
+              </motion.button>
               <a 
                 href={`tel:${(product.whatsappNumber || '01700000000').replace(/\D/g, '')}`} 
-                className="py-4 bg-slate-100 text-slate-600 rounded-3xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all"
+                className="py-4 bg-white/5 text-white/60 rounded-[1.5rem] flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-widest border border-white/5 shadow-inner"
               >
-                <Phone size={18} fill="currentColor" />
-                Order via Phone
+                <Phone size={20} fill="currentColor" />
+                Hotline Call
               </a>
             </div>
           </div>
         </div>
       </div>
       
-      {/* Sticky Bottom Actions - Daraz Style */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-t border-slate-100 p-4 md:hidden flex gap-3 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
-        <button 
-          onClick={() => {
-              addToCart({ ...product, quantity: qty });
-          }}
-          className="flex-[1] btn-primary py-3 rounded-2xl flex items-center justify-center gap-2 text-xs font-bold"
+      {/* Sticky Bottom Actions */}
+      <div className="fixed bottom-0 left-0 right-0 z-[60] glass-card rounded-none rounded-t-[2.5rem] border-x-0 border-b-0 p-6 md:hidden flex gap-4 shadow-[0_-20px_50px_rgba(0,0,0,0.6)]">
+        <motion.button 
+          whileTap={{ scale: 0.9 }}
+          onClick={() => addToCart({ ...product, quantity: qty })}
+          className="flex-[2] bg-primary text-black py-4 rounded-2xl flex items-center justify-center gap-3 text-sm font-black uppercase tracking-widest shadow-xl"
         >
-          <ShoppingCart size={16} />
+          <ShoppingCart size={20} />
           {t('cart.tab_title')}
-        </button>
-        <button 
-          onClick={() => {
-            addToCart({ ...product, quantity: qty });
-            navigate('/checkout');
-          }}
-          className="flex-[1] btn-secondary py-3 rounded-2xl flex items-center justify-center gap-2 text-xs font-bold"
-        >
-          Buy Now
-        </button>
-        <button 
+        </motion.button>
+        <motion.button 
+          whileTap={{ scale: 0.9 }}
           onClick={async () => {
              const snap = await getDoc(doc(db, 'settings', 'app'));
              const appWhatsapp = snap.exists() ? snap.data().whatsappNumber : null;
              const targetNum = (product.whatsappNumber || appWhatsapp || '').replace(/\D/g, '');
-             if (targetNum) {
-                window.open(`https://wa.me/${targetNum}?text=${encodeURIComponent('Hi, I need help with: ' + dData(product.name, product.nameEn))}`, '_blank');
-             }
+             if (targetNum) window.open(`https://wa.me/${targetNum}`, '_blank');
           }}
-          className="w-12 h-12 bg-green-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-green-100"
+          className="w-14 h-14 bg-green-500 text-white rounded-2xl flex items-center justify-center shadow-xl shadow-green-900/30"
         >
-          <MessageCircle size={20} fill="currentColor" />
-        </button>
+          <MessageCircle size={24} fill="currentColor" />
+        </motion.button>
       </div>
 
       <div className="p-6">
-        <h3 className="font-display font-bold text-xl mb-6 px-2">Merchant Info</h3>
-        <div className="glass-card p-5 flex items-center gap-4 bg-white border-slate-100 mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
+        <h3 className="font-display font-black text-xl mb-6 px-2 text-white uppercase tracking-tight">Merchant Information</h3>
+        <div className="glass-card p-6 flex items-center gap-5 border-white/10 mb-10 overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full translate-x-1/2 -translate-y-1/2 blur-2xl" />
+          <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-white/20 border border-white/10">
               <Store size={32} />
           </div>
-          <div className="flex-1">
-            <h4 className="font-bold text-slate-800">{product.farmerName || product.farmer}</h4>
-            <div className="flex items-center gap-1.5 mt-0.5">
-                <ShieldCheck size={14} className="text-primary" />
-                <p className="text-[10px] text-primary font-black uppercase">Verified Seller</p>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-black text-white text-lg truncate leading-none mb-2">{product.farmerName || product.farmer}</h4>
+            <div className="flex items-center gap-2">
+                <ShieldCheck size={16} className="text-primary" />
+                <p className="text-[10px] text-primary font-black uppercase tracking-widest">Verified Elite Merchant</p>
             </div>
           </div>
-          <button className="text-primary font-bold text-xs px-4 py-2 bg-primary/5 rounded-xl">View Store</button>
+          <button className="text-primary font-black text-[10px] uppercase tracking-widest px-5 py-2.5 bg-primary/10 rounded-xl border border-primary/20 whitespace-nowrap">Explore</button>
         </div>
 
         {/* Reviews Section */}
-        <div className="space-y-6">
-            <div className="flex justify-between items-center px-1">
-                <h3 className="font-display font-bold text-xl">Reviews ({reviews.length})</h3>
+        <div className="space-y-8 mb-16">
+            <div className="flex justify-between items-end px-2">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2">Customer Experience</span>
+                  <h3 className="font-display font-black text-2xl text-white">Reviews ({reviews.length})</h3>
+                </div>
                 {user && (
-                    <div className="flex items-center gap-1 bg-yellow-50 px-3 py-1.5 rounded-xl border border-yellow-100 text-yellow-600 font-bold text-xs">
+                    <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full border border-primary/20 text-primary font-black text-[9px] uppercase tracking-widest">
                         <Star size={12} fill="currentColor" />
-                        <span>Share your experience</span>
+                        <span>Add Review</span>
                     </div>
                 )}
             </div>
 
             {user && (
-                <form onSubmit={handleReviewSubmit} className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
-                    <div className="flex gap-2 mb-4">
+                <form onSubmit={handleReviewSubmit} className="glass-card p-6 border-white/10">
+                    <div className="flex gap-3 mb-6">
                         {[1, 2, 3, 4, 5].map((star) => (
                             <button
                                 key={star}
                                 type="button"
                                 onClick={() => setNewReview({ ...newReview, rating: star })}
+                                className="transition-transform hover:scale-110 active:scale-90"
                             >
                                 <Star 
-                                    size={24} 
-                                    className={`${newReview.rating >= star ? 'text-secondary fill-secondary' : 'text-slate-200'}`} 
+                                    size={32} 
+                                    className={`${newReview.rating >= star ? 'text-primary fill-primary drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]' : 'text-white/10'}`} 
                                 />
                             </button>
                         ))}
@@ -410,57 +382,62 @@ export default function ProductDetails() {
                     <div className="relative">
                         <textarea
                             required
-                            placeholder="Tell others about the freshness..."
-                            className="w-full bg-white border border-slate-200 rounded-2xl p-4 text-xs min-h-[100px] outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                            placeholder="Share your thoughts about this product..."
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm min-h-[120px] outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-white placeholder:text-white/20 backdrop-blur-sm"
                             value={newReview.comment}
                             onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
                         />
                         <button 
                             type="submit"
                             disabled={submittingReview}
-                            className="absolute bottom-4 right-4 p-3 bg-primary text-white rounded-xl shadow-lg hover:bg-primary-dark transition-all disabled:opacity-50"
+                            className="absolute bottom-4 right-4 w-12 h-12 bg-primary text-black rounded-xl shadow-xl hover:bg-white transition-all disabled:opacity-50 flex items-center justify-center"
                         >
-                            {submittingReview ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Send size={16} />}
+                            {submittingReview ? <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : <Send size={20} />}
                         </button>
                     </div>
                 </form>
             )}
 
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-6">
                 {reviews.length === 0 ? (
-                    <div className="text-center py-10 bg-white border border-slate-50 rounded-[2rem]">
-                        <p className="text-slate-400 text-xs">No reviews yet. Be the first!</p>
+                    <div className="text-center py-16 glass-card border-white/5">
+                        <p className="text-white/30 text-xs font-bold uppercase tracking-widest">No reviews yet. Be the first to rate!</p>
                     </div>
                 ) : (
                     reviews.map((review) => (
-                        <div key={review.id} className="bg-white p-5 rounded-[2rem] border border-slate-50 shadow-sm">
-                            <div className="flex justify-between items-start mb-3">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-slate-100 rounded-xl overflow-hidden flex items-center justify-center">
+                        <div key={review.id} className="glass-card p-6 border-white/10 shadow-lg relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-4 opacity-[0.03] -rotate-12">
+                              <Star size={60} className="text-white" />
+                            </div>
+                            <div className="flex justify-between items-start mb-4 relative z-10">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 glass-card rounded-2xl overflow-hidden flex items-center justify-center border-white/10 bg-white/5 shrink-0">
                                         {review.userPhoto ? (
                                             <img src={review.userPhoto} alt={review.userName} className="w-full h-full object-cover" />
                                         ) : (
-                                            <UserIcon size={18} className="text-slate-400" />
+                                            <div className="w-full h-full flex items-center justify-center text-white/20">
+                                              <UserIcon size={24} />
+                                            </div>
                                         )}
                                     </div>
                                     <div>
-                                        <h4 className="text-xs font-bold text-slate-800">{review.userName}</h4>
-                                        <div className="flex items-center gap-0.5 mt-0.5">
+                                        <h4 className="text-sm font-black text-white mb-1">{review.userName}</h4>
+                                        <div className="flex items-center gap-1">
                                             {[...Array(5)].map((_, i) => (
                                                 <Star 
                                                     key={i} 
-                                                    size={8} 
-                                                    className={`${i < review.rating ? 'text-secondary fill-secondary' : 'text-slate-200'}`} 
+                                                    size={10} 
+                                                    className={`${i < review.rating ? 'text-primary fill-primary' : 'text-white/10'}`} 
                                                 />
                                             ))}
                                         </div>
                                     </div>
                                 </div>
-                                <span className="text-[8px] text-slate-400 font-bold uppercase">
-                                    {review.createdAt?.toDate().toLocaleDateString() || 'Recently'}
+                                <span className="text-[9px] text-white/30 font-black uppercase tracking-widest">
+                                    {review.createdAt?.toDate().toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) || 'JUST NOW'}
                                 </span>
                             </div>
-                            <p className="text-[11px] text-slate-600 leading-relaxed italic">
+                            <p className="text-sm text-white/70 leading-relaxed font-medium relative z-10 bg-white/5 p-4 rounded-xl border border-white/5 italic">
                                 "{review.comment}"
                             </p>
                         </div>
@@ -471,12 +448,15 @@ export default function ProductDetails() {
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-            <div className="mt-12 mb-12">
-                <div className="flex items-center justify-between mb-6 px-1">
-                  <h3 className="font-display font-bold text-xl">People Also Viewed</h3>
-                  <Link to="/products" className="text-primary text-[10px] font-black uppercase tracking-widest">See All</Link>
+            <div className="mt-16 mb-24">
+                <div className="flex items-center justify-between mb-8 px-2">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2">curated Selection</span>
+                    <h3 className="font-display font-black text-2xl text-white">Recommended</h3>
+                  </div>
+                  <Link to="/products" className="text-primary text-[10px] font-black uppercase tracking-widest bg-primary/10 px-4 py-2 rounded-full border border-primary/20">All Deals</Link>
                 </div>
-                <div className="grid grid-cols-2 gap-4 pb-4">
+                <div className="grid grid-cols-2 gap-4">
                     {relatedProducts.map((p) => (
                         <div 
                             key={p.id}
@@ -484,22 +464,23 @@ export default function ProductDetails() {
                                 navigate(`/product/${p.id}`);
                                 window.scrollTo(0, 0);
                             }}
-                            className="bg-white rounded-2xl border border-slate-50 shadow-sm p-2 group cursor-pointer"
+                            className="glass-card p-3 group cursor-pointer border-white/10"
                         >
-                            <div className="aspect-square rounded-xl overflow-hidden mb-2">
+                            <div className="aspect-square rounded-2xl overflow-hidden mb-3 bg-white/5 border border-white/5 relative">
                                 <img 
                                     src={p.image} 
                                     alt={p.name} 
                                     loading="lazy"
-                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700" 
                                 />
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#050E21]/40 to-transparent" />
                             </div>
-                            <h4 className="font-bold text-[10px] text-slate-800 truncate mb-1">{dData(p.name, p.nameEn)}</h4>
-                            <div className="flex items-center justify-between">
-                                <span className="text-xs font-display font-bold text-primary">৳{formatCurrency(p.price || 0)}</span>
-                                <div className="flex items-center gap-0.5">
-                                    <Star size={8} className="text-secondary fill-secondary" />
-                                    <span className="text-[8px] font-bold text-slate-400">{p.rating || '5.0'}</span>
+                            <h4 className="font-bold text-xs text-white truncate mb-1 px-1">{dData(p.name, p.nameEn)}</h4>
+                            <div className="flex items-center justify-between px-1">
+                                <span className="text-sm font-black text-primary">৳{formatCurrency(p.price || 0)}</span>
+                                <div className="flex items-center gap-1">
+                                    <Star size={10} className="text-primary fill-primary" />
+                                    <span className="text-[10px] font-black text-white/40">{p.rating || '5.0'}</span>
                                 </div>
                             </div>
                         </div>

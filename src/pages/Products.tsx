@@ -11,6 +11,7 @@ import { AuthContext } from '../App';
 import { socialService } from '../services/socialService';
 import { matchProduct } from '../lib/searchUtils';
 import { Helmet } from 'react-helmet-async';
+import ProductCard from '../components/ProductCard';
 
 export default function Products() {
   const { addToCart } = useCart();
@@ -220,70 +221,9 @@ export default function Products() {
         </AnimatePresence>
       </div>
 
-      <div className="px-5 grid grid-cols-2 gap-3">
+      <div className="px-5 grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filteredProducts.map((product) => (
-          <motion.div
-            layout
-            key={product.id}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white/5 rounded-3xl overflow-hidden border border-white/5 shadow-2xl transition-all duration-300 group"
-          >
-            <div className="relative aspect-[4/5] overflow-hidden cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
-              <img 
-                src={product.image} 
-                referrerPolicy="no-referrer" 
-                loading="lazy"
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                alt={dData(product.name, product.nameEn)} 
-              />
-              <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded-lg flex items-center gap-1 shadow-sm">
-                <Star size={8} className="text-primary fill-primary" />
-                <span className="text-[9px] font-bold text-white/80">{product.rating || '5.0'}</span>
-              </div>
-              <button 
-                onClick={(e) => {
-                    e.stopPropagation();
-                    toggleWish(product.id);
-                }}
-                className={`absolute top-2 right-2 w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
-                    wishlistIds.includes(product.id) ? 'bg-red-500 text-white shadow-lg' : 'bg-black/40 backdrop-blur-md text-white/40 hover:text-red-500'
-                }`}
-              >
-                <Heart size={12} fill={wishlistIds.includes(product.id) ? "currentColor" : "none"} />
-              </button>
-            </div>
-            <div className="p-3">
-              <h3 className="font-bold text-xs text-white mb-1 truncate cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
-                {dData(product.name, product.nameEn)}
-              </h3>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-baseline gap-1">
-                  <span className="text-sm font-display font-bold text-primary">৳{product.discountPrice || product.price || 0}</span>
-                  {product.discountPrice && (
-                    <span className="text-[10px] text-white/20 line-through">৳{product.price}</span>
-                  )}
-                  <span className="text-[8px] text-white/40 font-bold tracking-tight">/{product.unit || 'unit'}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Star size={8} className="text-primary fill-primary" />
-                  <span className="text-[9px] font-bold text-white/60">{product.rating || '5.0'}</span>
-                </div>
-              </div>
-              
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={(e) => {
-                   e.stopPropagation();
-                   addToCart(product);
-                }}
-                className="w-full bg-primary text-black font-bold py-2 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all"
-              >
-                <ShoppingCart size={14} />
-                <span className="text-[10px] font-black uppercase tracking-wider">Add to Cart</span>
-              </motion.button>
-            </div>
-          </motion.div>
+          <ProductCard key={product.id} product={product} />
         ))}
       </div>
     </motion.div>

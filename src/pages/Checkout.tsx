@@ -526,7 +526,7 @@ export default function Checkout() {
         )}
 
         <p className="text-[10px] text-slate-400 text-center font-medium mt-2">
-            Securely processed via Kishan Cloud. Verified for 100% freshness.
+            Securely processed via Supermarket Cloud. Verified for 100% freshness.
         </p>
       </div>
 
