@@ -59,21 +59,29 @@ export default function Navbar() {
       </AnimatePresence>
 
       <nav 
-        className={`fixed ${appSettings.announcementBar ? 'top-7' : 'top-0'} left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-[#050E21]/90 shadow-md py-2' : 'bg-[#050E21]/80 shadow-sm py-4'} border-b-2 border-[#D4AF37] px-4 flex flex-col gap-3 h-auto backdrop-blur-md`}
+        className={`fixed ${appSettings.announcementBar ? 'top-7' : 'top-0'} left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-[#050E21]/95 shadow-lg py-2' : 'bg-[#050E21]/80 shadow-sm py-3'} border-b border-[#D4AF37]/30 px-4 h-auto backdrop-blur-md`}
         style={{ borderStyle: 'solid', fontFamily: 'Outfit, sans-serif' }}
       >
         <div className="max-w-md mx-auto w-full">
-          {/* Row 1: Logo & Actions (Persistent) */}
-          <div className="flex items-center justify-between w-full mb-3">
+          {/* Row 1: Logo & Actions (Hides on Scroll if search is present) */}
+          <motion.div 
+            animate={{ 
+              height: (isScrolled && (location.pathname === '/' || location.pathname === '/discounts')) ? 0 : 'auto',
+              opacity: (isScrolled && (location.pathname === '/' || location.pathname === '/discounts')) ? 0 : 1,
+              marginBottom: (isScrolled && (location.pathname === '/' || location.pathname === '/discounts')) ? 0 : 8
+            }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="flex items-center justify-between w-full overflow-hidden"
+          >
             <Link to="/" className="flex items-center gap-2">
                 {appSettings.logo ? (
-                    <img src={appSettings.logo} className="h-8 w-auto object-contain" alt="Logo" />
+                    <img src={appSettings.logo} className="h-7 w-auto object-contain" alt="Logo" />
                 ) : (
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shadow-lg border border-white/10">
-                            <span className="text-white font-black text-sm">{appSettings.appName ? appSettings.appName[0] : 'S'}</span>
+                        <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center shadow-lg border border-white/10">
+                            <span className="text-white font-black text-xs">{appSettings.appName ? appSettings.appName[0] : 'S'}</span>
                         </div>
-                        <span className="font-display font-black text-base tracking-tight text-white">{appSettings.appName || 'Supermarket'}</span>
+                        <span className="font-display font-black text-sm tracking-tight text-white">{appSettings.appName || 'Supermarket'}</span>
                     </div>
                 )}
             </Link>
@@ -82,54 +90,79 @@ export default function Navbar() {
               <InstallButton />
               <button 
                 onClick={toggleLanguage}
-                className="w-8 h-8 flex items-center justify-center bg-white/10 rounded-lg text-white hover:bg-white/20 transition-all border border-white/10"
+                className="w-7 h-7 flex items-center justify-center bg-white/10 rounded-lg text-white hover:bg-white/20 transition-all border border-white/10"
                 title={language === 'bn' ? 'Switch to English' : 'বাংলায় দেখুন'}
               >
-                <span className="text-[10px] font-bold">
+                <span className="text-[9px] font-bold">
                   {language === 'bn' ? 'EN' : 'বাং'}
                 </span>
               </button>
               <NotificationCenter />
               <Link to="/cart">
-                <div className="w-8 h-8 flex items-center justify-center bg-white/10 border border-white/10 rounded-lg text-white hover:bg-white/20 transition-all relative">
-                    <ShoppingBag size={16} />
+                <div className="w-7 h-7 flex items-center justify-center bg-white/10 border border-white/10 rounded-lg text-white hover:bg-white/20 transition-all relative">
+                    <ShoppingBag size={14} />
                     {items.length > 0 && (
-                      <span className="absolute -top-1.5 -right-1.5 bg-white text-[#223227] text-[8px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-[#223227] shadow-sm">
+                      <span className="absolute -top-1 -right-1 bg-white text-[#223227] text-[7px] font-black w-3 h-3 rounded-full flex items-center justify-center border border-[#223227] shadow-sm">
                         {items.length}
                       </span>
                     )}
                 </div>
               </Link>
               <Link to="/profile">
-                <div className="w-8 h-8 flex items-center justify-center bg-white/10 border border-white/10 rounded-lg text-white hover:bg-white/20 transition-all">
-                    <User size={16} />
+                <div className="w-7 h-7 flex items-center justify-center bg-white/10 border border-white/10 rounded-lg text-white hover:bg-white/20 transition-all">
+                    <User size={14} />
                 </div>
               </Link>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Row 2: Search Bar - Only on Home and Discounts */}
+          {/* Row 2: Search Bar - When scrolled on Home/Discounts, icons move here */}
           {(location.pathname === '/' || location.pathname === '/discounts') && (
-            <form onSubmit={handleSearch} className="relative group mt-3">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/60 group-focus-within:text-white transition-colors" size={18} />
-              <input 
-                type="text" 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={language === 'bn' ? "আপনি কী খুঁজছেন?" : "What are you looking for?"}
-                className="w-full bg-white/10 border border-white/10 rounded-xl py-3 pl-12 pr-14 text-xs text-white placeholder:text-white/40 outline-none focus:bg-white/20 focus:border-white/30 transition-all font-medium"
-              />
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-3 text-white/60 border-l border-white/10 pl-3 h-5">
-                <Mic size={18} className="hover:text-white cursor-pointer transition-colors" />
-              </div>
-            </form>
+            <div className="flex items-center gap-3">
+              <form onSubmit={handleSearch} className="relative group flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary transition-colors" size={16} />
+                <input 
+                  type="text" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={language === 'bn' ? "আপনি কী খুঁজছেন?" : "What are you looking for?"}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-12 text-[11px] text-white placeholder:text-white/20 outline-none focus:bg-white/10 focus:border-primary/40 transition-all font-medium"
+                />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-white/20 border-l border-white/5 pl-2 h-4">
+                  <Mic size={16} className="hover:text-white cursor-pointer transition-colors" />
+                </div>
+              </form>
+              
+              {/* Conditional Quick Actions when scrolled */}
+              <AnimatePresence>
+                {isScrolled && (
+                  <motion.div 
+                    initial={{ width: 0, opacity: 0 }}
+                    animate={{ width: 'auto', opacity: 1 }}
+                    exit={{ width: 0, opacity: 0 }}
+                    className="flex items-center gap-2 overflow-hidden"
+                  >
+                    <Link to="/cart" className="relative">
+                      <div className="w-9 h-9 flex items-center justify-center bg-primary/10 border border-primary/20 rounded-xl text-primary">
+                        <ShoppingBag size={16} />
+                        {items.length > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-white text-primary text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-lg border border-primary/20">
+                            {items.length}
+                          </span>
+                        )}
+                      </div>
+                    </Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           )}
         </div>
       </nav>
       {/* Dynamic Spacer */}
       <div className={`${(location.pathname === '/' || location.pathname === '/discounts') 
-        ? (appSettings.announcementBar ? 'h-[124px]' : 'h-[104px]') 
-        : (appSettings.announcementBar ? 'h-[84px]' : 'h-[64px]')}`} />
+        ? (appSettings.announcementBar ? 'h-[110px]' : 'h-[90px]') 
+        : (appSettings.announcementBar ? 'h-[75px]' : 'h-[55px]')}`} />
     </>
   );
 }

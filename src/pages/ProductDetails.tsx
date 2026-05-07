@@ -320,31 +320,9 @@ export default function ProductDetails() {
         </div>
       </div>
       
-      {/* Sticky Bottom Actions - Positioned above BottomNav */}
-      <div className="fixed bottom-20 left-0 right-0 z-[60] glass-card rounded-none rounded-t-[2.5rem] border-x-0 border-b-0 p-6 md:hidden flex gap-4 shadow-[0_-20px_50px_rgba(0,0,0,0.6)]">
-        <motion.button 
-          whileTap={{ scale: 0.9 }}
-          onClick={() => addToCart({ ...product, quantity: qty })}
-          className="flex-[2] bg-primary text-black py-4 rounded-2xl flex items-center justify-center gap-3 text-sm font-black uppercase tracking-widest shadow-xl"
-        >
-          <ShoppingCart size={20} />
-          {t('cart.tab_title')}
-        </motion.button>
-        <motion.button 
-          whileTap={{ scale: 0.9 }}
-          onClick={async () => {
-             const snap = await getDoc(doc(db, 'settings', 'app'));
-             const appWhatsapp = snap.exists() ? snap.data().whatsappNumber : null;
-             const targetNum = (product.whatsappNumber || appWhatsapp || '').replace(/\D/g, '');
-             if (targetNum) window.open(`https://wa.me/${targetNum}`, '_blank');
-          }}
-          className="w-14 h-14 bg-green-500 text-white rounded-2xl flex items-center justify-center shadow-xl shadow-green-900/30"
-        >
-          <MessageCircle size={24} fill="currentColor" />
-        </motion.button>
-      </div>
-
+      {/* Main Content Area */}
       <div className="p-6">
+
         {/* Reviews Section */}
         <div className="space-y-8 mb-16">
             <div className="flex justify-between items-end px-2">
