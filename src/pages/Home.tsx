@@ -59,8 +59,9 @@ export default function Home() {
     { id: '5', title: 'Coffee', image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=200' },
     { id: '6', title: 'Biscuits', image: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=200' },
     { id: '7', title: 'Soft Drinks', image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200' },
-    { id: '8', title: 'Candy', image: 'https://images.unsplash.com/photo-1581798459219-318e76aecc7b?w=200' }
-  ]).slice(0, 8);
+    { id: '8', title: 'Candy', image: 'https://images.unsplash.com/photo-1581798459219-318e76aecc7b?w=200' },
+    { id: '9', title: 'Cooking', image: 'https://images.unsplash.com/photo-1547516508-4c1f9c7c4ec3?w=200' }
+  ]).slice(0, 9);
 
   const recommendedProducts = dbProducts
     .filter(p => !p.isOutOfStock)
@@ -159,23 +160,27 @@ export default function Home() {
         <div className="flex items-center justify-between mb-6 px-1">
           <h2 className="text-lg font-display font-black text-white tracking-tight uppercase">Favourite Categories</h2>
         </div>
-        <div className="grid grid-cols-2 xs:grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-x-3 gap-y-4">
           {categories.map((cat) => (
-            <motion.div
+            <div
               key={cat.id}
-              whileTap={{ scale: 0.98 }}
               onClick={() => navigate(`/products?category=${cat.title}`)}
-              className="glass-card p-2 flex items-center justify-between group cursor-pointer hover:bg-white/20 transition-all active:scale-95 border-white/20"
+              className="group cursor-pointer flex flex-col gap-2"
             >
-              <div className="w-14 h-14 rounded-[1.25rem] overflow-hidden bg-white/10 flex-shrink-0 border border-white/10 shadow-inner group-hover:border-primary/50 transition-colors">
-                <img src={cat.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={cat.title} />
-              </div>
-              <div className="flex-grow pl-3 pr-2 text-right">
-                <span className="text-[11px] font-black uppercase tracking-wider text-white/90 group-hover:text-primary transition-colors leading-tight">
+              <motion.div
+                whileTap={{ scale: 0.95 }}
+                className="glass-card h-24 relative overflow-hidden rounded-2xl border-white/20 transition-all group-hover:border-primary/40 group-hover:shadow-[0_0_15px_rgba(212,175,55,0.1)]"
+              >
+                <img src={cat.image} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={cat.title} />
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-all" />
+              </motion.div>
+              
+              <div className="text-center px-0.5">
+                <span className="text-[9px] font-black uppercase tracking-[0.05em] text-white/70 group-hover:text-primary transition-colors leading-tight block truncate">
                   {dData(cat.title, cat.titleEn)}
                 </span>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
