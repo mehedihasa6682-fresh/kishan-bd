@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { CartProvider } from './context/CartContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { SettingsProvider, useSettings } from './context/SettingsContext';
+import { PromotionProvider } from './context/PromotionContext';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
 import { MessagingService } from './services/messagingService';
 import { useLanguage } from './context/LanguageContext';
@@ -201,15 +202,17 @@ export default function App() {
       </Helmet>
       <AuthContext.Provider value={{ user, loading, dataLoading, setDataLoading, role, profile, pwa }}>
         <SettingsProvider>
-          <LanguageProvider>
-            <SettingsSEOManager />
-            <CartProvider>
-              <Router>
-                <RedirectManager />
-                <RoutesContent />
-              </Router>
-            </CartProvider>
-          </LanguageProvider>
+          <PromotionProvider>
+            <LanguageProvider>
+              <SettingsSEOManager />
+              <CartProvider>
+                <Router>
+                  <RedirectManager />
+                  <RoutesContent />
+                </Router>
+              </CartProvider>
+            </LanguageProvider>
+          </PromotionProvider>
         </SettingsProvider>
       </AuthContext.Provider>
     </HelmetProvider>

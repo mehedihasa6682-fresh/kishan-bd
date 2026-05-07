@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
+import { usePromotions } from './PromotionContext';
 
 interface CartItem {
   id: string | number;
@@ -36,6 +37,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { getEffectivePrice } = usePromotions();
   const [items, setItems] = useState<CartItem[]>(() => {
     const saved = localStorage.getItem('cart');
     return saved ? JSON.parse(saved) : [];
@@ -52,13 +54,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const addToCart = (product: any, selectedWeight?: number) => {
     setItems(prev => {
       // Find if this specific product + weight combination exists
+      const weightToFind = selectedWeight ?? null;
       const existing = prev.find(i => 
-        i.id === product.id && i.selectedWeight === selectedWeight
+        i.id === product.id && (i.selectedWeight ?? null) === weightToFind
       );
       
       const qty = product.quantity || 1;
       
-      const rawPrice = product.discountPrice ?? product.price ?? 0;
+      const effective = getEffectivePrice(product);
+      const rawPrice = effective.discountPrice ?? effective.price ?? 0;
       const basePrice = parseFloat(String(rawPrice).replace(/[^\d.-]/g, '')) || 0;
       
       // Calculate price based on selected weight if applicable
@@ -77,7 +81,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       };
 
       if (existing) {
-        return prev.map(i => (i.id === product.id && i.selectedWeight === selectedWeight) ? { ...i, quantity: i.quantity + qty } : i);
+        const weightToFind = selectedWeight ?? null;
+        return prev.map(i => (i.id === product.id && (i.selectedWeight ?? null) === weightToFind) ? { ...i, quantity: i.quantity + qty } : i);
       }
       return [...prev, { ...normalizedProduct, quantity: qty }];
     });
@@ -100,8 +105,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeFromCart(id, selectedWeight);
       return;
     }
+    const weightToFind = selectedWeight ?? null;
     setItems(prev => prev.map(i => {
-      if (i.id === id && i.selectedWeight === selectedWeight) {
+      if (i.id === id && (i.selectedWeight ?? null) === weightToFind) {
           return { ...i, quantity: newQty };
       }
       return i;
@@ -109,11 +115,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const getItemQuantity = (id: string | number, selectedWeight?: number) => {
-    return items.find(i => i.id === id && i.selectedWeight === selectedWeight)?.quantity || 0;
+    const weightToFind = selectedWeight ?? null;
+    return items.find(i => i.id === id && (i.selectedWeight ?? null) === weightToFind)?.quantity || 0;
   };
 
   const removeFromCart = (id: string | number, selectedWeight?: number) => {
-    setItems(prev => prev.filter(i => !(i.id === id && i.selectedWeight === selectedWeight)));
+    const weightToFind = selectedWeight ?? null;
+    setItems(prev => prev.filter(i => !(i.id === id && (i.selectedWeight ?? null) === weightToFind)));
   };
 
   const clearCart = () => {

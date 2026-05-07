@@ -189,6 +189,22 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["userId", "amount", "status", "role"]
+    },
+    "Promotion": {
+      "title": "Promotion",
+      "description": "Flash deals and temporal discounts",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "percentage": { "type": "number" },
+        "duration": { "type": "number" },
+        "endTime": { "type": "string", "format": "date-time" },
+        "targetType": { "type": "string", "enum": ["all", "category", "product"] },
+        "targetId": { "type": "string" },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "percentage", "endTime", "targetType", "isActive"]
     }
   },
   "firestore": {
@@ -204,6 +220,7 @@
     "/notifications/{notificationId}": { "schema": "Notification", "description": "User notifications" },
     "/fcmTokens/{tokenId}": { "schema": "FCMToken", "description": "Device tokens for push" },
     "/payouts/{payoutId}": { "schema": "Payout", "description": "Payout requests" },
+    "/promotions/{promoId}": { "schema": "Promotion", "description": "Flash deals and temporal discounts" },
     "settings": {
       "schema": {
         "type": "object",

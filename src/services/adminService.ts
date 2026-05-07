@@ -199,6 +199,22 @@ export const adminService = {
     } catch (e) { handleFirestoreError(e, OperationType.DELETE, `products/${id}`); }
   },
 
+  async addPromotion(promotion: any) {
+    try {
+      return await addDoc(collection(db, 'promotions'), { 
+        ...promotion, 
+        createdAt: serverTimestamp(),
+        isActive: true
+      });
+    } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'promotions'); }
+  },
+
+  async deletePromotion(id: string) {
+    try {
+      await deleteDoc(doc(db, 'promotions', id));
+    } catch (e) { handleFirestoreError(e, OperationType.DELETE, `promotions/${id}`); }
+  },
+
   async deleteAllNotifications() {
     try {
       const snap = await getDocs(collection(db, 'notifications'));

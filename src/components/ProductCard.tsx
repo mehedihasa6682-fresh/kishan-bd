@@ -3,9 +3,11 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
+import { usePromotions } from '../context/PromotionContext';
 import { formatCurrency } from '../lib/utils';
 import { AddToCart } from './AddToCart';
-import { ChevronDown, Weight } from 'lucide-react';
+import { ChevronDown, Weight, Zap } from 'lucide-react';
+import FlashTimer from './FlashTimer';
 
 interface ProductCardProps {
   product: any;
@@ -16,7 +18,10 @@ interface ProductCardProps {
 export default function ProductCard({ product, variant = 'grid' }: ProductCardProps) {
     const { addToCart, updateQuantity, getItemQuantity } = useCart();
     const { dData } = useLanguage();
+    const { getEffectivePrice } = usePromotions();
     const navigate = useNavigate();
+
+    const effective = getEffectivePrice(product);
     
     // Weight system states
     const isWeightBased = product.pricingType === 'weight';
@@ -33,18 +38,31 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
 
     const quantity = getItemQuantity(product.id, isWeightBased ? selectedWeight : undefined);
 
-    const basePrice = product.discountPrice || product.price || 0;
+    // Robust price parsing function
+    const parsePrice = (val: any) => {
+        if (typeof val === 'number') return val;
+        return parseFloat(String(val).replace(/[^\d.-]/g, '')) || 0;
+    };
+
+    const price = parsePrice(effective.price);
+    const discountPrice = effective.discountPrice ? parsePrice(effective.discountPrice) : null;
+    const basePrice = discountPrice || price;
+    
     const [displayPrice, setDisplayPrice] = useState(basePrice);
+    const [displayStrikePrice, setDisplayStrikePrice] = useState(price);
 
     useEffect(() => {
         if (isWeightBased && selectedWeight) {
-            // Price is per KG (1000g)
             const calculatedPrice = (basePrice / 1000) * selectedWeight;
             setDisplayPrice(calculatedPrice);
+            
+            const calculatedStrike = (price / 1000) * selectedWeight;
+            setDisplayStrikePrice(calculatedStrike);
         } else {
             setDisplayPrice(basePrice);
+            setDisplayStrikePrice(price);
         }
-    }, [selectedWeight, basePrice, isWeightBased]);
+    }, [selectedWeight, basePrice, price, isWeightBased]);
 
     const formatWeight = (w: any) => {
         const val = parseFloat(w);
@@ -63,6 +81,11 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
                     onClick={() => navigate(`/product/${product.id}`)}
                 >
                     <img src={product.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={product.name} />
+                    {effective.promotion && (
+                        <div className="absolute top-1 left-1 bg-primary text-black rounded-lg p-1 animate-pulse shadow-lg border border-black/10">
+                            <Zap size={10} fill="currentColor" />
+                        </div>
+                    )}
                 </div>
                 
                 <h3 className="font-bold text-[11px] text-white truncate mb-1 leading-tight">{dData(product.name, product.nameEn)}</h3>
@@ -70,6 +93,9 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
                 <div className="flex flex-col gap-0.5 mb-2">
                     <div className="flex items-baseline gap-1">
                         <span className="text-[13px] font-black text-primary">৳{formatCurrency(displayPrice)}</span>
+                        {discountPrice && (
+                            <span className="text-[9px] text-white/30 font-bold line-through">৳{formatCurrency(displayStrikePrice)}</span>
+                        )}
                         <span className="text-[8px] text-white/40 font-bold uppercase tracking-tighter"> / {isWeightBased ? formatWeight(selectedWeight) : product.unit}</span>
                     </div>
                     {isWeightBased && (
@@ -129,9 +155,19 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
             >
                 <img src={product.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={product.name} />
                 
-                {product.discountPrice && (
+                {effective.promotion && (
+                    <div className="absolute top-2 right-2 flex flex-col items-end gap-1 z-10">
+                        <div className="bg-primary text-black rounded-xl px-2 py-1 flex items-center gap-1 shadow-2xl animate-pulse border border-black/10">
+                            <Zap size={10} fill="currentColor" />
+                            <span className="text-[8px] font-black uppercase tracking-widest">Flash</span>
+                        </div>
+                        <FlashTimer endTime={effective.promotion.endTime} />
+                    </div>
+                )}
+
+                {discountPrice && (
                     <div className="absolute top-1.5 left-0 bg-primary text-black text-[8px] font-black px-1.5 py-0.5 rounded-r-md shadow-lg">
-                        SAVE ৳{product.price - product.discountPrice}
+                        SAVE ৳{formatCurrency(isWeightBased ? (displayStrikePrice - displayPrice) : (price - discountPrice))}
                     </div>
                 )}
             </div>
@@ -148,8 +184,8 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
                 <div className="flex flex-col mb-2">
                     <div className="flex items-center gap-1 flex-wrap">
                         <span className="text-[13px] font-black text-primary">৳{formatCurrency(displayPrice)}</span>
-                        {product.discountPrice && (
-                            <span className="text-[9px] text-white/30 font-bold line-through">৳{formatCurrency(isWeightBased ? (product.price / 1000) * selectedWeight : product.price)}</span>
+                        {discountPrice && (
+                            <span className="text-[9px] text-white/30 font-bold line-through">৳{formatCurrency(displayStrikePrice)}</span>
                         )}
                         <span className="text-[8px] text-white/40 font-bold uppercase tracking-tighter"> / {isWeightBased ? formatWeight(selectedWeight) : product.unit}</span>
                     </div>

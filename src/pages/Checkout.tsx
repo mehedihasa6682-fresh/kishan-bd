@@ -31,7 +31,7 @@ export default function Checkout() {
   const [success, setSuccess] = useState(false);
   const [orderId, setOrderId] = useState('');
   
-  const [customerName, setCustomerName] = useState(customerName || user?.displayName || '');
+  const [customerName, setCustomerName] = useState(user?.displayName || '');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [location, setLocation] = useState<{lat: number, lng: number} | null>(null);

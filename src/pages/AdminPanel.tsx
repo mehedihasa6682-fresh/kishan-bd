@@ -8,16 +8,16 @@ import {
   Layers, Camera, ChevronRight, Store, X, Clock, Bell,
   ArrowLeft, User, Box, Gift, Image as ImageIcon,
   MessageSquare, Package, Eye, EyeOff, MapPin, Phone, Globe,
-  TrendingUp, ArrowUpRight
+  TrendingUp, ArrowUpRight, Zap, Percent
 } from 'lucide-react';
 import { adminService } from '../services/adminService';
 import { formatCurrency } from '../lib/utils';
-import { collection, onSnapshot, query, orderBy, where, doc } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, where, doc, getDocs, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { AuthContext } from '../App';
 import Invoice from '../components/Invoice';
 import ImageUpload from '../components/ImageUpload';
-import { format } from 'date-fns';
+import { format, addHours } from 'date-fns';
 
 import { calculateDistance, formatDistance } from '../lib/geoUtils';
 
@@ -57,6 +57,7 @@ export default function AdminPanel() {
   const [products, setProducts] = useState<any[]>([]);
   const [bundles, setBundles] = useState<any[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [promotions, setPromotions] = useState<any[]>([]);
   const [appSettings, setAppSettings] = useState<any>({ logo: '' });
 
   // Filters & Bulk Actions
@@ -120,6 +121,13 @@ export default function AdminPanel() {
     isOutOfStock: false
   });
   const [newBundle, setNewBundle] = useState({ name: '', nameEn: '', price: '', image: '', description: '', descriptionEn: '' });
+  const [newPromotion, setNewPromotion] = useState({ 
+    title: '', 
+    percentage: 5, 
+    duration: 1, 
+    targetType: 'category', 
+    targetId: '' 
+  });
 
   useEffect(() => {
     if (!authLoading && role !== 'admin') {
@@ -174,6 +182,10 @@ export default function AdminPanel() {
       setPayouts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     }, (error) => console.error("Admin Payouts:", error));
 
+    const unsubPromotions = onSnapshot(collection(db, 'promotions'), (snap) => {
+      setPromotions(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (error) => console.error("Admin Promotions:", error));
+
     return () => {
       unsubBanners();
       unsubStories();
@@ -186,6 +198,7 @@ export default function AdminPanel() {
       unsubAreas();
       unsubNotifs();
       unsubPayouts();
+      unsubPromotions();
     };
   }, [role, authLoading, navigate]);
 
@@ -323,6 +336,26 @@ export default function AdminPanel() {
     setIsAdding(false);
   };
 
+  const handleAddPromotion = async () => {
+    if (!newPromotion.title || !newPromotion.percentage || (newPromotion.targetType !== 'all' && !newPromotion.targetId)) {
+        alert('Please fill all fields');
+        return;
+    }
+
+    const durationMs = parseInt(newPromotion.duration as any) * 60 * 60 * 1000;
+    const endTime = Timestamp.fromMillis(Date.now() + durationMs);
+
+    await adminService.addPromotion({
+        ...newPromotion,
+        percentage: Number(newPromotion.percentage),
+        duration: Number(newPromotion.duration),
+        endTime: endTime
+    });
+
+    setNewPromotion({ title: '', percentage: 5, duration: 1, targetType: 'category', targetId: '' });
+    setIsAdding(false);
+  };
+
   const updateLogo = async (base64: string) => {
     await adminService.updateAppSetting('logo', base64);
   };
@@ -352,6 +385,7 @@ export default function AdminPanel() {
     { id: 'users', label: 'Users', icon: Users },
     { id: 'notifications', label: 'Mailing', icon: Bell },
     { id: 'settings', label: 'Brand & Site', icon: Settings },
+    { id: 'promotions', label: 'Flash Deals', icon: Zap },
     { id: 'financials', label: 'Financials', icon: CreditCard },
   ];
 
@@ -934,17 +968,41 @@ export default function AdminPanel() {
                         </div>
                     </div>
                     <div className="col-span-1">
-                        <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Pricing Structure</label>
+                        <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Pricing Context</label>
+                        <div className="flex gap-2">
+                           <button 
+                             type="button"
+                             onClick={() => setNewProduct({...newProduct, pricingType: 'weight', unit: 'kg'})}
+                             className={`flex-1 py-4 rounded-2xl text-[8px] font-black uppercase tracking-widest border transition-all ${newProduct.pricingType === 'weight' ? 'bg-primary text-black border-primary' : 'bg-white/5 text-white/40 border-white/10'}`}
+                           >
+                             Weight Based
+                           </button>
+                           <button 
+                             type="button"
+                             onClick={() => setNewProduct({...newProduct, pricingType: 'piece', unit: 'kg'})}
+                             className={`flex-1 py-4 rounded-2xl text-[8px] font-black uppercase tracking-widest border transition-all ${newProduct.pricingType === 'piece' && newProduct.unit === 'kg' ? 'bg-primary text-black border-primary' : 'bg-white/5 text-white/40 border-white/10'}`}
+                           >
+                             Fixed Unit
+                           </button>
+                           <button 
+                             type="button"
+                             onClick={() => setNewProduct({...newProduct, pricingType: 'piece', unit: 'piece'})}
+                             className={`flex-1 py-4 rounded-2xl text-[8px] font-black uppercase tracking-widest border transition-all ${newProduct.pricingType === 'piece' && newProduct.unit !== 'kg' ? 'bg-primary text-black border-primary' : 'bg-white/5 text-white/40 border-white/10'}`}
+                           >
+                             Per Piece
+                           </button>
+                        </div>
+                    </div>
+
+                    <div className="col-span-1">
+                        <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Sale Unit (e.g. pkt, box, kg)</label>
                         <div className="relative">
-                          <select 
-                            className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 appearance-none transition-all"
-                            value={newProduct.pricingType}
-                            onChange={e => setNewProduct({...newProduct, pricingType: e.target.value})}
-                          >
-                            <option value="piece" className="bg-slate-900">Piece Based (Default)</option>
-                            <option value="weight" className="bg-slate-900">Weight Based (KG/Grams)</option>
-                          </select>
-                          <CreditCard className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" size={16} />
+                          <input 
+                            placeholder="Unit name..." 
+                            className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all font-mono"
+                            value={newProduct.unit}
+                            onChange={e => setNewProduct({...newProduct, unit: e.target.value})}
+                          />
                         </div>
                     </div>
 
@@ -3036,12 +3094,178 @@ export default function AdminPanel() {
             </div>
           </motion.div>
         )}
+
+        {activeTab === 'promotions' && (
+          <motion.div
+            key="promotions"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="space-y-10"
+          >
+            <div className="flex items-center justify-between">
+                <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-white uppercase tracking-[0.2em]">
+                    <Zap size={32} className="text-primary" />
+                    Flash Deals & Neural Sales
+                </h3>
+                <button 
+                  onClick={() => setIsAdding(true)}
+                  className="px-8 py-4 bg-primary text-black rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3 shadow-xl shadow-primary/20 hover:scale-105 transition-all"
+                >
+                  <Plus size={18} /> Deploy Flash Deal
+                </button>
+            </div>
+            
+            <div className="grid grid-cols-1 gap-6">
+                {promotions.length === 0 ? (
+                    <div className="text-center py-24 bg-white/5 rounded-[4rem] border border-dashed border-white/10">
+                        <Zap size={64} className="mx-auto text-white/5 mb-6" />
+                        <p className="text-[11px] font-black text-white/20 uppercase tracking-[0.4em]">No active flash sales in circulation</p>
+                    </div>
+                ) : (
+                    promotions.map(promo => {
+                        const isExpired = promo.endTime?.toDate() < new Date();
+                        return (
+                            <div key={promo.id} className={`p-8 rounded-[3rem] border shadow-2xl flex items-center justify-between group transition-all ${isExpired ? 'bg-black/40 border-white/5 opacity-50 grayscale' : 'bg-white/5 border-primary/20 hover:border-primary/40'}`}>
+                                <div className="flex items-center gap-6">
+                                    <div className={`w-16 h-16 rounded-3xl flex items-center justify-center text-2xl font-black shadow-inner border ${isExpired ? 'bg-white/5 text-white/20 border-white/5' : 'bg-primary/20 text-primary border-primary/20'}`}>
+                                        {promo.percentage}%
+                                    </div>
+                                    <div>
+                                        <h4 className="text-lg font-bold text-white mb-1 uppercase tracking-tight">{promo.title}</h4>
+                                        <div className="flex items-center gap-4">
+                                            <span className="text-[9px] font-black text-white/30 uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded border border-white/5">
+                                                Scope: {promo.targetType === 'all' ? 'Universal' : promo.targetType === 'category' ? `Category: ${promo.targetId}` : `Product: ${promo.targetId}`}
+                                            </span>
+                                            <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 ${isExpired ? 'text-red-500/60' : 'text-primary'}`}>
+                                                <Clock size={12} /> {isExpired ? 'OFFLINE' : `EXPIRES: ${promo.endTime?.toDate ? format(promo.endTime.toDate(), 'h:mm a') : '...'}`}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={() => adminService.deletePromotion(promo.id)}
+                                    className="p-4 bg-white/5 text-white/20 rounded-2xl hover:bg-red-500/10 hover:text-red-500 border border-white/5 transition-all shadow-xl"
+                                >
+                                    <Trash2 size={20} />
+                                </button>
+                            </div>
+                        );
+                    })
+                )}
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
       </div>
       
       {selectedOrder && (
         <Invoice order={selectedOrder} onClose={() => setSelectedOrder(null)} />
       )}
+
+      {/* Promotion Modal */}
+      <AnimatePresence>
+        {isAdding && activeTab === 'promotions' && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsAdding(false)}
+              className="absolute inset-0 bg-black/90 backdrop-blur-3xl"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-xl bg-[#050E21] border border-white/10 rounded-[3.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] p-12 overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-40" />
+              <h3 className="font-display font-black text-2xl text-white mb-10 flex items-center gap-4 uppercase tracking-[0.2em]">
+                  <Zap size={28} className="text-primary" /> Deploy Sale
+              </h3>
+
+              <div className="space-y-8">
+                  <div className="space-y-3">
+                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Mission Alias (Title)</label>
+                      <input 
+                          placeholder="e.g. Midnight Surge..." 
+                          className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-primary/40 font-bold transition-all"
+                          value={newPromotion.title}
+                          onChange={e => setNewPromotion({...newPromotion, title: e.target.value})}
+                      />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Discount Index (%)</label>
+                          <input 
+                              type="number" 
+                              placeholder="5" 
+                              className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-primary/40 text-center font-black"
+                              value={newPromotion.percentage}
+                              onChange={e => setNewPromotion({...newPromotion, percentage: parseInt(e.target.value)})}
+                          />
+                      </div>
+                      <div className="space-y-3">
+                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Temporal Window (Hours)</label>
+                          <select 
+                              className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-primary/40 appearance-none text-center font-black"
+                              value={newPromotion.duration}
+                              onChange={e => setNewPromotion({...newPromotion, duration: parseInt(e.target.value)})}
+                          >
+                              <option value="1">1 Hour Pulse</option>
+                              <option value="2">2 Hour Shift</option>
+                              <option value="4">4 Hour Cycle</option>
+                              <option value="12">12 Hour Phase</option>
+                              <option value="24">24 Hour Rotation</option>
+                              <option value="48">48 Hour Extended</option>
+                          </select>
+                      </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Target Protocol</label>
+                          <select 
+                              className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-primary/40 appearance-none text-center font-bold"
+                              value={newPromotion.targetType}
+                              onChange={e => setNewPromotion({...newPromotion, targetType: e.target.value, targetId: ''})}
+                          >
+                              <option value="all">Universal (All)</option>
+                              <option value="category">Category-Specific</option>
+                              <option value="product">Product-Specific</option>
+                          </select>
+                      </div>
+                      {newPromotion.targetType !== 'all' && (
+                          <div className="space-y-3">
+                              <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Target Identifier</label>
+                              <select 
+                                  className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-primary/40 appearance-none text-center font-bold"
+                                  value={newPromotion.targetId}
+                                  onChange={e => setNewPromotion({...newPromotion, targetId: e.target.value})}
+                              >
+                                  <option value="">Select Target...</option>
+                                  {newPromotion.targetType === 'category' ? 
+                                      categories.map(c => <option key={c.id} value={c.title}>{c.title}</option>) : 
+                                      products.filter(p => p.status === 'approved').map(p => <option key={p.id} value={p.id}>{p.name}</option>)
+                                  }
+                              </select>
+                          </div>
+                      )}
+                  </div>
+
+                  <button 
+                      onClick={handleAddPromotion}
+                      className="w-full py-6 mt-4 bg-primary text-black rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+                  >
+                      Execute Deployment
+                  </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

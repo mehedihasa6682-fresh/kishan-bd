@@ -6,13 +6,16 @@ import { doc, getDoc, collection, query, where, limit, getDocs } from 'firebase/
 import { db } from '../firebase';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
+import { usePromotions } from '../context/PromotionContext';
 import { AuthContext } from '../App';
 import { socialService } from '../services/socialService';
 import { Helmet } from 'react-helmet-async';
 
 import { formatCurrency } from '../lib/utils';
-
+import ProductCard from '../components/ProductCard';
 import { useSettings } from '../context/SettingsContext';
+import { Zap } from 'lucide-react';
+import FlashTimer from '../components/FlashTimer';
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -21,12 +24,24 @@ export default function ProductDetails() {
   const { addToCart, getItemQuantity, updateQuantity } = useCart();
   const { dData, t } = useLanguage();
   const { settings: appSettings } = useSettings();
+  const { getEffectivePrice } = usePromotions();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  // Price parsing helpers
+  const parsePrice = (val: any) => {
+    if (typeof val === 'number') return val;
+    return parseFloat(String(val).replace(/[^\d.-]/g, '')) || 0;
+  };
   
   // Weight system states
   const [selectedWeight, setSelectedWeight] = useState<number>(0);
   const isWeightBased = product?.pricingType === 'weight';
+
+  const effective = product ? getEffectivePrice(product) : { price: 0, discountPrice: null, promotion: null };
+  const productPrice = parsePrice(effective.price);
+  const productDiscountPrice = effective.discountPrice ? parsePrice(effective.discountPrice) : null;
+  const unitBasePrice = productDiscountPrice || productPrice;
   
   const allowedWeights = React.useMemo(() => {
     if (!product?.allowedWeights) return [];
@@ -183,6 +198,17 @@ export default function ProductDetails() {
                 {product.category}
               </span>
               <h1 className="font-display font-black text-3xl text-white leading-tight tracking-tight">{dData(product.name, product.nameEn)}</h1>
+              {effective.promotion && (
+                  <div className="mt-3 flex flex-col gap-2">
+                    <div className="bg-primary/20 text-primary px-3 py-1.5 rounded-full w-fit flex items-center gap-1.5 border border-primary/30 backdrop-blur-md animate-pulse">
+                        <Zap size={12} fill="currentColor" />
+                        <span className="text-[9px] font-black uppercase tracking-widest">Active Flash Sale: {effective.promotion.title}</span>
+                    </div>
+                    <div className="w-fit">
+                        <FlashTimer endTime={effective.promotion.endTime} />
+                    </div>
+                  </div>
+              )}
               {product.isPreOrder && (
                   <div className="mt-3 bg-blue-500/20 text-blue-300 px-3 py-1.5 rounded-full w-fit flex items-center gap-1.5 border border-blue-500/30 backdrop-blur-md">
                       <Clock size={12} />
@@ -230,26 +256,36 @@ export default function ProductDetails() {
             <div className="flex flex-col">
               <div className="flex items-baseline gap-3">
                 <span className="text-4xl font-display font-black text-primary leading-none tracking-tight drop-shadow-md">
-                   ৳{formatCurrency((isWeightBased 
-                      ? ((product.discountPrice || product.price || 0) / 1000) * selectedWeight 
-                      : (product.discountPrice || product.price || 0)) * (qtyInCart || 1))}
+                   ৳{formatCurrency(isWeightBased 
+                      ? (unitBasePrice / 1000) * selectedWeight 
+                      : unitBasePrice)}
                 </span>
-                {product.discountPrice && (
+                {productDiscountPrice && (
                     <span className="text-xl font-bold text-white/20 line-through">
-                       ৳{formatCurrency((isWeightBased 
-                          ? (product.price / 1000) * selectedWeight 
-                          : product.price) * (qtyInCart || 1))}
+                       ৳{formatCurrency(isWeightBased 
+                          ? (productPrice / 1000) * selectedWeight 
+                          : productPrice)}
                     </span>
                 )}
                 <span className="text-xs font-black text-white/30 uppercase tracking-widest">
-                  / {(qtyInCart || 1)}{isWeightBased ? formatWeight(selectedWeight) : (product.unit || 'pkt')}
+                  / {isWeightBased ? formatWeight(selectedWeight) : (product.unit || 'pkt')}
                 </span>
               </div>
+              
+              {qtyInCart > 0 && (
+                <div className="mt-2 text-[10px] font-bold text-white/40 uppercase tracking-widest flex items-center gap-2">
+                   <div className="w-1 h-1 bg-primary rounded-full animate-pulse"></div>
+                   Cart Total: ৳{formatCurrency((isWeightBased 
+                      ? (unitBasePrice / 1000) * selectedWeight 
+                      : unitBasePrice) * qtyInCart)}
+                </div>
+              )}
+
               <div className="text-[9px] text-white/40 mt-3 font-black uppercase tracking-widest bg-white/5 self-start px-4 py-1.5 rounded-full border border-white/5">
                 {isWeightBased ? (
-                    <>BASE PRICE: ৳{formatCurrency(product.discountPrice || product.price || 0)} / KG</>
+                    <>BASE PRICE: ৳{formatCurrency(unitBasePrice)} / KG</>
                 ) : (
-                    <>Targeting: ৳{formatCurrency(product.discountPrice || product.price || 0)} PER {product.unit || 'UNIT'}</>
+                    <>Targeting: ৳{formatCurrency(unitBasePrice)} PER {product.unit || 'UNIT'}</>
                 )}
               </div>
             </div>
@@ -506,32 +542,7 @@ export default function ProductDetails() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                     {relatedProducts.map((p) => (
-                        <div 
-                            key={p.id}
-                            onClick={() => {
-                                navigate(`/product/${p.id}`);
-                                window.scrollTo(0, 0);
-                            }}
-                            className="glass-card p-3 group cursor-pointer border-white/10"
-                        >
-                            <div className="aspect-square rounded-2xl overflow-hidden mb-3 bg-white/5 border border-white/5 relative">
-                                <img 
-                                    src={p.image} 
-                                    alt={p.name} 
-                                    loading="lazy"
-                                    className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700" 
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#050E21]/40 to-transparent" />
-                            </div>
-                            <h4 className="font-bold text-xs text-white truncate mb-1 px-1">{dData(p.name, p.nameEn)}</h4>
-                            <div className="flex items-center justify-between px-1">
-                                <span className="text-sm font-black text-primary">৳{formatCurrency(p.price || 0)}</span>
-                                <div className="flex items-center gap-1">
-                                    <Star size={10} className="text-primary fill-primary" />
-                                    <span className="text-[10px] font-black text-white/40">{p.rating || '5.0'}</span>
-                                </div>
-                            </div>
-                        </div>
+                        <ProductCard key={p.id} product={p} />
                     ))}
                 </div>
             </div>

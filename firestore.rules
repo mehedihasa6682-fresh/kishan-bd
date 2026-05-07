@@ -23,7 +23,9 @@ service cloud.firestore {
     function isAdmin() {
       return isSignedIn() && (
         request.auth.token.email == 'mehedihasa6682@gmail.com' ||
-        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+        request.auth.uid == 'sGdQvLq7zlP3a7zAZvUI2SgvkY93' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'user') == 'admin')
       );
     }
     
@@ -120,6 +122,11 @@ service cloud.firestore {
       allow create: if isSignedIn() && (isSeller() || isRider()) && incoming().userId == request.auth.uid;
       allow update: if isAdmin();
       allow delete: if isAdmin();
+    }
+
+    match /promotions/{promoId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
     }
 
     match /_connection_test_/ping {
