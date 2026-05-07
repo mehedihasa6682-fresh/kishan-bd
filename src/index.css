@@ -28,15 +28,18 @@
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 }
 
+html, body {
+  overscroll-behavior-y: none;
+  height: 100%;
+}
+
 @layer base {
   body {
     @apply text-white font-sans antialiased;
     background: linear-gradient(to bottom, var(--color-dark-blue), var(--color-royal-blue));
     background-attachment: fixed;
-    min-height: 100vh;
     -webkit-tap-highlight-color: transparent;
-    overscroll-behavior-y: none;
-    scroll-behavior: smooth;
+    -webkit-touch-callout: none;
   }
 
   img {
