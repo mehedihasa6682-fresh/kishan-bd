@@ -63,12 +63,12 @@ export default function Navbar() {
         style={{ borderStyle: 'solid', fontFamily: 'Outfit, sans-serif' }}
       >
         <div className="max-w-md mx-auto w-full">
-          {/* Row 1: Logo & Actions (Hides on Scroll if search is present) */}
+          {/* Row 1: Logo & Actions (Hides on Scroll) */}
           <motion.div 
             animate={{ 
-              height: (isScrolled && (location.pathname === '/' || location.pathname === '/discounts')) ? 0 : 'auto',
-              opacity: (isScrolled && (location.pathname === '/' || location.pathname === '/discounts')) ? 0 : 1,
-              marginBottom: (isScrolled && (location.pathname === '/' || location.pathname === '/discounts')) ? 0 : 8
+              height: isScrolled ? 0 : 'auto',
+              opacity: isScrolled ? 0 : 1,
+              marginBottom: isScrolled ? 0 : 8
             }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="flex items-center justify-between w-full overflow-hidden"

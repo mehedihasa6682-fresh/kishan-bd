@@ -35,9 +35,9 @@ export default function FlashTimer({ endTime }: FlashTimerProps) {
   if (isExpired) return null;
 
   return (
-    <div className="flex items-center gap-1 bg-red-500/20 backdrop-blur-md rounded-lg px-2 py-1 border border-red-500/30">
-      <Clock size={10} className="text-red-400 animate-pulse" />
-      <div className="flex items-center gap-0.5 font-mono text-[9px] font-black text-red-400">
+    <div className="flex items-center gap-1 bg-black/60 backdrop-blur-sm rounded-lg px-1.5 py-0.5 border border-white/10 shrink-0">
+      <Clock size={8} className="text-primary animate-pulse" />
+      <div className="flex items-center gap-0.5 font-mono text-[8px] font-black text-white">
         <span>{String(timeLeft.h).padStart(2, '0')}</span>
         <span className="animate-pulse">:</span>
         <span>{String(timeLeft.m).padStart(2, '0')}</span>

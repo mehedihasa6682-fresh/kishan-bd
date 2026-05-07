@@ -9,24 +9,14 @@ export default function PWAInstall() {
   const { settings: appSettings } = useSettings();
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSHint, setShowIOSHint] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
     // Check if iOS
     const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
     setIsIOS(isIOSDevice);
-    
-    // Check if already dismissed in session
-    const isDismissed = sessionStorage.getItem('pwa_hint_dismissed');
-    if (isDismissed) setDismissed(true);
   }, []);
 
-  const handleDismiss = () => {
-    setDismissed(true);
-    sessionStorage.setItem('pwa_hint_dismissed', 'true');
-  };
-
-  if (dismissed || pwa?.isInstalled) return null;
+  if (pwa?.isInstalled) return null;
 
   // For Android/Chrome/Desktop
   const showPrompt = pwa?.deferredPrompt;
@@ -39,19 +29,19 @@ export default function PWAInstall() {
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 50, opacity: 0 }}
-        className="fixed bottom-24 left-4 right-4 z-[100] bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-[2.5rem] flex items-center justify-between shadow-2xl md:max-w-md md:left-auto md:right-8"
+        className="fixed bottom-24 left-4 right-4 z-[100] bg-black/90 backdrop-blur-xl border border-white/10 p-3 rounded-[2rem] flex items-center justify-between shadow-2xl md:max-w-md md:left-auto md:right-8"
       >
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-center shrink-0">
             {appSettings.logo ? (
-                <img src={appSettings.logo} className="w-8 h-8 object-contain" alt="Logo" />
+                <img src={appSettings.logo} className="w-6 h-6 object-contain" alt="Logo" />
             ) : (
-                <Download size={24} className="text-primary" />
+                <Download size={20} className="text-primary" />
             )}
           </div>
           <div>
-            <h4 className="text-white font-bold text-sm tracking-tight">App ইনস্টল করুন</h4>
-            <p className="text-white/40 text-[10px] font-medium leading-tight">দ্রুত ব্যবহার ও আপডেট পেতে অ্যাপটি ইনস্টল করুন</p>
+            <h4 className="text-white font-bold text-xs tracking-tight">অ্যাপ ইনস্টল করুন</h4>
+            <p className="text-white/40 text-[9px] font-medium leading-tight">দ্রুত ব্যবহার ও আপডেট পান</p>
           </div>
         </div>
 
@@ -59,21 +49,18 @@ export default function PWAInstall() {
             {isIOS ? (
               <button 
                 onClick={() => setShowIOSHint(true)}
-                className="bg-primary text-black px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2"
+                className="bg-primary text-black px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2"
               >
-                পদ্ধতি দেখুন
+                পদ্ধতি
               </button>
             ) : (
               <button 
                 onClick={pwa.install}
-                className="bg-primary text-black px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2"
+                className="bg-primary text-black px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2"
               >
                 ইনস্টল
               </button>
             )}
-            <button onClick={handleDismiss} className="p-2 text-white/40 hover:text-white">
-              <X size={16} />
-            </button>
         </div>
 
         {/* Modal for iOS Instructions */}

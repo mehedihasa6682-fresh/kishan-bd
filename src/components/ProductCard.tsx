@@ -156,10 +156,10 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
                 <img src={product.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={product.name} />
                 
                 {effective.promotion && (
-                    <div className="absolute top-2 right-2 flex flex-col items-end gap-1 z-10">
-                        <div className="bg-primary text-black rounded-xl px-2 py-1 flex items-center gap-1 shadow-2xl animate-pulse border border-black/10">
-                            <Zap size={10} fill="currentColor" />
-                            <span className="text-[8px] font-black uppercase tracking-widest">Flash</span>
+                    <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between gap-2 z-10">
+                        <div className="bg-primary text-black rounded-lg px-1.5 py-0.5 flex items-center gap-1 shadow-lg border border-black/10 animate-pulse shrink-0">
+                            <Zap size={8} fill="currentColor" />
+                            <span className="text-[7px] font-black uppercase tracking-tighter">Flash Sale</span>
                         </div>
                         <FlashTimer endTime={effective.promotion.endTime} />
                     </div>
