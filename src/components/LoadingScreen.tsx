@@ -14,9 +14,13 @@ export const LoadingScreen: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="flex flex-col items-center"
       >
-        <div className="w-24 h-24 bg-[#D4AF37] rounded-[2rem] flex items-center justify-center shadow-[0_0_50px_rgba(212,175,55,0.2)] mb-6 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent animate-pulse" />
-          <ShoppingBasket size={48} className="text-[#050E21] relative z-10" />
+        <div className="w-24 h-24 bg-white/5 rounded-[2rem] flex items-center justify-center shadow-[0_0_50px_rgba(212,175,55,0.05)] mb-6 relative overflow-hidden group border border-white/10">
+          <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent animate-pulse" />
+          {settings.logo ? (
+            <img src={settings.logo} className="w-16 h-16 object-contain relative z-10" alt={settings.appName} />
+          ) : (
+            <ShoppingBasket size={48} className="text-primary relative z-10" />
+          )}
         </div>
         
         <h1 className="text-2xl font-display font-black text-white tracking-[0.2em] uppercase mb-1">

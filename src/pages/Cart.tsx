@@ -56,7 +56,7 @@ export default function Cart() {
         <AnimatePresence>
           {items.map((item) => (
             <motion.div
-              key={item.id}
+              key={`${item.id}-${item.selectedWeight}`}
               layout
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -74,14 +74,16 @@ export default function Cart() {
                 <h3 className="font-bold text-xs text-white mb-0.5 truncate">{dData(item.name, item.nameEn)}</h3>
                 <div className="flex items-baseline gap-1.5 mb-2">
                   <span className="text-primary font-black text-sm">৳{formatCurrency(item.price || 0)}</span>
-                  <span className="text-[10px] text-white/40 font-medium">/ {item.unit || 'unit'}</span>
+                  <span className="text-[10px] text-white/40 font-medium">
+                    / {item.selectedWeight ? (item.selectedWeight >= 1000 ? `${item.selectedWeight / 1000}KG` : `${item.selectedWeight}g`) : (item.unit || 'piece')}
+                  </span>
                 </div>
                 
                 <div className="flex items-center gap-3">
                   <div className="flex items-center bg-white/5 rounded-2xl p-1 w-fit border border-white/5">
                     <motion.button 
                       whileTap={{ scale: 0.9 }}
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)} 
+                      onClick={() => updateQuantity(item.id, item.quantity - 1, item.selectedWeight)} 
                       className="w-8 h-8 flex items-center justify-center bg-white/10 rounded-xl shadow-sm text-white disabled:opacity-30 disabled:shadow-none transition-all"
                       disabled={item.quantity <= 1}
                     >
@@ -102,10 +104,10 @@ export default function Cart() {
                         </motion.span>
                       </AnimatePresence>
                     </div>
-
+ 
                     <motion.button 
                       whileTap={{ scale: 0.9 }}
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)} 
+                      onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedWeight)} 
                       className="w-8 h-8 flex items-center justify-center bg-primary text-black rounded-xl shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
                     >
                       <Plus size={14} strokeWidth={3} />
@@ -117,7 +119,7 @@ export default function Cart() {
               <div className="flex flex-col items-end gap-2">
                 <span className="font-display font-black text-white text-sm">৳{formatCurrency((item.price || 0) * (item.quantity || 1))}</span>
                 <button 
-                  onClick={() => removeFromCart(item.id)}
+                  onClick={() => removeFromCart(item.id, item.selectedWeight)}
                   className="p-2 text-white/20 hover:text-red-500 transition-colors"
                 >
                   <Trash2 size={16} />

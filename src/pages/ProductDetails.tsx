@@ -1,4 +1,4 @@
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingCart, ArrowLeft, Star, Clock, MapPin, Plus, Minus, ShieldCheck, Store, Send, User as UserIcon, Heart, Phone, MessageCircle, ChevronDown } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import React, { useState, useEffect, useContext } from 'react';
@@ -18,13 +18,24 @@ export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const { addToCart } = useCart();
+  const { addToCart, getItemQuantity, updateQuantity } = useCart();
   const { dData, t } = useLanguage();
   const { settings: appSettings } = useSettings();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [qty, setQty] = useState(1);
   
+  // Weight system states
+  const [selectedWeight, setSelectedWeight] = useState<number>(0);
+  const isWeightBased = product?.pricingType === 'weight';
+  
+  const allowedWeights = React.useMemo(() => {
+    if (!product?.allowedWeights) return [];
+    if (Array.isArray(product.allowedWeights)) return product.allowedWeights;
+    return product.allowedWeights.split(',').map((s: string) => s.trim());
+  }, [product?.allowedWeights]);
+
+  const qtyInCart = getItemQuantity(id || '', isWeightBased ? selectedWeight : undefined);
+
   const [reviews, setReviews] = useState<any[]>([]);
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
   const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
@@ -41,6 +52,12 @@ export default function ProductDetails() {
           const data = snap.data();
           const productData = { id: snap.id, ...data } as any;
           setProduct(productData);
+          
+          // Initialize weight if weight based
+          if (productData.pricingType === 'weight') {
+              const weightVal = parseFloat(productData.defaultWeight) || parseFloat(productData.allowedWeights?.[0]) || 250;
+              setSelectedWeight(weightVal);
+          }
           
           // Fetch related
           const q = query(collection(db, 'products'), where('category', '==', productData.category), limit(4));
@@ -99,6 +116,12 @@ export default function ProductDetails() {
     if (id) {
         await socialService.toggleWishlist(user.uid, id);
     }
+  };
+
+  const formatWeight = (w: any) => {
+    const val = parseFloat(w);
+    if (isNaN(val)) return w;
+    return val >= 1000 ? `${val / 1000}KG` : `${val}g`;
   };
 
   if (loading) return (
@@ -206,48 +229,106 @@ export default function ProductDetails() {
             {/* Price section */}
             <div className="flex flex-col">
               <div className="flex items-baseline gap-3">
-                <span className="text-4xl font-display font-black text-primary leading-none tracking-tight drop-shadow-md">৳{formatCurrency((product.discountPrice || product.price || 0) * qty)}</span>
+                <span className="text-4xl font-display font-black text-primary leading-none tracking-tight drop-shadow-md">
+                   ৳{formatCurrency((isWeightBased 
+                      ? ((product.discountPrice || product.price || 0) / 1000) * selectedWeight 
+                      : (product.discountPrice || product.price || 0)) * (qtyInCart || 1))}
+                </span>
                 {product.discountPrice && (
-                    <span className="text-xl font-bold text-white/20 line-through">৳{formatCurrency((product.price || 0) * qty)}</span>
+                    <span className="text-xl font-bold text-white/20 line-through">
+                       ৳{formatCurrency((isWeightBased 
+                          ? (product.price / 1000) * selectedWeight 
+                          : product.price) * (qtyInCart || 1))}
+                    </span>
                 )}
                 <span className="text-xs font-black text-white/30 uppercase tracking-widest">
-                  / {qty}{product.unit || 'pkt'}
+                  / {(qtyInCart || 1)}{isWeightBased ? formatWeight(selectedWeight) : (product.unit || 'pkt')}
                 </span>
               </div>
               <div className="text-[9px] text-white/40 mt-3 font-black uppercase tracking-widest bg-white/5 self-start px-4 py-1.5 rounded-full border border-white/5">
-                Targeting: ৳{formatCurrency(product.discountPrice || product.price || 0)} PER {product.unit || 'UNIT'}
+                {isWeightBased ? (
+                    <>BASE PRICE: ৳{formatCurrency(product.discountPrice || product.price || 0)} / KG</>
+                ) : (
+                    <>Targeting: ৳{formatCurrency(product.discountPrice || product.price || 0)} PER {product.unit || 'UNIT'}</>
+                )}
               </div>
             </div>
 
-            {/* Quantity Selector */}
+            {/* Weight Selection Chips */}
+            {isWeightBased && (
+                <div className="space-y-4">
+                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] flex items-center gap-3">
+                        <div className="w-10 h-[1px] bg-white/10"></div>
+                        Select Option
+                    </label>
+                    <div className="flex flex-wrap gap-3">
+                        {allowedWeights.map((w: any) => (
+                            <button
+                                key={w}
+                                onClick={() => setSelectedWeight(parseFloat(w))}
+                                className={`px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border ${
+                                    selectedWeight === parseFloat(w)
+                                        ? 'bg-primary text-black border-primary shadow-[0_10px_20px_rgba(212,175,55,0.2)] scale-105'
+                                        : 'bg-white/5 text-white/40 border-white/10 hover:border-white/20'
+                                }`}
+                            >
+                                {formatWeight(w)}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Quantity Selector / Add Flow */}
             <div className="space-y-4">
               <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] flex items-center gap-3">
                 <div className="w-10 h-[1px] bg-white/10"></div>
-                Quantity Selection
+                {qtyInCart > 0 ? 'Managing Selection' : 'Quantity Selection'}
               </label>
-              <div className="flex items-center gap-8 bg-white/5 p-2 rounded-3xl border border-white/5 w-fit backdrop-blur-md">
-                <motion.button 
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setQty(Math.max(1, qty - 1))}
-                  className="w-14 h-14 bg-white/10 rounded-2xl shadow-xl flex items-center justify-center text-white hover:bg-white/20 transition-all border border-white/10"
-                >
-                  <Minus size={24} strokeWidth={3} />
-                </motion.button>
-                
-                <div className="flex flex-col items-center min-w-[100px]">
-                  <span className="font-black text-2xl font-display text-white tracking-tighter">
-                    {qty} <span className="text-primary text-sm uppercase tracking-widest ml-1">{product.unit || 'pcs'}</span>
-                  </span>
-                </div>
+              
+              <AnimatePresence mode="wait">
+                {qtyInCart === 0 ? (
+                  <motion.button
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    onClick={() => addToCart(product, isWeightBased ? selectedWeight : undefined)}
+                    className="w-full bg-primary text-black font-black uppercase tracking-[0.2em] text-xs py-6 rounded-[2rem] shadow-[0_15px_35px_rgba(212,175,55,0.2)] transition-all flex items-center justify-center gap-3 h-20"
+                  >
+                    <ShoppingCart size={24} />
+                    Add to Cart Corner
+                  </motion.button>
+                ) : (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex items-center gap-8 bg-white/5 p-3 rounded-[2.5rem] border border-white/10 w-full backdrop-blur-md"
+                  >
+                    <motion.button 
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => updateQuantity(product.id, qtyInCart - 1, isWeightBased ? selectedWeight : undefined)}
+                      className="w-16 h-16 bg-white/10 rounded-3xl shadow-xl flex items-center justify-center text-white hover:bg-white/20 transition-all border border-white/10"
+                    >
+                      <Minus size={28} strokeWidth={3} />
+                    </motion.button>
+                    
+                    <div className="flex-1 flex flex-col items-center">
+                      <span className="font-black text-3xl font-display text-white tracking-tighter">
+                        {qtyInCart} <span className="text-primary text-sm uppercase tracking-widest ml-1">{isWeightBased ? formatWeight(selectedWeight) : (product.unit || 'pcs')}</span>
+                      </span>
+                      <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em] mt-1">Adjust Quantity</span>
+                    </div>
 
-                <motion.button 
-                   whileTap={{ scale: 0.9 }}
-                   onClick={() => setQty(qty + 1)}
-                   className="w-14 h-14 bg-primary rounded-2xl shadow-[0_10px_25px_rgba(212,175,55,0.3)] flex items-center justify-center text-black transition-all hover:bg-white"
-                >
-                  <Plus size={24} strokeWidth={3} />
-                </motion.button>
-              </div>
+                    <motion.button 
+                       whileTap={{ scale: 0.9 }}
+                       onClick={() => updateQuantity(product.id, qtyInCart + 1, isWeightBased ? selectedWeight : undefined)}
+                       className="w-16 h-16 bg-primary rounded-3xl shadow-[0_10px_25px_rgba(212,175,55,0.3)] flex items-center justify-center text-black transition-all hover:bg-white"
+                    >
+                      <Plus size={28} strokeWidth={3} />
+                    </motion.button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 
@@ -255,29 +336,20 @@ export default function ProductDetails() {
             <div className="grid grid-cols-2 gap-4">
               <motion.button 
                 whileTap={{ scale: 0.95 }}
+                disabled={qtyInCart === 0}
                 onClick={() => {
-                    addToCart({ ...product, quantity: qty });
-                    const btn = document.getElementById('add-to-cart-btn-main');
-                    if (btn) {
-                      btn.innerText = 'Added!';
-                      setTimeout(() => { btn.innerText = product.isPreOrder ? 'Pre-order' : t('cart.tab_title'); }, 2000);
-                    }
+                    navigate('/checkout');
                 }}
-                id="add-to-cart-btn-main"
-                className="bg-primary hover:bg-white text-black font-black uppercase tracking-[0.2em] text-xs py-5 rounded-[1.5rem] shadow-[0_15px_35px_rgba(212,175,55,0.2)] transition-all flex items-center justify-center gap-3 h-16"
+                className={`text-white font-black uppercase tracking-[0.2em] text-xs py-5 rounded-[1.5rem] border border-white/20 transition-all flex items-center justify-center shadow-2xl h-16 ${qtyInCart > 0 ? 'bg-primary/20 hover:bg-primary/30 border-primary/30' : 'bg-white/5 opacity-50 cursor-not-allowed'}`}
               >
-                <ShoppingCart size={20} />
-                {product.isPreOrder ? 'Pre-order' : t('cart.tab_title')}
+                Proceed to Checkout
               </motion.button>
               <motion.button 
                 whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  addToCart({ ...product, quantity: qty });
-                  navigate('/checkout');
-                }}
-                className="bg-white/10 hover:bg-white/20 text-white font-black uppercase tracking-[0.2em] text-xs py-5 rounded-[1.5rem] border border-white/20 transition-all flex items-center justify-center shadow-2xl h-16"
+                onClick={() => navigate('/')}
+                className="bg-white/5 hover:bg-white/10 text-white/60 font-black uppercase tracking-[0.2em] text-xs py-5 rounded-[1.5rem] border border-white/10 transition-all flex items-center justify-center h-16"
               >
-                Buy Now
+                Continue Shopping
               </motion.button>
             </div>
             

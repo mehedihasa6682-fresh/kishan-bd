@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { auth, db } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
@@ -6,9 +6,10 @@ import { useState, useEffect, createContext, useContext } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CartProvider } from './context/CartContext';
 import { LanguageProvider } from './context/LanguageContext';
-import { SettingsProvider } from './context/SettingsContext';
-import { HelmetProvider } from 'react-helmet-async';
+import { SettingsProvider, useSettings } from './context/SettingsContext';
+import { HelmetProvider, Helmet } from 'react-helmet-async';
 import { MessagingService } from './services/messagingService';
+import { useLanguage } from './context/LanguageContext';
 
 // Pages - to be created
 import Home from './pages/Home';
@@ -33,6 +34,7 @@ import WhatsAppSupport from './components/WhatsAppSupport';
 import NotificationPrompt from './components/NotificationPrompt';
 import QuickCheckoutToast from './components/QuickCheckoutToast';
 import { LoadingScreen } from './components/LoadingScreen';
+import { Search } from 'lucide-react';
 
 interface AuthContextType {
   user: User | null;
@@ -194,11 +196,16 @@ export default function App() {
 
   return (
     <HelmetProvider>
+      <Helmet>
+        <title>{profile?.storeName || (role === 'admin' ? 'Admin Console' : (role === 'rider' ? 'Rider Ops' : 'Market'))}</title>
+      </Helmet>
       <AuthContext.Provider value={{ user, loading, dataLoading, setDataLoading, role, profile, pwa }}>
         <SettingsProvider>
           <LanguageProvider>
+            <SettingsSEOManager />
             <CartProvider>
               <Router>
+                <RedirectManager />
                 <RoutesContent />
               </Router>
             </CartProvider>
@@ -207,6 +214,126 @@ export default function App() {
       </AuthContext.Provider>
     </HelmetProvider>
   );
+}
+
+function SettingsSEOManager() {
+    const { settings } = useSettings();
+    const { language } = useLanguage();
+    
+    const title = settings.seoTitle || settings.appName || 'Supermarket';
+    const description = settings.seoDescription || 'Modern grocery shopping experience.';
+    const keywords = settings.seoKeywords || settings.domainMisspellings || 'grocery, fresh, shopping';
+    const canonical = settings.canonicalUrl || `https://${settings.primaryDomain || window.location.hostname}${window.location.pathname}`;
+
+    return (
+        <Helmet>
+            <title>{title}</title>
+            <meta name="description" content={description} />
+            <meta name="keywords" content={keywords} />
+            <link rel="canonical" href={canonical} />
+            
+            {/* Open Graph */}
+            <meta property="og:title" content={settings.ogTitle || title} />
+            <meta property="og:description" content={settings.ogDescription || description} />
+            {settings.logo && <meta property="og:image" content={settings.logo} />}
+            <meta property="og:type" content="website" />
+
+            {/* Robots */}
+            {!settings.allowIndexing && <meta name="robots" content="noindex, nofollow" />}
+            {settings.allowIndexing && <meta name="robots" content="index, follow" />}
+            
+            {/* Language Alternative */}
+            <link rel="alternate" hrefLang={language === 'bn' ? 'bn-BD' : 'en-US'} href={canonical} />
+        </Helmet>
+    );
+}
+
+function RedirectManager() {
+    const { settings } = useSettings();
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!settings.redirectRules) return;
+
+        const rule = settings.redirectRules.find((r: any) => r.from === location.pathname);
+        if (rule) {
+            console.log(`Smart Redirect: ${rule.from} -> ${rule.to} (${rule.type})`);
+            navigate(rule.to, { replace: rule.type === '301' });
+        }
+
+        // WWW Enforcement logic
+        if (settings.enforceWww && !window.location.hostname.startsWith('www.')) {
+            const newUrl = window.location.href.replace('://', '://www.');
+            if (process.env.NODE_ENV === 'production') {
+                window.location.replace(newUrl);
+            }
+        }
+    }, [location.pathname, settings]);
+
+    return null;
+}
+
+function BrokenUrlPage() {
+    const { settings } = useSettings();
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        if (settings.brokenUrlAction === 'home') {
+            navigate('/', { replace: true });
+        }
+    }, [settings.brokenUrlAction, navigate]);
+
+    if (settings.brokenUrlAction === 'home') return null;
+
+    return (
+        <div className="min-h-screen bg-black flex items-center justify-center px-6">
+            <div className="max-w-md w-full bg-white/5 border border-white/10 p-12 rounded-[3.5rem] shadow-2xl text-center relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16" />
+                <div className="relative z-10 space-y-8">
+                    <div className="w-20 h-20 bg-primary/10 border border-primary/20 rounded-3xl flex items-center justify-center mx-auto text-primary">
+                        <Search size={40} />
+                    </div>
+                    <div>
+                        <h2 className="font-display font-black text-2xl text-white mb-3">Path Not Identified</h2>
+                        <p className="text-white/40 text-sm font-medium leading-relaxed">
+                            The section <span className="text-primary font-mono">{location.pathname}</span> is beyond our current grid.
+                        </p>
+                    </div>
+                    
+                    {settings.brokenUrlAction === 'suggest' && (
+                        <div className="p-6 bg-black/40 border border-white/5 rounded-3xl space-y-4">
+                            <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Cognitive Suggestion</p>
+                            <div className="space-y-3">
+                                <button 
+                                    onClick={() => navigate('/')}
+                                    className="w-full py-4 bg-primary text-black rounded-2xl text-[10px] font-black uppercase tracking-widest"
+                                >
+                                    Return to Home Core
+                                </button>
+                                <button 
+                                    onClick={() => navigate('/products')}
+                                    className="w-full py-4 bg-white/5 text-white/60 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest"
+                                >
+                                    Access Global Catalog
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {settings.brokenUrlAction === '404' && (
+                         <button 
+                             onClick={() => navigate('/')}
+                             className="w-full py-4 bg-white/5 text-white/60 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest"
+                         >
+                             Return to Home
+                         </button>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
 }
 
 function RoutesContent() {
@@ -276,7 +403,7 @@ function RoutesContent() {
             {/* Rider Routes */}
             <Route path="/rider/*" element={role === 'rider' || role === 'admin' ? <RiderDashboard /> : <Navigate to="/" />} />
             
-            <Route path="*" element={<Navigate to="/" />} />
+            <Route path="*" element={<BrokenUrlPage />} />
           </Routes>
         </motion.div>
       </AnimatePresence>

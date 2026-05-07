@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plus, Minus } from 'lucide-react';
 
@@ -17,6 +17,12 @@ export const AddToCart: React.FC<AddToCartProps> = ({
 }) => {
   const [quantity, setQuantity] = useState(initialQuantity);
   const [isAdded, setIsAdded] = useState(initialQuantity > 0);
+
+  // Sync with parent state when weight selection changes
+  useEffect(() => {
+    setQuantity(initialQuantity);
+    setIsAdded(initialQuantity > 0);
+  }, [initialQuantity]);
 
   const handleAddClick = () => {
     setIsAdded(true);

@@ -14,7 +14,11 @@ import { auth, db, OperationType, handleFirestoreError } from '../firebase';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Lock, User, Store, ShieldCheck, Github, Chrome, ArrowRight, UserPlus, LogIn, MapPin, Phone } from 'lucide-react';
 
+import { AuthContext } from '../App';
+import { useSettings } from '../context/SettingsContext';
+
 export default function Auth() {
+  const { settings } = useSettings();
   const [isLogin, setIsLogin] = useState(true);
   const [isResetting, setIsResetting] = useState(false);
   const [role, setRole] = useState<'customer' | 'seller' | 'rider'>('customer');
@@ -144,11 +148,17 @@ export default function Auth() {
   return (
     <div className="w-full max-w-sm mx-auto">
       <div className="flex flex-col items-center mb-8">
-        <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-3xl flex items-center justify-center text-primary mb-4 shadow-xl">
-          {isResetting ? <Mail size={32} /> : (isLogin ? <LogIn size={32} /> : <UserPlus size={32} />)}
+        <div className="mb-6">
+          {settings.logo ? (
+            <img src={settings.logo} className="w-20 h-20 object-contain drop-shadow-2xl" alt={settings.appName} />
+          ) : (
+            <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-3xl flex items-center justify-center text-primary shadow-xl">
+              {isResetting ? <Mail size={32} /> : (isLogin ? <LogIn size={32} /> : <UserPlus size={32} />)}
+            </div>
+          )}
         </div>
         <h2 className="text-2xl font-display font-bold text-white">
-          {isResetting ? 'Reset Password' : (isLogin ? 'Welcome Back' : 'Create Account')}
+          {isResetting ? 'Reset Password' : (isLogin ? `Log in to ${settings.appName || 'Supermarket'}` : 'Create Account')}
         </h2>
         <p className="text-white/40 text-xs font-medium mt-1">
           {isResetting ? 'Enter your email to receive a reset link' : (isLogin ? 'Login to your account' : 'Join our grocery community')}

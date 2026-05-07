@@ -111,8 +111,12 @@ export default function AdminPanel() {
     description: '', 
     descriptionEn: '', 
     whatsappNumber: '',
-    enableWeightSystem: false,
+    searchKeywords: '',
+    pricingType: 'piece',
+    allowedWeights: '100g, 250g, 500g, 1kg',
+    defaultWeight: '250',
     stockQuantity: '100',
+    lowStockAlert: '10',
     isOutOfStock: false
   });
   const [newBundle, setNewBundle] = useState({ name: '', nameEn: '', price: '', image: '', description: '', descriptionEn: '' });
@@ -190,7 +194,7 @@ export default function AdminPanel() {
 
     // Auto-generate SEO fields if empty
     const finalSeoDescription = newProduct.seoDescription || (newProduct.nameEn + ' - ' + newProduct.descriptionEn).slice(0, 160);
-    const finalSeoKeywords = newProduct.seoKeywords || [newProduct.name, newProduct.nameEn, newProduct.category, 'fresh', 'Supermarket'].join(', ');
+    const finalSeoKeywords = newProduct.seoKeywords || [newProduct.name, newProduct.nameEn, newProduct.category, 'fresh', 'shopping'].join(', ');
 
     const productData = {
       ...newProduct,
@@ -198,10 +202,14 @@ export default function AdminPanel() {
       price: parseFloat(newProduct.price) || 0,
       discountPrice: newProduct.discountPrice ? parseFloat(newProduct.discountPrice) : null,
       stockQuantity: parseInt(newProduct.stockQuantity) || 0,
+      lowStockAlert: parseInt(newProduct.lowStockAlert as any) || 10,
       isOutOfStock: newProduct.isOutOfStock,
-      minWeight: parseFloat(newProduct.minWeight) || 1,
+      minWeight: parseFloat(newProduct.minWeight) || 0.1,
       weightIncrements: parseFloat(newProduct.weightIncrements) || 0.1,
+      allowedWeights: newProduct.allowedWeights ? newProduct.allowedWeights.split(',').map((w: string) => w.trim()) : [],
+      defaultWeight: parseFloat(newProduct.defaultWeight) || 250,
       tags: newProduct.tags ? newProduct.tags.split(',').map((t: string) => t.trim()) : [],
+      searchKeywords: newProduct.searchKeywords ? newProduct.searchKeywords.split(',').map((k: string) => k.trim().toLowerCase()) : [],
       seoDescription: finalSeoDescription,
       seoKeywords: finalSeoKeywords
     };
@@ -228,11 +236,15 @@ export default function AdminPanel() {
       description: '', 
       descriptionEn: '', 
       tags: '',
+      searchKeywords: '',
       seoDescription: '',
       seoKeywords: '',
       whatsappNumber: '',
-      enableWeightSystem: false,
+      pricingType: 'piece',
+      allowedWeights: '100g, 250g, 500g, 1kg',
+      defaultWeight: '250',
       stockQuantity: '100',
+      lowStockAlert: '10',
       isOutOfStock: false
     });
     setIsAdding(false);
@@ -257,11 +269,15 @@ export default function AdminPanel() {
       description: product.description || '',
       descriptionEn: product.descriptionEn || '',
       tags: product.tags?.join(', ') || '',
+      searchKeywords: product.searchKeywords?.join(', ') || '',
       seoDescription: product.seoDescription || '',
       seoKeywords: product.seoKeywords || '',
       whatsappNumber: product.whatsappNumber || '',
-      enableWeightSystem: product.enableWeightSystem || false,
+      pricingType: product.pricingType || 'piece',
+      allowedWeights: product.allowedWeights?.join(', ') || '100g, 250g, 500g, 1kg',
+      defaultWeight: product.defaultWeight?.toString() || '250',
       stockQuantity: product.stockQuantity?.toString() || '0',
+      lowStockAlert: product.lowStockAlert?.toString() || '10',
       isOutOfStock: product.isOutOfStock || false
     });
     setIsAdding(true);
@@ -918,6 +934,66 @@ export default function AdminPanel() {
                         </div>
                     </div>
                     <div className="col-span-1">
+                        <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Pricing Structure</label>
+                        <div className="relative">
+                          <select 
+                            className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 appearance-none transition-all"
+                            value={newProduct.pricingType}
+                            onChange={e => setNewProduct({...newProduct, pricingType: e.target.value})}
+                          >
+                            <option value="piece" className="bg-slate-900">Piece Based (Default)</option>
+                            <option value="weight" className="bg-slate-900">Weight Based (KG/Grams)</option>
+                          </select>
+                          <CreditCard className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" size={16} />
+                        </div>
+                    </div>
+
+                    {newProduct.pricingType === 'weight' && (
+                      <>
+                        <div className="col-span-1">
+                            <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Min Order Qty (Grams/Unit)</label>
+                            <input 
+                              type="number"
+                              placeholder="e.g. 100 for 100g" 
+                              className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all font-mono"
+                              value={newProduct.minWeight}
+                              onChange={e => setNewProduct({...newProduct, minWeight: e.target.value})}
+                            />
+                        </div>
+                        <div className="col-span-1">
+                            <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Allowed Options (Separated by comma)</label>
+                            <input 
+                              placeholder="100g, 250g, 500g, 1kg" 
+                              className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all"
+                              value={newProduct.allowedWeights}
+                              onChange={e => setNewProduct({...newProduct, allowedWeights: e.target.value})}
+                            />
+                        </div>
+                        <div className="col-span-1">
+                            <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Base Weight (Default selection in grams)</label>
+                            <input 
+                              type="number"
+                              placeholder="e.g. 250" 
+                              className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all font-mono"
+                              value={newProduct.defaultWeight}
+                              onChange={e => setNewProduct({...newProduct, defaultWeight: e.target.value})}
+                            />
+                        </div>
+                      </>
+                    )}
+
+                    <div className="col-span-1">
+                         <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Inventory Threshold (Alert)</label>
+                         <input 
+                           type="number"
+                           placeholder="Alert when stock below..." 
+                           className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all font-mono"
+                           value={newProduct.lowStockAlert}
+                           onChange={e => setNewProduct({...newProduct, lowStockAlert: e.target.value})}
+                         />
+                    </div>
+
+                    <div className="col-span-1">
                         <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Registry Supply</label>
                         <div className="relative">
                           <Box className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20" size={18} />
@@ -944,19 +1020,46 @@ export default function AdminPanel() {
                                 <span className="text-[11px] text-white/30 font-medium tracking-wide">Sets stock status to 'Depleted' and hides from storefront immediately.</span>
                             </div>
                         </label>
+                    </div>
 
-                        <label className="flex items-center gap-5 cursor-pointer bg-white/5 border border-white/5 p-6 rounded-[2rem] transition-all hover:border-primary/30 group">
-                            <input 
-                                type="checkbox"
-                                className="w-6 h-6 accent-primary rounded-lg"
-                                checked={newProduct.enableWeightSystem}
-                                onChange={e => setNewProduct({...newProduct, enableWeightSystem: e.target.checked})}
-                            />
-                            <div className="flex flex-col">
-                                <span className="text-sm font-bold text-white group-hover:text-primary transition-colors">Granular Precision Weighting</span>
-                                <span className="text-[11px] text-white/30 font-medium tracking-wide">Enable selection of micro-weights (e.g. 100g, 250g) for gourmet goods.</span>
-                            </div>
-                        </label>
+                    <div className="col-span-2 space-y-4">
+                        <div className="flex items-center justify-between px-2">
+                            <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block ml-2">Search Keywords / Alternate Names</label>
+                            <button 
+                                type="button"
+                                onClick={() => {
+                                    const name = (newProduct.nameEn || newProduct.name).toLowerCase();
+                                    const phoneticVariations = [
+                                        name.replace(/ch/g, 'c'),
+                                        name.replace(/k/g, 'q'),
+                                        name.replace(/sh/g, 's'),
+                                        name.replace(/ee/g, 'i'),
+                                        name.replace(/oo/g, 'u'),
+                                        name.replace(/y/g, 'i')
+                                    ];
+                                    const tokens = name.split(/\s+/);
+                                    const permutations = [
+                                        name,
+                                        ...phoneticVariations,
+                                        ...tokens
+                                    ].filter((v, i, a) => v && a.indexOf(v) === i);
+                                    
+                                    const current = newProduct.searchKeywords || '';
+                                    const merged = Array.from(new Set([...current.split(',').map(s => s.trim()), ...permutations])).filter(Boolean).join(', ');
+                                    setNewProduct({...newProduct, searchKeywords: merged});
+                                }}
+                                className="text-[8px] font-black text-primary uppercase tracking-widest hover:text-white transition-colors"
+                            >
+                                [ Cognitive Suggestion ]
+                            </button>
+                        </div>
+                        <textarea 
+                            placeholder="টমেটো, tomato, tmato, tomoto, tometo, tomato local, red tomato" 
+                            className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none h-24 resize-none focus:border-primary/40 transition-all font-medium"
+                            value={newProduct.searchKeywords || ''}
+                            onChange={e => setNewProduct({...newProduct, searchKeywords: e.target.value})}
+                        />
+                        <p className="text-[10px] text-white/20 mt-2 ml-2 font-medium tracking-wide">Enter synonyms, local names, or common misspellings separated by commas.</p>
                     </div>
 
                     <div className="col-span-2 pt-6 border-t border-white/5 mt-4">
@@ -1064,10 +1167,15 @@ export default function AdminPanel() {
                                           <Box size={14} className="text-white/20" />
                                           <input 
                                               type="number"
-                                              className="w-16 bg-white/5 border border-white/10 rounded-lg text-xs font-black p-2 outline-none text-white focus:border-primary/40 transition-all"
+                                              className={`w-16 bg-white/5 border rounded-lg text-xs font-black p-2 outline-none text-white focus:border-primary/40 transition-all ${
+                                                  p.stockQuantity <= (p.lowStockAlert || 10) ? 'border-red-500/50' : 'border-white/10'
+                                              }`}
                                               value={p.stockQuantity || 0}
                                               onChange={(e) => adminService.updateStockStatus(p.id, p.isOutOfStock ? 'Out of Stock' : 'In Stock', Number(e.target.value), p.isOutOfStock || false)}
                                           />
+                                          {p.stockQuantity <= (p.lowStockAlert || 10) && !p.isOutOfStock && (
+                                              <p className="text-[7px] text-red-500 font-black uppercase tracking-tighter animate-pulse">Low Alert</p>
+                                          )}
                                         </div>
                                         <button 
                                           onClick={() => adminService.updateStockStatus(p.id, !p.isOutOfStock ? 'Out of Stock' : 'In Stock', p.stockQuantity || 0, !p.isOutOfStock)}
@@ -1808,6 +1916,241 @@ export default function AdminPanel() {
 
         {activeTab === 'settings' && (
             <motion.div key="settings" className="space-y-10">
+                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 rounded-full -mr-24 -mt-24 blur-3xl group-hover:bg-blue-500/20 transition-all duration-1000" />
+                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-amber-500/5 rounded-full -ml-24 -mb-24 blur-3xl group-hover:bg-amber-500/10 transition-all duration-1000" />
+                    
+                    <h3 className="font-display font-black text-2xl mb-8 flex items-center gap-4 text-white uppercase tracking-[0.2em] relative z-10">
+                        <Globe size={28} className="text-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.4)]" />
+                        Domain & URL Protection
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 relative z-10">
+                        {/* 1. Main Website Domain */}
+                        <div className="space-y-6">
+                            <div className="p-6 bg-black/40 border border-white/5 rounded-[2rem] space-y-4">
+                                <h4 className="text-[10px] font-black text-blue-400 uppercase tracking-[0.3em] flex items-center gap-2">
+                                    <ShieldCheck size={14} /> Global Identity Nexus
+                                </h4>
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] font-black text-white/30 uppercase tracking-widest ml-2">Primary Authority (Domain)</label>
+                                        <input 
+                                            placeholder="kichukini.com" 
+                                            className="w-full px-6 py-4 bg-black/60 border border-white/5 rounded-2xl text-xs text-white font-mono outline-none focus:border-blue-500/40 transition-all"
+                                            defaultValue={appSettings.primaryDomain || ''}
+                                            id="primaryDomain"
+                                        />
+                                    </div>
+                                    <div className="flex items-center justify-between px-3">
+                                        <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Enforce WWW Redirect</span>
+                                        <button 
+                                            onClick={() => adminService.updateAppSetting('enforceWww', !appSettings.enforceWww)}
+                                            className={`w-12 h-6 rounded-full transition-all relative ${appSettings.enforceWww ? 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'bg-white/10'}`}
+                                        >
+                                            <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${appSettings.enforceWww ? 'right-1' : 'left-1'}`} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 2. Common Domain Misspellings */}
+                            <div className="p-6 bg-black/40 border border-white/5 rounded-[2rem] space-y-4">
+                                <h4 className="text-[10px] font-black text-amber-400 uppercase tracking-[0.3em] flex items-center gap-2">
+                                    <XCircle size={14} /> Typo-Tolerance Shield
+                                </h4>
+                                <div className="space-y-3">
+                                    <textarea 
+                                        placeholder="kicukini, kichukeni, kisu kini..." 
+                                        className="w-full px-6 py-4 bg-black/60 border border-white/5 rounded-2xl text-xs text-white h-24 outline-none focus:border-amber-500/40 transition-all resize-none font-medium leading-relaxed"
+                                        defaultValue={appSettings.domainMisspellings || ''}
+                                        id="domainMisspellings"
+                                    />
+                                    <div className="flex gap-2">
+                                        <button 
+                                            onClick={() => {
+                                                const name = (appSettings.appName || 'kichukini').toLowerCase();
+                                                const variations = [
+                                                    name.replace(/ch/g, 'c'),
+                                                    name.replace(/k/g, 'q'),
+                                                    name.replace(/u/g, 'o'),
+                                                    name.slice(0, -1),
+                                                    name.split('').join(' '),
+                                                    name.replace(/i/g, 'y')
+                                                ].filter(v => v !== name);
+                                                const current = (document.getElementById('domainMisspellings') as HTMLTextAreaElement).value;
+                                                const unique = Array.from(new Set([...current.split(',').map(s => s.trim()), ...variations])).filter(Boolean).join(', ');
+                                                (document.getElementById('domainMisspellings') as HTMLTextAreaElement).value = unique;
+                                            }}
+                                            className="flex-1 py-3 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-amber-500/20 transition-all"
+                                        >
+                                            Auto-Suggest Vectors
+                                        </button>
+                                    </div>
+                                </div>
+                                <p className="text-[8px] text-white/20 px-2 leading-relaxed">Systematic variation vectors help search engines correctly associate misspellings with your primary authority.</p>
+                            </div>
+
+                            {/* 7. Broken URL Recovery */}
+                            <div className="p-6 bg-black/40 border border-white/5 rounded-[2rem] space-y-4">
+                                <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] flex items-center gap-2">
+                                    <TrendingUp size={14} className="text-white/40" /> URL Recovery Extraction
+                                </h4>
+                                <div className="flex items-center gap-3">
+                                    <select 
+                                        id="brokenUrlAction"
+                                        className="flex-1 px-4 py-3 bg-black/60 border border-white/5 rounded-xl text-[10px] font-black text-white/60 uppercase tracking-widest outline-none appearance-none"
+                                        defaultValue={appSettings.brokenUrlAction || 'suggest'}
+                                    >
+                                        <option value="home">Instant Homepage Extraction</option>
+                                        <option value="suggest">Cognitive Search Suggestion</option>
+                                        <option value="404">Standard 404 Protocol</option>
+                                    </select>
+                                    <div className="px-4 py-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                                        <Clock size={14} className="text-blue-400" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right Column: SEO & Redirects */}
+                        <div className="space-y-6">
+                            {/* 3. Smart Redirect Rules */}
+                            <div className="p-8 bg-black/40 border border-white/5 rounded-[3rem] space-y-6">
+                                <h4 className="text-[10px] font-black text-blue-400 uppercase tracking-[0.3em] flex items-center gap-2">
+                                    <BarChart3 size={16} /> Redirect Architecture
+                                </h4>
+                                <div className="max-h-48 overflow-y-auto space-y-3 pr-2 scrollbar-hide">
+                                    {(appSettings.redirectRules || []).length === 0 && (
+                                        <div className="py-8 text-center border border-dashed border-white/5 rounded-[1.5rem]">
+                                            <p className="text-[9px] font-black text-white/10 uppercase tracking-widest">No active routing rules</p>
+                                        </div>
+                                    )}
+                                    {(appSettings.redirectRules || []).map((rule: any, idx: number) => (
+                                        <div key={idx} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group/rule">
+                                            <div className="flex items-center gap-4 overflow-hidden">
+                                                <div className="text-[10px] space-y-1 overflow-hidden">
+                                                    <p className="text-white/40 font-mono truncate">{rule.from}</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <ArrowUpRight size={10} className="text-blue-400" />
+                                                        <p className="text-blue-400 font-mono truncate">{rule.to}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-[8px] font-black text-white/20 bg-white/5 px-2 py-1 rounded-lg">{rule.type}</span>
+                                                <button 
+                                                    onClick={async () => {
+                                                        const newRules = appSettings.redirectRules.filter((_: any, i: number) => i !== idx);
+                                                        await adminService.updateAppSetting('redirectRules', newRules);
+                                                    }}
+                                                    className="w-8 h-8 rounded-xl flex items-center justify-center text-white/10 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="space-y-4 pt-4 border-t border-white/5">
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <input id="redFrom" placeholder="/old-path" className="bg-black/60 border border-white/5 px-4 py-3 rounded-xl text-[11px] text-white font-mono outline-none" />
+                                        <input id="redTo" placeholder="/new-path" className="bg-black/60 border border-white/5 px-4 py-3 rounded-xl text-[11px] text-white font-mono outline-none" />
+                                    </div>
+                                    <div className="flex gap-3">
+                                        <select id="redType" className="bg-black/60 border border-white/5 px-4 py-3 rounded-xl text-[10px] font-black text-white/40 uppercase tracking-widest outline-none flex-1 appearance-none">
+                                            <option value="301">301 Permanent</option>
+                                            <option value="302">302 Temporary</option>
+                                        </select>
+                                        <button 
+                                            onClick={async () => {
+                                                const from = (document.getElementById('redFrom') as HTMLInputElement).value;
+                                                const to = (document.getElementById('redTo') as HTMLInputElement).value;
+                                                const type = (document.getElementById('redType') as HTMLSelectElement).value;
+                                                if (from && to) {
+                                                    const newRules = [...(appSettings.redirectRules || []), { from, to, type }];
+                                                    await adminService.updateAppSetting('redirectRules', newRules);
+                                                    (document.getElementById('redFrom') as HTMLInputElement).value = '';
+                                                    (document.getElementById('redTo') as HTMLInputElement).value = '';
+                                                }
+                                            }}
+                                            className="px-6 py-3 bg-blue-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20"
+                                        >
+                                            Add Rule
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 4. Search Engine SEO Settings */}
+                            <div className="p-8 bg-black/40 border border-white/5 rounded-[3rem] space-y-6">
+                                <h4 className="text-[10px] font-black text-amber-400 uppercase tracking-[0.3em] flex items-center gap-2">
+                                    <Search size={16} /> Global SEO Propagation
+                                </h4>
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-1 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[9px] font-black text-white/30 uppercase tracking-widest ml-2">Meta Authority Title</label>
+                                            <input id="seoTitle" defaultValue={appSettings.seoTitle || ''} className="w-full px-5 py-3 bg-black/60 border border-white/5 rounded-xl text-xs text-white" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[9px] font-black text-white/30 uppercase tracking-widest ml-2">Description Narrative</label>
+                                            <textarea id="seoDesc" defaultValue={appSettings.seoDescription || ''} className="w-full px-5 py-3 bg-black/60 border border-white/5 rounded-xl text-xs text-white h-20 resize-none" />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
+                                            <span className="text-[8px] font-black text-white/40 uppercase tracking-widest leading-tight">Google Indexing</span>
+                                            <button 
+                                                onClick={() => adminService.updateAppSetting('allowIndexing', !appSettings.allowIndexing)}
+                                                className={`w-10 h-5 rounded-full transition-all relative ${appSettings.allowIndexing ? 'bg-green-500' : 'bg-white/10'}`}
+                                            >
+                                                <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-all ${appSettings.allowIndexing ? 'right-0.5' : 'left-0.5'}`} />
+                                            </button>
+                                        </div>
+                                        <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
+                                            <span className="text-[8px] font-black text-white/40 uppercase tracking-widest leading-tight">Auto Sitemap</span>
+                                            <button 
+                                                onClick={() => adminService.updateAppSetting('autoSitemap', !appSettings.autoSitemap)}
+                                                className={`w-10 h-5 rounded-full transition-all relative ${appSettings.autoSitemap ? 'bg-blue-500' : 'bg-white/10'}`}
+                                            >
+                                                <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-all ${appSettings.autoSitemap ? 'right-0.5' : 'left-0.5'}`} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mt-12 pt-10 border-t border-white/5 flex justify-center">
+                        <button 
+                            onClick={async () => {
+                                const primary = (document.getElementById('primaryDomain') as HTMLInputElement).value;
+                                const typos = (document.getElementById('domainMisspellings') as HTMLTextAreaElement).value;
+                                const broken = (document.getElementById('brokenUrlAction') as HTMLSelectElement).value;
+                                const title = (document.getElementById('seoTitle') as HTMLInputElement).value;
+                                const desc = (document.getElementById('seoDesc') as HTMLTextAreaElement).value;
+
+                                const { updateDoc, doc } = await import('firebase/firestore');
+                                const { db } = await import('../firebase');
+                                await updateDoc(doc(db, 'settings', 'app'), { 
+                                  primaryDomain: primary || null,
+                                  domainMisspellings: typos || null,
+                                  brokenUrlAction: broken,
+                                  seoTitle: title || null,
+                                  seoDescription: desc || null,
+                                  updatedAt: new Date().toISOString()
+                                });
+                                alert('Domain Protection Grid Authorized!');
+                            }}
+                            className="px-12 py-5 bg-gradient-to-r from-blue-600 to-blue-400 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.4em] shadow-[0_20px_50px_rgba(37,99,235,0.3)] hover:scale-[1.05] transition-all active:scale-95"
+                        >
+                            Sync Global Protection Grid
+                        </button>
+                    </div>
+                </div>
+
                 <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden group">
                     <div className="absolute top-0 left-0 w-32 h-32 bg-secondary/10 rounded-full -ml-16 -mt-16 blur-2xl group-hover:bg-secondary/20 transition-all duration-700" />
                     <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-white uppercase tracking-widest relative z-10">

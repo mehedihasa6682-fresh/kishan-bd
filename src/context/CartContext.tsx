@@ -12,14 +12,16 @@ interface CartItem {
   minWeight?: number;
   weightIncrements?: number;
   enableWeightSystem?: boolean;
+  selectedWeight?: number; // The specific weight/qty selected for weight-based products
+  pricingType?: 'weight' | 'piece';
 }
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (product: any) => void;
-  removeFromCart: (id: string | number) => void;
-  updateQuantity: (id: string | number, newQty: number) => void;
-  getItemQuantity: (id: string | number) => number;
+  addToCart: (product: any, selectedWeight?: number) => void;
+  removeFromCart: (id: string | number, selectedWeight?: number) => void;
+  updateQuantity: (id: string | number, newQty: number, selectedWeight?: number) => void;
+  getItemQuantity: (id: string | number, selectedWeight?: number) => number;
   clearCart: () => void;
   subtotal: number;
   deliveryFee: number;
@@ -47,22 +49,35 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('cart', JSON.stringify(items));
   }, [items]);
 
-  const addToCart = (product: any) => {
+  const addToCart = (product: any, selectedWeight?: number) => {
     setItems(prev => {
-      const existing = prev.find(i => i.id === product.id);
-      const qty = product.quantity || product.minWeight || 1;
+      // Find if this specific product + weight combination exists
+      const existing = prev.find(i => 
+        i.id === product.id && i.selectedWeight === selectedWeight
+      );
+      
+      const qty = product.quantity || 1;
       
       const rawPrice = product.discountPrice ?? product.price ?? 0;
-      const price = parseFloat(String(rawPrice).replace(/[^\d.-]/g, '')) || 0;
+      const basePrice = parseFloat(String(rawPrice).replace(/[^\d.-]/g, '')) || 0;
+      
+      // Calculate price based on selected weight if applicable
+      let finalPrice = basePrice;
+      if (product.pricingType === 'weight' && selectedWeight) {
+        // Assume basePrice is per 1000g (1KG) if not specified otherwise, or use product's logic
+        // The user says "৳60 Per KG", so if 250g is selected, price is (60 / 1000) * 250 = 15
+        finalPrice = (basePrice / 1000) * selectedWeight;
+      }
       
       const normalizedProduct = { 
         ...product, 
         sellerId: product.sellerId || product.farmerId || 'default-seller',
-        price: price
+        price: finalPrice,
+        selectedWeight: selectedWeight ?? null
       };
 
       if (existing) {
-        return prev.map(i => i.id === product.id ? { ...i, quantity: i.quantity + qty } : i);
+        return prev.map(i => (i.id === product.id && i.selectedWeight === selectedWeight) ? { ...i, quantity: i.quantity + qty } : i);
       }
       return [...prev, { ...normalizedProduct, quantity: qty }];
     });
@@ -80,25 +95,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }, 2000);
   };
 
-  const removeFromCart = (id: string | number) => {
-    setItems(prev => prev.filter(i => i.id !== id));
-  };
-
-  const updateQuantity = (id: string | number, newQty: number) => {
+  const updateQuantity = (id: string | number, newQty: number, selectedWeight?: number) => {
     if (newQty <= 0) {
-      removeFromCart(id);
+      removeFromCart(id, selectedWeight);
       return;
     }
     setItems(prev => prev.map(i => {
-      if (i.id === id) {
+      if (i.id === id && i.selectedWeight === selectedWeight) {
           return { ...i, quantity: newQty };
       }
       return i;
     }));
   };
 
-  const getItemQuantity = (id: string | number) => {
-    return items.find(i => i.id === id)?.quantity || 0;
+  const getItemQuantity = (id: string | number, selectedWeight?: number) => {
+    return items.find(i => i.id === id && i.selectedWeight === selectedWeight)?.quantity || 0;
+  };
+
+  const removeFromCart = (id: string | number, selectedWeight?: number) => {
+    setItems(prev => prev.filter(i => !(i.id === id && i.selectedWeight === selectedWeight)));
   };
 
   const clearCart = () => {

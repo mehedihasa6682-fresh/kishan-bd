@@ -3,11 +3,13 @@ import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
+import { useSettings } from '../context/SettingsContext';
 
 export default function WhatsAppSupport() {
+  const { settings: appSettings } = useSettings();
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [loading, setLoading] = useState(true);
-  const message = "আমাদের কৃষক মার্কেটপ্লেস সম্পর্কে জানতে চাই।";
+  const message = `আমাদের ${appSettings.appName || 'মার্কেটপ্লেস'} সম্পর্কে জানতে চাই।`;
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, 'settings', 'app'), (snap) => {

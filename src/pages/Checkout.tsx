@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { MapPin, CreditCard, Apple, CheckCircle, ArrowLeft, Send, Map as MapIcon, ChevronRight, Phone } from 'lucide-react';
+import { MapPin, CreditCard, Apple, CheckCircle, ArrowLeft, Send, Map as MapIcon, ChevronRight, Phone, MessageCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useContext, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
@@ -29,8 +29,9 @@ export default function Checkout() {
   const [paymentScreenshot, setPaymentScreenshot] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [orderId, setOrderId] = useState('');
   
-  const [customerName, setCustomerName] = useState(user?.displayName || '');
+  const [customerName, setCustomerName] = useState(customerName || user?.displayName || '');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [location, setLocation] = useState<{lat: number, lng: number} | null>(null);
@@ -121,31 +122,38 @@ export default function Checkout() {
             }
         }
 
-        // Prepare items by removing large image data to prevent exceeding Firestore document size limit
+        // Prepare items by removing large image data and undefined values to prevent exceeding Firestore document size limit or errors
         const cleanedItems = items.map(item => {
             const { image, ...rest } = item;
-            return rest;
+            // Remove any undefined properties from the items
+            const filteredItem: any = {};
+            Object.keys(rest).forEach(key => {
+                if ((rest as any)[key] !== undefined) {
+                    filteredItem[key] = (rest as any)[key];
+                }
+            });
+            return filteredItem;
         });
 
-        await orderService.placeOrder({
+        const orderId = await orderService.placeOrder({
             userId: user.uid,
             customerName: customerName || user.displayName || 'Guest User',
             items: cleanedItems,
             total: total,
             subtotal: subtotal,
             deliveryFee: deliveryFee,
-            discount: discount,
+            discount: discount || 0,
             paymentMethod,
-            transactionId,
-            paymentNumber,
-            paymentScreenshot,
-            address: typeof fullAddressData === 'string' ? fullAddressData : fullAddressData.address,
-            phone,
+            transactionId: transactionId || '',
+            paymentNumber: paymentNumber || '',
+            paymentScreenshot: paymentScreenshot || '',
+            address: typeof fullAddressData === 'string' ? fullAddressData : (fullAddressData?.address || ''),
+            phone: phone || '',
             sellerIds,
-            paymentStatus: paymentMethod === 'cod' ? 'pending' : 'pending',
+            paymentStatus: 'pending',
             status: 'pending',
             location: location || { lat: 23.8103, lng: 90.4125 },
-            addressData: fullAddressData
+            addressData: fullAddressData || null
         } as any);
 
         // Send a notification to the user
@@ -157,7 +165,9 @@ export default function Checkout() {
         });
 
         setSuccess(true);
+        setOrderId(orderId);
         clearCart();
+        
         setTimeout(() => {
             navigate('/orders');
         }, 3000);
@@ -171,19 +181,44 @@ export default function Checkout() {
 
   if (success) {
       return (
-          <div className="max-w-md mx-auto px-5 pt-20 text-center">
+          <div className="max-w-md mx-auto px-5 pt-20 text-center pb-20">
               <motion.div 
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="w-24 h-24 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-primary/30"
+                className="w-24 h-24 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_50px_rgba(212,175,55,0.3)] relative overflow-hidden group"
               >
-                  <CheckCircle size={48} className="text-white" />
+                  <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent animate-pulse" />
+                  <CheckCircle size={48} className="text-black relative z-10" />
               </motion.div>
-              <h2 className="text-2xl font-display font-bold mb-2">{t('checkout.success')}</h2>
-              <p className="text-slate-400 text-sm mb-10 leading-relaxed">
-                  Your order has been received. {paymentMethod !== 'cod' ? "Our admin will verify your payment and update you shortly." : "We will deliver your fresh goodies soon!"}
+              
+              <h2 className="text-3xl font-display font-black mb-3 text-white uppercase tracking-tighter">Order Placed!</h2>
+              <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] mb-12 leading-relaxed px-4">
+                  অর্ডারটি সফলভাবে সম্পন্ন হয়েছে। আমাদের এডমিন শীঘ্রই আপনার সাথে যোগাযোগ করবে।
               </p>
-              <Link to="/orders" className="btn-primary">{t('profile.orders')}</Link>
+
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                    <Link 
+                        to="/orders" 
+                        className="py-5 bg-white/5 border border-white/10 rounded-[1.5rem] text-[10px] font-black text-white/40 uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-white/10 transition-all font-mono"
+                    >
+                        [ VIEW_ORDERS ]
+                    </Link>
+                    <Link 
+                        to="/" 
+                        className="py-5 bg-white/5 border border-white/10 rounded-[1.5rem] text-[10px] font-black text-white/40 uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-white/10 transition-all font-mono"
+                    >
+                        [ BACK_HOME ]
+                    </Link>
+                </div>
+              </div>
+
+              <div className="mt-12 p-6 bg-white/5 border border-white/5 rounded-3xl backdrop-blur-xl">
+                 <p className="text-[10px] font-black text-white/30 uppercase tracking-widest leading-relaxed">
+                    Order ID: <span className="text-primary font-mono">{orderId?.slice(-12).toUpperCase()}</span>
+                 </p>
+                 <p className="text-[8px] font-black text-white/10 uppercase tracking-widest mt-2">Status: Pending Verification</p>
+              </div>
           </div>
       )
   }
@@ -339,9 +374,10 @@ export default function Checkout() {
                                     <div className="pt-2 border-t border-white/5">
                                         <button 
                                             onClick={() => {
+                                                const formatW = (w: any) => w >= 1000 ? `${w / 1000}KG` : `${w}g`;
                                                 const text = language === 'bn' 
-                                                    ? `হ্যালো, আমি নিচের পণ্যগুলো অর্ডার করতে চাই:\n${items.map(i => `- ${i.name} (x${i.quantity})`).join('\n')}\nমোট: ৳${total}`
-                                                    : `Hello, I want to order the following items:\n${items.map(i => `- ${i.name} (x${i.quantity})`).join('\n')}\nTotal: ৳${total}`;
+                                                    ? `হ্যালো, আমি নিচের পণ্যগুলো অর্ডার করতে চাই:\n${items.map(i => `- ${i.name} ${i.selectedWeight ? `(${formatW(i.selectedWeight)})` : ''} (x${i.quantity})`).join('\n')}\nমোট: ৳${total}`
+                                                    : `Hello, I want to order the following items:\n${items.map(i => `- ${i.name} ${i.selectedWeight ? `(${formatW(i.selectedWeight)})` : ''} (x${i.quantity})`).join('\n')}\nTotal: ৳${total}`;
                                                 window.open(`https://wa.me/${appSettings.whatsappNumber?.replace(/\+/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
                                             }}
                                             className="w-full py-4 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center justify-center gap-3 text-green-500 hover:bg-green-500/20 transition-all group"
@@ -548,7 +584,7 @@ export default function Checkout() {
         )}
 
         <p className="text-[10px] text-slate-400 text-center font-medium mt-2">
-            Securely processed via Supermarket Cloud. Verified for 100% freshness.
+            Securely processed via {appSettings.appName || 'Supermarket'} Cloud. Verified for 100% freshness.
         </p>
       </div>
 

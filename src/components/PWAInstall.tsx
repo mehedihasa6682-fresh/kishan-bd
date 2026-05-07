@@ -20,8 +20,12 @@ export default function PWAInstall() {
       >
         <div className="absolute inset-0 bg-primary/5 -z-10" />
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-            <Download size={20} className="text-black" />
+          <div className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+            {appSettings.logo ? (
+                <img src={appSettings.logo} className="w-full h-full object-cover" alt="Logo" />
+            ) : (
+                <Download size={20} className="text-primary" />
+            )}
           </div>
           <div>
             <h4 className="text-white font-bold text-xs leading-none mb-1">Install {appSettings.appName || 'Supermarket'}</h4>

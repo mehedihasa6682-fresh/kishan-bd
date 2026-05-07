@@ -50,7 +50,8 @@ export function matchProduct(product: any, query: string): boolean {
     product.descriptionEn?.toLowerCase(),
     product.category?.toLowerCase(),
     product.subCategory?.toLowerCase(),
-    ...(product.keywords || []).map((k: string) => k.toLowerCase())
+    ...(product.tags || []).map((t: string) => t.toLowerCase()),
+    ...(product.searchKeywords || []).map((k: string) => k.toLowerCase())
   ].filter(Boolean);
   
   // A match happens if ANY of the normalized search words are found in ANY of the product fields

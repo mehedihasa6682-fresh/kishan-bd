@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { Download, Printer, CheckCircle2, ShoppingBag } from 'lucide-react';
 import { format } from 'date-fns';
+import { useSettings } from '../context/SettingsContext';
 
 interface InvoiceProps {
   order: any;
@@ -8,6 +9,7 @@ interface InvoiceProps {
 }
 
 export default function Invoice({ order, onClose }: InvoiceProps) {
+  const { settings: appSettings } = useSettings();
   const handlePrint = () => {
     window.print();
   };
@@ -26,12 +28,16 @@ export default function Invoice({ order, onClose }: InvoiceProps) {
         {/* Header */}
         <div className="bg-[#0A1F44] p-8 text-white flex justify-between items-center print:bg-white print:text-slate-900 print:border-b print:pb-6">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
-              <ShoppingBag size={24} className="text-[#050E21] print:text-primary" />
+            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center shadow-lg border border-white/5 overflow-hidden">
+                {appSettings.logo ? (
+                    <img src={appSettings.logo} className="w-full h-full object-contain" alt="Logo" />
+                ) : (
+                    <ShoppingBag size={24} className="text-primary" />
+                )}
             </div>
             <div>
-              <h2 className="font-display font-black text-xl leading-none mb-1 tracking-tight">SupermarketBD</h2>
-              <p className="text-[8px] font-black text-primary uppercase tracking-[0.3em] print:text-slate-400">Premium Order Invoice</p>
+              <h2 className="font-display font-black text-xl leading-none mb-1 tracking-tight">{appSettings.appName || 'SupermarketBD'}</h2>
+              <p className="text-[8px] font-black text-primary uppercase tracking-[0.3em] print:text-slate-400">Order Manifest</p>
             </div>
           </div>
           <div className="text-right flex flex-col items-end gap-3">
@@ -109,7 +115,14 @@ export default function Invoice({ order, onClose }: InvoiceProps) {
                           <img src={item.image} className="w-full h-full object-cover rounded-lg" alt={item.name} />
                         </div>
                         <div>
-                          <h5 className="font-bold text-xs text-[#0A1F44]">{item.nameEn || item.name}</h5>
+                          <h5 className="font-bold text-xs text-[#0A1F44]">
+                            {item.nameEn || item.name}
+                            {item.selectedWeight && (
+                              <span className="text-slate-400 ml-1.5 font-medium">
+                                ({item.selectedWeight >= 1000 ? `${item.selectedWeight / 1000}KG` : `${item.selectedWeight}g`})
+                              </span>
+                            )}
+                          </h5>
                           <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest mt-0.5">{item.category}</p>
                         </div>
                       </div>
