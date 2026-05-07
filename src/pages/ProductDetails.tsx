@@ -12,12 +12,15 @@ import { Helmet } from 'react-helmet-async';
 
 import { formatCurrency } from '../lib/utils';
 
+import { useSettings } from '../context/SettingsContext';
+
 export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const { addToCart } = useCart();
   const { dData, t } = useLanguage();
+  const { settings: appSettings } = useSettings();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
@@ -99,8 +102,11 @@ export default function ProductDetails() {
   };
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+    <div className="max-w-md mx-auto min-h-screen animate-pulse">
+        <div className="h-[480px] bg-white/5 rounded-b-[4rem]" />
+        <div className="px-6 -mt-20">
+            <div className="glass-card p-8 h-96 bg-white/5" />
+        </div>
     </div>
   );
 
@@ -294,20 +300,28 @@ export default function ProductDetails() {
                 <MessageCircle size={20} fill="currentColor" />
                 Live Chat (WA)
               </motion.button>
-              <a 
-                href={`tel:${(product.whatsappNumber || '01700000000').replace(/\D/g, '')}`} 
+              <motion.button 
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                   const targetNum = (appSettings.hotlineNumber || '01700000000').replace(/\D/g, '');
+                   if (targetNum) {
+                      window.location.href = `tel:${targetNum}`;
+                   } else {
+                      alert('Service not available.');
+                   }
+                }}
                 className="py-4 bg-white/5 text-white/60 rounded-[1.5rem] flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-widest border border-white/5 shadow-inner"
               >
                 <Phone size={20} fill="currentColor" />
                 Hotline Call
-              </a>
+              </motion.button>
             </div>
           </div>
         </div>
       </div>
       
-      {/* Sticky Bottom Actions */}
-      <div className="fixed bottom-0 left-0 right-0 z-[60] glass-card rounded-none rounded-t-[2.5rem] border-x-0 border-b-0 p-6 md:hidden flex gap-4 shadow-[0_-20px_50px_rgba(0,0,0,0.6)]">
+      {/* Sticky Bottom Actions - Positioned above BottomNav */}
+      <div className="fixed bottom-20 left-0 right-0 z-[60] glass-card rounded-none rounded-t-[2.5rem] border-x-0 border-b-0 p-6 md:hidden flex gap-4 shadow-[0_-20px_50px_rgba(0,0,0,0.6)]">
         <motion.button 
           whileTap={{ scale: 0.9 }}
           onClick={() => addToCart({ ...product, quantity: qty })}
@@ -331,22 +345,6 @@ export default function ProductDetails() {
       </div>
 
       <div className="p-6">
-        <h3 className="font-display font-black text-xl mb-6 px-2 text-white uppercase tracking-tight">Merchant Information</h3>
-        <div className="glass-card p-6 flex items-center gap-5 border-white/10 mb-10 overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full translate-x-1/2 -translate-y-1/2 blur-2xl" />
-          <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-white/20 border border-white/10">
-              <Store size={32} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h4 className="font-black text-white text-lg truncate leading-none mb-2">{product.farmerName || product.farmer}</h4>
-            <div className="flex items-center gap-2">
-                <ShieldCheck size={16} className="text-primary" />
-                <p className="text-[10px] text-primary font-black uppercase tracking-widest">Verified Elite Merchant</p>
-            </div>
-          </div>
-          <button className="text-primary font-black text-[10px] uppercase tracking-widest px-5 py-2.5 bg-primary/10 rounded-xl border border-primary/20 whitespace-nowrap">Explore</button>
-        </div>
-
         {/* Reviews Section */}
         <div className="space-y-8 mb-16">
             <div className="flex justify-between items-end px-2">

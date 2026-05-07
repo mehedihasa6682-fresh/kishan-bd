@@ -35,7 +35,7 @@ export default function Discounts() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-md mx-auto px-5 pt-4 pb-32"
+      className="max-w-7xl mx-auto px-5 pt-4 pb-32"
     >
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -46,7 +46,7 @@ export default function Discounts() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 px-1">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}

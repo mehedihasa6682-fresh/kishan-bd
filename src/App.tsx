@@ -212,13 +212,35 @@ export default function App() {
 function RoutesContent() {
   const { role, dataLoading } = useContext(AuthContext);
   const location = useLocation();
+  const [navLoading, setNavLoading] = useState(false);
   const isDashboardRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/seller') || location.pathname.startsWith('/rider');
+
+  useEffect(() => {
+    setNavLoading(true);
+    window.scrollTo(0, 0);
+    const timer = setTimeout(() => setNavLoading(false), 300);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
 
   return (
     <div className={`flex flex-col min-h-screen bg-background ${isDashboardRoute ? '' : 'pb-24 md:pb-0'}`}>
       <AnimatePresence>
         {dataLoading && <LoadingScreen />}
       </AnimatePresence>
+
+      {/* Top Progress Bar */}
+      <AnimatePresence>
+        {navLoading && (
+          <motion.div
+            initial={{ width: 0, opacity: 1 }}
+            animate={{ width: '100%', opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="fixed top-0 left-0 h-0.5 bg-primary z-[9999] shadow-[0_0_10px_rgba(212,175,55,0.5)]"
+          />
+        )}
+      </AnimatePresence>
+
       <OfflineIndicator />
       {!isDashboardRoute && <NotificationPrompt />}
       {!isDashboardRoute && <WhatsAppSupport />}

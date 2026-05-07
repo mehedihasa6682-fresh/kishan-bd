@@ -61,35 +61,35 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
             layout
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="glass-card p-4 relative group flex flex-col h-full hover:shadow-primary/5 transition-all border-white/20"
+            className="glass-card p-2 relative group flex flex-col h-full hover:shadow-primary/5 transition-all border-white/20"
         >
             <div 
-                className="relative aspect-square rounded-2xl overflow-hidden mb-4 cursor-pointer bg-white/5"
+                className="relative aspect-square rounded-xl overflow-hidden mb-2 cursor-pointer bg-white/5"
                 onClick={() => navigate(`/product/${product.id}`)}
             >
                 <img src={product.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={product.name} />
                 
                 {product.discountPrice && (
-                    <div className="absolute top-2 left-0 bg-red-600 text-white text-[10px] font-black px-2 py-1 rounded-r-lg shadow-lg">
+                    <div className="absolute top-1.5 left-0 bg-[#D4AF37] text-[#050E21] text-[8px] font-black px-1.5 py-0.5 rounded-r-md shadow-lg">
                         ৳{product.price - product.discountPrice} OFF
                     </div>
                 )}
             </div>
             
             <div className="flex flex-col flex-1">
-                <span className="text-[10px] text-white/40 font-bold uppercase tracking-tight mb-0.5 mt-auto">Per {product.unit || 'Piece'}</span>
-                <h3 className="font-bold text-[14px] text-white truncate mb-2 leading-tight">{dData(product.name, product.nameEn)}</h3>
+                <span className="text-[8px] text-white/40 font-bold uppercase tracking-tight mb-0.5 mt-auto">Per {product.unit || 'Piece'}</span>
+                <h3 className="font-bold text-[11px] text-white truncate mb-1.5 leading-tight group-hover:text-[#D4AF37] transition-colors">{dData(product.name, product.nameEn)}</h3>
                 
                 <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                        <span className="text-lg font-black text-white">৳{formatCurrency(product.discountPrice || product.price)}</span>
+                    <div className="flex items-center gap-1 flex-wrap">
+                        <span className="text-[13px] font-black text-[#D4AF37]">৳{formatCurrency(product.discountPrice || product.price)}</span>
                         {product.discountPrice && (
-                            <span className="text-[11px] text-white/30 font-bold line-through">৳{formatCurrency(product.price)}</span>
+                            <span className="text-[9px] text-white/30 font-bold line-through">৳{formatCurrency(product.price)}</span>
                         )}
                     </div>
                 </div>
 
-                <div className="mt-3">
+                <div className="mt-2 text-[10px]">
                     <AddToCart 
                       initialQuantity={quantity}
                       onUpdate={(qty) => {

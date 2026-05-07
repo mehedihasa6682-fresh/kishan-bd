@@ -46,7 +46,7 @@ export const AddToCart: React.FC<AddToCartProps> = ({
   };
 
   return (
-    <div className="w-full relative h-10 overflow-hidden rounded-xl border border-white/20 bg-white/10 backdrop-blur-md shadow-lg">
+    <div className="w-full relative h-10 overflow-hidden rounded-xl border border-[#D4AF37]/30 bg-[#D4AF37]/10 backdrop-blur-md shadow-lg group-hover:border-[#D4AF37]/60 transition-all">
       <AnimatePresence mode="wait">
         {!isAdded ? (
           <motion.button
@@ -54,10 +54,10 @@ export const AddToCart: React.FC<AddToCartProps> = ({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+            whileHover={{ backgroundColor: 'rgba(212, 175, 55, 0.2)' }}
             whileTap={{ scale: 0.95 }}
             onClick={handleAddClick}
-            className="w-full h-full flex items-center justify-center text-[12px] font-black uppercase tracking-[0.3em] text-white"
+            className="w-full h-full flex items-center justify-center text-[12px] font-black uppercase tracking-[0.3em] text-[#D4AF37]"
           >
             Add
           </motion.button>

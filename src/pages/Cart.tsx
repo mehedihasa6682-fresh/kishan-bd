@@ -30,7 +30,7 @@ export default function Cart() {
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="max-w-md mx-auto pt-20 px-10 text-center"
+        className="max-w-7xl mx-auto pt-20 px-10 text-center"
       >
         <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
           <ShoppingBag size={40} className="text-primary/40" />
@@ -48,7 +48,7 @@ export default function Cart() {
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-md mx-auto px-5 pb-10"
+      className="max-w-7xl mx-auto px-2 md:px-6 pb-10"
     >
       <h1 className="font-display font-bold text-2xl mb-8 text-white">{t('cart.title')}</h1>
 

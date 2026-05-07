@@ -2035,6 +2035,15 @@ export default function AdminPanel() {
                           />
                         </div>
                         <div className="space-y-2">
+                          <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Official Hotline Number</label>
+                          <input 
+                              placeholder="+8801..." 
+                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-primary/40 font-mono"
+                              id="hotlineNumber"
+                              defaultValue={appSettings.hotlineNumber || ''}
+                          />
+                        </div>
+                        <div className="space-y-2">
                           <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Headquarters Address</label>
                           <input 
                               placeholder="House 0, Road 0..." 
@@ -2056,6 +2065,7 @@ export default function AdminPanel() {
                             onClick={async () => {
                                 const whatsapp = (document.getElementById('whatsappNum') as HTMLInputElement).value;
                                 const email = (document.getElementById('supportEmail') as HTMLInputElement).value;
+                                const hotline = (document.getElementById('hotlineNumber') as HTMLInputElement).value;
                                 const address = (document.getElementById('shopAddress') as HTMLInputElement).value;
                                 const promo = (document.getElementById('announcementBar') as HTMLInputElement).value;
 
@@ -2064,6 +2074,7 @@ export default function AdminPanel() {
                                 await updateDoc(doc(db, 'settings', 'app'), { 
                                   whatsappNumber: whatsapp || null,
                                   supportEmail: email || null,
+                                  hotlineNumber: hotline || null,
                                   shopAddress: address || null,
                                   announcementBar: promo || null,
                                   updatedAt: new Date().toISOString()
@@ -2153,6 +2164,88 @@ export default function AdminPanel() {
                                 * Node.js core push requires VAPID_PRIVATE_KEY secure vault secret.
                             </p>
                           </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-32 h-32 bg-primary/5 rounded-full -ml-16 -mt-16 blur-2xl group-hover:bg-primary/10 transition-all duration-700" />
+                    <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-white uppercase tracking-widest relative z-10">
+                        <Layout size={24} className="text-primary" />
+                        Feature Action Buttons
+                    </h3>
+                    <div className="space-y-6 relative z-10">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            { (appSettings.featureButtons || []).map((btn: any, idx: number) => (
+                                <div key={idx} className="p-6 bg-black/40 border border-white/5 rounded-2xl flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-10 h-10 bg-gradient-to-br ${btn.color} rounded-xl flex items-center justify-center text-white shadow-lg`}>
+                                            <TrendingUp size={18} />
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-[13px] text-white">{btn.title}</p>
+                                            <p className="text-[9px] text-white/40 uppercase font-mono tracking-tighter">{btn.path}</p>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={async () => {
+                                            const newButtons = appSettings.featureButtons.filter((_: any, i: number) => i !== idx);
+                                            await adminService.updateAppSetting('featureButtons', newButtons);
+                                        }}
+                                        className="text-red-500/40 hover:text-red-500 hover:bg-red-500/10 p-3 rounded-xl transition-all"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="p-8 bg-black/60 rounded-[2.5rem] border border-white/5 space-y-5">
+                            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] font-mono">Deploy New Vector</p>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <label className="text-[9px] font-black text-white/20 uppercase tracking-widest ml-1">Title</label>
+                                  <input id="fTitle" placeholder="Button Title" className="w-full bg-black/40 border border-white/5 p-4 rounded-xl text-xs outline-none focus:border-primary/40 text-white" />
+                                </div>
+                                <div className="space-y-2">
+                                  <label className="text-[9px] font-black text-white/20 uppercase tracking-widest ml-1">Path</label>
+                                  <input id="fPath" placeholder="/products?brand=... " className="w-full bg-black/40 border border-white/5 p-4 rounded-xl text-xs outline-none focus:border-primary/40 text-white" />
+                                </div>
+                                <div className="space-y-2">
+                                  <label className="text-[9px] font-black text-white/20 uppercase tracking-widest ml-1">Gradient Class</label>
+                                  <input id="fColor" placeholder="from-blue-400 to-indigo-500" className="w-full bg-black/40 border border-white/5 p-4 rounded-xl text-xs outline-none focus:border-primary/40 text-white" />
+                                </div>
+                                <div className="space-y-2">
+                                  <label className="text-[9px] font-black text-white/20 uppercase tracking-widest ml-1">Visual Symbol</label>
+                                  <select id="fIcon" className="w-full bg-black/40 border border-white/5 p-4 rounded-xl text-xs outline-none text-white/60 appearance-none">
+                                      <option value="zap">Zap (Bolt)</option>
+                                      <option value="gift">Gift</option>
+                                      <option value="award">Award (Star)</option>
+                                      <option value="shopping-cart">Cart</option>
+                                      <option value="tag">Tag</option>
+                                  </select>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={async () => {
+                                    const title = (document.getElementById('fTitle') as HTMLInputElement).value;
+                                    const path = (document.getElementById('fPath') as HTMLInputElement).value;
+                                    const color = (document.getElementById('fColor') as HTMLInputElement).value;
+                                    const icon = (document.getElementById('fIcon') as HTMLSelectElement).value;
+
+                                    if (!title || !path) return alert('Title and Path required');
+
+                                    const newButtons = [...(appSettings.featureButtons || []), { title, path, color: color || 'from-gray-700 to-gray-900', icon }];
+                                    await adminService.updateAppSetting('featureButtons', newButtons);
+                                    
+                                    (document.getElementById('fTitle') as HTMLInputElement).value = '';
+                                    (document.getElementById('fPath') as HTMLInputElement).value = '';
+                                    (document.getElementById('fColor') as HTMLInputElement).value = '';
+                                }}
+                                className="w-full py-5 bg-primary text-black rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all active:scale-95"
+                            >
+                                Integrate Vector
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -2293,6 +2386,29 @@ export default function AdminPanel() {
                                         {rider.lastLocationUpdate ? format(rider.lastLocationUpdate.toDate ? rider.lastLocationUpdate.toDate() : new Date(rider.lastLocationUpdate), 'h:mm a') : 'No Link'}
                                     </p>
                                 </div>
+                            </div>
+
+                            <div className="space-y-3 relative z-10">
+                                <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] block">Active Mission Manifest</span>
+                                {activeDeliveries.length > 0 ? (
+                                    <div className="space-y-2">
+                                        {activeDeliveries.map(order => (
+                                            <div key={order.id} className="p-4 bg-black/40 border border-white/5 rounded-2xl flex items-center justify-between group/manifest hover:border-primary/30 transition-all">
+                                                <div>
+                                                    <p className="text-[11px] font-bold text-white tracking-tight">Order #{order.id.slice(-6).toUpperCase()}</p>
+                                                    <p className="text-[9px] text-white/40 uppercase font-mono">{order.customerName}</p>
+                                                </div>
+                                                <span className="text-[8px] font-black uppercase text-primary bg-primary/5 px-2 py-1 rounded-lg border border-primary/20">
+                                                    {order.status}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="py-4 text-center border border-dashed border-white/5 rounded-2xl">
+                                        <p className="text-[9px] font-black text-white/10 uppercase tracking-widest">No active sorties</p>
+                                    </div>
+                                )}
                             </div>
 
                             {rider.location && (

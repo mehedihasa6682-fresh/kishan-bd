@@ -31,11 +31,24 @@ export default function Home() {
     { id: '2', title: 'Summer Festival', image: 'https://images.unsplash.com/photo-1543076447-215ad9ba6923?w=800' }
   ];
 
-  const featureCards = [
-    { title: 'Summer FEST', icon: <Zap size={24} />, color: 'from-orange-400 to-yellow-500', path: '/discounts' },
-    { title: 'All Offers', icon: <Gift size={24} />, color: 'from-emerald-400 to-teal-500', path: '/discounts' },
-    { title: 'Unilever', icon: <Award size={24} />, color: 'from-blue-500 to-blue-700', path: '/products?brand=unilever' },
-    { title: 'Big Save', icon: <ShoppingCart size={24} />, color: 'from-pink-500 to-rose-600', path: '/discounts' },
+  const getIcon = (iconName: string) => {
+    switch (iconName?.toLowerCase()) {
+      case 'zap': return <Zap size={18} />;
+      case 'gift': return <Gift size={18} />;
+      case 'award': return <Award size={18} />;
+      case 'shopping-cart': return <ShoppingCart size={18} />;
+      case 'tag': return <Tag size={18} />;
+      case 'menu': return <Menu size={18} />;
+      case 'star': return <Award size={18} />;
+      default: return <Plus size={18} />;
+    }
+  };
+
+  const featureCards = appSettings.featureButtons || [
+    { title: 'Summer FEST', icon: 'zap', color: 'from-[#0A1F44] to-[#1a3a6a]', path: '/discounts' },
+    { title: 'All Offers', icon: 'gift', color: 'from-[#D4AF37] to-[#B8860B]', path: '/discounts' },
+    { title: 'Unilever', icon: 'award', color: 'from-[#0A1F44] to-[#1a3a6a]', path: '/products?brand=unilever' },
+    { title: 'Big Save', icon: 'shopping-cart', color: 'from-[#D4AF37] to-[#B8860B]', path: '/discounts' },
   ];
 
   const categories = (dbCategories.length > 0 ? dbCategories : [
@@ -85,15 +98,15 @@ export default function Home() {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-md mx-auto relative min-h-screen pb-32"
+      className="max-w-7xl mx-auto relative min-h-screen pb-32 px-2 md:px-6"
     >
       <Helmet>
         <title>{appSettings.appName || 'Supermarket'} - আধুনিক গ্রোছারি শপিং</title>
       </Helmet>
 
       {/* Hero Banner Slider */}
-      <div className="px-4 mt-4">
-        <div className="relative h-48 rounded-[2rem] overflow-hidden shadow-2xl border border-white/10">
+      <div className="px-4 mt-2">
+        <div className="relative h-36 rounded-[1.5rem] overflow-hidden shadow-2xl border border-white/10">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeBanner}
@@ -121,20 +134,20 @@ export default function Home() {
       </div>
 
       {/* Feature Cards Horizontal Scroll */}
-      <div className="flex gap-4 overflow-x-auto px-4 py-8 scrollbar-hide">
-        {featureCards.map((card, i) => (
+      <div className="flex gap-3 overflow-x-auto px-4 py-6 scrollbar-hide">
+        {featureCards.map((card: any, i: number) => (
           <motion.div
             key={i}
-            whileHover={{ y: -5 }}
+            whileHover={{ y: -3 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate(card.path)}
-            className={`flex-shrink-0 w-28 h-28 glass-card bg-gradient-to-br ${card.color} flex flex-col items-center justify-center gap-2 p-2 relative overflow-hidden group cursor-pointer`}
+            className={`flex-shrink-0 w-20 h-20 glass-card bg-gradient-to-br ${card.color} flex flex-col items-center justify-center gap-1.5 p-1.5 relative overflow-hidden group cursor-pointer`}
           >
             <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="relative z-10 text-white drop-shadow-md">
-              {card.icon}
+              {getIcon(card.icon)}
             </div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-center relative z-10 text-white drop-shadow-sm leading-tight">
+            <span className="text-[8px] font-black uppercase tracking-wider text-center relative z-10 text-white drop-shadow-sm leading-tight">
               {card.title}
             </span>
           </motion.div>
@@ -175,7 +188,7 @@ export default function Home() {
         </div>
         
         {/* Mobile & Desktop Product Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 px-1">
           {recommendedProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

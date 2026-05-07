@@ -102,7 +102,7 @@ export default function Products() {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-md mx-auto pb-10"
+      className="max-w-7xl mx-auto pb-10 px-2"
     >
       <Helmet>
         <title>{selectedCategory.title === 'All' ? 'Products' : dData(selectedCategory.title, selectedCategory.titleEn)} - {t('app.name') || 'Grocery Store'}</title>
@@ -221,7 +221,7 @@ export default function Products() {
         </AnimatePresence>
       </div>
 
-      <div className="px-5 grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="px-1 grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
         {filteredProducts.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
