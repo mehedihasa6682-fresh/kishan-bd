@@ -104,17 +104,26 @@ export const MessagingService = {
       // This is what the user requested: "ALSO trigger real browser/system notification" in foreground
       if (this.isSupported() && payload.notification) {
         navigator.serviceWorker.ready.then(registration => {
-          registration.showNotification(payload.notification?.title || 'সদাই ভাই', {
+          console.log("Triggering foreground native notification");
+          const options: any = {
             body: payload.notification?.body,
             icon: payload.notification?.icon || '/logo.png',
             badge: '/logo.png',
-            vibrate: [200, 100, 200],
+            vibrate: [200, 100, 200, 100, 400],
             data: payload.data,
             requireInteraction: true,
             renotify: true,
-            tag: payload.data?.notificationId || 'sodaibhai-foreground'
-          } as any);
-        });
+            tag: payload.data?.notificationId || 'sodaibhai-foreground',
+            silent: false, // Explicitly tell browser not to be silent
+          };
+          
+          registration.showNotification(payload.notification?.title || 'সদাই ভাই', options);
+          
+          // Fallback vibrate for some browsers that don't support it in options
+          if ('vibrate' in navigator) {
+            navigator.vibrate([200, 100, 200]);
+          }
+        }).catch(err => console.error("SW Notification error:", err));
       }
     });
   }

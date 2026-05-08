@@ -49,6 +49,18 @@ if (vapidKeys.publicKey && vapidKeys.privateKey) {
 }
 
 // API Routes
+app.get("/api/fcm-status", (req, res) => {
+  res.json({
+    adminInitialized: admin.apps.length > 0,
+    vapidSet: !!(vapidKeys.publicKey && vapidKeys.privateKey),
+    env: {
+      hasServiceAccount: !!process.env.FIREBASE_SERVICE_ACCOUNT_JSON,
+      hasVapidPublic: !!process.env.VITE_VAPID_PUBLIC_KEY,
+      hasVapidPrivate: !!process.env.VAPID_PRIVATE_KEY
+    }
+  });
+});
+
 app.post("/api/order-notification", async (req, res) => {
   const { customerName, phone, address, itemCount, totalAmount, paymentMethod, items } = req.body;
   

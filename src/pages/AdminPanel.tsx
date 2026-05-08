@@ -2726,6 +2726,38 @@ export default function AdminPanel() {
                           <h4 className="font-display font-bold text-xs uppercase tracking-[0.3em] text-white/40 mb-6 font-mono">Push Frequency Diagnostics</h4>
                           <div className="p-8 bg-black/40 rounded-[2rem] border border-white/10 shadow-inner">
                             <p className="text-[9px] text-white/20 font-black uppercase tracking-[0.3em] mb-4">Neural Backend Connectivity</p>
+                            
+                            <div className="mb-6 space-y-3">
+                                <button 
+                                  onClick={async () => {
+                                    try {
+                                      const res = await fetch('/api/fcm-status');
+                                      const data = await res.json();
+                                      alert("FCM Status:\n" + JSON.stringify(data, null, 2));
+                                    } catch (e: any) {
+                                      alert("Failed to fetch status: " + e.message);
+                                    }
+                                  }}
+                                  className="w-full py-3 bg-white/5 text-white/40 border border-white/5 rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all"
+                                >
+                                  Check Server Environment
+                                </button>
+                                <button 
+                                  onClick={async () => {
+                                    try {
+                                      const { MessagingService } = await import('../services/messagingService');
+                                      const token = await MessagingService.requestPermissionAndGetToken();
+                                      alert(token ? "Token secured: " + token.substring(0, 20) + "..." : "Failed to get token (Check console/permissions)");
+                                    } catch (e: any) {
+                                      alert("Token Error: " + e.message);
+                                    }
+                                  }}
+                                  className="w-full py-3 bg-white/5 text-white/40 border border-white/5 rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all"
+                                >
+                                  Check Client Permissions
+                                </button>
+                            </div>
+
                             <button 
                               onClick={async () => {
                                 try {
@@ -2734,7 +2766,7 @@ export default function AdminPanel() {
                                   if (res.success) {
                                     alert("Success! Transmission received on target device.");
                                   } else {
-                                    alert("Error: " + (res.error || "Unknown Neural Failure"));
+                                    alert("Error: " + (res.error || "Unknown Neural Failure") + "\nTip: Ensure Vercel Environment Variables are set.");
                                   }
                                 } catch (e: any) {
                                   alert("Error: " + e.message);
@@ -2745,7 +2777,7 @@ export default function AdminPanel() {
                               Dispatch Signal
                             </button>
                             <p className="text-[8px] text-white/10 mt-4 italic font-medium tracking-wider">
-                                * Node.js core push requires VAPID_PRIVATE_KEY secure vault secret.
+                                * Node.js core push requires VAPID_PRIVATE_KEY and FIREBASE_SERVICE_ACCOUNT_JSON secure vault secrets.
                             </p>
                           </div>
                         </div>
