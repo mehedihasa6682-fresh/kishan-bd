@@ -114,6 +114,13 @@ app.post("/api/send-fcm", async (req, res) => {
   
   if (!token) return res.status(400).json({ error: "Missing FCM token" });
   
+  if (admin.apps.length === 0) {
+    return res.status(500).json({ 
+      error: "Firebase Admin not initialized", 
+      details: "FIREBASE_SERVICE_ACCOUNT_JSON environment variable is missing or invalid on Vercel dashboard." 
+    });
+  }
+  
   try {
     const message: any = {
       token: token,

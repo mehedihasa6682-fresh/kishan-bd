@@ -88,7 +88,12 @@ export const MessagingService = {
         })
       });
 
-      return await response.json();
+      const text = await response.text();
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        return { success: false, error: "Server returned non-JSON: " + text.substring(0, 100) };
+      }
     } catch (error: any) {
       return { success: false, error: error.message };
     }

@@ -2732,8 +2732,13 @@ export default function AdminPanel() {
                                   onClick={async () => {
                                     try {
                                       const res = await fetch('/api/fcm-status');
-                                      const data = await res.json();
-                                      alert("FCM Status:\n" + JSON.stringify(data, null, 2));
+                                      const text = await res.text();
+                                      try {
+                                        const data = JSON.parse(text);
+                                        alert("FCM Status:\n" + JSON.stringify(data, null, 2));
+                                      } catch (je) {
+                                        alert("Server returned non-JSON response:\n" + text.substring(0, 200));
+                                      }
                                     } catch (e: any) {
                                       alert("Failed to fetch status: " + e.message);
                                     }
@@ -2766,7 +2771,8 @@ export default function AdminPanel() {
                                   if (res.success) {
                                     alert("Success! Transmission received on target device.");
                                   } else {
-                                    alert("Error: " + (res.error || "Unknown Neural Failure") + "\nTip: Ensure Vercel Environment Variables are set.");
+                                    const errorMsg = typeof res.error === 'string' ? res.error : JSON.stringify(res.error);
+                                    alert("Error: " + (errorMsg || "Unknown Neural Failure") + "\nTip: Ensure Vercel Environment Variables are set.");
                                   }
                                 } catch (e: any) {
                                   alert("Error: " + e.message);
