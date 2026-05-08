@@ -82,8 +82,12 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
                 >
                     <img src={product.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={product.name} />
                     {effective.promotion && (
-                        <div className="absolute top-1 left-1 bg-primary text-black rounded-lg p-1 animate-pulse shadow-lg border border-black/10">
-                            <Zap size={10} fill="currentColor" />
+                        <div className="absolute top-1 right-1 flex flex-col items-end gap-1 z-10 scale-75 origin-top-right">
+                             <div className="bg-primary text-black rounded-lg px-1 py-0.5 flex items-center gap-1 animate-pulse shrink-0">
+                                <Zap size={8} fill="currentColor" />
+                                <span className="text-[6px] font-black uppercase tracking-tight">Flash</span>
+                            </div>
+                            <FlashTimer endTime={effective.promotion.endTime} />
                         </div>
                     )}
                 </div>
@@ -156,10 +160,10 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
                 <img src={product.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={product.name} />
                 
                 {effective.promotion && (
-                    <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between gap-2 z-10">
-                        <div className="bg-primary text-black rounded-lg px-1.5 py-0.5 flex items-center gap-1 shadow-lg border border-black/10 animate-pulse shrink-0">
-                            <Zap size={8} fill="currentColor" />
-                            <span className="text-[7px] font-black uppercase tracking-tighter">Flash Sale</span>
+                    <div className="absolute top-1 right-1 flex flex-col items-end gap-1 z-10 overflow-hidden">
+                        <div className="bg-primary text-black rounded-lg px-1.5 py-0.5 flex items-center gap-1 shadow-xl border border-black/10 animate-pulse shrink-0">
+                            <Zap size={9} fill="currentColor" />
+                            <span className="text-[8px] font-black uppercase tracking-tight">Flash Sale</span>
                         </div>
                         <FlashTimer endTime={effective.promotion.endTime} />
                     </div>

@@ -192,9 +192,20 @@ export default function Checkout() {
               </motion.div>
               
               <h2 className="text-3xl font-display font-black mb-3 text-white uppercase tracking-tighter">Order Placed!</h2>
-              <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] mb-12 leading-relaxed px-4">
-                  অর্ডারটি সফলভাবে সম্পন্ন হয়েছে। আমাদের এডমিন শীঘ্রই আপনার সাথে যোগাযোগ করবে।
-              </p>
+              <div className="bg-primary/10 border border-primary/20 p-5 rounded-[2rem] mb-10 overflow-hidden relative group">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700" />
+                  <p className="text-white/60 text-[11px] font-bold leading-relaxed relative z-10 text-center">
+                      অর্ডারটি সফলভাবে সম্পন্ন হয়েছে। আমাদের এডমিন আপনার পেমেন্ট যাচাই (Verify) করার পর অফিসিয়াল মেমো দিয়ে দিবে। দয়া করে অপেক্ষা করুন।
+                  </p>
+                  <div className="mt-4 flex items-center justify-center gap-3 relative z-10">
+                    <div className="flex gap-1">
+                        {[1,2,3].map(i => (
+                            <div key={i} className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: `${i * 0.2}s` }} />
+                        ))}
+                    </div>
+                    <span className="text-[9px] font-black text-primary uppercase tracking-widest">Verifying Payment...</span>
+                  </div>
+              </div>
 
               <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
@@ -432,23 +443,18 @@ export default function Checkout() {
                     </div>
                 </div>
 
-                <div className="flex bg-white/5 p-1.5 rounded-[2.5rem] border border-white/10 shadow-2xl">
-                    <button 
-                        onClick={() => setStep(1)}
-                        className={`flex-1 py-4 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all ${
-                            step === 1 ? 'bg-primary text-black shadow-lg shadow-primary/20 scale-[1.02]' : 'text-white/20 hover:text-white/40'
-                        }`}
-                    >
-                        Grid Setup
-                    </button>
+                <div className="pt-4">
                     <button 
                         disabled={!phone || !address || !customerName}
                         onClick={() => setStep(2)}
-                        className={`flex-1 py-4 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all ${
-                            step === 2 ? 'bg-primary text-black shadow-lg shadow-primary/20 scale-[1.02]' : 'text-white/20 hover:text-white/40 disabled:opacity-20'
+                        className={`w-full py-5 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-2xl ${
+                            (!phone || !address || !customerName) 
+                            ? 'bg-white/5 text-white/20 border border-white/5' 
+                            : 'bg-primary text-black shadow-primary/30 active:scale-95'
                         }`}
                     >
-                        Bio-Payment
+                        <span>Next Step</span>
+                        <ChevronRight size={18} />
                     </button>
                 </div>
             </motion.div>
@@ -463,9 +469,9 @@ export default function Checkout() {
                     <div className="grid grid-cols-2 gap-3">
                         {[
                         { id: 'cod', label: 'Cash on Delivery', icon: CreditCard },
-                        { id: 'bkash', label: 'bKash', img: 'https://raw.githubusercontent.com/Shadman-Zamee/payment-logos-bd/main/bkash-logo.png' },
-                        { id: 'nagad', label: 'Nagad', img: 'https://raw.githubusercontent.com/Shadman-Zamee/payment-logos-bd/main/nagad-logo.png' },
-                        { id: 'rocket', label: 'Rocket', img: 'https://raw.githubusercontent.com/Shadman-Zamee/payment-logos-bd/main/rocket-logo.png' },
+                        { id: 'bkash', label: 'bKash', img: 'https://logos-download.com/wp-content/uploads/2022/01/BKash_Logo.png' },
+                        { id: 'nagad', label: 'Nagad', img: 'https://logos-download.com/wp-content/uploads/2022/01/Nagad_Logo.png' },
+                        { id: 'rocket', label: 'Rocket', img: 'https://logos-download.com/wp-content/uploads/2022/01/Rocket_Logo.png' },
                         ].map((method) => (
                         <button 
                             key={method.id}
@@ -482,7 +488,7 @@ export default function Checkout() {
                                 </div>
                             )}
                             {method.img ? (
-                                <img src={method.img} className={`h-10 object-contain transition-all ${paymentMethod === method.id ? 'grayscale-0' : 'grayscale opacity-40 group-hover:opacity-60'}`} alt={method.label} />
+                                <img src={method.img} className={`h-12 object-contain transition-all ${paymentMethod === method.id ? 'scale-110' : 'opacity-60 group-hover:opacity-100'}`} alt={method.label} />
                             ) : (
                                 <method.icon className={`h-10 w-10 ${paymentMethod === method.id ? 'text-primary' : 'text-white/20'}`} />
                             )}

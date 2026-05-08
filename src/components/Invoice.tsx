@@ -18,157 +18,216 @@ export default function Invoice({ order, onClose }: InvoiceProps) {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#050E21]/90 backdrop-blur-md print:p-0 print:bg-white"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#050E21]/95 backdrop-blur-xl print:p-0 print:bg-white print:static print:inset-auto"
     >
       <motion.div 
         initial={{ scale: 0.9, y: 20 }}
         animate={{ scale: 1, y: 0 }}
-        className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden print:shadow-none print:rounded-none"
+        className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden print:shadow-none print:rounded-none print:w-full print:max-w-none"
       >
-        {/* Header */}
-        <div className="bg-[#0A1F44] p-8 text-white flex justify-between items-center print:bg-white print:text-slate-900 print:border-b print:pb-6">
+        {/* Header - Print Optimized */}
+        <div className="bg-[#0A1F44] p-6 text-white flex justify-between items-center print:bg-white print:text-slate-900 print:border-b-2 print:border-slate-100 print:pb-6">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center shadow-lg border border-white/5 overflow-hidden">
+            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center shadow-lg border border-white/5 overflow-hidden print:bg-slate-100 print:border-slate-200">
                 {appSettings.logo ? (
-                    <img src={appSettings.logo} className="w-full h-full object-contain" alt="Logo" />
+                    <img src={appSettings.logo} className="w-full h-full object-contain p-1" alt="Logo" />
                 ) : (
-                    <ShoppingBag size={24} className="text-primary" />
+                    <ShoppingBag size={24} className="text-primary print:text-slate-900" />
                 )}
             </div>
             <div>
-              <h2 className="font-display font-black text-xl leading-none mb-1 tracking-tight">{appSettings.appName || 'SupermarketBD'}</h2>
-              <p className="text-[8px] font-black text-primary uppercase tracking-[0.3em] print:text-slate-400">Order Manifest</p>
+              <h1 className="font-display font-black text-xl leading-none mb-0.5 tracking-tight">{appSettings.appName || 'SupermarketBD'}</h1>
+              <div className="flex items-center gap-2">
+                <span className="text-[8px] font-black text-primary uppercase tracking-[0.3em] print:text-slate-400">
+                  {order.paymentStatus === 'verified' ? 'OFFICIAL RECEIPT' : 'INVOICE / BILL'}
+                </span>
+                <span className="text-[8px] font-bold text-white/30 print:text-slate-300">|</span>
+                <span className="text-[8px] font-bold text-white/50 print:text-slate-400">মেমো</span>
+              </div>
             </div>
           </div>
-          <div className="text-right flex flex-col items-end gap-3">
-            <div className="no-print mb-2">
+          <div className="text-right">
+            <div className="no-print mb-2 flex justify-end gap-2">
               <button 
                 onClick={handlePrint}
-                className="bg-white/10 hover:bg-primary hover:text-[#050E21] p-2.5 rounded-xl transition-all shadow-lg"
-                title="Print Invoice"
+                className="bg-white/10 hover:bg-primary hover:text-[#050E21] p-2.5 rounded-xl transition-all shadow-lg backdrop-blur-md"
+                title="Print or Save PDF"
               >
-                <Printer size={18} />
+                <Printer size={16} />
               </button>
             </div>
-            <div>
-              <h3 className="font-bold text-sm mb-1 uppercase tracking-[0.2em] text-primary">#{order.id.slice(-8)}</h3>
-              <p className="text-xs text-white/50 font-medium print:text-slate-400">{format(order.createdAt?.toDate ? order.createdAt.toDate() : new Date(), 'dd MMM yyyy, hh:mm a')}</p>
+            <div className="space-y-0.5">
+              <h3 className="font-mono font-black text-base uppercase tracking-tighter text-primary print:text-slate-900">#{order.id.slice(-8)}</h3>
+              <p className="text-[9px] text-white/40 font-black uppercase tracking-widest print:text-slate-400">
+                {format(order.createdAt?.toDate ? order.createdAt.toDate() : new Date(), 'dd MMM yyyy')}
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="p-8 bg-white">
-          {/* Info Blocks */}
-          <div className="grid grid-cols-2 gap-8 mb-10">
-            <div>
-              <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-3">Customer Details</p>
-              <h4 className="font-bold text-lg text-[#0A1F44] leading-tight mb-1">{order.customerName}</h4>
-              <p className="text-sm text-slate-500 font-bold">Phone: {order.phone}</p>
-              <p className="text-sm text-slate-400 font-medium mt-2 leading-relaxed">{typeof order.address === 'string' ? order.address : (order.address?.address || 'No Address')}</p>
+        <div className="p-6 bg-white print:p-8">
+          {/* Status Banner - Verification Focused */}
+          <div className={`mb-6 p-3 rounded-2xl flex items-center justify-between border ${
+            order.paymentStatus === 'verified' 
+              ? 'bg-green-50 border-green-100 text-green-700' 
+              : 'bg-amber-50 border-amber-100 text-amber-700'
+          } print:bg-white print:border-slate-200 print:text-slate-900`}>
+            <div className="flex items-center gap-2.5">
+              <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+                order.paymentStatus === 'verified' ? 'bg-green-600 text-white' : 'bg-amber-500 text-white'
+              }`}>
+                {order.paymentStatus === 'verified' ? <CheckCircle2 size={14} /> : <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />}
+              </div>
+              <div>
+                <p className="text-[8px] font-black uppercase tracking-widest leading-none mb-0.5">Payment Status</p>
+                <p className="text-xs font-bold truncate">
+                  {order.paymentStatus === 'verified' ? 'পেমেন্ট যাচাই করা হয়েছে' : 'পেমেন্ট যাচাইয়ের অপেক্ষায় আছে'}
+                </p>
+              </div>
             </div>
             <div className="text-right">
-              <div className="flex flex-col items-end gap-6">
+              <p className="text-[8px] font-black uppercase tracking-widest leading-none mb-0.5">Order Status</p>
+              <p className="text-xs font-bold uppercase">{order.status}</p>
+            </div>
+          </div>
+
+          {/* Info Blocks */}
+          <div className="grid grid-cols-2 gap-8 mb-6">
+            <div>
+              <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest mb-2">Customer Details / গ্রাহক</p>
+              <h4 className="font-bold text-base text-[#0A1F44] leading-tight mb-0.5">{order.customerName}</h4>
+              <p className="text-xs text-slate-500 font-bold mb-1">{order.phone}</p>
+              <p className="text-[10px] text-slate-400 font-medium leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                {typeof order.address === 'string' ? order.address : (order.address?.address || 'No Address')}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest mb-2">Payment Info / পেমেন্ট</p>
+              <div className="space-y-2">
                 <div>
-                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-2">Order Status</p>
-                    <div className="bg-primary/10 text-primary px-4 py-1.5 rounded-full flex items-center gap-2 border border-primary/20 shadow-sm">
-                        <CheckCircle2 size={14} />
-                        <span className="text-[10px] font-black uppercase tracking-widest leading-none">{order.status}</span>
-                    </div>
+                  <p className="text-[10px] font-black text-[#0A1F44] uppercase tracking-widest bg-slate-50 px-2.5 py-1.5 rounded-lg inline-block border border-slate-100">
+                    {order.paymentMethod === 'cod' ? 'Cash on Delivery' : `${order.paymentMethod.toUpperCase()} Mobile Banking`}
+                  </p>
                 </div>
-                <div>
-                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-2">Payment Info</p>
-                    <div className="text-right space-y-1">
-                        <div className="bg-[#0A1F44]/5 text-[#0A1F44] px-3 py-1.5 rounded-lg inline-flex items-center gap-2 mb-1 border border-[#0A1F44]/10 shadow-sm">
-                            <span className="text-[9px] font-black uppercase tracking-widest">{order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod.toUpperCase()}</span>
+                {order.paymentMethod !== 'cod' && (
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 inline-block text-left min-w-[120px]">
+                    {order.paymentNumber && (
+                        <div className="flex justify-between items-center mb-0.5 gap-4">
+                          <span className="text-[8px] text-slate-400 uppercase font-black">Account:</span>
+                          <span className="text-[10px] font-bold text-[#0A1F44]">{order.paymentNumber}</span>
                         </div>
-                        <p className="text-sm font-black text-[#0A1F44] uppercase tracking-tight">৳{order.total}</p>
-                        {order.paymentNumber && (
-                            <p className="text-[10px] text-slate-500 font-bold">Via: {order.paymentNumber}</p>
-                        )}
-                        {order.transactionId && (
-                            <p className="text-[9px] text-slate-400 font-mono italic">TrxID: {order.transactionId}</p>
-                        )}
-                        <p className="text-[10px] font-black text-primary uppercase tracking-tighter mt-1">{order.paymentStatus === 'verified' ? 'Payment Verified' : 'Awaiting verification'}</p>
-                    </div>
-                </div>
+                    )}
+                    {order.transactionId && (
+                        <div className="flex justify-between items-center gap-4">
+                          <span className="text-[8px] text-slate-400 uppercase font-black">TrxID:</span>
+                          <span className="text-[9px] font-mono font-bold text-primary">{order.transactionId}</span>
+                        </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
           {/* Table */}
-          <div className="mb-10 overflow-x-auto">
+          <div className="mb-6">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b-2 border-slate-50">
-                  <th className="pb-3 text-[9px] font-black text-slate-300 uppercase tracking-widest">Item Description</th>
-                  <th className="pb-3 text-[9px] font-black text-slate-300 uppercase tracking-widest text-center">Qty</th>
-                  <th className="pb-3 text-[9px] font-black text-slate-300 uppercase tracking-widest text-right">Price</th>
-                  <th className="pb-3 text-[9px] font-black text-slate-300 uppercase tracking-widest text-right">Total</th>
+                <tr className="border-b border-slate-100">
+                  <th className="pb-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">Items</th>
+                  <th className="pb-2 text-[8px] font-black text-slate-400 uppercase tracking-widest text-center">Qty</th>
+                  <th className="pb-2 text-[8px] font-black text-slate-400 uppercase tracking-widest text-right">Price</th>
+                  <th className="pb-2 text-[8px] font-black text-slate-400 uppercase tracking-widest text-right">Total</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {order.items?.map((item: any, idx: number) => (
                   <tr key={idx} className="group">
-                    <td className="py-4">
+                    <td className="py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-slate-50 rounded-xl overflow-hidden border border-slate-100 p-0.5 print:hidden">
-                          <img src={item.image} className="w-full h-full object-cover rounded-lg" alt={item.name} />
+                        <div className="w-10 h-10 bg-slate-50 rounded-lg overflow-hidden border border-slate-100 p-0.5 shrink-0 print:hidden">
+                          <img src={item.image} className="w-full h-full object-cover rounded-md" alt={item.name} />
                         </div>
                         <div>
-                          <h5 className="font-bold text-xs text-[#0A1F44]">
+                          <h5 className="font-bold text-xs text-[#0A1F44] line-clamp-1">
                             {item.nameEn || item.name}
-                            {item.selectedWeight && (
-                              <span className="text-slate-400 ml-1.5 font-medium">
-                                ({item.selectedWeight >= 1000 ? `${item.selectedWeight / 1000}KG` : `${item.selectedWeight}g`})
-                              </span>
-                            )}
                           </h5>
-                          <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest mt-0.5">{item.category}</p>
+                          {item.selectedWeight && (
+                            <p className="text-[9px] text-slate-400 font-bold mt-0.5">
+                              {item.selectedWeight >= 1000 ? `${item.selectedWeight / 1000}KG` : `${item.selectedWeight}g`}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 text-center text-xs font-black text-slate-600">{item.quantity}</td>
-                    <td className="py-4 text-right text-xs font-bold text-slate-400">৳{item.price}</td>
-                    <td className="py-4 text-right text-xs font-black text-[#0A1F44]">৳{item.price * item.quantity}</td>
+                    <td className="py-3 text-center text-xs font-black text-slate-600">{item.quantity}</td>
+                    <td className="py-3 text-right text-xs font-bold text-slate-400">৳{item.price}</td>
+                    <td className="py-3 text-right text-xs font-black text-[#0A1F44]">৳{item.price * item.quantity}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          {/* Totals */}
-          <div className="bg-[#0A1F44]/5 p-6 rounded-3xl space-y-3 border border-[#0A1F44]/5">
-            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest text-slate-400">
-              <span>Subtotal</span>
-              <span className="text-[#0A1F44]">৳{order.total + (order.discount || 0) - order.deliveryFee}</span>
-            </div>
-            <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest text-slate-400">
-              <span>Delivery Fee</span>
-              <span className="text-[#0A1F44]">৳{order.deliveryFee}</span>
-            </div>
-            {order.discount > 0 && (
-              <div className="flex justify-between items-center text-[11px] font-black text-red-500 uppercase tracking-widest">
-                <span>Discount Applied</span>
-                <span>-৳{order.discount}</span>
+          {/* Bottom Section */}
+          <div className="grid grid-cols-2 gap-8 items-end">
+            <div className="bg-slate-50 p-4 rounded-[1.5rem] border border-slate-100 print:border-slate-200">
+              <p className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] mb-2">Notice</p>
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <div className="w-1 h-1 bg-primary rounded-full mt-1 shrink-0" />
+                  <p className="text-[9px] text-slate-500 font-bold leading-tight">
+                    এটি একটি কম্পিউটার জেনারেটেড মেমো। আমাদের সিস্টেম অটোমেটিকলি পেমেন্ট যাচাই করার পর চূড়ান্ত মেমো ইস্যু করে।
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <div className="w-1 h-1 bg-primary rounded-full mt-1 shrink-0" />
+                  <p className="text-[9px] text-slate-500 font-bold leading-tight">
+                    যেকোনো পেমেন্ট সংক্রান্ত সমস্যার জন্য আমাদের কাস্টমার সার্ভিসের সাথে যোগাযোগ করুন।
+                  </p>
+                </div>
               </div>
-            )}
-            <div className="flex justify-between items-center pt-5 mt-2 border-t border-[#0A1F44]/10">
-              <span className="font-display font-black text-[10px] uppercase tracking-[0.3em] text-[#050E21]">Total Amount Payable</span>
-              <span className="font-display font-black text-2xl text-primary drop-shadow-sm">৳{order.total}</span>
+            </div>
+            
+            <div className="bg-[#0A1F44] p-5 rounded-[2rem] shadow-xl space-y-2.5 print:bg-white print:text-slate-900 print:shadow-none print:border print:border-slate-100">
+              <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-white/40 print:text-slate-400">
+                <span>Subtotal</span>
+                <span className="text-white print:text-slate-900 text-xs">৳{order.total + (order.discount || 0) - order.deliveryFee}</span>
+              </div>
+              <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-white/40 print:text-slate-400">
+                <span>Delivery</span>
+                <span className="text-white print:text-slate-900 text-xs">৳{order.deliveryFee}</span>
+              </div>
+              {order.discount > 0 && (
+                <div className="flex justify-between items-center text-[10px] font-black text-red-400 uppercase tracking-widest">
+                  <span>Discount</span>
+                  <span className="text-xs">-৳{order.discount}</span>
+                </div>
+              )}
+              <div className="flex flex-col items-end pt-3 mt-1 border-t border-white/5 print:border-slate-100">
+                <span className="font-display font-black text-[8px] uppercase tracking-[0.3em] text-white/30 mb-1 print:text-slate-300">TOTAL PAYABLE</span>
+                <span className="font-display font-black text-2xl text-primary drop-shadow-lg print:text-slate-900 print:drop-shadow-none">৳{order.total}</span>
+              </div>
             </div>
           </div>
 
+          <div className="mt-8 pt-6 border-t border-slate-50 text-center print:mt-6">
+            <p className="text-[10px] font-black text-[#0A1F44] uppercase tracking-widest mb-1 shadow-sm inline-block px-3 py-1 bg-slate-50 rounded-full border border-slate-100">Thank you for shopping!</p>
+            <p className="text-[8px] text-slate-300 font-black uppercase tracking-[0.2em]">www.shoppers.com.bd</p>
+          </div>
+
           {/* Footer Actions */}
-          <div className="mt-12 flex gap-4 print:hidden">
+          <div className="mt-8 flex gap-3 print:hidden">
             <button 
               onClick={handlePrint}
-              className="flex-1 py-5 bg-[#0A1F44] text-white rounded-2xl flex items-center justify-center gap-3 font-black text-[11px] uppercase tracking-widest shadow-2xl hover:bg-[#050E21] hover:scale-[1.02] transition-all active:scale-95"
+              className="flex-1 py-4 bg-primary text-[#050E21] rounded-2xl flex items-center justify-center gap-2.5 font-black text-[10px] uppercase tracking-widest shadow-xl hover:scale-[1.02] transition-all active:scale-95 group"
             >
-              <Printer size={18} /> Print / Save PDF
+              <Printer size={16} />
+              Print / Save Invoice
             </button>
             <button 
               onClick={onClose}
-              className="px-8 py-5 bg-slate-50 text-slate-500 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-100"
+              className="px-6 py-4 bg-slate-50 text-slate-500 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-200"
             >
               Close
             </button>

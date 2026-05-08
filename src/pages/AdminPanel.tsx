@@ -8,11 +8,11 @@ import {
   Layers, Camera, ChevronRight, Store, X, Clock, Bell,
   ArrowLeft, User, Box, Gift, Image as ImageIcon,
   MessageSquare, Package, Eye, EyeOff, MapPin, Phone, Globe,
-  TrendingUp, ArrowUpRight, Zap, Percent
+  TrendingUp, ArrowUpRight, Zap, Percent, ReceiptText
 } from 'lucide-react';
 import { adminService } from '../services/adminService';
 import { formatCurrency } from '../lib/utils';
-import { collection, onSnapshot, query, orderBy, where, doc, getDocs, Timestamp } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, where, doc, getDocs, Timestamp, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { AuthContext } from '../App';
 import Invoice from '../components/Invoice';
@@ -33,6 +33,50 @@ export default function AdminPanel() {
   const [payouts, setPayouts] = useState<any[]>([]);
 
   const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'approvals' | 'banners' | 'stories' | 'categories' | 'users' | 'orders' | 'bundles' | 'settings' | 'notifications' | 'riders' | 'financials'>('dashboard');
+  const [activeStatusModal, setActiveStatusModal] = useState<string | null>(null);
+
+  // Helper for notifications
+  const sendNotification = async (userId: string, title: string, message: string, type: string = 'info') => {
+    try {
+      await addDoc(collection(db, 'notifications'), {
+        userId,
+        title,
+        message,
+        type,
+        isRead: false,
+        createdAt: serverTimestamp()
+      });
+    } catch (e) {
+      console.error("Error sending notification:", e);
+    }
+  };
+
+  const handleUpdateOrderStatus = async (order: any, status: string, paymentStatus?: string) => {
+    await adminService.updateOrderStatus(order.id, status, paymentStatus);
+    
+    // Notification logic
+    let title = "Order Update";
+    let message = "";
+
+    if (status === 'confirmed') {
+      message = `আপনার অর্ডার (${order.id.slice(-6)}) কনফার্ম করা হয়েছে। আমরা শীঘ্রই ডেলিভারি প্রক্রিয়া শুরু করবো।`;
+    } else if (status === 'verified' || paymentStatus === 'verified') {
+      title = "Payment Verified";
+      message = `আপনার পেমেন্ট সফলভাবে যাচাই করা হয়েছে। ধন্যবাদ!`;
+    } else if (status === 'cancelled') {
+        title = "Order Cancelled";
+        message = `দুঃখিত, আপনার অর্ডারটি বাতিল করা হয়েছে। বিস্তারিত জানতে যোগাযোগ করুন।`;
+    } else if (status === 'shipped') {
+        title = "Order Shipped";
+        message = `আপনার অর্ডারটি ডেলিভারির জন্য পাঠানো হয়েছে।`;
+    }
+
+    if (message && order.userId) {
+      await sendNotification(order.userId, title, message, status === 'cancelled' ? 'alert' : 'success');
+    }
+    
+    setActiveStatusModal(null);
+  };
   
   // Update rider locations
   useEffect(() => {
@@ -705,33 +749,67 @@ export default function AdminPanel() {
                 )}
 
                 <div className="flex gap-3">
-                  {order.paymentStatus === 'pending' && order.paymentMethod !== 'cod' && (
+                  {order.status === 'pending' && (
                     <button 
-                      onClick={() => adminService.updateOrderStatus(order.id, 'verified', 'verified')}
-                      className="flex-1 py-4 bg-primary text-black rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all"
+                      onClick={() => setActiveStatusModal(order.id)}
+                      className="flex-1 py-4 bg-primary text-black rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all flex items-center justify-center gap-2"
                     >
-                      Verify Payment
+                      <CheckCircle size={14} />
+                      Confirm / যাচাই
                     </button>
                   )}
-                  {order.status === 'pending' && order.paymentMethod === 'cod' && (
-                    <button 
-                      onClick={() => adminService.updateOrderStatus(order.id, 'confirmed')}
-                      className="flex-1 py-4 bg-white/10 text-white border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] hover:bg-white/20 transition-all"
+                  
+                  {activeStatusModal === order.id && (
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="absolute inset-0 z-10 bg-black/90 backdrop-blur-md rounded-[2.5rem] p-6 flex flex-col items-center justify-center gap-4 text-center"
                     >
-                      Confirm Order
-                    </button>
+                      <div className="mb-2">
+                        <h5 className="font-display font-black text-xs uppercase tracking-widest text-primary mb-1">Confirm Order</h5>
+                        <p className="text-[10px] text-white/40 font-bold">অর্ডারের যাচাইকরণ সম্পন্ন করুন</p>
+                      </div>
+                      <div className="flex flex-col gap-3 w-full max-w-xs">
+                        <button 
+                          onClick={() => handleUpdateOrderStatus(order, 'confirmed', 'verified')}
+                          className="w-full py-4 bg-primary text-black rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg"
+                        >
+                          <ShieldCheck size={14} /> Direct Verified & Confirm
+                        </button>
+                        <button 
+                          onClick={() => handleUpdateOrderStatus(order, 'pending', 'verified')}
+                          className="w-full py-4 bg-white/10 text-white border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                        >
+                          <CreditCard size={14} /> Payment Verified Only
+                        </button>
+                        <button 
+                          onClick={() => handleUpdateOrderStatus(order, 'confirmed')}
+                          className="w-full py-4 bg-white/5 text-white/60 border border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                        >
+                          <CheckCircle size={14} /> Direct Confirm (COD)
+                        </button>
+                        <button 
+                          onClick={() => setActiveStatusModal(null)}
+                          className="w-full py-3 text-white/30 text-[9px] font-bold uppercase tracking-widest hover:text-white"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </motion.div>
                   )}
+
                   <button 
-                    onClick={() => adminService.updateOrderStatus(order.id, 'cancelled')}
+                    onClick={() => handleUpdateOrderStatus(order, 'cancelled')}
                     className="px-6 py-4 bg-red-500/10 text-red-500 border border-red-500/20 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500/20 transition-all"
                   >
                     Cancel
                   </button>
                   <button 
                     onClick={() => setSelectedOrder(order)}
-                    className="px-6 py-4 bg-white/5 border border-white/10 text-white/40 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:text-white transition-all shadow-xl"
+                    className="px-6 py-4 bg-white/5 border border-white/10 text-white/40 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:text-white transition-all shadow-xl flex items-center gap-2"
                   >
-                    Invoice
+                    <ReceiptText size={14} />
+                    Invoice / মেমো
                   </button>
                 </div>
               </div>

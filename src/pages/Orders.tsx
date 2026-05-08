@@ -167,31 +167,18 @@ export default function Orders() {
                     <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">Delivery Destination</span>
                     <span className="text-[11px] font-bold text-white/80 truncate max-w-[140px]">{typeof order.address === 'string' ? order.address : (order.address?.address || 'No Address')}</span>
                 </div>
-                <div className="flex gap-3">
-                    {order.status === 'delivered' && order.customerConfirmation !== 'confirmed' && (
-                        <motion.button 
-                            whileTap={{ scale: 0.95 }}
-                            onClick={async () => {
-                                if (confirm('Confirm you have received all items?')) {
-                                    await riderService.confirmReceipt(order.id);
-                                }
-                            }}
-                            className="flex items-center gap-2 bg-emerald-500 text-white px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-[0_10px_20px_rgba(16,185,129,0.3)]"
-                        >
-                            <CheckCircle size={14} />
-                            Received
-                        </motion.button>
-                    )}
+                <div className="flex gap-2">
                     <button 
                         onClick={() => setViewInvoice(order)}
-                        className="w-10 h-10 flex items-center justify-center bg-white/5 rounded-xl text-white/40 hover:text-primary transition-all border border-white/10"
+                        className="flex-1 flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-primary transition-all border border-white/10 py-3 px-4 shadow-xl group"
                     >
-                        <ReceiptText size={20} />
+                        <ReceiptText size={18} className="group-hover:scale-110 transition-transform" />
+                        <span>View Memo / মেমো</span>
                     </button>
                     {(order.status === 'shipped' || order.status === 'confirmed' || order.status === 'delivered') && (
                         <button 
                             onClick={() => setTrackingOrder(trackingOrder?.id === order.id ? null : order)}
-                            className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-5 py-2.5 rounded-2xl transition-all shadow-lg ${
+                            className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-6 py-3 rounded-2xl transition-all shadow-lg ${
                                 trackingOrder?.id === order.id ? 'bg-white text-black' : 'bg-primary text-black hover:bg-white'
                             }`}
                         >
