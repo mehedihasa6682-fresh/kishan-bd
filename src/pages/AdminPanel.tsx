@@ -2735,17 +2735,25 @@ export default function AdminPanel() {
                                       const text = await res.text();
                                       try {
                                         const data = JSON.parse(text);
-                                        alert("FCM Status:\n" + JSON.stringify(data, null, 2));
+                                        const statusLines = [
+                                          `Firebase Admin Ready: ${data.adminInitialized ? "✅ YES" : "❌ NO"}`,
+                                          `VAPID Keys Set: ${data.vapidSet ? "✅ YES" : "❌ NO"}`,
+                                          `--- ENV Check ---`,
+                                          `Service Account JSON: ${data.env.hasServiceAccount ? "Found" : "Missing"}`,
+                                          `VAPID Public: ${data.env.hasVapidPublic ? "Found" : "Missing"}`,
+                                          `VAPID Private: ${data.env.hasVapidPrivate ? "Found" : "Missing"}`
+                                        ];
+                                        alert("Neural Network Status:\n\n" + statusLines.join("\n"));
                                       } catch (je) {
-                                        alert("Server returned non-JSON response:\n" + text.substring(0, 200));
+                                        alert("Server returned raw text:\n" + text.substring(0, 500));
                                       }
                                     } catch (e: any) {
-                                      alert("Failed to fetch status: " + e.message);
+                                      alert("Connectivity Error: " + e.message);
                                     }
                                   }}
                                   className="w-full py-3 bg-white/5 text-white/40 border border-white/5 rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all"
                                 >
-                                  Check Server Environment
+                                  Ping Backend Infrastructure
                                 </button>
                                 <button 
                                   onClick={async () => {
