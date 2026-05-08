@@ -8,17 +8,21 @@ dotenv.config();
 
 // Initialize Firebase Admin
 try {
-  const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_JSON 
-    ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON)
-    : null;
-
-  if (serviceAccount) {
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount)
-    });
-    console.log("Firebase Admin initialized successfully");
-  } else {
-    console.warn("FIREBASE_SERVICE_ACCOUNT_JSON missing. FCM Admin will not be available.");
+  if (admin.apps.length === 0) {
+    const rawServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+    if (rawServiceAccount) {
+      try {
+        const serviceAccount = JSON.parse(rawServiceAccount);
+        admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount)
+        });
+        console.log("Firebase Admin initialized successfully");
+      } catch (parseError) {
+        console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT_JSON. Ensure it is a valid JSON string on Vercel.");
+      }
+    } else {
+      console.warn("FIREBASE_SERVICE_ACCOUNT_JSON missing. FCM Admin will not be available.");
+    }
   }
 } catch (error) {
   console.error("Firebase Admin init failed:", error);
@@ -49,10 +53,15 @@ if (vapidKeys.publicKey && vapidKeys.privateKey) {
 }
 
 // API Routes
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 app.get("/api/fcm-status", (req, res) => {
   res.json({
     adminInitialized: admin.apps.length > 0,
     vapidSet: !!(vapidKeys.publicKey && vapidKeys.privateKey),
+    vercel: !!process.env.VERCEL,
     env: {
       hasServiceAccount: !!process.env.FIREBASE_SERVICE_ACCOUNT_JSON,
       hasVapidPublic: !!process.env.VITE_VAPID_PUBLIC_KEY,
@@ -186,29 +195,52 @@ app.get("/api/vapid-public-key", (req, res) => {
 
 // Helper for local dev only
 async function startServer() {
-  if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
+  const isVercel = !!process.env.VERCEL || !!process.env.NOW_REGION;
+  const isProd = process.env.NODE_ENV === "production";
+
+  if (isVercel) {
+    console.log("Running in Vercel environment - Skipping local port listener");
+    return;
+  }
+
+  if (!isProd) {
     // Dynamically import Vite only during development
-    const { createServer: createViteServer } = await import('vite');
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
-    
-    const PORT = 3000;
-    app.listen(PORT, "0.0.0.0", () => {
-      console.log(`Development server running on http://localhost:${PORT}`);
-    });
+    try {
+      const { createServer: createViteServer } = await import('vite');
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: "spa",
+      });
+      app.use(vite.middlewares);
+      
+      const PORT = 3000;
+      app.listen(PORT, "0.0.0.0", () => {
+        console.log(`Development server running on http://localhost:${PORT}`);
+      });
+    } catch (err) {
+      console.error("Failed to start Vite dev server:", err);
+    }
   } else {
-    // Production / Vercel: Serve static files from 'dist'
+    // Local Production: Serve static files from 'dist'
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
+      // For any route that's not an API, serve index.html
+      if (req.path.startsWith('/api')) {
+        return res.status(404).json({ error: "API route not found" });
+      }
       res.sendFile(path.join(distPath, 'index.html'));
+    });
+    
+    const PORT = process.env.PORT || 3000;
+    app.listen(Number(PORT), "0.0.0.0", () => {
+      console.log(`Local production server running on http://localhost:${PORT}`);
     });
   }
 }
 
-startServer();
+startServer().catch(err => {
+  console.error("Critical error in startServer:", err);
+});
 
 export default app;
