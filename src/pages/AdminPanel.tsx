@@ -2736,12 +2736,15 @@ export default function AdminPanel() {
                                       try {
                                         const data = JSON.parse(text);
                                         const statusLines = [
-                                          `Firebase Admin Ready: ${data.adminInitialized ? "✅ YES" : "❌ NO"}`,
-                                          `VAPID Keys Set: ${data.vapidSet ? "✅ YES" : "❌ NO"}`,
-                                          `--- ENV Check ---`,
-                                          `Service Account JSON: ${data.env.hasServiceAccount ? "Found" : "Missing"}`,
+                                          `Firebase Admin: ${data.adminInitialized ? "✅ READY" : "❌ OFF"}`,
+                                          `Web Push VAPID: ${data.vapidSet ? "✅ SET" : "❌ MISSING"}`,
+                                          `Telegram Bot: ${data.telegram?.hasToken ? "✅ SET" : "❌ MISSING"}`,
+                                          `Telegram Chat: ${data.telegram?.hasChatId ? "✅ SET" : "❌ MISSING"}`,
+                                          `--- Environment Audit ---`,
+                                          `Admin JSON: ${data.env.hasServiceAccount ? "Found" : "Missing"}`,
                                           `VAPID Public: ${data.env.hasVapidPublic ? "Found" : "Missing"}`,
-                                          `VAPID Private: ${data.env.hasVapidPrivate ? "Found" : "Missing"}`
+                                          `VAPID Private: ${data.env.hasVapidPrivate ? "Found" : "Missing"}`,
+                                          `Platform: ${data.vercel ? "Vercel" : "Local"}`
                                         ];
                                         alert("Neural Network Status:\n\n" + statusLines.join("\n"));
                                       } catch (je) {
@@ -2754,6 +2757,24 @@ export default function AdminPanel() {
                                   className="w-full py-3 bg-white/5 text-white/40 border border-white/5 rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all"
                                 >
                                   Ping Backend Infrastructure
+                                </button>
+                                <button 
+                                  onClick={async () => {
+                                    try {
+                                      const res = await fetch('/api/test-telegram');
+                                      const data = await res.json();
+                                      if (data.success) {
+                                        alert("Success! Check your Telegram bot for the test message.");
+                                      } else {
+                                        alert("Telegram Failed:\n" + (data.error || JSON.stringify(data)));
+                                      }
+                                    } catch (e: any) {
+                                      alert("Connectivity Error: " + e.message);
+                                    }
+                                  }}
+                                  className="w-full py-3 bg-white/5 text-white/40 border border-white/5 rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all mb-3"
+                                >
+                                  Test Telegram Signal
                                 </button>
                                 <button 
                                   onClick={async () => {

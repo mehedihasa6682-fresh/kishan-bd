@@ -62,6 +62,11 @@ app.get("/api/fcm-status", (req, res) => {
     adminInitialized: admin.apps.length > 0,
     vapidSet: !!(vapidKeys.publicKey && vapidKeys.privateKey),
     vercel: !!process.env.VERCEL,
+    telegram: {
+      hasToken: !!process.env.TELEGRAM_BOT_TOKEN,
+      hasChatId: !!process.env.TELEGRAM_ADMIN_CHAT_ID,
+      botTokenPrefix: process.env.TELEGRAM_BOT_TOKEN ? process.env.TELEGRAM_BOT_TOKEN.substring(0, 5) + "..." : "none"
+    },
     env: {
       hasServiceAccount: !!process.env.FIREBASE_SERVICE_ACCOUNT_JSON,
       hasVapidPublic: !!process.env.VITE_VAPID_PUBLIC_KEY,
@@ -77,25 +82,34 @@ app.post("/api/order-notification", async (req, res) => {
   const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
 
   if (!token || !chatId) {
-    console.error("Missing Telegram configuration");
-    return res.status(500).json({ error: "Notification service not configured" });
+    console.error("Missing Telegram configuration. TOKEN:", !!token, "CHAT_ID:", !!chatId);
+    return res.status(500).json({ 
+      error: "Notification service not configured", 
+      details: "TELEGRAM_BOT_TOKEN and TELEGRAM_ADMIN_CHAT_ID must be set on Vercel." 
+    });
   }
 
   const itemsList = items && items.length > 0 
     ? items.map((item: any) => `• ${item.name} x${item.quantity}`).join('\n') 
     : 'No items recorded';
 
+  // Sanitize text for HTML mode
+  const clean = (str: any) => String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
   const message = `🛒 <b>New Grocery Order</b>\n\n` +
-    `👤 <b>Customer:</b> ${customerName}\n` +
-    `📞 <b>Phone:</b> ${phone}\n` +
-    `📍 <b>Address:</b> ${address}\n` +
-    `💳 <b>Payment:</b> ${paymentMethod}\n\n` +
-    `📦 <b>Products:</b>\n${itemsList}\n\n` +
+    `👤 <b>Customer:</b> ${clean(customerName)}\n` +
+    `📞 <b>Phone:</b> ${clean(phone)}\n` +
+    `📍 <b>Address:</b> ${clean(address)}\n` +
+    `💳 <b>Payment:</b> ${clean(paymentMethod)}\n\n` +
+    `📦 <b>Products:</b>\n${clean(itemsList)}\n\n` +
     `🛍 <b>Total Items:</b> ${itemCount}\n` +
     `💰 <b>Total Amount:</b> ৳${totalAmount}`;
 
   try {
-    const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    const telegramUrl = `https://api.telegram.org/bot${token}/sendMessage`;
+    console.log(`Sending Telegram notification to ${chatId}...`);
+    
+    const response = await fetch(telegramUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -105,16 +119,21 @@ app.post("/api/order-notification", async (req, res) => {
       })
     });
 
+    const responseData = await response.json();
+
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Telegram API Error:", errorData);
-      throw new Error("Failed to send Telegram message");
+      console.error("Telegram API Error Response:", responseData);
+      return res.status(response.status).json({ 
+        error: "Telegram API indicated failure", 
+        details: responseData 
+      });
     }
 
+    console.log("Telegram notification sent successfully");
     res.json({ success: true });
-  } catch (error) {
-    console.error("Telegram notification failed:", error);
-    res.status(500).json({ error: "Failed to send notification" });
+  } catch (error: any) {
+    console.error("Telegram notification network/runtime failed:", error);
+    res.status(500).json({ error: "Failed to send notification via network", details: error.message });
   }
 });
 
@@ -241,6 +260,31 @@ async function startServer() {
 
 startServer().catch(err => {
   console.error("Critical error in startServer:", err);
+});
+
+app.get("/api/test-telegram", async (req, res) => {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
+
+  if (!token || !chatId) {
+    return res.json({ success: false, error: "Missing config", token: !!token, chatId: !!chatId });
+  }
+
+  try {
+    const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: "⚡️ Neural Link Test: Connection established successfully.",
+        parse_mode: 'HTML'
+      })
+    });
+    const data = await response.json();
+    res.json({ success: response.ok, data });
+  } catch (e: any) {
+    res.json({ success: false, error: e.message });
+  }
 });
 
 export default app;
