@@ -18,7 +18,7 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
   
-  const notificationTitle = payload.notification?.title || "Sodai Bhai Update";
+  const notificationTitle = payload.notification?.title || "সদাই ভাই";
   const notificationOptions = {
     body: payload.notification?.body || "You have a new message.",
     icon: payload.notification?.icon || '/logo.png',
@@ -27,8 +27,8 @@ messaging.onBackgroundMessage((payload) => {
     data: {
       url: payload.data?.url || '/'
     },
-    // Android specific enhancements
-    vibrate: [200, 100, 200],
+    // Native mobile enhancements
+    vibrate: [200, 100, 200, 100, 200],
     requireInteraction: true,
     renotify: true,
     actions: [
@@ -41,18 +41,20 @@ messaging.onBackgroundMessage((payload) => {
 
 // Handle notification click
 self.addEventListener('notificationclick', (event) => {
+  console.log('[firebase-messaging-sw.js] Notification clicked: ', event);
   event.notification.close();
+  
   const urlToOpen = event.notification.data?.url || '/';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-      // Check if there's already a window open with the same URL
+      // If we find an existing tab with the same URL, focus it
       for (const client of windowClients) {
         if (client.url === urlToOpen && 'focus' in client) {
           return client.focus();
         }
       }
-      // If no window is open, open a new one
+      // Otherwise, open a new window
       if (clients.openWindow) {
         return clients.openWindow(urlToOpen);
       }
@@ -74,17 +76,19 @@ self.addEventListener('fetch', (event) => {
   // Can add caching logic here if needed
 });
 
-// Handle generic push events (e.g. from web-push backend)
+// Handle generic push events (fallback for non-FCM push)
 self.addEventListener('push', (event) => {
   if (event.data) {
     try {
       const data = event.data.json();
-      if (data.notification) {
-        const title = data.notification.title || 'New Notification';
+      // Only show if it's not handled by FCM already (redundancy check)
+      if (data.notification && !data.from) {
+        const title = data.notification.title || 'Notification';
         const options = {
           body: data.notification.body,
           icon: data.notification.icon || '/logo.png',
           badge: '/logo.png',
+          vibrate: [200, 100, 200],
           data: {
             url: data.data?.url || '/'
           }
@@ -92,27 +96,7 @@ self.addEventListener('push', (event) => {
         event.waitUntil(self.registration.showNotification(title, options));
       }
     } catch (e) {
-      console.error('Error parsing push data', e);
+      console.error('Push data error:', e);
     }
   }
-});
-
-// Handle notification click
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  const urlToOpen = event.notification.data.url || '/';
-
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-      for (var i = 0; i < windowClients.length; i++) {
-        var client = windowClients[i];
-        if (client.url === urlToOpen && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      if (clients.openWindow) {
-        return clients.openWindow(urlToOpen);
-      }
-    })
-  );
 });

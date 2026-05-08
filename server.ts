@@ -103,18 +103,33 @@ app.post("/api/send-fcm", async (req, res) => {
   if (!token) return res.status(400).json({ error: "Missing FCM token" });
   
   try {
-    const message = {
+    const message: any = {
       token: token,
       notification: {
-        title: notification.title || "Sodai Bhai",
+        title: notification.title || "সদাই ভাই",
         body: notification.body || "Update from Sodai Bhai"
       },
       data: data || {},
+      android: {
+        priority: 'high',
+        notification: {
+          icon: 'stock_ticker_update', // Use app icon
+          color: '#16A34A',
+          sound: 'default',
+          clickAction: 'FLUTTER_NOTIFICATION_CLICK', // Common for cross-platform, but works for web too
+          notificationCount: 1,
+        }
+      },
       webpush: {
+        headers: {
+          Urgency: 'high'
+        },
         notification: {
           icon: "/logo.png",
           badge: "/logo.png",
-          vibrate: [200, 100, 200],
+          vibrate: [200, 100, 200, 100, 200],
+          requireInteraction: true,
+          renotify: true,
           actions: [
             { action: 'open', title: 'Open View' }
           ]

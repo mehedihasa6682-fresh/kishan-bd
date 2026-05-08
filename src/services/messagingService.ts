@@ -100,16 +100,20 @@ export const MessagingService = {
     onMessage(messaging, (payload) => {
       console.log("Foreground message received:", payload);
       
-      // Since it's in the foreground, we need to show the notification manually 
-      // if we want a system popup.
-      if ('serviceWorker' in navigator && payload.notification) {
+      // Trigger a real browser notification even in foreground
+      // This is what the user requested: "ALSO trigger real browser/system notification" in foreground
+      if (this.isSupported() && payload.notification) {
         navigator.serviceWorker.ready.then(registration => {
-          registration.showNotification(payload.notification?.title || 'New Message', {
+          registration.showNotification(payload.notification?.title || 'সদাই ভাই', {
             body: payload.notification?.body,
             icon: payload.notification?.icon || '/logo.png',
             badge: '/logo.png',
-            data: payload.data
-          });
+            vibrate: [200, 100, 200],
+            data: payload.data,
+            requireInteraction: true,
+            renotify: true,
+            tag: payload.data?.notificationId || 'sodaibhai-foreground'
+          } as any);
         });
       }
     });
