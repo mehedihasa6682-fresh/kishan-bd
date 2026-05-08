@@ -18,18 +18,60 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
   
-  const notificationTitle = payload.notification.title || "New Notification";
+  const notificationTitle = payload.notification?.title || "Sodai Bhai Update";
   const notificationOptions = {
-    body: payload.notification.body || "You have a new message from Kishan.",
-    icon: payload.notification.icon || '/logo.png',
-    badge: '/logo.png', // Small icon for status bar
-    tag: payload.data?.notificationId || 'kishan-notification', // Unique tag to collapse notifications
+    body: payload.notification?.body || "You have a new message.",
+    icon: payload.notification?.icon || '/logo.png',
+    badge: '/logo.png',
+    tag: payload.data?.notificationId || 'sodaibhai-notification',
     data: {
       url: payload.data?.url || '/'
-    }
+    },
+    // Android specific enhancements
+    vibrate: [200, 100, 200],
+    requireInteraction: true,
+    renotify: true,
+    actions: [
+      { action: 'open', title: 'Open View' }
+    ]
   };
 
   return self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+// Handle notification click
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const urlToOpen = event.notification.data?.url || '/';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      // Check if there's already a window open with the same URL
+      for (const client of windowClients) {
+        if (client.url === urlToOpen && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      // If no window is open, open a new one
+      if (clients.openWindow) {
+        return clients.openWindow(urlToOpen);
+      }
+    })
+  );
+});
+
+// PWA Install/Activate for compliance
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(clients.claim());
+});
+
+// Cache strategy for assets (Minimal for now)
+self.addEventListener('fetch', (event) => {
+  // Can add caching logic here if needed
 });
 
 // Handle generic push events (e.g. from web-push backend)

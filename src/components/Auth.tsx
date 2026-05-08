@@ -158,7 +158,7 @@ export default function Auth() {
           )}
         </div>
         <h2 className="text-2xl font-display font-bold text-white">
-          {isResetting ? 'Reset Password' : (isLogin ? `Log in to ${settings.appName || 'Supermarket'}` : 'Create Account')}
+          {isResetting ? 'Reset Password' : (isLogin ? `Log in to ${settings.appName || 'সদাই ভাই'}` : 'Create Account')}
         </h2>
         <p className="text-white/40 text-xs font-medium mt-1">
           {isResetting ? 'Enter your email to receive a reset link' : (isLogin ? 'Login to your account' : 'Join our grocery community')}

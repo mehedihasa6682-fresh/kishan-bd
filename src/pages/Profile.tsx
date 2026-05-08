@@ -349,26 +349,24 @@ export default function Profile() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-bold text-white text-sm">System Notifications</h3>
-                <p className="text-[10px] text-white/30">Receive alerts in your mobile notification bar</p>
+                <p className="text-[10px] text-white/30 truncate max-w-[200px]">
+                  {isPushEnabled ? 'Channel active' : 'Receive alerts on your device'}
+                </p>
               </div>
               <button
-                onClick={() => {
-                  if ("Notification" in window) {
-                    Notification.requestPermission().then(permission => {
-                      if (permission === 'granted') {
-                        new Notification("অ্যাক্টিভেট হয়েছে!", {
-                          body: "এখন থেকে আপনি নোটিফিকেশন বারে আপডেট পাবেন।",
-                          icon: appSettings.logo || '/logo.png'
-                        });
-                      }
-                    });
-                  }
-                }}
-                className="px-4 py-2 bg-primary text-black text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 active:scale-95 transition-all"
+                onClick={handleEnablePush}
+                disabled={isPushEnabled}
+                className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg transition-all ${isPushEnabled ? 'bg-white/10 text-white/20' : 'bg-primary text-black shadow-primary/20 active:scale-95'}`}
               >
-                Enable
+                {isPushEnabled ? 'Enabled' : 'Enable'}
               </button>
             </div>
+
+            {Notification.permission === 'denied' && (
+              <p className="text-[9px] text-red-500 font-bold bg-red-500/10 p-3 rounded-xl border border-red-500/20">
+                ⚠️ Notifications are blocked. Please reset permissions in your browser settings (click the lock icon in URL bar) and refresh. Open in a new tab for best results.
+              </p>
+            )}
 
             <button
               onClick={() => {
@@ -467,7 +465,7 @@ export default function Profile() {
                                       <MapPin size={20} />
                                     </div>
                                     <p className="flex-1 text-[13px] text-white/80 font-medium leading-relaxed">
-                                        {typeof addr === 'string' ? addr : (addr?.address || 'Saved Location')}
+                                        {typeof addr === 'string' ? addr : ((addr as any)?.address || 'Saved Location')}
                                     </p>
                                     <button onClick={() => handleRemoveAddress(idx)} className="p-3 text-white/20 hover:text-red-500 hover:bg-red-500/5 rounded-2xl transition-all border border-transparent hover:border-red-500/20">
                                         <Trash2 size={20} />

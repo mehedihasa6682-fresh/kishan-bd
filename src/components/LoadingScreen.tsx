@@ -24,7 +24,7 @@ export const LoadingScreen: React.FC = () => {
         </div>
         
         <h1 className="text-2xl font-display font-black text-white tracking-[0.2em] uppercase mb-1">
-          {settings.appName || 'Supermarket'}
+          {settings.appName || 'সদাই ভাই'}
         </h1>
         <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em] opacity-60">Authentic Excellence</p>
         

@@ -205,6 +205,23 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["title", "percentage", "endTime", "targetType", "isActive"]
+    },
+    "Page": {
+      "title": "Page",
+      "description": "Static pages like Privacy Policy, Refund Policy, etc.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "slug": { "type": "string" },
+        "content": { "type": "string" },
+        "isVisible": { "type": "boolean" },
+        "seoTitle": { "type": "string" },
+        "seoDescription": { "type": "string" },
+        "seoKeywords": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "slug", "content", "isVisible"]
     }
   },
   "firestore": {
@@ -221,6 +238,7 @@
     "/fcmTokens/{tokenId}": { "schema": "FCMToken", "description": "Device tokens for push" },
     "/payouts/{payoutId}": { "schema": "Payout", "description": "Payout requests" },
     "/promotions/{promoId}": { "schema": "Promotion", "description": "Flash deals and temporal discounts" },
+    "/pages/{pageId}": { "schema": "Page", "description": "Static content pages" },
     "settings": {
       "schema": {
         "type": "object",

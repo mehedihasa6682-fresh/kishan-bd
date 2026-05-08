@@ -10,60 +10,47 @@ try {
 }
 
 export const MessagingService = {
+  isSupported() {
+    return typeof window !== 'undefined' && 
+           'serviceWorker' in navigator && 
+           'Notification' in window && 
+           'PushManager' in window;
+  },
+
   async requestPermissionAndGetToken() {
-    if (!messaging) return null;
+    if (!messaging || !this.isSupported()) return null;
     
     try {
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY || 'BLUaQ6p_En7RjF_9QTN__g6WVViX9r9eJfy16eiryt-GADsNg46gtyJNqxDDS7qeGyYCUkhkIjvkKRKvIRHgBRw';
-        
-        const token = await getToken(messaging, { vapidKey });
-        
-        if (token && auth.currentUser) {
-          await this.saveTokenToFirestore(token);
-          return token;
-        }
+      // If permission is already denied, we can't do anything
+      if (Notification.permission === 'denied') {
+        console.warn("FCM Notifications are blocked by the user/browser.");
+        return null;
+      }
+
+      // Check if we already have permission, if not, request it
+      if (Notification.permission === 'default') {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') return null;
+      }
+      
+      const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY || 'BLUaQ6p_En7RjF_9QTN__g6WVViX9r9eJfy16eiryt-GADsNg46gtyJNqxDDS7qeGyYCUkhkIjvkKRKvIRHgBRw';
+      
+      // Wait for service worker to be ready
+      const registration = await navigator.serviceWorker.ready;
+      
+      const token = await getToken(messaging, { 
+        vapidKey,
+        serviceWorkerRegistration: registration
+      });
+      
+      if (token && auth.currentUser) {
+        await this.saveTokenToFirestore(token);
+        return token;
       }
     } catch (error) {
       console.error("FCM Permission/Token error:", error);
     }
     return null;
-  },
-
-  async testPush() {
-    if (!auth.currentUser) return { success: false, error: "Not logged in" };
-    
-    try {
-      const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
-      
-      if (!subscription) {
-        return { success: false, error: "No push subscription found. Try refreshing or re-enabling notifications." };
-      }
-
-      const response = await fetch('/api/send-notification', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subscription,
-          payload: {
-            notification: {
-              title: "Test Notification",
-              body: "This is a test notification from the Node.js backend!",
-              icon: "/logo.png"
-            },
-            data: {
-              url: "/orders"
-            }
-          }
-        })
-      });
-
-      return await response.json();
-    } catch (error: any) {
-      return { success: false, error: error.message };
-    }
   },
 
   async saveTokenToFirestore(token: string) {
@@ -81,12 +68,50 @@ export const MessagingService = {
     }
   },
 
+  async testPush() {
+    if (!auth.currentUser) return { success: false, error: "Not logged in" };
+    
+    try {
+      const token = await this.requestPermissionAndGetToken();
+      if (!token) return { success: false, error: "Permission denied or token missing" };
+
+      const response = await fetch('/api/send-fcm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token,
+          notification: {
+            title: "Test Signal 🚀",
+            body: "Your Sodai Bhai push system is active and verified!"
+          },
+          data: { url: "/orders" }
+        })
+      });
+
+      return await response.json();
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  },
+
   onMessageListener() {
     if (!messaging) return;
-    return new Promise((resolve) => {
-      onMessage(messaging, (payload) => {
-        resolve(payload);
-      });
+    
+    onMessage(messaging, (payload) => {
+      console.log("Foreground message received:", payload);
+      
+      // Since it's in the foreground, we need to show the notification manually 
+      // if we want a system popup.
+      if ('serviceWorker' in navigator && payload.notification) {
+        navigator.serviceWorker.ready.then(registration => {
+          registration.showNotification(payload.notification?.title || 'New Message', {
+            body: payload.notification?.body,
+            icon: payload.notification?.icon || '/logo.png',
+            badge: '/logo.png',
+            data: payload.data
+          });
+        });
+      }
     });
   }
 };

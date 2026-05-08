@@ -36,7 +36,7 @@ export default function Invoice({ order, onClose }: InvoiceProps) {
                 )}
             </div>
             <div>
-              <h1 className="font-display font-black text-xl leading-none mb-0.5 tracking-tight">{appSettings.appName || 'SupermarketBD'}</h1>
+              <h1 className="font-display font-black text-xl leading-none mb-0.5 tracking-tight">{appSettings.appName || 'সদাই ভাই'}</h1>
               <div className="flex items-center gap-2">
                 <span className="text-[8px] font-black text-primary uppercase tracking-[0.3em] print:text-slate-400">
                   {order.paymentStatus === 'verified' ? 'OFFICIAL RECEIPT' : 'INVOICE / BILL'}

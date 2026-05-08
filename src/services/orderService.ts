@@ -10,6 +10,7 @@ import {
   doc
 } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../firebase';
+import { telegramService } from './telegramService';
 
 export interface Order {
   id?: string;
@@ -44,6 +45,21 @@ export const orderService = {
         status: 'pending',
         paymentStatus: 'pending'
       });
+
+      // Send Telegram Notification in background
+      telegramService.notifyNewOrder({
+        customerName: orderData.customerName,
+        phone: orderData.phone,
+        address: orderData.address,
+        itemCount: orderData.items.reduce((sum, item) => sum + (item.quantity || 1), 0),
+        totalAmount: orderData.total,
+        paymentMethod: orderData.paymentMethod.toUpperCase(),
+        items: orderData.items.map(item => ({
+          name: item.name,
+          quantity: item.quantity || 1
+        }))
+      });
+
       return docRef.id;
     } catch (e) {
       handleFirestoreError(e, OperationType.CREATE, 'orders');

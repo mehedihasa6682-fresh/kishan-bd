@@ -25,9 +25,11 @@ import AdminPanel from './pages/AdminPanel';
 import Wishlist from './pages/Wishlist';
 import RiderDashboard from './pages/RiderDashboard';
 import Discounts from './pages/Discounts';
+import DynamicPage from './pages/DynamicPage';
 
 // Components
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import BottomNav from './components/BottomNav';
 import OfflineIndicator from './components/OfflineIndicator';
 import PWAInstall from './components/PWAInstall';
@@ -116,12 +118,24 @@ export default function App() {
     const unsubBanners = onSnapshot(query(collection(db, 'banners')), () => {
       bannersLoaded = true;
       checkAllLoaded();
+    }, (error) => {
+      console.error("App Banners error:", error);
+      bannersLoaded = true; // Still mark as "loaded" to avoid blocking UI
+      checkAllLoaded();
     });
     const unsubCategories = onSnapshot(query(collection(db, 'categories')), () => {
       categoriesLoaded = true;
       checkAllLoaded();
+    }, (error) => {
+      console.error("App Categories error:", error);
+      categoriesLoaded = true;
+      checkAllLoaded();
     });
     const unsubProducts = onSnapshot(query(collection(db, 'products'), where('status', '==', 'approved')), () => {
+      productsLoaded = true;
+      checkAllLoaded();
+    }, (error) => {
+      console.error("App Products error:", error);
       productsLoaded = true;
       checkAllLoaded();
     });
@@ -142,6 +156,7 @@ export default function App() {
       setUser(u);
       if (u) {
         MessagingService.requestPermissionAndGetToken();
+        MessagingService.onMessageListener();
         // Init settings
         try {
           const { getDoc, doc, setDoc } = await import('firebase/firestore');
@@ -223,7 +238,7 @@ function SettingsSEOManager() {
     const { settings } = useSettings();
     const { language } = useLanguage();
     
-    const title = settings.seoTitle || settings.appName || 'Supermarket';
+    const title = settings.seoTitle || settings.appName || 'সদাই ভাই';
     const description = settings.seoDescription || 'Modern grocery shopping experience.';
     const keywords = settings.seoKeywords || settings.domainMisspellings || 'grocery, fresh, shopping';
     const canonical = settings.canonicalUrl || `https://${settings.primaryDomain || window.location.hostname}${window.location.pathname}`;
@@ -396,6 +411,7 @@ function RoutesContent() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/discounts" element={<Discounts />} />
+            <Route path="/page/:slug" element={<DynamicPage />} />
             
             {/* Seller/Apply Routes */}
             <Route path="/seller/*" element={role ? <SellerDashboard /> : <Navigate to="/profile" />} />
@@ -412,6 +428,7 @@ function RoutesContent() {
       </AnimatePresence>
       </main>
 
+      {!isDashboardRoute && <Footer />}
       {!isDashboardRoute && <BottomNav />}
     </div>
   );

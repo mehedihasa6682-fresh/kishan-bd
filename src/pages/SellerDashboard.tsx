@@ -454,7 +454,7 @@ export default function SellerDashboard() {
                                             paymentMethod: provider, 
                                             payoutAccount: number 
                                         });
-                                        setToast('Payout method updated!');
+                                        setToast({ message: 'Payout method updated!', type: 'success' });
                                     } catch (err) {
                                         handleFirestoreError(err, OperationType.UPDATE, `users/${user.uid}`);
                                     }

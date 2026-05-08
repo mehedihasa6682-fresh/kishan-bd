@@ -102,7 +102,7 @@ export default function Home() {
       className="max-w-7xl mx-auto relative min-h-screen pb-32 px-2 md:px-6"
     >
       <Helmet>
-        <title>{appSettings.appName || 'Supermarket'} - আধুনিক গ্রোছারি শপিং</title>
+        <title>{appSettings.appName || 'সদাই ভাই'} - আধুনিক গ্রোছারি শপিং</title>
       </Helmet>
 
       {/* Hero Banner Slider */}

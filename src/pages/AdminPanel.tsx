@@ -21,6 +21,8 @@ import { format, addHours } from 'date-fns';
 
 import { calculateDistance, formatDistance } from '../lib/geoUtils';
 
+type AdminTab = 'dashboard' | 'products' | 'approvals' | 'banners' | 'stories' | 'categories' | 'users' | 'orders' | 'bundles' | 'settings' | 'notifications' | 'riders' | 'financials' | 'promotions' | 'pages';
+
 export default function AdminPanel() {
   const { user, role, loading: authLoading } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -32,7 +34,7 @@ export default function AdminPanel() {
   const [orders, setOrders] = useState<any[]>([]);
   const [payouts, setPayouts] = useState<any[]>([]);
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'approvals' | 'banners' | 'stories' | 'categories' | 'users' | 'orders' | 'bundles' | 'settings' | 'notifications' | 'riders' | 'financials'>('dashboard');
+  const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
   const [activeStatusModal, setActiveStatusModal] = useState<string | null>(null);
 
   // Helper for notifications
@@ -102,6 +104,7 @@ export default function AdminPanel() {
   const [bundles, setBundles] = useState<any[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [promotions, setPromotions] = useState<any[]>([]);
+  const [pages, setPages] = useState<any[]>([]);
   const [appSettings, setAppSettings] = useState<any>({ logo: '' });
 
   // Filters & Bulk Actions
@@ -140,11 +143,12 @@ export default function AdminPanel() {
   // Form States
   const [newBanner, setNewBanner] = useState({ title: '', subtitle: '', image: '' });
   const [newStory, setNewStory] = useState({ name: '', role: '', quote: '', image: '', type: 'Member' });
-  const [newCategory, setNewCategory] = useState({ title: '', titleEn: '', image: '', subCategories: '', subCategoriesEn: '' });
+  const [newCategory, setNewCategory] = useState({ title: '', titleEn: '', image: '', subCategories: '', subCategoriesEn: '', salesCount: '0' });
   const [newProduct, setNewProduct] = useState({ 
     name: '', 
     nameEn: '', 
     price: '', 
+    discountPrice: '',
     category: '', 
     subCategory: '', 
     image: '', 
@@ -162,7 +166,11 @@ export default function AdminPanel() {
     defaultWeight: '250',
     stockQuantity: '100',
     lowStockAlert: '10',
-    isOutOfStock: false
+    salesCount: '0',
+    isOutOfStock: false,
+    seoDescription: '',
+    seoKeywords: '',
+    tags: ''
   });
   const [newBundle, setNewBundle] = useState({ name: '', nameEn: '', price: '', image: '', description: '', descriptionEn: '' });
   const [newPromotion, setNewPromotion] = useState({ 
@@ -172,6 +180,16 @@ export default function AdminPanel() {
     targetType: 'category', 
     targetId: '' 
   });
+  const [newPage, setNewPage] = useState({
+      title: '',
+      slug: '',
+      content: '',
+      isVisible: true,
+      seoTitle: '',
+      seoDescription: '',
+      seoKeywords: ''
+  });
+  const [editingPageId, setEditingPageId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && role !== 'admin') {
@@ -230,6 +248,10 @@ export default function AdminPanel() {
       setPromotions(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     }, (error) => console.error("Admin Promotions:", error));
 
+    const unsubPages = onSnapshot(query(collection(db, 'pages'), orderBy('createdAt', 'desc')), (snap) => {
+      setPages(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (error) => console.error("Admin Pages:", error));
+
     return () => {
       unsubBanners();
       unsubStories();
@@ -243,6 +265,7 @@ export default function AdminPanel() {
       unsubNotifs();
       unsubPayouts();
       unsubPromotions();
+      unsubPages();
     };
   }, [role, authLoading, navigate]);
 
@@ -302,6 +325,7 @@ export default function AdminPanel() {
       defaultWeight: '250',
       stockQuantity: '100',
       lowStockAlert: '10',
+      salesCount: '0',
       isOutOfStock: false
     });
     setIsAdding(false);
@@ -333,8 +357,9 @@ export default function AdminPanel() {
       pricingType: product.pricingType || 'piece',
       allowedWeights: product.allowedWeights?.join(', ') || '100g, 250g, 500g, 1kg',
       defaultWeight: product.defaultWeight?.toString() || '250',
-      stockQuantity: product.stockQuantity?.toString() || '0',
+      stockQuantity: product.stockQuantity?.toString() || '100',
       lowStockAlert: product.lowStockAlert?.toString() || '10',
+      salesCount: product.salesCount?.toString() || '0',
       isOutOfStock: product.isOutOfStock || false
     });
     setIsAdding(true);
@@ -369,7 +394,7 @@ export default function AdminPanel() {
       subCategoriesEn: subCatsEn,
       salesCount: parseInt(newCategory.salesCount as any) || 0
     });
-    setNewCategory({ title: '', titleEn: '', image: '', subCategories: '', subCategoriesEn: '', salesCount: 0 });
+    setNewCategory({ title: '', titleEn: '', image: '', subCategories: '', subCategoriesEn: '', salesCount: '0' });
     setIsAdding(false);
   };
 
@@ -398,6 +423,42 @@ export default function AdminPanel() {
 
     setNewPromotion({ title: '', percentage: 5, duration: 1, targetType: 'category', targetId: '' });
     setIsAdding(false);
+  };
+
+  const handleAddPage = async () => {
+      if (!newPage.title || !newPage.slug || !newPage.content) return;
+      
+      if (editingPageId) {
+          await adminService.updatePage(editingPageId, newPage);
+      } else {
+          await adminService.addPage(newPage);
+      }
+      
+      setNewPage({
+          title: '',
+          slug: '',
+          content: '',
+          isVisible: true,
+          seoTitle: '',
+          seoDescription: '',
+          seoKeywords: ''
+      });
+      setEditingPageId(null);
+      setIsAdding(false);
+  };
+
+  const startEditingPage = (page: any) => {
+      setEditingPageId(page.id);
+      setNewPage({
+          title: page.title || '',
+          slug: page.slug || '',
+          content: page.content || '',
+          isVisible: page.isVisible ?? true,
+          seoTitle: page.seoTitle || '',
+          seoDescription: page.seoDescription || '',
+          seoKeywords: page.seoKeywords || ''
+      });
+      setIsAdding(true);
   };
 
   const updateLogo = async (base64: string) => {
@@ -431,6 +492,7 @@ export default function AdminPanel() {
     { id: 'settings', label: 'Brand & Site', icon: Settings },
     { id: 'promotions', label: 'Flash Deals', icon: Zap },
     { id: 'financials', label: 'Financials', icon: CreditCard },
+    { id: 'pages', label: 'Pages', icon: Layout },
   ];
 
   if (authLoading) return (
@@ -1040,8 +1102,8 @@ export default function AdminPanel() {
                             type="number"
                             placeholder="Initial Sales Volume" 
                             className="w-full pl-14 pr-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all font-mono"
-                            value={newProduct.salesCount || 0}
-                            onChange={e => setNewProduct({...newProduct, salesCount: parseInt(e.target.value) || 0})}
+                            value={newProduct.salesCount}
+                            onChange={e => setNewProduct({...newProduct, salesCount: e.target.value})}
                           />
                         </div>
                     </div>
@@ -1608,8 +1670,8 @@ export default function AdminPanel() {
                                   type="number"
                                   placeholder="Initial aggregate sales..." 
                                   className="w-full px-5 py-4 bg-black/40 border border-white/5 rounded-2xl text-sm text-white outline-none focus:border-primary/40 transition-all font-mono"
-                                  value={newCategory.salesCount || 0}
-                                  onChange={e => setNewCategory({...newCategory, salesCount: parseInt(e.target.value) || 0})}
+                                  value={newCategory.salesCount}
+                                  onChange={e => setNewCategory({...newCategory, salesCount: e.target.value})}
                                 />
                             </div>
                         </div>
@@ -2547,6 +2609,9 @@ export default function AdminPanel() {
                                 const hotline = (document.getElementById('hotlineNumber') as HTMLInputElement).value;
                                 const address = (document.getElementById('shopAddress') as HTMLInputElement).value;
                                 const promo = (document.getElementById('announcementBar') as HTMLInputElement).value;
+                                const bkash = (document.getElementById('bkashNum') as HTMLInputElement).value;
+                                const nagad = (document.getElementById('nagadNum') as HTMLInputElement).value;
+                                const rocket = (document.getElementById('rocketNum') as HTMLInputElement).value;
 
                                 const { updateDoc, doc } = await import('firebase/firestore');
                                 const { db } = await import('../firebase');
@@ -2556,6 +2621,9 @@ export default function AdminPanel() {
                                   hotlineNumber: hotline || null,
                                   shopAddress: address || null,
                                   announcementBar: promo || null,
+                                  bkashNumber: bkash || '01700-000000',
+                                  nagadNumber: nagad || '01700-000000',
+                                  rocketNumber: rocket || '01700-000000',
                                   updatedAt: new Date().toISOString()
                                 });
                                 alert('Infrastructure Manifest Updated!');
@@ -2564,6 +2632,43 @@ export default function AdminPanel() {
                         >
                             Authorize Site Configuration
                         </button>
+                    </div>
+                </div>
+
+                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative group overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-secondary/10 transition-all duration-700" />
+                    <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-white uppercase tracking-widest relative z-10">
+                        <CreditCard size={24} className="text-secondary" />
+                        Merchant Financial Grid
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">bKash Personal</label>
+                          <input 
+                              placeholder="017..." 
+                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-secondary/40 font-mono"
+                              id="bkashNum"
+                              defaultValue={appSettings.bkashNumber || '01700-000000'}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Nagad Personal</label>
+                          <input 
+                              placeholder="017..." 
+                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-secondary/40 font-mono"
+                              id="nagadNum"
+                              defaultValue={appSettings.nagadNumber || '01700-000000'}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Rocket Personal</label>
+                          <input 
+                              placeholder="017..." 
+                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-secondary/40 font-mono"
+                              id="rocketNum"
+                              defaultValue={appSettings.rocketNumber || '01700-000000'}
+                          />
+                        </div>
                     </div>
                 </div>
 
@@ -2577,7 +2682,7 @@ export default function AdminPanel() {
                         <div className="max-w-md space-y-3">
                           <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Venture Designation (App Name)</label>
                           <input 
-                              placeholder="e.g. Supermarket" 
+                              placeholder="e.g. সদাই ভাই" 
                               className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[14px] text-white font-bold outline-none focus:border-primary/40 tracking-wide"
                               id="appNameInput"
                               defaultValue={appSettings.appName || ''}
@@ -3234,6 +3339,85 @@ export default function AdminPanel() {
             </div>
           </motion.div>
         )}
+
+        {activeTab === 'pages' && (
+            <motion.div
+                key="pages"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="space-y-10"
+            >
+                <div className="flex items-center justify-between">
+                    <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-white uppercase tracking-[0.2em]">
+                        <Layout size={32} className="text-secondary" />
+                        Dynamic Page Matrix
+                    </h3>
+                    <button 
+                        onClick={() => {
+                            setEditingPageId(null);
+                            setNewPage({
+                                title: '',
+                                slug: '',
+                                content: '',
+                                isVisible: true,
+                                seoTitle: '',
+                                seoDescription: '',
+                                seoKeywords: ''
+                            });
+                            setIsAdding(true);
+                        }}
+                        className="px-8 py-4 bg-secondary text-black rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3 shadow-xl shadow-secondary/20 hover:scale-105 transition-all"
+                    >
+                        <Plus size={18} /> Initialize New Node
+                    </button>
+                </div>
+                
+                <div className="grid grid-cols-1 gap-6">
+                    {pages.length === 0 ? (
+                        <div className="text-center py-24 bg-white/5 rounded-[4rem] border border-dashed border-white/10">
+                            <Layout size={64} className="mx-auto text-white/5 mb-6" />
+                            <p className="text-[11px] font-black text-white/20 uppercase tracking-[0.4em]">Grid currently vacant</p>
+                        </div>
+                    ) : (
+                        pages.map(page => (
+                            <div key={page.id} className="p-8 bg-white/5 rounded-[3rem] border border-white/5 shadow-2xl flex items-center justify-between group transition-all hover:border-secondary/30">
+                                <div className="flex items-center gap-6">
+                                    <div className="w-16 h-16 bg-secondary/10 border border-secondary/20 rounded-3xl flex items-center justify-center text-secondary shadow-inner">
+                                        <Globe size={28} />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-lg font-bold text-white mb-1 uppercase tracking-tight">{page.title}</h4>
+                                        <div className="flex items-center gap-4">
+                                            <span className="text-[9px] font-black text-white/30 uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded border border-white/5 font-mono">
+                                                Path: /{page.slug}
+                                            </span>
+                                            <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 ${page.isVisible ? 'text-green-500' : 'text-red-500'}`}>
+                                                {page.isVisible ? <Eye size={12} /> : <EyeOff size={12} />} {page.isVisible ? 'VISIBLE' : 'HIDDEN'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <button 
+                                        onClick={() => startEditingPage(page)}
+                                        className="p-4 bg-white/5 text-white/40 rounded-2xl hover:bg-white/10 hover:text-white border border-white/5 transition-all shadow-xl"
+                                    >
+                                        <Settings size={20} />
+                                    </button>
+                                    <button 
+                                        onClick={() => adminService.deletePage(page.id)}
+                                        className="p-4 bg-white/5 text-white/20 rounded-2xl hover:bg-red-500/10 hover:text-red-500 border border-white/5 transition-all shadow-xl"
+                                    >
+                                        <Trash2 size={20} />
+                                    </button>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </motion.div>
+        )}
       </AnimatePresence>
       </div>
       
@@ -3338,6 +3522,113 @@ export default function AdminPanel() {
                       className="w-full py-6 mt-4 bg-primary text-black rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
                   >
                       Execute Deployment
+                  </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {isAdding && activeTab === 'pages' && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 py-10">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsAdding(false)}
+              className="absolute inset-0 bg-black/90 backdrop-blur-3xl"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-2xl bg-[#050E21] border border-white/10 rounded-[3.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] p-12 overflow-y-auto max-h-[90vh] scrollbar-hide"
+            >
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-secondary to-transparent opacity-40" />
+              <div className="flex justify-between items-start mb-10">
+                <h3 className="font-display font-black text-2xl text-white flex items-center gap-4 uppercase tracking-[0.2em]">
+                    <Layout size={28} className="text-secondary" /> {editingPageId ? 'Refactor Node' : 'Initialize Node'}
+                </h3>
+                <button onClick={() => setIsAdding(false)} className="p-2 bg-white/5 border border-white/10 rounded-xl text-white/40 hover:text-white">
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                  <div className="grid grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Matrix Header (Title)</label>
+                          <input 
+                              placeholder="e.g. Privacy Policy..." 
+                              className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 font-bold transition-all"
+                              value={newPage.title}
+                              onChange={e => setNewPage({...newPage, title: e.target.value})}
+                          />
+                      </div>
+                      <div className="space-y-3">
+                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Routing Vector (Slug)</label>
+                          <input 
+                              placeholder="e.g. privacy-policy" 
+                              className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 font-mono transition-all"
+                              value={newPage.slug}
+                              onChange={e => setNewPage({...newPage, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})}
+                          />
+                      </div>
+                  </div>
+
+                  <div className="space-y-3">
+                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Narrative Payload (Markdown Content)</label>
+                      <textarea 
+                          placeholder="Enter page content in markdown format..." 
+                          className="w-full px-8 py-6 bg-black/40 border border-white/5 rounded-[2.5rem] text-sm text-white/80 outline-none focus:border-secondary/40 h-64 resize-none leading-relaxed font-sans"
+                          value={newPage.content}
+                          onChange={e => setNewPage({...newPage, content: e.target.value})}
+                      />
+                  </div>
+
+                  <div className="bg-black/20 p-8 rounded-[2.5rem] border border-white/5 space-y-4">
+                      <h4 className="text-[10px] font-black text-secondary uppercase tracking-[0.3em] flex items-center gap-2">
+                          <Search size={14} /> Cognitive Extraction (SEO)
+                      </h4>
+                      <div className="grid grid-cols-1 gap-4">
+                          <input 
+                              placeholder="SEO Master Title" 
+                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-xs text-white"
+                              value={newPage.seoTitle}
+                              onChange={e => setNewPage({...newPage, seoTitle: e.target.value})}
+                          />
+                          <textarea 
+                              placeholder="SEO Meta Narrative" 
+                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-xs text-white h-20 resize-none"
+                              value={newPage.seoDescription}
+                              onChange={e => setNewPage({...newPage, seoDescription: e.target.value})}
+                          />
+                          <input 
+                              placeholder="Keywords (comma separated)" 
+                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-xs text-white"
+                              value={newPage.seoKeywords}
+                              onChange={e => setNewPage({...newPage, seoKeywords: e.target.value})}
+                          />
+                      </div>
+                  </div>
+
+                  <div className="flex items-center justify-between px-6 py-4 bg-white/5 border border-white/5 rounded-[2rem]">
+                      <div className="flex items-center gap-3">
+                          <Eye size={18} className="text-secondary" />
+                          <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">Global Visibility</span>
+                      </div>
+                      <button 
+                          onClick={() => setNewPage({...newPage, isVisible: !newPage.isVisible})}
+                          className={`w-12 h-6 rounded-full transition-all relative ${newPage.isVisible ? 'bg-secondary' : 'bg-white/10'}`}
+                      >
+                          <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${newPage.isVisible ? 'right-1' : 'left-1'}`} />
+                      </button>
+                  </div>
+
+                  <button 
+                      onClick={handleAddPage}
+                      className="w-full py-6 bg-secondary text-black rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-secondary/30 hover:scale-[1.02] transition-all active:scale-95 mt-4"
+                  >
+                      {editingPageId ? 'Commit Shift' : 'Initialize Node'}
                   </button>
               </div>
             </motion.div>

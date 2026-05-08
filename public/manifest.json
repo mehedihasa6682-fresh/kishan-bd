@@ -1,6 +1,6 @@
 {
-  "short_name": "Grocery&Supermarket",
-  "name": "Grocery & Supermarket Online Store",
+  "short_name": "সদাই ভাই",
+  "name": "সদাই ভাই - অনলাইন গ্রোছারি শপ",
   "description": "Premium grocery and supermarket shopping experience. Fresh organic products delivered to your door.",
   "categories": ["shopping", "food"],
   "icons": [
@@ -23,6 +23,7 @@
       "purpose": "maskable"
     }
   ],
+  "gcm_sender_id": "103953800507",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
@@ -54,14 +55,14 @@
       "sizes": "1080x1920",
       "type": "image/jpg",
       "form_factor": "narrow",
-      "label": "Kishan App Home Screen"
+      "label": "সদাই ভাই Home Screen"
     },
     {
       "src": "https://images.unsplash.com/photo-1464226110844-0c7746465494?w=1920&h=1080&fit=crop",
       "sizes": "192x1920",
       "type": "image/jpg",
       "form_factor": "wide",
-      "label": "Kishan Desktop View"
+      "label": "সদাই ভাই Desktop View"
     }
   ]
 }

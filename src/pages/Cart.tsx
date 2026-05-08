@@ -71,7 +71,7 @@ export default function Cart() {
               </div>
               
               <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-xs text-white mb-0.5 truncate">{dData(item.name, item.nameEn)}</h3>
+                <h3 className="font-bold text-xs text-white mb-0.5 truncate">{dData(item.name, (item as any).nameEn)}</h3>
                 <div className="flex items-baseline gap-1.5 mb-2">
                   <span className="text-primary font-black text-sm">৳{formatCurrency(item.price || 0)}</span>
                   <span className="text-[10px] text-white/40 font-medium">

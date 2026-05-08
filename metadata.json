@@ -1,6 +1,6 @@
 {
-  "name": "Marketplace Plus",
-  "description": "Modern multi-vendor e-commerce platform for groceries and local products. Shop fresh directly from verified sellers.",
+  "name": "সদাই ভাই",
+  "description": "Premium grocery shopping experience with fresh products directly from verified sellers.",
   "requestFramePermissions": ["geolocation"],
   "majorCapabilities": ["PWA", "Real-time tracking", "Firebase Backend"]
 }

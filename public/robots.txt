@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kishan-market.web.app/sitemap.xml
+Sitemap: https://sodaibhai.web.app/sitemap.xml

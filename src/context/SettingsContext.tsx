@@ -29,7 +29,19 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     const unsub = onSnapshot(doc(db, 'settings', 'app'), (snap) => {
       if (snap.exists()) {
-        const data = snap.data();
+        const data = snap.data() as AppSettings;
+        
+        // Sanitize App Name: If it's a legacy placeholder or contains "Kishan", force it to "সদাই ভাই"
+        const isLegacy = data.appName && (
+          data.appName.toLowerCase().includes('kishan') || 
+          data.appName.toLowerCase().includes('supermarket') ||
+          data.appName.toLowerCase() === 'grocery store'
+        );
+        
+        if (!data.appName || isLegacy) {
+          data.appName = 'সদাই ভাই';
+        }
+
         setSettings(data);
         
         // Dynamically update site title and favicon
@@ -44,8 +56,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
         // Generate Dynamic Manifest
         const manifest = {
-          "short_name": data.appName || "Grocery Store",
-          "name": data.appName || "Grocery Store - Supermarket App",
+          "short_name": data.appName || "সদাই ভাই",
+          "name": data.appName || "সদাই ভাই - অনলাইন গ্রোছারি শপ",
           "description": "Premium grocery shopping experience with fresh products and fast delivery.",
           "icons": [
             {
@@ -74,14 +86,14 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               "sizes": "1080x1920",
               "type": "image/png",
               "form_factor": "narrow",
-              "label": `${data.appName || 'Grocery Store'} Mobile View`
+              "label": `${data.appName || 'সদাই ভাই'} Mobile View`
             }] : []),
             ...(data.screenshotDesktop ? [{
               "src": data.screenshotDesktop,
               "sizes": "1920x1080",
               "type": "image/png",
               "form_factor": "wide",
-              "label": `${data.appName || 'Grocery Store'} Desktop View`
+              "label": `${data.appName || 'সদাই ভাই'} Desktop View`
             }] : [])
           ]
         };

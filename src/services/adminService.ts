@@ -56,7 +56,7 @@ export const adminService = {
         status: 'approved',
         isApproved: true,
         farmerId: 'admin',
-        farmerName: 'Kishan Admin',
+        farmerName: 'সদাই ভাই Admin',
         location: 'Dhaka',
         whatsappNumber: product.whatsappNumber || null
       });
@@ -188,7 +188,7 @@ export const adminService = {
         isApproved: true,
         category: 'Bundles',
         farmerId: 'admin',
-        farmerName: 'Kishan Admin'
+        farmerName: 'সদাই ভাই Admin'
       });
     } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'products'); }
   },
@@ -232,5 +232,29 @@ export const adminService = {
         updatedAt: serverTimestamp() 
       });
     } catch (e) { handleFirestoreError(e, OperationType.UPDATE, `payouts/${id}`); }
+  },
+
+  // Pages
+  async addPage(page: any) {
+    try {
+      return await addDoc(collection(db, 'pages'), { 
+        ...page, 
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+    } catch (e) { handleFirestoreError(e, OperationType.CREATE, 'pages'); }
+  },
+  async updatePage(id: string, updates: any) {
+    try {
+      await updateDoc(doc(db, 'pages', id), {
+        ...updates,
+        updatedAt: serverTimestamp()
+      });
+    } catch (e) { handleFirestoreError(e, OperationType.UPDATE, `pages/${id}`); }
+  },
+  async deletePage(id: string) {
+    try {
+      await deleteDoc(doc(db, 'pages', id));
+    } catch (e) { handleFirestoreError(e, OperationType.DELETE, `pages/${id}`); }
   }
 };

@@ -510,7 +510,11 @@ export default function Checkout() {
                                     <div className="flex justify-between items-center bg-white/10 p-3 rounded-2xl border border-white/5">
                                         <div className="flex flex-col">
                                             <span className="text-[10px] font-bold uppercase opacity-60 text-white/60">Send Money to Personal</span>
-                                            <span className="text-sm font-black tracking-widest text-primary">01700-000000</span>
+                                            <span className="text-sm font-black tracking-widest text-primary">
+                                                {paymentMethod === 'bkash' ? appSettings.bkashNumber || '01700-000000' :
+                                                 paymentMethod === 'nagad' ? appSettings.nagadNumber || '01700-000000' :
+                                                 paymentMethod === 'rocket' ? appSettings.rocketNumber || '01700-000000' : '01700-000000'}
+                                            </span>
                                         </div>
                                         <div className="px-2 py-1 bg-primary/20 rounded-lg">
                                             <span className="text-[10px] font-bold text-primary">PERSONAL</span>
@@ -530,9 +534,11 @@ export default function Checkout() {
                                         </div>
                                         
                                         <div>
-                                            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1 block">Transaction ID</label>
+                                            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1 block">
+                                                Transaction ID {paymentScreenshot ? <span className="text-primary/40 italic">(Optional)</span> : ''}
+                                            </label>
                                             <input 
-                                                placeholder="Enter TrxID after payment"
+                                                placeholder={paymentScreenshot ? "Enter TrxID (Optional)" : "Enter TrxID after payment"}
                                                 className="w-full bg-white/5 border border-white/10 px-4 py-4 rounded-2xl text-xs outline-none focus:border-primary transition-all text-white font-mono"
                                                 value={transactionId}
                                                 onChange={e => setTransactionId(e.target.value)}
@@ -540,7 +546,9 @@ export default function Checkout() {
                                         </div>
                                         
                                         <div>
-                                            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1 block">Or Upload Payment Screenshot</label>
+                                            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1 block">
+                                                Or Upload Payment Screenshot {transactionId ? <span className="text-primary/40 italic">(Optional)</span> : ''}
+                                            </label>
                                             <ImageUpload 
                                                 currentImage={paymentScreenshot}
                                                 onUpload={(base64) => setPaymentScreenshot(base64)}
@@ -590,7 +598,7 @@ export default function Checkout() {
         )}
 
         <p className="text-[10px] text-slate-400 text-center font-medium mt-2">
-            Securely processed via {appSettings.appName || 'Supermarket'} Cloud. Verified for 100% freshness.
+            Securely processed via {appSettings.appName || 'সদাই ভাই'} Cloud. Verified for 100% freshness.
         </p>
       </div>
 

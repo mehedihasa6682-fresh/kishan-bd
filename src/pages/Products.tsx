@@ -105,7 +105,7 @@ export default function Products() {
       className="max-w-7xl mx-auto pb-10 px-2"
     >
       <Helmet>
-        <title>{selectedCategory.title === 'All' ? 'Products' : dData(selectedCategory.title, selectedCategory.titleEn)} - {t('app.name') || 'Grocery Store'}</title>
+        <title>{selectedCategory.title === 'All' ? 'Products' : dData(selectedCategory.title, selectedCategory.titleEn)} - {t('app.name') || 'সদাই ভাই'}</title>
         <meta name="description" content={`Browse ${selectedCategory.title === 'All' ? 'fresh products' : dData(selectedCategory.title, selectedCategory.titleEn)} at our Online Store. Quality guaranteed.`} />
         <meta property="og:title" content={`${selectedCategory.title === 'All' ? 'Products' : dData(selectedCategory.title, selectedCategory.titleEn)} - Store`} />
       </Helmet>

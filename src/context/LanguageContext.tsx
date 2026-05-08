@@ -18,6 +18,7 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.orders': 'অর্ডার',
     'nav.profile': 'প্রোফাইল',
     'nav.lang': 'EN',
+    'app.name': 'সদাই ভাই',
     
     // Home
     'home.search_placeholder': 'তাজাতাজা গ্রোসারি বা পণ্য খুঁজুন...',
@@ -62,6 +63,7 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.orders': 'Orders',
     'nav.profile': 'Profile',
     'nav.lang': 'বাংলা',
+    'app.name': 'Sodai Bhai',
     
     // Home
     'home.search_placeholder': 'Search fresh grocery, fruits...',

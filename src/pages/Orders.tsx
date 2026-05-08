@@ -125,10 +125,10 @@ export default function Orders() {
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: 
-                            order.status === 'delivered' ? '100%' : 
-                            order.status === 'shipped' ? '75%' : 
-                            order.status === 'ready_for_pickup' ? '50%' : 
-                            order.status === 'confirmed' ? '25%' : '5%' 
+                            (order.status as string) === 'delivered' ? '100%' : 
+                            (order.status as string) === 'shipped' ? '75%' : 
+                            (order.status as string) === 'ready_for_pickup' ? '50%' : 
+                            (order.status as string) === 'confirmed' ? '25%' : '5%' 
                         }}
                         className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-primary-dark shadow-[0_0_15px_rgba(212,175,55,0.4)]"
                       />
@@ -165,7 +165,7 @@ export default function Orders() {
               <div className="mt-6 flex items-center justify-between relative z-10">
                 <div className="flex flex-col">
                     <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">Delivery Destination</span>
-                    <span className="text-[11px] font-bold text-white/80 truncate max-w-[140px]">{typeof order.address === 'string' ? order.address : (order.address?.address || 'No Address')}</span>
+                    <span className="text-[11px] font-bold text-white/80 truncate max-w-[140px]">{typeof (order as any).address === 'string' ? (order as any).address : ((order as any).address?.address || 'No Address')}</span>
                 </div>
                 <div className="flex gap-2">
                     <button 
