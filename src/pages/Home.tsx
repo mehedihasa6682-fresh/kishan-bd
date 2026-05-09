@@ -185,6 +185,34 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Flash Deals Section - NEW */}
+      {dbProducts.filter(p => (p.discountPrice && p.discountPrice < p.price) || p.isFlashDeal).length > 0 && (
+        <div className="px-4 mb-10">
+          <div className="flex items-center justify-between mb-6 px-1">
+            <h2 className="text-lg font-display font-black text-white tracking-tight uppercase flex items-center gap-2">
+              <Zap size={20} className="text-primary fill-primary/20" />
+              Flash Deals
+            </h2>
+            <div className="bg-red-600/20 px-3 py-1 rounded-full border border-red-600/30">
+              <span className="text-[10px] font-black text-red-500 uppercase tracking-widest animate-pulse">Limited Time</span>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {dbProducts
+              .filter(p => (p.discountPrice && p.discountPrice < p.price) || p.isFlashDeal)
+              .slice(0, 8)
+              .map((product) => (
+                <div key={product.id} className="relative group">
+                  <div className="absolute -top-1 -left-1 z-10 bg-red-600 text-white text-[8px] font-black px-2 py-1 rounded-lg uppercase tracking-tighter shadow-lg transform -rotate-12 group-hover:rotate-0 transition-transform">
+                      {Math.round(((product.price - (product.discountPrice || 0)) / product.price) * 100)}% OFF
+                  </div>
+                  <ProductCard product={product} />
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+
       {/* Recommended Products - Moved Up */}
       <div className="mb-24 px-4">
         <div className="flex items-center justify-between mb-6 px-1">

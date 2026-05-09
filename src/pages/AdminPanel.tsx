@@ -21,7 +21,7 @@ import { format, addHours } from 'date-fns';
 
 import { calculateDistance, formatDistance } from '../lib/geoUtils';
 
-type AdminTab = 'dashboard' | 'products' | 'approvals' | 'banners' | 'stories' | 'categories' | 'users' | 'orders' | 'bundles' | 'settings' | 'notifications' | 'riders' | 'financials' | 'promotions' | 'pages';
+type AdminTab = 'dashboard' | 'products' | 'approvals' | 'banners' | 'stories' | 'categories' | 'users' | 'orders' | 'bundles' | 'settings' | 'notifications' | 'riders' | 'financials' | 'promotions' | 'pages' | 'coupons' | 'abandonment';
 
 export default function AdminPanel() {
   const { user, role, loading: authLoading } = useContext(AuthContext);
@@ -36,6 +36,19 @@ export default function AdminPanel() {
 
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
   const [activeStatusModal, setActiveStatusModal] = useState<string | null>(null);
+  
+  const [coupons, setCoupons] = useState<any[]>([]);
+  const [abandonedCarts, setAbandonedCarts] = useState<any[]>([]);
+  const [newCoupon, setNewCoupon] = useState({ 
+    code: '', 
+    type: 'percentage', 
+    value: 0, 
+    minOrder: 0, 
+    maxDiscount: 500, 
+    usageLimit: 100, 
+    expiryDate: '',
+    isActive: true
+  });
 
   // Helper for notifications
   const sendNotification = async (userId: string, title: string, message: string, type: string = 'info') => {
@@ -252,6 +265,14 @@ export default function AdminPanel() {
       setPages(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     }, (error) => console.error("Admin Pages:", error));
 
+    const unsubCoupons = onSnapshot(collection(db, 'coupons'), (snap) => {
+      setCoupons(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (error) => console.error("Admin Coupons:", error));
+
+    const unsubAbandoned = onSnapshot(query(collection(db, 'abandoned_carts'), orderBy('createdAt', 'desc')), (snap) => {
+      setAbandonedCarts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (error) => console.error("Admin Abandoned Carts:", error));
+
     return () => {
       unsubBanners();
       unsubStories();
@@ -405,6 +426,22 @@ export default function AdminPanel() {
     setIsAdding(false);
   };
 
+  const handleCreateCoupon = async () => {
+    if (!newCoupon.code || newCoupon.value <= 0) return alert('Manifest incomplete');
+    try {
+      await addDoc(collection(db, 'coupons'), {
+        ...newCoupon,
+        createdAt: serverTimestamp(),
+        usedCount: 0
+      });
+      setIsAdding(false);
+      setNewCoupon({ code: '', type: 'percentage', value: 0, minOrder: 0, maxDiscount: 500, usageLimit: 100, expiryDate: '', isActive: true });
+    } catch (e) {
+      console.error(e);
+      alert('Registry Link Failed');
+    }
+  };
+
   const handleAddPromotion = async () => {
     if (!newPromotion.title || !newPromotion.percentage || (newPromotion.targetType !== 'all' && !newPromotion.targetId)) {
         alert('Please fill all fields');
@@ -492,6 +529,8 @@ export default function AdminPanel() {
     { id: 'settings', label: 'Brand & Site', icon: Settings },
     { id: 'promotions', label: 'Flash Deals', icon: Zap },
     { id: 'financials', label: 'Financials', icon: CreditCard },
+    { id: 'coupons', label: 'Coupons', icon: Percent },
+    { id: 'abandonment', label: 'Abandonment', icon: Trash2 },
     { id: 'pages', label: 'Pages', icon: Layout },
   ];
 
@@ -3407,6 +3446,137 @@ export default function AdminPanel() {
           </motion.div>
         )}
 
+        {activeTab === 'coupons' && (
+          <motion.div key="coupons" className="space-y-10">
+            <div className="flex items-center justify-between">
+                <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-white uppercase tracking-[0.2em]">
+                    <Percent size={32} className="text-secondary" />
+                    Coupon Protocols & Vouchers
+                </h3>
+                <button 
+                  onClick={() => setIsAdding(true)}
+                  className="px-8 py-4 bg-secondary text-black rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3 shadow-xl shadow-secondary/20 hover:scale-105 transition-all"
+                >
+                  <Plus size={18} /> Generate Token
+                </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {coupons.map(coupon => (
+                    <div key={coupon.id} className="bg-white/5 p-8 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden group hover:border-secondary/30 transition-all">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/5 rounded-full -mr-12 -mt-12 blur-2xl group-hover:bg-secondary/10 transition-all" />
+                        <div className="flex justify-between items-start mb-6">
+                            <div>
+                                <h4 className="text-2xl font-display font-black text-white tracking-widest">{coupon.code}</h4>
+                                <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mt-1">{coupon.type === 'percentage' ? `${coupon.value}% Discount` : `৳${formatCurrency(coupon.value)} Flat Discount`}</p>
+                            </div>
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center border transition-all ${coupon.isActive ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
+                                <Zap size={20} />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 mb-6">
+                            <div className="p-4 bg-black/40 rounded-2xl border border-white/5">
+                                <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em] block mb-1">Used Count</span>
+                                <p className="text-lg font-black text-white">{coupon.usedCount || 0} / {coupon.usageLimit}</p>
+                            </div>
+                            <div className="p-4 bg-black/40 rounded-2xl border border-white/5">
+                                <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em] block mb-1">Min Order</span>
+                                <p className="text-lg font-black text-secondary">৳{formatCurrency(coupon.minOrder)}</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <span className="text-[9px] font-black text-white/20 uppercase tracking-widest italic">Exp: {coupon.expiryDate || 'Perpetual'}</span>
+                            <button 
+                                onClick={() => adminService.deleteCoupon(coupon.id)}
+                                className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white/20 hover:text-red-500 hover:border-red-500/40 transition-all shadow-xl active:scale-95"
+                            >
+                                <Trash2 size={18} />
+                            </button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'abandonment' && (
+          <motion.div key="abandonment" className="space-y-10">
+            <div className="flex items-center justify-between">
+                <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-white uppercase tracking-[0.2em]">
+                    <Trash2 size={32} className="text-orange-500" />
+                    Abandoned Cart Recovery
+                </h3>
+                <button 
+                  onClick={async () => {
+                    const res = await fetch('/api/cart/recover-pings');
+                    const data = await res.json();
+                    alert(`Signal Sequence Initiated: ${data.recoveryTriggered} Recoveries Pulsed`);
+                  }}
+                  className="px-8 py-4 bg-orange-500 text-black rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3 shadow-xl shadow-orange-500/20 hover:scale-105 transition-all"
+                >
+                  <Zap size={18} /> Pulse Recovery Signals
+                </button>
+            </div>
+
+            <div className="bg-white/5 rounded-[3rem] border border-white/5 shadow-2xl overflow-hidden">
+                <table className="w-full text-left">
+                    <thead>
+                        <tr className="bg-black/40 border-b border-white/5">
+                            <th className="px-10 py-6 text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Customer Node</th>
+                            <th className="px-10 py-6 text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Asset Value</th>
+                            <th className="px-10 py-6 text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Payload Density</th>
+                            <th className="px-10 py-6 text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Signal Echo</th>
+                            <th className="px-10 py-6 text-[10px] font-black text-white/30 uppercase tracking-[0.3em] text-right">Ops</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                        {abandonedCarts.map(cart => (
+                            <tr key={cart.id} className="hover:bg-white/5 transition-all group">
+                                <td className="px-10 py-8">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 bg-black/40 border border-white/5 rounded-2xl flex items-center justify-center text-white/20">
+                                            <User size={20} />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-white group-hover:text-orange-400 transition-colors">User: {cart.userId?.slice(-8)}</p>
+                                            <p className="text-[10px] text-white/20 font-black uppercase tracking-widest mt-1">Status: Abandoned</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="px-10 py-8">
+                                    <p className="text-lg font-black text-orange-500 font-mono tracking-tight">৳{formatCurrency(cart.total)}</p>
+                                </td>
+                                <td className="px-10 py-8">
+                                    <p className="text-[13px] font-bold text-white/60">{cart.items?.length || 0} Discrete Units</p>
+                                </td>
+                                <td className="px-10 py-8">
+                                    <p className="text-[11px] font-mono text-white/20">
+                                        {cart.createdAt?.toDate ? format(cart.createdAt.toDate(), 'MMM d, h:mm a') : 'Now'}
+                                    </p>
+                                </td>
+                                <td className="px-10 py-8 text-right">
+                                    <button 
+                                        className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white/20 hover:text-orange-400 hover:border-orange-400/40 transition-all shadow-xl active:scale-95"
+                                        title="Inspect Payload"
+                                    >
+                                        <Eye size={18} />
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                        {abandonedCarts.length === 0 && (
+                            <tr>
+                                <td colSpan={5} className="py-32 text-center">
+                                    <p className="text-white/10 text-[11px] font-black uppercase tracking-[0.4em]">No abandoned assets identified</p>
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+          </motion.div>
+        )}
+
         {activeTab === 'pages' && (
             <motion.div
                 key="pages"
@@ -3589,6 +3759,102 @@ export default function AdminPanel() {
                       className="w-full py-6 mt-4 bg-primary text-black rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
                   >
                       Execute Deployment
+                  </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {isAdding && activeTab === 'coupons' && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsAdding(false)}
+              className="absolute inset-0 bg-black/90 backdrop-blur-3xl"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-xl bg-[#050E21] border border-white/10 rounded-[3.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] p-12 overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-secondary to-transparent opacity-40" />
+              <h3 className="font-display font-black text-2xl text-white mb-10 flex items-center gap-4 uppercase tracking-[0.2em]">
+                  <Percent size={28} className="text-secondary" /> Manifest Token
+              </h3>
+
+              <div className="space-y-6">
+                  <div className="space-y-3">
+                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Token Access Code</label>
+                      <input 
+                          placeholder="e.g. MEGA500..." 
+                          className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-lg text-white outline-none focus:border-secondary/40 font-black tracking-widest transition-all text-center uppercase"
+                          value={newCoupon.code}
+                          onChange={e => setNewCoupon({...newCoupon, code: e.target.value.toUpperCase()})}
+                      />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Protocol Type</label>
+                          <select 
+                              className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 text-center font-black appearance-none"
+                              value={newCoupon.type}
+                              onChange={e => setNewCoupon({...newCoupon, type: e.target.value as any})}
+                          >
+                              <option value="percentage">Percentage (%)</option>
+                              <option value="flat">Flat Amount (৳)</option>
+                          </select>
+                      </div>
+                      <div className="space-y-3">
+                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Index Value</label>
+                          <input 
+                              type="number" 
+                              className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 text-center font-black"
+                              value={newCoupon.value}
+                              onChange={e => setNewCoupon({...newCoupon, value: parseInt(e.target.value)})}
+                          />
+                      </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Min Threshold (৳)</label>
+                          <input 
+                              type="number" 
+                              className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 text-center font-black"
+                              value={newCoupon.minOrder}
+                              onChange={e => setNewCoupon({...newCoupon, minOrder: parseInt(e.target.value)})}
+                          />
+                      </div>
+                      <div className="space-y-3">
+                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Usage Limit</label>
+                          <input 
+                              type="number" 
+                              className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 text-center font-black"
+                              value={newCoupon.usageLimit}
+                              onChange={e => setNewCoupon({...newCoupon, usageLimit: parseInt(e.target.value)})}
+                          />
+                      </div>
+                  </div>
+
+                  <div className="space-y-3">
+                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Expiration Chronology</label>
+                      <input 
+                          type="date" 
+                          className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 text-center font-black"
+                          value={newCoupon.expiryDate}
+                          onChange={e => setNewCoupon({...newCoupon, expiryDate: e.target.value})}
+                      />
+                  </div>
+
+                  <button 
+                      onClick={handleCreateCoupon}
+                      className="w-full py-6 mt-4 bg-secondary text-black rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-secondary/20 hover:scale-[1.02] active:scale-95 transition-all"
+                  >
+                      Register Token
                   </button>
               </div>
             </motion.div>

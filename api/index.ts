@@ -57,6 +57,137 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+// Coupon Validation
+app.post("/api/coupons/validate", async (req, res) => {
+  const { code, orderValue, userId } = req.body;
+  if (!code) return res.status(400).json({ error: "Coupon code required" });
+
+  try {
+    const db = admin.firestore();
+    const couponSnapshot = await db.collection('coupons')
+      .where('code', '==', code)
+      .where('isActive', '==', true)
+      .limit(1)
+      .get();
+
+    if (couponSnapshot.empty) {
+      return res.status(404).json({ error: "Invalid or inactive coupon" });
+    }
+
+    const couponData = couponSnapshot.docs[0].data();
+    
+    // Safety & Validation Rules
+    if (orderValue < (couponData.minOrder || 0)) {
+      return res.status(400).json({ error: `Minimum order of ৳${couponData.minOrder} required` });
+    }
+
+    const now = new Date();
+    if (couponData.expiryDate && new Date(couponData.expiryDate) < now) {
+      return res.status(400).json({ error: "Coupon has expired" });
+    }
+
+    if (couponData.usageLimit && (couponData.usedCount || 0) >= couponData.usageLimit) {
+      return res.status(400).json({ error: "Coupon usage limit reached" });
+    }
+
+    let discount = 0;
+    if (couponData.type === 'percentage') {
+      discount = (orderValue * (couponData.value / 100));
+      if (couponData.maxDiscount && discount > couponData.maxDiscount) {
+        discount = couponData.maxDiscount;
+      }
+    } else if (couponData.type === 'fixed') {
+      discount = couponData.value;
+    }
+
+    res.json({ 
+      success: true, 
+      discount, 
+      type: couponData.type,
+      couponId: couponSnapshot.docs[0].id
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: "Validation failed", details: error.message });
+  }
+});
+
+// Abandoned Cart Tracking
+app.post("/api/cart/abandon", async (req, res) => {
+  const { userId, items, totalAmount } = req.body;
+  if (!userId) return res.status(400).json({ error: "User identity required" });
+
+  try {
+    const db = admin.firestore();
+    await db.collection('abandoned_carts').doc(userId).set({
+      userId,
+      items,
+      totalAmount,
+      lastUpdated: new Date().toISOString(),
+      notificationSent: false,
+      status: 'abandoned'
+    }, { merge: true });
+    res.json({ success: true });
+  } catch (error: any) {
+    res.status(500).json({ error: "Failed to log cart", details: error.message });
+  }
+});
+
+// Cart Recovery Engine (Should be called by a cron)
+app.get("/api/cart/recover-pings", async (req, res) => {
+  try {
+    const db = admin.firestore();
+    const threshold = new Date();
+    threshold.setMinutes(threshold.getMinutes() - 30); // 30 mins ago
+
+    const snapshot = await db.collection('abandoned_carts')
+      .where('status', '==', 'abandoned')
+      .where('notificationSent', '==', false)
+      .where('lastUpdated', '<=', threshold.toISOString())
+      .limit(10)
+      .get();
+
+    const results = [];
+    for (const doc of snapshot.docs) {
+      const data = doc.data();
+      
+      // Get User's FCM Token
+      const tokenDoc = await db.collection('fcmTokens').doc(data.userId).get();
+      if (tokenDoc.exists) {
+        const { token } = tokenDoc.data()!;
+        
+        // Send Notification
+        try {
+          await admin.messaging().send({
+            token,
+            notification: {
+              title: "🛒 আপনার কার্ট এখনো অপেক্ষা করছে!",
+              body: "আপনার পছন্দের পণ্যগুলো এখনো কার্টে আছে। এখনই অর্ডার শেষ করুন এবং বিশেষ ডিসকাউন্ট বুঝে নিন! 🎁"
+            },
+            data: { 
+              url: '/cart',
+              type: 'abandoned_recovery'
+            },
+            webpush: {
+              fcmOptions: { link: '/cart' }
+            }
+          });
+          
+          await doc.ref.update({ notificationSent: true });
+          results.push({ userId: data.userId, status: 'sent' });
+        } catch (pushError) {
+          results.push({ userId: data.userId, status: 'failed', error: pushError });
+        }
+      } else {
+        results.push({ userId: data.userId, status: 'no_token' });
+      }
+    }
+
+    res.json({ processed: results.length, details: results });
+  } catch (error: any) {
+    res.status(500).json({ error: "Recovery engine failed", details: error.message });
+  }
+});
+
 app.get("/api/fcm-status", (req, res) => {
   res.json({
     adminInitialized: admin.apps.length > 0,

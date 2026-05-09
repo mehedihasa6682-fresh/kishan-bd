@@ -5,6 +5,7 @@ import { useState, useContext, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useSettings } from '../context/SettingsContext';
+import { useToast } from '../context/ToastContext';
 import { AuthContext } from '../App';
 import { orderService } from '../services/orderService';
 import { NotificationService } from '../services/notificationService';
@@ -43,6 +44,41 @@ export default function Checkout() {
   const [selectedAddressIndex, setSelectedAddressIndex] = useState<number | 'new'>('new');
   const [isEditingAddress, setIsEditingAddress] = useState(true);
   const [showAddressPicker, setShowAddressPicker] = useState(false);
+  
+  const [couponCode, setCouponCode] = useState('');
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState('');
+  const { setDiscount } = useCart();
+  const { showToast } = useToast();
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode) return;
+    setCouponLoading(true);
+    setCouponError('');
+    try {
+      const response = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: couponCode,
+          orderValue: subtotal,
+          userId: user?.uid
+        })
+      });
+      const resData = await response.json();
+      if (resData.success) {
+        setDiscount(resData.discount);
+        setCouponError('');
+        alert(`Coupon Applied! You saved ৳${resData.discount}`);
+      } else {
+        setCouponError(resData.error || 'Failed to apply coupon');
+      }
+    } catch (e) {
+      setCouponError('Network error. Try again.');
+    } finally {
+      setCouponLoading(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchAreas() {
@@ -163,6 +199,8 @@ export default function Checkout() {
           message: `Your order for ৳${formatCurrency(total)} has been received. Status: Pending.`,
           type: 'order'
         });
+
+        showToast("New Order Placed Successfully!", 'order', 2000);
 
         setSuccess(true);
         setOrderId(orderId);
@@ -562,6 +600,27 @@ export default function Checkout() {
                     </AnimatePresence>
                 </div>
 
+                {/* Coupon Section */}
+                <div className="space-y-4">
+                    <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Have a Coupon?</h3>
+                    <div className="flex gap-2">
+                        <input 
+                            placeholder="Enter Code (e.g. FRESH10)"
+                            className="flex-1 bg-white/5 border border-white/10 px-4 py-3 rounded-2xl text-[11px] font-mono outline-none focus:border-primary text-white"
+                            value={couponCode}
+                            onChange={e => setCouponCode(e.target.value.toUpperCase())}
+                        />
+                        <button 
+                            disabled={couponLoading || !couponCode}
+                            onClick={handleApplyCoupon}
+                            className="px-6 bg-primary text-black rounded-2xl text-[10px] font-black uppercase tracking-widest disabled:opacity-50"
+                        >
+                            {couponLoading ? '...' : 'APPLY'}
+                        </button>
+                    </div>
+                    {couponError && <p className="text-[9px] text-red-500 font-bold ml-2">{couponError}</p>}
+                </div>
+
                 {/* Order Summary */}
                 <div className="space-y-4">
                     <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Order Summary</h3>
@@ -571,8 +630,8 @@ export default function Checkout() {
                             <span className="text-white">৳{formatCurrency(subtotal || 0)}</span>
                         </div>
                         {(discount || 0) > 0 && (
-                            <div className="flex justify-between text-xs font-bold text-primary">
-                                <span>Discount</span>
+                            <div className="flex justify-between text-xs font-bold text-primary animate-pulse">
+                                <span>Discount Applied</span>
                                 <span>-৳{formatCurrency(discount)}</span>
                             </div>
                         )}
@@ -582,7 +641,7 @@ export default function Checkout() {
                         </div>
                         <div className="border-t border-white/5 pt-4 flex justify-between items-center">
                             <span className="font-display font-bold text-white">{t('cart.total')}</span>
-                            <span className="text-2xl font-display font-bold text-primary">৳{formatCurrency(total || 0)}</span>
+                            <span className="text-2xl font-display font-bold text-primary shadow-[0_0_20px_rgba(212,175,55,0.2)]">৳{formatCurrency(total || 0)}</span>
                         </div>
                     </div>
                 </div>

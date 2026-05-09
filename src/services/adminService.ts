@@ -256,5 +256,10 @@ export const adminService = {
     try {
       await deleteDoc(doc(db, 'pages', id));
     } catch (e) { handleFirestoreError(e, OperationType.DELETE, `pages/${id}`); }
+  },
+  async deleteCoupon(id: string) {
+    try {
+      await deleteDoc(doc(db, 'coupons', id));
+    } catch (e) { handleFirestoreError(e, OperationType.DELETE, `coupons/${id}`); }
   }
 };

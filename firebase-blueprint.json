@@ -1,5 +1,55 @@
 {
   "entities": {
+    "AbandonedCart": {
+      "title": "Abandoned Cart",
+      "description": "Tracking users who added items to cart but didn't checkout",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "items": { "type": "array" },
+        "totalAmount": { "type": "number" },
+        "lastUpdated": { "type": "string", "format": "date-time" },
+        "notificationSent": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["abandoned", "recovered", "expired"] }
+      },
+      "required": ["userId", "items", "totalAmount", "lastUpdated"]
+    },
+    "Coupon": {
+      "title": "Coupon",
+      "description": "Promo codes for discounts",
+      "type": "object",
+      "properties": {
+        "code": { "type": "string" },
+        "type": { "type": "string", "enum": ["percentage", "fixed", "free_delivery"] },
+        "value": { "type": "number" },
+        "minOrder": { "type": "number" },
+        "maxDiscount": { "type": "number" },
+        "expiryDate": { "type": "string", "format": "date-time" },
+        "usageLimit": { "type": "integer" },
+        "usedCount": { "type": "integer" },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["code", "type", "value", "isActive"]
+    },
+    "Offer": {
+      "title": "Offer",
+      "description": "Dynamic product offers like BOGO, Combos",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "type": { "type": "string", "enum": ["bogo", "combo", "percentage", "fixed"] },
+        "productId": { "type": "string" },
+        "comboProducts": { "type": "array", "items": { "type": "string" } },
+        "discountValue": { "type": "number" },
+        "isActive": { "type": "boolean" },
+        "startDate": { "type": "string", "format": "date-time" },
+        "endDate": { "type": "string", "format": "date-time" },
+        "image": { "type": "string" }
+      },
+      "required": ["title", "type", "isActive"]
+    },
     "User": {
       "title": "User",
       "description": "User profile information",
@@ -239,6 +289,9 @@
     "/payouts/{payoutId}": { "schema": "Payout", "description": "Payout requests" },
     "/promotions/{promoId}": { "schema": "Promotion", "description": "Flash deals and temporal discounts" },
     "/pages/{pageId}": { "schema": "Page", "description": "Static content pages" },
+    "/coupons/{couponId}": { "schema": "Coupon", "description": "Promo codes" },
+    "/abandoned_carts/{cartId}": { "schema": "AbandonedCart", "description": "Abandoned cart tracking" },
+    "/offers/{offerId}": { "schema": "Offer", "description": "Dynamic offers" },
     "settings": {
       "schema": {
         "type": "object",

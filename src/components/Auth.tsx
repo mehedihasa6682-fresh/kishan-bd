@@ -16,9 +16,11 @@ import { Mail, Lock, User, Store, ShieldCheck, Github, Chrome, ArrowRight, UserP
 
 import { AuthContext } from '../App';
 import { useSettings } from '../context/SettingsContext';
+import { useToast } from '../context/ToastContext';
 
 export default function Auth() {
   const { settings } = useSettings();
+  const { showToast } = useToast();
   const [isLogin, setIsLogin] = useState(true);
   const [isResetting, setIsResetting] = useState(false);
   const [role, setRole] = useState<'customer' | 'seller' | 'rider'>('customer');
@@ -94,6 +96,7 @@ export default function Auth() {
         } catch (err) {
           handleFirestoreError(err, OperationType.CREATE, `users/${user.uid}`);
         }
+        showToast("Registration Complete! Welcome aboard.", 'registration', 2000);
       }
     } catch (err: any) {
       setError(err.message);

@@ -8,6 +8,7 @@ import { CartProvider } from './context/CartContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { SettingsProvider, useSettings } from './context/SettingsContext';
 import { PromotionProvider } from './context/PromotionContext';
+import { ToastProvider } from './context/ToastContext';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
 import { MessagingService } from './services/messagingService';
 import { useLanguage } from './context/LanguageContext';
@@ -218,15 +219,17 @@ export default function App() {
       <AuthContext.Provider value={{ user, loading, dataLoading, setDataLoading, role, profile, pwa }}>
         <SettingsProvider>
           <PromotionProvider>
-            <LanguageProvider>
-              <SettingsSEOManager />
-              <CartProvider>
-                <Router>
-                  <RedirectManager />
-                  <RoutesContent />
-                </Router>
-              </CartProvider>
-            </LanguageProvider>
+            <ToastProvider>
+              <LanguageProvider>
+                <SettingsSEOManager />
+                <CartProvider>
+                  <Router>
+                    <RedirectManager />
+                    <RoutesContent />
+                  </Router>
+                </CartProvider>
+              </LanguageProvider>
+            </ToastProvider>
           </PromotionProvider>
         </SettingsProvider>
       </AuthContext.Provider>

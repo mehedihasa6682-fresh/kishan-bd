@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { usePromotions } from './PromotionContext';
+import { AuthContext } from '../App';
 
 interface CartItem {
   id: string | number;
@@ -38,6 +39,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const { getEffectivePrice } = usePromotions();
+  const authCtx = useContext(AuthContext); // Use AuthContext to get current user
   const [items, setItems] = useState<CartItem[]>(() => {
     const saved = localStorage.getItem('cart');
     return saved ? JSON.parse(saved) : [];
@@ -47,9 +49,31 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [showCheckoutToast, setShowCheckoutToast] = useState(false);
   const toastTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Sync to local storage
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(items));
-  }, [items]);
+    
+    // Abandoned Cart Tracking - Report to backend if user is logged in
+    if (authCtx?.user && items.length > 0) {
+      const timer = setTimeout(async () => {
+        try {
+          await fetch('/api/cart/abandon', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: authCtx.user?.uid,
+              items: items.map(i => ({ id: i.id, name: i.name, qty: i.quantity })),
+              totalAmount: items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+            })
+          });
+        } catch (e) {
+          console.warn("Abandoned cart sync failed:", e);
+        }
+      }, 5000); // Wait 5 seconds after last change to sync
+      
+      return () => clearTimeout(timer);
+    }
+  }, [items, authCtx?.user]);
 
   const addToCart = (product: any, selectedWeight?: number) => {
     setItems(prev => {
