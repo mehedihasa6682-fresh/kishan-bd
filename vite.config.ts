@@ -23,7 +23,9 @@ export default defineConfig(({ mode }) => {
           theme_color: '#D4AF37',
           background_color: '#050E21',
           display: 'standalone',
+          display_override: ['standalone', 'minimal-ui'],
           orientation: 'portrait',
+          categories: ['shopping', 'food'],
           icons: [
             {
               src: 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png',

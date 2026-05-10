@@ -102,8 +102,13 @@ function usePWA() {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') setDeferredPrompt(null);
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+        setIsInstalled(true);
+        return true;
+      }
     }
+    return false;
   };
 
   return { deferredPrompt, isInstalled, install };

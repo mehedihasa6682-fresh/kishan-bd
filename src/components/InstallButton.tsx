@@ -1,41 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Download, Share, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useLanguage } from '../context/LanguageContext';
+import { AuthContext } from '../App';
 
 export const InstallButton: React.FC = () => {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const { language } = useLanguage();
+  const { pwa } = useContext(AuthContext);
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSHint, setShowIOSHint] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     // Check if iOS
     const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
     setIsIOS(isIOSDevice);
 
-    const handler = (e: any) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      // Ensure visibility when prompt is available
-      setIsVisible(true);
-    };
-
-    window.addEventListener('beforeinstallprompt', handler);
-
-    // Precise check if app is already installed/standalone
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
-    
-    if (isStandalone) {
+    if (pwa?.isInstalled) {
       setIsVisible(false);
     } else {
-      // ALWAYS show if not standalone, to follow user request
       setIsVisible(true);
     }
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handler);
-    };
-  }, []);
+  }, [pwa?.isInstalled]);
 
   const handleInstallClick = async () => {
     if (isIOS) {
@@ -43,20 +29,20 @@ export const InstallButton: React.FC = () => {
       return;
     }
 
-    if (!deferredPrompt) {
-      alert('ব্রাউজার মেনু থেকে "Install" বা "Add to Home Screen" এ ক্লিক করুন');
+    if (!pwa?.deferredPrompt) {
+      alert(language === 'bn' ? 'ব্রাউজার মেনু থেকে "Install" বা "Add to Home Screen" এ ক্লিক করুন' : 'Click "Install" or "Add to Home Screen" from your browser menu');
       return;
     }
 
     try {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
+      const success = await pwa.install();
+      if (success) {
         setIsVisible(false);
+        alert(language === 'bn' ? 'সফলভাবে ইনস্টল হয়েছে! আপনার অ্যাপ ড্রয়ারে এটি পাবেন।' : 'Installed successfully! You can find it in your app drawer.');
       }
     } catch (err) {
       console.error("Install prompt error:", err);
-      alert('ব্রাউজার মেনু থেকে ইনষ্টল করুন');
+      alert(language === 'bn' ? 'ব্রাউজার মেনু থেকে ইনস্টল করুন' : 'Please install from browser menu');
     }
   };
 
@@ -72,7 +58,7 @@ export const InstallButton: React.FC = () => {
             className="flex items-center gap-1.5 bg-red-600 text-white px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tight shadow-lg shadow-red-500/20 active:scale-95 transition-transform shrink-0"
           >
             <Download size={12} strokeWidth={3} />
-            Install App
+            {language === 'bn' ? 'অ্যাপ ইনস্টল করুন' : 'Install App'}
           </motion.button>
         )}
       </AnimatePresence>
