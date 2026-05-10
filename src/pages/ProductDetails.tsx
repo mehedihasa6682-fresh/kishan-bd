@@ -168,7 +168,7 @@ export default function ProductDetails() {
 
       <div className="relative h-[480px]">
         <img 
-          src={product.image || "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800&h=1000&fit=crop"} 
+          src={product.image || appSettings.logo} 
           referrerPolicy="no-referrer"
           loading="eager"
           className="w-full h-full object-cover rounded-b-[4rem] shadow-2xl" 

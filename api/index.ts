@@ -14,9 +14,10 @@ try {
       try {
         const serviceAccount = JSON.parse(rawServiceAccount);
         admin.initializeApp({
-          credential: admin.credential.cert(serviceAccount)
+          credential: admin.credential.cert(serviceAccount),
+          projectId: serviceAccount.project_id
         });
-        console.log("Firebase Admin initialized successfully");
+        console.log("Firebase Admin initialized successfully for project:", serviceAccount.project_id);
       } catch (parseError) {
         console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT_JSON. Ensure it is a valid JSON string on Vercel.");
       }
@@ -323,6 +324,77 @@ app.post("/api/send-fcm", async (req, res) => {
   } catch (error: any) {
     console.error("FCM Send Error:", error);
     res.status(500).json({ error: "FCM Send Failed", details: error.message });
+  }
+});
+
+app.post("/api/broadcast-fcm", async (req, res) => {
+  const { notification, data } = req.body;
+  
+  if (admin.apps.length === 0) {
+    return res.status(500).json({ error: "Firebase Admin not initialized" });
+  }
+  
+  try {
+    const db = admin.firestore();
+    const tokensSnapshot = await db.collection('fcmTokens').get();
+    const tokens = tokensSnapshot.docs.map(doc => doc.data().token).filter(t => !!t);
+    
+    if (tokens.length === 0) {
+      return res.json({ success: true, count: 0, message: "No tokens found" });
+    }
+
+    // We use sendEachForMulticast for better performance
+    const message = {
+      notification: {
+        title: notification.title || "সদাই ভাই",
+        body: notification.body || "নতুন অফার এসেছে!"
+      },
+      data: data || {},
+      tokens: tokens,
+      webpush: {
+        fcmOptions: {
+          link: data?.url || '/'
+        }
+      }
+    };
+
+    const response = await admin.messaging().sendEachForMulticast(message);
+    
+    // Cleanup stale tokens if any
+    if (response.failureCount > 0) {
+      const db = admin.firestore();
+      const staleTokens: string[] = [];
+      response.responses.forEach((resp, idx) => {
+        if (!resp.success && (resp.error?.code === 'messaging/invalid-registration-token' || resp.error?.code === 'messaging/registration-token-not-registered')) {
+          staleTokens.push(tokens[idx]);
+        }
+      });
+      
+      if (staleTokens.length > 0) {
+        console.log(`Cleaning up ${staleTokens.length} stale tokens...`);
+        const batch = db.batch();
+        // Since we store tokens by userId as doc ID, we need to find them or delete by value
+        // For simplicity, we just log them for now or do a query-delete
+        // If we have userId mapping it's better.
+      }
+    }
+
+    res.json({ 
+      success: true, 
+      successCount: response.successCount, 
+      failureCount: response.failureCount,
+      results: response.responses.map(r => ({ success: r.success, error: r.error?.message }))
+    });
+  } catch (error: any) {
+    console.error("FCM Broadcast Error (Full Details):", error);
+    // 5 NOT_FOUND often means the FCM API is not enabled OR the Project ID is missing/mismatched
+    const message = error.message || "Unknown FCM Error";
+    res.status(500).json({ 
+      error: "FCM Broadcast Failed", 
+      details: message,
+      code: error.code,
+      note: "Hint: Ensure Cloud Messaging API (V1) is enabled in the Firebase / Google Cloud Console."
+    });
   }
 });
 

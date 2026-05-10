@@ -1,13 +1,13 @@
 
 export const searchSynonyms: Record<string, string[]> = {
   'potato': ['alu', 'আলু', 'potato', 'potatoes', 'aloo', 'alo'],
-  'fish': ['mach', 'maach', 'মাছ', 'fish', 'fishery'],
-  'rice': ['chal', 'chaal', 'চাল', 'rice', 'ricey'],
+  'fish': ['mach', 'maach', 'মাছ', 'fish', 'fishery', 'punthi', 'ilish', 'rui', 'katla', 'pangash', 'shoal'],
+  'rice': ['chal', 'chaal', 'চাল', 'rice', 'ricey', 'miniket', 'nazirshail', 'polao'],
   'egg': ['dim', 'ডিম', 'egg', 'eggs', 'anda'],
   'onion': ['peyaj', 'piyaj', 'পেঁয়াজ', 'onion', 'onions', 'payaj'],
-  'oil': ['tel', 'তৈল', 'তেল', 'oil', 'oils'],
-  'meat': ['mansho', 'mangsho', 'মাংস', 'meat', 'beef', 'chicken', 'mutton', 'gorur mangsho', 'khashir mangsho'],
-  'milk': ['dudh', 'দুধ', 'milk', 'dudh', 'cow milk'],
+  'oil': ['tel', 'তৈল', 'তেল', 'oil', 'oils', 'soybean', 'shorsher tel'],
+  'meat': ['mansho', 'mangsho', 'মাংস', 'meat', 'beef', 'chicken', 'mutton', 'gorur mangsho', 'khashir mangsho', 'murgi'],
+  'milk': ['dudh', 'দুধ', 'milk', 'dudh', 'cow milk', 'gura dudh', 'liquid milk'],
   'honey': ['modhu', 'মধু', 'honey', 'pure honey'],
   'tomato': ['tomato', 'টমেটো', 'tamato'],
   'carrot': ['gajor', 'গাজর', 'carrot', 'carrots'],
@@ -18,6 +18,11 @@ export const searchSynonyms: Record<string, string[]> = {
   'mango': ['am', 'আম', 'mango', 'mangoes'],
   'banana': ['kola', 'কলা', 'banana', 'sagol kola'],
   'lemon': ['lebu', 'লেবু', 'lemon', 'lime'],
+  'bread': ['ruti', 'bread', 'বন', 'bon', 'cake', 'বিস্কুট'],
+  'sugar': ['chini', 'চিনি', 'sugar'],
+  'salt': ['lobon', 'লবণ', 'লবন', 'salt'],
+  'daal': ['daal', 'dal', 'ডাল', 'lentil', 'masur', 'mug', 'buter dal'],
+  'spices': ['moshla', 'মসলা', 'spice', 'turmeric', 'halud', 'jeera', 'jira'],
 };
 
 export function normalizeSearch(query: string): string[] {

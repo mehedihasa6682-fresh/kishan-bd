@@ -6,13 +6,13 @@ import {
   Settings, BarChart3, ShieldCheck, Search,
   CheckCircle, XCircle, Plus, Trash2, Layout,
   Layers, Camera, ChevronRight, Store, X, Clock, Bell,
-  ArrowLeft, User, Box, Gift, Image as ImageIcon,
+  ArrowLeft, User, Box, Gift, Image as ImageIcon, FileText,
   MessageSquare, Package, Eye, EyeOff, MapPin, Phone, Globe,
-  TrendingUp, ArrowUpRight, Zap, Percent, ReceiptText
+  TrendingUp, ArrowUpRight, Zap, Percent, ReceiptText, Sparkles
 } from 'lucide-react';
 import { adminService } from '../services/adminService';
 import { formatCurrency } from '../lib/utils';
-import { collection, onSnapshot, query, orderBy, where, doc, getDocs, Timestamp, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, where, doc, getDocs, Timestamp, addDoc, serverTimestamp, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { AuthContext } from '../App';
 import Invoice from '../components/Invoice';
@@ -21,7 +21,7 @@ import { format, addHours } from 'date-fns';
 
 import { calculateDistance, formatDistance } from '../lib/geoUtils';
 
-type AdminTab = 'dashboard' | 'products' | 'approvals' | 'banners' | 'stories' | 'categories' | 'users' | 'orders' | 'bundles' | 'settings' | 'notifications' | 'riders' | 'financials' | 'promotions' | 'pages' | 'coupons' | 'abandonment';
+type AdminTab = 'dashboard' | 'products' | 'approvals' | 'banners' | 'stories' | 'categories' | 'users' | 'orders' | 'bundles' | 'settings' | 'notifications' | 'riders' | 'financials' | 'promotions' | 'pages' | 'coupons' | 'abandonment' | 'deals' | 'email_marketing';
 
 export default function AdminPanel() {
   const { user, role, loading: authLoading } = useContext(AuthContext);
@@ -37,7 +37,34 @@ export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
   const [activeStatusModal, setActiveStatusModal] = useState<string | null>(null);
   
+  const [offers, setOffers] = useState<any[]>([]);
   const [coupons, setCoupons] = useState<any[]>([]);
+  const [newOffer, setNewOffer] = useState({
+    title: '',
+    description: '',
+    type: 'flash',
+    bannerImage: '',
+    discountType: 'percentage',
+    discountAmount: 0,
+    targetType: 'all',
+    productIds: [] as string[],
+    categoryId: '',
+    subCategoryId: '',
+    startTime: '',
+    endTime: '',
+    timerEnabled: true,
+    sendPush: true,
+    pushTitle: '',
+    pushBody: '',
+    redirectType: 'deal',
+    redirectId: '',
+    hasDetailsPage: false,
+    detailsTitle: '',
+    detailsDescription: '',
+    detailsBanner: '',
+    detailsCTA: 'Shop Now',
+    isActive: true
+  });
   const [abandonedCarts, setAbandonedCarts] = useState<any[]>([]);
   const [newCoupon, setNewCoupon] = useState({ 
     code: '', 
@@ -273,6 +300,10 @@ export default function AdminPanel() {
       setAbandonedCarts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     }, (error) => console.error("Admin Abandoned Carts:", error));
 
+    const unsubOffers = onSnapshot(collection(db, 'offers'), (snap) => {
+      setOffers(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (error) => console.error("Admin Offers:", error));
+
     return () => {
       unsubBanners();
       unsubStories();
@@ -287,6 +318,9 @@ export default function AdminPanel() {
       unsubPayouts();
       unsubPromotions();
       unsubPages();
+      unsubCoupons();
+      unsubAbandoned();
+      unsubOffers();
     };
   }, [role, authLoading, navigate]);
 
@@ -426,6 +460,68 @@ export default function AdminPanel() {
     setIsAdding(false);
   };
 
+  const handleCreateOffer = async () => {
+    if (!newOffer.title || !newOffer.endTime) return alert('Protocol Incomplete: Mission Parameters Missing');
+    try {
+      const offerRef = await addDoc(collection(db, 'offers'), {
+        ...newOffer,
+        createdAt: serverTimestamp(),
+      });
+      
+      // If push enabled, trigger notification via API
+      if (newOffer.sendPush) {
+        await fetch('/api/broadcast-fcm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            notification: {
+              title: newOffer.pushTitle || `🔥 ${newOffer.title} Deal is LIVE!`,
+              body: newOffer.pushBody || `Limited time ${newOffer.type} offer started. Don't miss out! ⏰`
+            },
+            data: { 
+              url: newOffer.redirectType === 'deal' ? `/products?offer=${offerRef.id}` : 
+                   newOffer.redirectType === 'category' ? `/products?category=${newOffer.categoryId}` :
+                   newOffer.redirectType === 'product' ? `/product/${newOffer.redirectId}` :
+                   newOffer.redirectId || '/',
+              offerId: offerRef.id
+            }
+          })
+        });
+      }
+
+      setIsAdding(false);
+      setNewOffer({ 
+        title: '', 
+        description: '', 
+        type: 'flash', 
+        bannerImage: '', 
+        discountType: 'percentage',
+        discountAmount: 0,
+        targetType: 'all',
+        productIds: [], 
+        categoryId: '', 
+        subCategoryId: '',
+        startTime: '', 
+        endTime: '', 
+        timerEnabled: true, 
+        sendPush: true, 
+        pushTitle: '', 
+        pushBody: '', 
+        redirectType: 'deal',
+        redirectId: '',
+        hasDetailsPage: false,
+        detailsTitle: '',
+        detailsDescription: '',
+        detailsBanner: '',
+        detailsCTA: 'Shop Now',
+        isActive: true 
+      });
+    } catch (e) {
+      console.error(e);
+      alert('Offer Registry Failed');
+    }
+  };
+
   const handleCreateCoupon = async () => {
     if (!newCoupon.code || newCoupon.value <= 0) return alert('Manifest incomplete');
     try {
@@ -438,7 +534,7 @@ export default function AdminPanel() {
       setNewCoupon({ code: '', type: 'percentage', value: 0, minOrder: 0, maxDiscount: 500, usageLimit: 100, expiryDate: '', isActive: true });
     } catch (e) {
       console.error(e);
-      alert('Registry Link Failed');
+      alert('Coupon Registry Failed');
     }
   };
 
@@ -525,9 +621,11 @@ export default function AdminPanel() {
     { id: 'stories', label: 'Stories', icon: Camera },
     { id: 'categories', label: 'Categories', icon: Layers },
     { id: 'users', label: 'Users', icon: Users },
-    { id: 'notifications', label: 'Mailing', icon: Bell },
+    { id: 'notifications', label: 'In-App Pulse', icon: Bell },
+    { id: 'email_marketing', label: 'Neural Mailing', icon: MessageSquare },
     { id: 'settings', label: 'Brand & Site', icon: Settings },
     { id: 'promotions', label: 'Flash Deals', icon: Zap },
+    { id: 'deals', label: 'Deals System', icon: Sparkles },
     { id: 'financials', label: 'Financials', icon: CreditCard },
     { id: 'coupons', label: 'Coupons', icon: Percent },
     { id: 'abandonment', label: 'Abandonment', icon: Trash2 },
@@ -3274,6 +3372,133 @@ export default function AdminPanel() {
             </div>
           </motion.div>
         )}
+        {activeTab === 'email_marketing' && (
+          <motion.div key="email_marketing" className="space-y-10">
+            <div className="flex items-center justify-between">
+                <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-white uppercase tracking-[0.2em]">
+                    <MessageSquare size={32} className="text-secondary" />
+                    Neural Mailing Console
+                </h3>
+                <div className="flex gap-4">
+                  <div className="bg-white/5 border border-white/10 px-6 py-3 rounded-2xl flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                        <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Active nodes: {sellers.filter(u => u.email).length}</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Email Composition */}
+                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl space-y-8 relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-secondary to-transparent opacity-40" />
+                    <h4 className="text-sm font-black text-white uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                        <Plus size={20} className="text-secondary" /> Draft Broadcast
+                    </h4>
+                    
+                    <div className="space-y-6">
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Subject Header</label>
+                            <input 
+                                id="emailSubject"
+                                placeholder="Manifest your message subject..." 
+                                className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 font-bold transition-all shadow-inner"
+                            />
+                        </div>
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Narrative Body (HTML Supported)</label>
+                            <textarea 
+                                id="emailBody"
+                                placeholder="Compose the neural transmission..." 
+                                className="w-full px-8 py-6 bg-black/40 border border-white/5 rounded-[2.5rem] text-sm text-white/80 outline-none focus:border-secondary/40 h-64 resize-none leading-relaxed"
+                            />
+                        </div>
+                        <button 
+                            onClick={async () => {
+                                const subject = (document.getElementById('emailSubject') as HTMLInputElement).value;
+                                const body = (document.getElementById('emailBody') as HTMLTextAreaElement).value;
+                                if (!subject || !body) return alert('Subject and Body required for transmission');
+                                
+                                if (confirm(`Transmit this broadcast to all ${sellers.filter(u => u.email).length} verified nodes?`)) {
+                                    try {
+                                        const res = await fetch('/api/admin/send-bulk-email', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ subject, body })
+                                        });
+                                        if (res.ok) {
+                                            alert('Broadcast sequence initiated successfully!');
+                                            (document.getElementById('emailSubject') as HTMLInputElement).value = '';
+                                            (document.getElementById('emailBody') as HTMLTextAreaElement).value = '';
+                                        } else {
+                                          throw new Error('Transmission failed');
+                                        }
+                                    } catch (e) {
+                                        alert('Neural Link Interrupted');
+                                    }
+                                }
+                            }}
+                            className="w-full py-6 bg-secondary text-black rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-secondary/30 hover:scale-[1.02] transition-all active:scale-95"
+                        >
+                            Authorize Global Dispatch
+                        </button>
+                    </div>
+                </div>
+
+                {/* User Tracking & Analytics */}
+                <div className="space-y-8">
+                    <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl">
+                        <h4 className="text-sm font-black text-white uppercase tracking-[0.3em] mb-8 flex items-center gap-2">
+                            <BarChart3 size={20} className="text-secondary" /> Subscription Analytics
+                        </h4>
+                        <div className="grid grid-cols-2 gap-6">
+                            <div className="p-6 bg-black/40 rounded-3xl border border-white/5">
+                                <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mb-2">Push Enabled</p>
+                                <p className="text-2xl font-black text-white">{sellers.filter(u => u.fcmToken).length} <span className="text-[10px] text-green-500 ml-1">Nodes</span></p>
+                            </div>
+                            <div className="p-6 bg-black/40 rounded-3xl border border-white/5">
+                                <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mb-2">Email Reach</p>
+                                <p className="text-2xl font-black text-white">{sellers.filter(u => u.email).length} <span className="text-[10px] text-secondary ml-1">Nodes</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl overflow-hidden">
+                        <h4 className="text-sm font-black text-white uppercase tracking-[0.3em] mb-8 flex items-center gap-2">
+                            <Users size={20} className="text-secondary" /> Recent Subscriptions
+                        </h4>
+                        <div className="space-y-4 max-h-[400px] overflow-y-auto scrollbar-hide pr-2">
+                            {sellers.slice(0, 20).map(u => (
+                                <div key={u.id} className="p-4 bg-black/40 rounded-2xl border border-white/5 flex items-center justify-between group hover:border-secondary/30 transition-all">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/20">
+                                            <User size={20} />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-bold text-white group-hover:text-secondary transition-colors">{u.displayName || 'Anonymous Node'}</p>
+                                            <p className="text-[10px] text-white/30 font-mono italic">{u.email || 'No Email'}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        {u.fcmToken ? (
+                                            <div className="w-8 h-8 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-500" title="Push Authorized">
+                                                <Bell size={14} />
+                                            </div>
+                                        ) : (
+                                            <div className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500/40" title="Push Blocked">
+                                                <Bell size={14} />
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </motion.div>
+        )}
         {activeTab === 'financials' && (
           <motion.div key="financials" className="space-y-10">
             <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-white uppercase tracking-[0.2em]">
@@ -3441,6 +3666,93 @@ export default function AdminPanel() {
                             </div>
                         );
                     })
+                )}
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'deals' && (
+          <motion.div key="deals" className="space-y-10">
+            <div className="flex items-center justify-between">
+                <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-white uppercase tracking-[0.2em]">
+                    <Sparkles size={32} className="text-secondary" />
+                    Strategic Deals Hub
+                </h3>
+                <button 
+                  onClick={() => setIsAdding(true)}
+                  className="px-10 py-5 bg-secondary text-black rounded-[2rem] text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-4 shadow-xl shadow-secondary/20 hover:scale-105 active:scale-95 transition-all"
+                >
+                  <Plus size={20} /> Create Deal
+                </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {offers.length === 0 ? (
+                  <div className="col-span-full py-32 bg-white/5 border border-dashed border-white/10 rounded-[4rem] text-center">
+                    <Sparkles size={48} className="mx-auto text-white/10 mb-6" />
+                    <p className="text-[12px] font-black text-white/30 uppercase tracking-[0.5em]">No Active Strategic Deals</p>
+                  </div>
+                ) : (
+                  offers.map(offer => (
+                    <div key={offer.id} className="bg-white/5 p-10 rounded-[3.5rem] border border-white/5 shadow-2xl relative overflow-hidden group hover:border-secondary/30 transition-all">
+                        {offer.bannerImage && (
+                            <div className="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-1000">
+                                <img src={offer.bannerImage} className="w-full h-full object-cover" />
+                            </div>
+                        )}
+                        <div className="relative z-10">
+                            <div className="flex justify-between items-start mb-8">
+                                <div>
+                                    <div className="flex items-center gap-3">
+                                      <span className="px-3 py-1 bg-secondary text-black rounded-lg text-[8px] font-black uppercase tracking-widest">{offer.type}</span>
+                                      {offer.isActive ? (
+                                        <div className="flex items-center gap-1.5 px-2 py-0.5 bg-green-500/10 border border-green-500/20 rounded-full">
+                                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                                          <span className="text-[7px] text-green-500 font-black uppercase tracking-widest">Active</span>
+                                        </div>
+                                      ) : (
+                                        <span className="px-2 py-0.5 bg-red-500/10 border border-red-500/20 rounded-full text-[7px] text-red-500 font-black uppercase tracking-widest">Standby</span>
+                                      )}
+                                    </div>
+                                    <h4 className="text-xl font-display font-black text-white tracking-wide mt-4 uppercase group-hover:text-secondary transition-colors">{offer.title}</h4>
+                                </div>
+                            </div>
+                            
+                            <div className="space-y-4 mb-10">
+                              <div className="flex items-center gap-4 text-[10px] font-black text-white/40 uppercase tracking-widest">
+                                  <Clock size={16} className="text-white/20" />
+                                  <span>Expires: {offer.endTime ? format(new Date(offer.endTime), 'MMM d, p') : 'Permanent'}</span>
+                              </div>
+                              <div className="flex items-center gap-4 text-[10px] font-black text-white/40 uppercase tracking-widest">
+                                  <Percent size={16} className="text-white/20" />
+                                  <span>Discount: <span className="text-secondary">{offer.discountAmount}{offer.discountType === 'percentage' ? '%' : '৳'}</span></span>
+                              </div>
+                              <div className="flex items-center gap-4 text-[10px] font-black text-white/40 uppercase tracking-widest">
+                                  <Layout size={16} className="text-white/20" />
+                                  <span>Scope: <span className="text-primary">{offer.targetType}</span></span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between pt-8 border-t border-white/5">
+                                <div className="flex items-center gap-3">
+                                  {offer.sendPush && <Bell size={14} className="text-secondary" />}
+                                  {offer.hasDetailsPage && <FileText size={14} className="text-primary" />}
+                                  <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">
+                                      {offer.productIds?.length || 0} Products
+                                  </span>
+                                </div>
+                                <div className="flex gap-2">
+                                  <button 
+                                      onClick={() => deleteDoc(doc(db, 'offers', offer.id))}
+                                      className="p-4 bg-red-500/5 border border-red-500/20 rounded-2xl text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xl"
+                                  >
+                                      <Trash2 size={18} />
+                                  </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                  ))
                 )}
             </div>
           </motion.div>
@@ -3702,8 +4014,8 @@ export default function AdminPanel() {
                               type="number" 
                               placeholder="5" 
                               className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-primary/40 text-center font-black"
-                              value={newPromotion.percentage}
-                              onChange={e => setNewPromotion({...newPromotion, percentage: parseInt(e.target.value)})}
+                              value={newPromotion.percentage || 0}
+                              onChange={e => setNewPromotion({...newPromotion, percentage: parseInt(e.target.value) || 0})}
                           />
                       </div>
                       <div className="space-y-3">
@@ -3711,7 +4023,7 @@ export default function AdminPanel() {
                           <select 
                               className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-primary/40 appearance-none text-center font-black"
                               value={newPromotion.duration}
-                              onChange={e => setNewPromotion({...newPromotion, duration: parseInt(e.target.value)})}
+                              onChange={e => setNewPromotion({...newPromotion, duration: parseInt(e.target.value) || 1})}
                           >
                               <option value="1">1 Hour Pulse</option>
                               <option value="2">2 Hour Shift</option>
@@ -3765,6 +4077,287 @@ export default function AdminPanel() {
           </div>
         )}
 
+        {isAdding && activeTab === 'deals' && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setIsAdding(false)}
+              className="absolute inset-0 bg-black/90 backdrop-blur-3xl"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-4xl bg-[#050E21] border border-white/10 rounded-[3.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] p-12 overflow-hidden max-h-[90vh] overflow-y-auto"
+            >
+              <h3 className="font-display font-black text-2xl text-white mb-10 flex items-center gap-4 uppercase tracking-[0.2em]">
+                  <Sparkles size={28} className="text-secondary" /> Deploy Strategic Deal
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                {/* Left Column: Basic Info & Discount */}
+                <div className="space-y-8">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">Deal Identity (Name)</label>
+                    <input 
+                      className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 font-black tracking-widest"
+                      value={newOffer.title}
+                      placeholder="E.g. Lunar Midnight Sale"
+                      onChange={e => setNewOffer({...newOffer, title: e.target.value})}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">Deal Archetype</label>
+                      <select 
+                        className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-[11px] text-white outline-none font-black appearance-none"
+                        value={newOffer.type}
+                        onChange={e => setNewOffer({...newOffer, type: e.target.value as any})}
+                      >
+                        <option value="flash">Flash Deal</option>
+                        <option value="midnight">Midnight Pulse</option>
+                        <option value="festival">Festival Gala</option>
+                        <option value="category">Category Strike</option>
+                        <option value="product">Product Specific</option>
+                        <option value="weekend">Weekend Special</option>
+                      </select>
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">Discount Logic</label>
+                      <select 
+                        className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-[11px] text-white outline-none font-black appearance-none"
+                        value={newOffer.discountType}
+                        onChange={e => setNewOffer({...newOffer, discountType: e.target.value as any})}
+                      >
+                        <option value="percentage">Percentage (%)</option>
+                        <option value="fixed">Fixed Amount (৳)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6">
+                   <div className="space-y-3">
+                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">Benefit Value</label>
+                      <input 
+                        type="number"
+                        className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 font-black"
+                        value={newOffer.discountAmount || 0}
+                        onChange={e => setNewOffer({...newOffer, discountAmount: parseInt(e.target.value) || 0})}
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">Target Scope</label>
+                      <select 
+                        className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-[11px] text-white outline-none font-black appearance-none"
+                        value={newOffer.targetType}
+                        onChange={e => setNewOffer({...newOffer, targetType: e.target.value as any, categoryId: '', subCategoryId: '', productIds: []})}
+                      >
+                        <option value="all">Global (All Products)</option>
+                        <option value="category">Categorical Target</option>
+                        <option value="subcategory">Segment Target</option>
+                        <option value="products">Precision Target (Selected)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {newOffer.targetType === 'category' && (
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">Primary Vector (Category)</label>
+                      <select 
+                        className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-[11px] text-white outline-none font-black appearance-none"
+                        value={newOffer.categoryId}
+                        onChange={e => setNewOffer({...newOffer, categoryId: e.target.value})}
+                      >
+                        <option value="">Select Category...</option>
+                        {categories.map(c => <option key={c.id} value={c.title}>{c.title}</option>)}
+                      </select>
+                    </div>
+                  )}
+
+                  {newOffer.targetType === 'products' && (
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">Product Matrix (IDs)</label>
+                      <div className="relative">
+                        <input 
+                          placeholder="Select multiple products..."
+                          className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 font-bold"
+                          readOnly
+                          onClick={() => {
+                            // Quick toggle logic could go here - for now let's use a simpler prompt/multiselect if needed
+                            const id = prompt('Enter Product ID to add:');
+                            if(id && !newOffer.productIds.includes(id)) setNewOffer({...newOffer, productIds: [...newOffer.productIds, id]});
+                          }}
+                        />
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {newOffer.productIds.map(id => (
+                            <span key={id} onClick={() => setNewOffer({...newOffer, productIds: newOffer.productIds.filter(pid => pid !== id)})} className="px-3 py-1 bg-white/10 rounded-full text-[9px] font-bold cursor-pointer hover:bg-red-500/20">
+                              {id.slice(0, 8)} ⨯
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">Manifest Time</label>
+                      <input 
+                        type="datetime-local" 
+                        className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-[11px] text-white outline-none"
+                        value={newOffer.startTime}
+                        onChange={e => setNewOffer({...newOffer, startTime: e.target.value})}
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">Termination Node</label>
+                      <input 
+                        type="datetime-local" 
+                        className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-[11px] text-white outline-none font-black"
+                        value={newOffer.endTime}
+                        onChange={e => setNewOffer({...newOffer, endTime: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column: Communications & Experience */}
+                <div className="space-y-8">
+                  {/* Push Notification Panel */}
+                  <div className="p-8 bg-blue-500/5 border border-blue-500/20 rounded-[3rem] space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <Bell size={24} className="text-secondary" />
+                        <div>
+                          <h4 className="text-sm font-black text-white uppercase tracking-widest">Universal Echo</h4>
+                          <p className="text-[9px] text-white/40 font-bold uppercase tracking-widest">Broadcast Alert On Deployment</p>
+                        </div>
+                      </div>
+                      <input 
+                        type="checkbox" 
+                        checked={newOffer.sendPush} 
+                        onChange={e => setNewOffer({...newOffer, sendPush: e.target.checked})}
+                        className="w-10 h-10 rounded-2xl accent-secondary cursor-pointer"
+                      />
+                    </div>
+
+                    {newOffer.sendPush && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+                        className="space-y-4 pt-4 border-t border-white/5"
+                      >
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Broadcast Header</label>
+                          <input 
+                            className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-secondary/20"
+                            value={newOffer.pushTitle}
+                            placeholder="🔥 MEGA SALE Pulse Detected!"
+                            onChange={e => setNewOffer({...newOffer, pushTitle: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Neural Payload</label>
+                          <textarea 
+                            className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-secondary/20 h-24 resize-none"
+                            value={newOffer.pushBody}
+                            placeholder="Inject campaign narrative..."
+                            onChange={e => setNewOffer({...newOffer, pushBody: e.target.value})}
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Redirect Logic</label>
+                            <select 
+                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[11px] text-white outline-none appearance-none font-bold"
+                              value={newOffer.redirectType}
+                              onChange={e => setNewOffer({...newOffer, redirectType: e.target.value as any, redirectId: ''})}
+                            >
+                              <option value="deal">Specific Deal</option>
+                              <option value="category">Category Portal</option>
+                              <option value="product">Product Node</option>
+                              <option value="custom">External Stream</option>
+                            </select>
+                          </div>
+                   <div className="space-y-2">
+                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Vector ID</label>
+                            <input 
+                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[11px] text-white outline-none"
+                              value={newOffer.redirectId}
+                              placeholder="ID or URL"
+                              onChange={e => setNewOffer({...newOffer, redirectId: e.target.value})}
+                            />
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </div>
+
+                  {/* Details Page Panel */}
+                  <div className="p-8 bg-secondary/5 border border-secondary/20 rounded-[3rem] space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <FileText size={24} className="text-primary" />
+                        <div>
+                          <h4 className="text-sm font-black text-white uppercase tracking-widest">Immersive Portal</h4>
+                          <p className="text-[9px] text-white/40 font-bold uppercase tracking-widest">Genesis Custom Details Page</p>
+                        </div>
+                      </div>
+                      <input 
+                        type="checkbox" 
+                        checked={newOffer.hasDetailsPage} 
+                        onChange={e => setNewOffer({...newOffer, hasDetailsPage: e.target.checked})}
+                        className="w-10 h-10 rounded-2xl accent-primary cursor-pointer"
+                      />
+                    </div>
+
+                    {newOffer.hasDetailsPage && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+                        className="space-y-4 pt-4 border-t border-white/5"
+                      >
+                       <div className="space-y-2">
+                          <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Manifesto Title</label>
+                          <input 
+                            className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none"
+                            value={newOffer.detailsTitle}
+                            onChange={e => setNewOffer({...newOffer, detailsTitle: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Narrative Content</label>
+                          <textarea 
+                            className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none h-32 resize-none"
+                            value={newOffer.detailsDescription}
+                            onChange={e => setNewOffer({...newOffer, detailsDescription: e.target.value})}
+                          />
+                        </div>
+                        <ImageUpload 
+                          onUpload={url => setNewOffer({...newOffer, detailsBanner: url})} 
+                          currentImage={newOffer.detailsBanner} 
+                          label="Portal Visual (Banner)" 
+                        />
+                      </motion.div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-6 mt-12">
+                <button 
+                  onClick={() => setIsAdding(false)}
+                  className="flex-1 py-8 bg-white/5 text-white/40 rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] hover:bg-white/10 transition-all"
+                >
+                  Abort Mission
+                </button>
+                <button 
+                  onClick={handleCreateOffer}
+                  className="flex-[2] py-8 bg-secondary text-black rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-[0_15px_40px_rgba(255,215,0,0.2)] hover:scale-[1.02] active:scale-95 transition-all"
+                >
+                  Authorize Deployment
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
         {isAdding && activeTab === 'coupons' && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
             <motion.div 
@@ -3813,8 +4406,8 @@ export default function AdminPanel() {
                           <input 
                               type="number" 
                               className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 text-center font-black"
-                              value={newCoupon.value}
-                              onChange={e => setNewCoupon({...newCoupon, value: parseInt(e.target.value)})}
+                              value={newCoupon.value || 0}
+                              onChange={e => setNewCoupon({...newCoupon, value: parseInt(e.target.value) || 0})}
                           />
                       </div>
                   </div>
@@ -3825,8 +4418,8 @@ export default function AdminPanel() {
                           <input 
                               type="number" 
                               className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 text-center font-black"
-                              value={newCoupon.minOrder}
-                              onChange={e => setNewCoupon({...newCoupon, minOrder: parseInt(e.target.value)})}
+                              value={newCoupon.minOrder || 0}
+                              onChange={e => setNewCoupon({...newCoupon, minOrder: parseInt(e.target.value) || 0})}
                           />
                       </div>
                       <div className="space-y-3">
@@ -3834,8 +4427,8 @@ export default function AdminPanel() {
                           <input 
                               type="number" 
                               className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 text-center font-black"
-                              value={newCoupon.usageLimit}
-                              onChange={e => setNewCoupon({...newCoupon, usageLimit: parseInt(e.target.value)})}
+                              value={newCoupon.usageLimit || 0}
+                              onChange={e => setNewCoupon({...newCoupon, usageLimit: parseInt(e.target.value) || 0})}
                           />
                       </div>
                   </div>

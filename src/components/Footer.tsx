@@ -41,10 +41,15 @@ export default function Footer() {
       
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="flex flex-col items-center justify-center gap-10">
-          {/* Brand / App Name */}
-          <h2 className="text-2xl font-display font-black text-white uppercase tracking-tighter">
-            {appName}
-          </h2>
+          {/* Brand Logo or App Name */}
+          <div className="flex flex-col items-center gap-4">
+             {appSettings.logo ? (
+                 <img src={appSettings.logo} className="h-12 w-auto object-contain drop-shadow-2xl mb-2" alt="Footer Logo" />
+             ) : null}
+             <h2 className="text-2xl font-display font-black text-white uppercase tracking-tighter">
+               {appName}
+             </h2>
+          </div>
 
           {/* Styled Buttons for Links */}
           <div className="flex flex-wrap justify-center gap-4 md:gap-6">

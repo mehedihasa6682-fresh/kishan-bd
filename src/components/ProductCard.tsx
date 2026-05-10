@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { usePromotions } from '../context/PromotionContext';
+import { useSettings } from '../context/SettingsContext';
 import { formatCurrency } from '../lib/utils';
 import { AddToCart } from './AddToCart';
 import { ChevronDown, Weight, Zap } from 'lucide-react';
@@ -19,6 +20,7 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
     const { addToCart, updateQuantity, getItemQuantity } = useCart();
     const { dData } = useLanguage();
     const { getEffectivePrice } = usePromotions();
+    const { settings: appSettings } = useSettings();
     const navigate = useNavigate();
 
     const effective = getEffectivePrice(product);
@@ -80,7 +82,7 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
                     className="aspect-square rounded-xl overflow-hidden mb-2 cursor-pointer bg-white/5 relative"
                     onClick={() => navigate(`/product/${product.id}`)}
                 >
-                    <img src={product.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={product.name} />
+                    <img src={product.image || appSettings.logo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={product.name} />
                     {effective.promotion && (
                         <div className="absolute top-1 right-1 flex flex-col items-end gap-1 z-10 scale-75 origin-top-right">
                              <div className="bg-primary text-black rounded-lg px-1 py-0.5 flex items-center gap-1 animate-pulse shrink-0">
@@ -157,7 +159,7 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
                 className="relative aspect-square rounded-xl overflow-hidden mb-2 cursor-pointer bg-white/5"
                 onClick={() => navigate(`/product/${product.id}`)}
             >
-                <img src={product.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={product.name} />
+                <img src={product.image || appSettings.logo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={product.name} />
                 
                 {effective.promotion && (
                     <div className="absolute top-1 right-1 flex flex-col items-end gap-1 z-10 overflow-hidden">

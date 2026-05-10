@@ -6,6 +6,7 @@ import { db } from '../firebase';
 import { useCart } from '../context/CartContext';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { useSettings } from '../context/SettingsContext';
 import { useContext } from 'react';
 import { AuthContext } from '../App';
 import { socialService } from '../services/socialService';
@@ -17,15 +18,17 @@ export default function Products() {
   const { addToCart } = useCart();
   const { user } = useContext(AuthContext);
   const { dData, t } = useLanguage();
+  const { settings: appSettings } = useSettings();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const initialCategory = searchParams.get('category');
+  const initialSearch = searchParams.get('search') || '';
   
   const [dbProducts, setDbProducts] = useState<any[]>([]);
   const [dbCategories, setDbCategories] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<any>({ id: 'All', title: 'All' });
   const [selectedSubCategory, setSelectedSubCategory] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [sortBy, setSortBy] = useState<'default' | 'priceLow' | 'priceHigh' | 'rating'>('default');
   const [wishlistIds, setWishlistIds] = useState<string[]>([]);
 
@@ -172,7 +175,7 @@ export default function Products() {
                 selectedCategory.title === cat.title ? 'ring-2 ring-primary ring-offset-2 ring-offset-black shadow-lg shadow-primary/20' : 'bg-white/5 border border-white/5'
               }`}>
                 <img 
-                  src={cat.image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&h=200&fit=crop'} 
+                  src={cat.image || appSettings.logo} 
                   referrerPolicy="no-referrer" 
                   className="w-full h-full object-cover" 
                   alt={dData(cat.title, cat.titleEn)} 

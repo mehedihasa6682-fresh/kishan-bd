@@ -27,6 +27,8 @@ const translations: Record<Language, Record<string, string>> = {
     'home.featured': 'সেরা গ্রোসারি পণ্য',
     'home.stories': 'সুপারমার্কেট স্টোরি',
     'home.add_yours': 'মতামত দিন',
+    'home.active_campaigns': 'চলমান অফারসমূহ',
+    'home.favourite_categories': 'জনপ্রিয় ক্যাটাগরি',
     
     // Cart & Checkout
     'cart.title': 'আপনার ব্যাগ',
@@ -72,6 +74,8 @@ const translations: Record<Language, Record<string, string>> = {
     'home.featured': 'Fresh Groceries',
     'home.stories': 'Store Reviews',
     'home.add_yours': 'Add Feedback',
+    'home.active_campaigns': 'Active Campaigns',
+    'home.favourite_categories': 'Favourite Categories',
     
     // Cart & Checkout
     'cart.title': 'Your Cart',

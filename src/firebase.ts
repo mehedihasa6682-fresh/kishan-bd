@@ -4,9 +4,7 @@ import {
   initializeFirestore, 
   doc, 
   getDocFromServer,
-  connectFirestoreEmulator,
-  persistentLocalCache,
-  persistentMultipleTabManager
+  connectFirestoreEmulator
 } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 
@@ -15,9 +13,6 @@ export const app = initializeApp(firebaseConfig);
 // Initialize Firestore with settings to handle potential network restrictions
 export const db = initializeFirestore(app, {
   experimentalForceLongPolling: true,
-  localCache: persistentLocalCache({
-    tabManager: persistentMultipleTabManager()
-  })
 }, firebaseConfig.firestoreDatabaseId || '(default)');
 
 export const auth = getAuth(app);

@@ -1,4 +1,4 @@
-import { User, Search, Mic, ShoppingBag, Menu, X, ShieldCheck, RefreshCcw, Headset, Layout } from 'lucide-react';
+import { User, Search, Mic, ShoppingBag, Menu, X, ShieldCheck, RefreshCcw, Headset, Layout, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import React, { useState, useEffect, useContext } from 'react';
@@ -18,7 +18,51 @@ export default function Navbar() {
   const { settings: appSettings } = useSettings();
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [allProducts, setAllProducts] = useState<any[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const searchRef = React.useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const fetchAllProducts = async () => {
+      try {
+        const q = query(collection(db, 'products'), where('status', '==', 'active'));
+        const snap = await getDocs(q);
+        setAllProducts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      } catch (err) {
+        console.warn("Navbar fetch failed (possibly offline):", err);
+      }
+    };
+    fetchAllProducts();
+  }, []);
+
+  useEffect(() => {
+    if (searchQuery.trim().length > 0) {
+      const filtered = allProducts.filter(p => {
+        const name = (p.name || '').toLowerCase();
+        const nameEn = (p.nameEn || '').toLowerCase();
+        const cat = (p.category || '').toLowerCase();
+        const q = searchQuery.toLowerCase();
+        return name.includes(q) || nameEn.includes(q) || cat.includes(q);
+      }).slice(0, 5);
+      setSuggestions(filtered);
+      setShowSuggestions(true);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  }, [searchQuery, allProducts]);
   const [dynamicPages, setDynamicPages] = useState<any[]>([]);
   const location = useLocation();
   const navigate = useNavigate();
@@ -51,6 +95,9 @@ export default function Navbar() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      setShowSuggestions(false);
+      // Dismiss the keyboard
+      (e.target as HTMLFormElement).querySelector('input')?.blur();
       navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
@@ -139,15 +186,62 @@ export default function Navbar() {
           {/* Row 2: Search Bar - When scrolled on Home/Discounts, icons move here */}
           {(location.pathname === '/' || location.pathname === '/discounts') && (
             <div className="flex items-center gap-3">
-              <form onSubmit={handleSearch} className="relative group flex-1">
+              <form ref={searchRef} onSubmit={handleSearch} className="relative group flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary transition-colors" size={16} />
                 <input 
                   type="text" 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
                   placeholder={language === 'bn' ? "আপনি কী খুঁজছেন?" : "What are you looking for?"}
                   className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-12 text-[11px] text-white placeholder:text-white/20 outline-none focus:bg-white/10 focus:border-primary/40 transition-all font-medium"
                 />
+                
+                <AnimatePresence>
+                  {showSuggestions && suggestions.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute top-full left-0 right-0 mt-2 bg-[#050E21] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-[100] backdrop-blur-xl"
+                    >
+                      {suggestions.map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => {
+                            setSearchQuery('');
+                            setShowSuggestions(false);
+                            // Dismiss keyboard
+                            if (document.activeElement instanceof HTMLElement) {
+                              document.activeElement.blur();
+                            }
+                            navigate(`/product/${p.id}`);
+                          }}
+                          className="w-full flex items-center gap-3 p-3 hover:bg-white/5 transition-colors border-b border-white/5 last:border-0 text-left group"
+                        >
+                          <div className="w-10 h-10 rounded-lg overflow-hidden bg-white/5 flex-shrink-0">
+                            <img src={p.image || appSettings.logo} alt="" className="w-full h-full object-cover" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                             <p className="text-[10px] font-bold text-white group-hover:text-primary transition-colors truncate">
+                               {language === 'bn' ? (p.name || p.nameEn) : (p.nameEn || p.name)}
+                             </p>
+                             <p className="text-[8px] text-white/40 uppercase tracking-widest">{p.category}</p>
+                          </div>
+                          <ChevronRight size={12} className="text-white/20 group-hover:text-primary transition-colors" />
+                        </button>
+                      ))}
+                      <button
+                        type="submit"
+                        className="w-full p-3 bg-primary/10 text-primary text-[9px] font-black uppercase tracking-widest hover:bg-primary/20 transition-all"
+                      >
+                         {language === 'bn' ? 'সবগুলো দেখুন' : 'See All Results'}
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-white/20 border-l border-white/5 pl-2 h-4">
                   <Mic size={16} className="hover:text-white cursor-pointer transition-colors" />
                 </div>

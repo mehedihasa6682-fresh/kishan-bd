@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, ChevronRight, ShoppingBag, Plus, ShoppingCart, Mic, Menu, Tag, Gift, Award, Zap } from 'lucide-react';
+import { Search, ChevronRight, ShoppingBag, Plus, ShoppingCart, Mic, Menu, Tag, Gift, Award, Zap, Clock, Sparkles } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { collection, onSnapshot, query, orderBy, where } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -17,7 +17,7 @@ import { InstallButton } from '../components/InstallButton';
 export default function Home() {
   const [activeBanner, setActiveBanner] = useState(0);
   const { user, setDataLoading } = useContext(AuthContext);
-  const { t, dData } = useLanguage();
+  const { t, dData, language } = useLanguage();
   const { settings: appSettings } = useSettings();
   const navigate = useNavigate();
   
@@ -25,11 +25,40 @@ export default function Home() {
   const [dbCategories, setDbCategories] = useState<any[]>([]);
   const [dbProducts, setDbProducts] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [offers, setOffers] = useState<any[]>([]);
+  const [timeLefts, setTimeLefts] = useState<Record<string, any>>({});
 
-  const banners = dbBanners.length > 0 ? dbBanners : [
-    { id: '1', title: 'Fresh Offers', image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800' },
-    { id: '2', title: 'Summer Festival', image: 'https://images.unsplash.com/photo-1543076447-215ad9ba6923?w=800' }
-  ];
+  const calculateTimeLeft = (endTime: string) => {
+    const difference = +new Date(endTime) - +new Date();
+    if (difference <= 0) return null;
+    return {
+      hours: Math.floor(difference / (1000 * 60 * 60)),
+      minutes: Math.floor((difference / 1000 / 60) % 60),
+      seconds: Math.floor((difference / 1000) % 60)
+    };
+  };
+
+  useEffect(() => {
+    const unsubOffers = onSnapshot(query(collection(db, 'offers'), where('isActive', '==', true)), (snap) => {
+      setOffers(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+    return () => unsubOffers();
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const newTimeLefts: Record<string, any> = {};
+      offers.forEach(offer => {
+        if (offer.endTime && offer.timerEnabled) {
+          newTimeLefts[offer.id] = calculateTimeLeft(offer.endTime);
+        }
+      });
+      setTimeLefts(newTimeLefts);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [offers]);
+
+  const banners = dbBanners;
 
   const getIcon = (iconName: string) => {
     switch (iconName?.toLowerCase()) {
@@ -51,17 +80,7 @@ export default function Home() {
     { title: 'Big Save', icon: 'shopping-cart', color: 'from-[#D4AF37] to-[#B8860B]', path: '/discounts' },
   ];
 
-  const categories = (dbCategories.length > 0 ? dbCategories : [
-    { id: '1', title: 'Eggs', image: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3cdd?w=200' },
-    { id: '2', title: 'Frozen', image: 'https://images.unsplash.com/photo-1585238339750-f82f2ce1640a?w=200' },
-    { id: '3', title: 'Noodles', image: 'https://images.unsplash.com/photo-1552611052-33e04de081de?w=200' },
-    { id: '4', title: 'Tea', image: 'https://images.unsplash.com/photo-1544787210-2211d7c309c7?w=200' },
-    { id: '5', title: 'Coffee', image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=200' },
-    { id: '6', title: 'Biscuits', image: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=200' },
-    { id: '7', title: 'Soft Drinks', image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200' },
-    { id: '8', title: 'Candy', image: 'https://images.unsplash.com/photo-1581798459219-318e76aecc7b?w=200' },
-    { id: '9', title: 'Cooking', image: 'https://images.unsplash.com/photo-1547516508-4c1f9c7c4ec3?w=200' }
-  ]).slice(0, 9);
+  const categories = dbCategories.slice(0, 10);
 
   const recommendedProducts = dbProducts
     .filter(p => !p.isOutOfStock)
@@ -106,33 +125,35 @@ export default function Home() {
       </Helmet>
 
       {/* Hero Banner Slider */}
-      <div className="px-4 mt-2">
-        <div className="relative h-36 rounded-[1.5rem] overflow-hidden shadow-2xl border border-white/10">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeBanner}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.8 }}
-              className="absolute inset-0"
-            >
-              <img src={banners[activeBanner % banners.length]?.image} className="w-full h-full object-cover" alt="Banner" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-            </motion.div>
-          </AnimatePresence>
-          
-          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
-            {banners.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setActiveBanner(idx)}
-                className={`h-1.5 rounded-full transition-all duration-500 ${activeBanner === idx ? 'w-6 bg-primary' : 'w-1.5 bg-white/40'}`}
-              />
-            ))}
+      {banners.length > 0 && (
+        <div className="px-4 mt-2">
+          <div className="relative h-36 rounded-[1.5rem] overflow-hidden shadow-2xl border border-white/10">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeBanner}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.8 }}
+                className="absolute inset-0"
+              >
+                <img src={banners[activeBanner % banners.length]?.image} className="w-full h-full object-cover" alt="Banner" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
+              </motion.div>
+            </AnimatePresence>
+            
+            <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+              {banners.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveBanner(idx)}
+                  className={`h-1.5 rounded-full transition-all duration-500 ${activeBanner === idx ? 'w-6 bg-primary' : 'w-1.5 bg-white/40'}`}
+                />
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Feature Cards Horizontal Scroll */}
       <div className="flex gap-3 overflow-x-auto px-4 py-6 scrollbar-hide">
@@ -156,71 +177,170 @@ export default function Home() {
       </div>
 
       {/* Favourite Categories Section */}
-      <div className="px-4 mb-8">
-        <div className="flex items-center justify-between mb-6 px-1">
-          <h2 className="text-lg font-display font-black text-white tracking-tight uppercase">Favourite Categories</h2>
-        </div>
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-x-3 gap-y-4">
-          {categories.map((cat) => (
-            <div
-              key={cat.id}
-              onClick={() => navigate(`/products?category=${cat.title}`)}
-              className="group cursor-pointer flex flex-col gap-2"
-            >
-              <motion.div
-                whileTap={{ scale: 0.95 }}
-                className="glass-card h-24 relative overflow-hidden rounded-2xl border-white/20 transition-all group-hover:border-primary/40 group-hover:shadow-[0_0_15px_rgba(212,175,55,0.1)]"
-              >
-                <img src={cat.image} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={cat.title} />
-                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-all" />
-              </motion.div>
-              
-              <div className="text-center px-0.5">
-                <span className="text-[9px] font-black uppercase tracking-[0.05em] text-white/70 group-hover:text-primary transition-colors leading-tight block truncate">
-                  {dData(cat.title, cat.titleEn)}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Flash Deals Section - NEW */}
-      {dbProducts.filter(p => (p.discountPrice && p.discountPrice < p.price) || p.isFlashDeal).length > 0 && (
-        <div className="px-4 mb-10">
+      {categories.length > 0 && (
+        <div className="px-4 mb-8">
           <div className="flex items-center justify-between mb-6 px-1">
-            <h2 className="text-lg font-display font-black text-white tracking-tight uppercase flex items-center gap-2">
-              <Zap size={20} className="text-primary fill-primary/20" />
-              Flash Deals
-            </h2>
-            <div className="bg-red-600/20 px-3 py-1 rounded-full border border-red-600/30">
-              <span className="text-[10px] font-black text-red-500 uppercase tracking-widest animate-pulse">Limited Time</span>
-            </div>
+            <h2 className="text-lg font-display font-black text-white tracking-tight uppercase">{t('home.favourite_categories')}</h2>
+            <Link to="/products" className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline">{t('home.see_all')}</Link>
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {dbProducts
-              .filter(p => (p.discountPrice && p.discountPrice < p.price) || p.isFlashDeal)
-              .slice(0, 8)
-              .map((product) => (
-                <div key={product.id} className="relative group">
-                  <div className="absolute -top-1 -left-1 z-10 bg-red-600 text-white text-[8px] font-black px-2 py-1 rounded-lg uppercase tracking-tighter shadow-lg transform -rotate-12 group-hover:rotate-0 transition-transform">
-                      {Math.round(((product.price - (product.discountPrice || 0)) / product.price) * 100)}% OFF
-                  </div>
-                  <ProductCard product={product} />
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-x-3 gap-y-4">
+            {categories.map((cat) => (
+              <div
+                key={cat.id}
+                onClick={() => navigate(`/products?category=${cat.title}`)}
+                className="group cursor-pointer flex flex-col gap-2"
+              >
+                <motion.div
+                  whileTap={{ scale: 0.95 }}
+                  className="glass-card h-24 relative overflow-hidden rounded-2xl border-white/20 transition-all group-hover:border-primary/40 group-hover:shadow-[0_0_15px_rgba(212,175,55,0.1)]"
+                >
+                  <img src={cat.image || appSettings.logo} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={cat.title} />
+                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-all" />
+                </motion.div>
+                
+                <div className="text-center px-0.5">
+                  <span className="text-[9px] font-black uppercase tracking-[0.05em] text-white/70 group-hover:text-primary transition-colors leading-tight block truncate">
+                    {dData(cat.title, cat.titleEn)}
+                  </span>
                 </div>
-              ))}
+              </div>
+            ))}
           </div>
         </div>
       )}
 
-      {/* Recommended Products - Moved Up */}
+      {/* Strategic Deals Hub - 2 Line Layout */}
+      {offers.length > 0 && (
+        <div className="px-4 mb-10 overflow-hidden">
+          <div className="flex items-center justify-between mb-6 px-1">
+            <div className="flex items-center gap-3">
+              <Sparkles size={24} className="text-secondary animate-pulse" />
+              <h2 className="text-xl font-display font-black text-white tracking-tight uppercase">Strategic Deals</h2>
+            </div>
+            <Link to="/discounts" className="px-4 py-1.5 bg-white/5 border border-white/5 rounded-full text-[9px] font-black text-white/40 uppercase tracking-widest hover:bg-secondary hover:text-black transition-all">All Missions</Link>
+          </div>
+          
+          <div className="grid grid-flow-col grid-rows-2 gap-4 overflow-x-auto pb-6 scrollbar-hide snap-x">
+             {offers.map(offer => (
+               <motion.div
+                 key={offer.id}
+                 whileTap={{ scale: 0.98 }}
+                 onClick={() => navigate(offer.hasDetailsPage ? `/deal/${offer.id}` : `/products?offer=${offer.id}`)}
+                 className="flex-shrink-0 w-72 h-40 relative rounded-[2.5rem] overflow-hidden border border-white/5 group cursor-pointer snap-center shadow-2xl"
+               >
+                 <img src={offer.bannerImage || appSettings.logo} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt={offer.title} />
+                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                 
+                 <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="px-3 py-1 bg-secondary text-black text-[8px] font-black uppercase tracking-widest rounded-lg shadow-xl">{offer.type}</span>
+                      {offer.timerEnabled && timeLefts[offer.id] && (
+                        <span className="text-[9px] font-mono font-black text-white bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-md border border-white/10">
+                          {String(timeLefts[offer.id].hours).padStart(2, '0')}:{String(timeLefts[offer.id].minutes).padStart(2, '0')}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="text-sm md:text-base font-black text-white uppercase tracking-tight line-clamp-1 group-hover:text-secondary transition-colors">{offer.title}</h3>
+                    <p className="text-[9px] text-white/40 font-bold uppercase tracking-widest mt-1">Benefit: {offer.discountAmount}{offer.discountType === 'percentage' ? '%' : '৳'} OFF</p>
+                 </div>
+                 
+                 {/* Decorative Overlay */}
+                 <div className="absolute top-4 right-4 p-2 bg-white/10 backdrop-blur-md border border-white/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ChevronRight size={14} className="text-white" />
+                 </div>
+               </motion.div>
+             ))}
+
+             {/* Deal Products In the same 2-line grid if room permits, or separate horizontal scroll */}
+             {dbProducts
+                .filter(p => offers.some(o => o.productIds?.includes(p.id) || p.category === o.categoryId))
+                .slice(0, 8)
+                .map(product => (
+                  <motion.div
+                    key={product.id}
+                    onClick={() => navigate(`/product/${product.id}`)}
+                    className="flex-shrink-0 w-44 bg-white/5 p-3 rounded-[2rem] border border-white/5 snap-center group hover:border-primary/20 transition-all flex flex-col"
+                  >
+                    <div className="aspect-square rounded-2xl overflow-hidden mb-3 relative bg-black/20">
+                      <img src={product.image || appSettings.logo} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
+                      <div className="absolute top-2 right-2 px-2 py-1 bg-primary text-black text-[8px] font-black rounded-lg shadow-lg">DEAL</div>
+                    </div>
+                    <div className="space-y-1 mt-auto">
+                      <h4 className="text-[10px] font-black text-white uppercase truncate px-1">
+                        {language === 'bn' ? (product.name || product.nameEn) : (product.nameEn || product.name)}
+                      </h4>
+                      <div className="flex items-center gap-2 px-1">
+                        <span className="text-[11px] font-black text-secondary">৳{Math.floor(product.price * 0.9)}</span>
+                        <span className="text-[8px] text-white/20 line-through">৳{product.price}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+          </div>
+        </div>
+      )}
+
+      {/* Dynamic Offer Sections */}
+      {offers.map(offer => {
+        const products = dbProducts.filter(p => offer.productIds?.includes(p.id) || p.category === offer.categoryId);
+        if (products.length === 0) return null;
+
+        return (
+          <div key={offer.id} className="px-4 mb-14 overflow-hidden">
+            <div className="flex flex-col gap-6">
+              {/* Offer Header with Banner */}
+              <div className="relative rounded-[2.5rem] overflow-hidden border border-white/5 shadow-2xl bg-black/40 group">
+                {offer.bannerImage ? (
+                  <div className="relative h-48 md:h-64 overflow-hidden">
+                    <img src={offer.bannerImage} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt={offer.title} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  </div>
+                ) : (
+                  <div className="h-20 bg-gradient-to-br from-secondary/10 to-transparent p-6" />
+                )}
+                
+                <div className="absolute bottom-0 left-0 w-full p-6 md:p-8 flex flex-wrap items-end justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-3">
+                      <span className="px-3 py-1 bg-secondary text-black text-[9px] font-black uppercase tracking-widest rounded-full">{offer.type} Deal</span>
+                      {offer.timerEnabled && timeLefts[offer.id] && (
+                        <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+                          <Clock size={12} className="text-secondary" />
+                          <span className="text-[10px] font-mono font-black text-secondary">
+                            {String(timeLefts[offer.id].hours).padStart(2, '0')}:
+                            {String(timeLefts[offer.id].minutes).padStart(2, '0')}:
+                            {String(timeLefts[offer.id].seconds).padStart(2, '0')}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <h2 className="text-2xl md:text-3xl font-display font-black text-white tracking-tight uppercase flex items-center gap-3 mt-2">
+                       {offer.title}
+                    </h2>
+                  </div>
+                  <Link to={`/products?offer=${offer.id}`} className="px-6 py-3 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-secondary hover:text-black transition-all">
+                    Explore Mission
+                  </Link>
+                </div>
+              </div>
+
+              {/* Product Grid - 2 line layout */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                 {products.slice(0, 8).map(product => (
+                   <ProductCard key={product.id} product={product} />
+                 ))}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+
+      {/* Recommended For You Section */}
       <div className="mb-24 px-4">
         <div className="flex items-center justify-between mb-6 px-1">
           <h2 className="text-xl font-display font-black text-white tracking-tight">Recommended for you</h2>
           <Link to="/products" className="text-primary text-xs font-bold uppercase tracking-widest hover:underline">See All</Link>
         </div>
-        
-        {/* Mobile & Desktop Product Grid */}
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 px-1">
           {recommendedProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
