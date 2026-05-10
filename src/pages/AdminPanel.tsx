@@ -670,7 +670,6 @@ export default function AdminPanel() {
     { id: 'stories', label: 'Stories', icon: Camera },
     { id: 'categories', label: 'Categories', icon: Layers },
     { id: 'users', label: 'Users', icon: Users },
-    { id: 'notifications', label: 'In-App Pulse', icon: Bell },
     { id: 'email_marketing', label: 'Neural Mailing', icon: MessageSquare },
     { id: 'settings', label: 'Brand & Site', icon: Settings },
     { id: 'promotions', label: 'Flash Deals', icon: Zap },
@@ -3466,6 +3465,16 @@ export default function AdminPanel() {
                     
                     <div className="space-y-6">
                         <div className="space-y-3">
+                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Target Neural Group</label>
+                            <select 
+                                id="emailTarget"
+                                className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 font-bold transition-all shadow-inner appearance-none"
+                            >
+                                <option value="all">All Verified Users ({sellers.filter(u => u.email).length})</option>
+                                <option value="no-push">Users with Push Disabled ({sellers.filter(u => u.email && !u.pushEnabled).length})</option>
+                            </select>
+                        </div>
+                        <div className="space-y-3">
                             <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Subject Header</label>
                             <input 
                                 id="emailSubject"
@@ -3483,26 +3492,28 @@ export default function AdminPanel() {
                         </div>
                         <button 
                             onClick={async () => {
+                                const target = (document.getElementById('emailTarget') as HTMLSelectElement).value;
                                 const subject = (document.getElementById('emailSubject') as HTMLInputElement).value;
                                 const body = (document.getElementById('emailBody') as HTMLTextAreaElement).value;
                                 if (!subject || !body) return alert('Subject and Body required for transmission');
                                 
-                                if (confirm(`Transmit this broadcast to all ${sellers.filter(u => u.email).length} verified nodes?`)) {
+                                if (confirm(`Transmit this broadcast to selected nodes?`)) {
                                     try {
-                                        const res = await fetch('/api/admin/send-bulk-email', {
+                                        const res = await fetch('/api/admin/bulk-email', {
                                             method: 'POST',
                                             headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ subject, body })
+                                            body: JSON.stringify({ target, subject, content: body })
                                         });
+                                        const data = await res.json();
                                         if (res.ok) {
-                                            alert('Broadcast sequence initiated successfully!');
+                                            alert(`Broadcast sequence initiated! Group size: ${data.count}`);
                                             (document.getElementById('emailSubject') as HTMLInputElement).value = '';
                                             (document.getElementById('emailBody') as HTMLTextAreaElement).value = '';
                                         } else {
-                                          throw new Error('Transmission failed');
+                                          throw new Error(data.error || 'Transmission failed');
                                         }
-                                    } catch (e) {
-                                        alert('Neural Link Interrupted');
+                                    } catch (e: any) {
+                                        alert('Neural Link Interrupted: ' + e.message);
                                     }
                                 }
                             }}

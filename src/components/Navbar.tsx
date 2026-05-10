@@ -192,7 +192,6 @@ export default function Navbar() {
                   {language === 'bn' ? 'EN' : 'বাং'}
                 </span>
               </button>
-              <NotificationCenter />
               
               <button 
                 onClick={() => setIsDrawerOpen(true)}

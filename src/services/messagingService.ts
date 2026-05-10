@@ -24,14 +24,20 @@ export const MessagingService = {
       // If permission is already denied, we can't do anything
       if (Notification.permission === 'denied') {
         console.warn("FCM Notifications are blocked by the user/browser.");
+        await this.updateUserNotificationStatus(false);
         return null;
       }
 
       // Check if we already have permission, if not, request it
       if (Notification.permission === 'default') {
         const permission = await Notification.requestPermission();
-        if (permission !== 'granted') return null;
+        if (permission !== 'granted') {
+          await this.updateUserNotificationStatus(false);
+          return null;
+        }
       }
+      
+      await this.updateUserNotificationStatus(Notification.permission === 'granted');
       
       const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY || 'BLUaQ6p_En7RjF_9QTN__g6WVViX9r9eJfy16eiryt-GADsNg46gtyJNqxDDS7qeGyYCUkhkIjvkKRKvIRHgBRw';
       
@@ -63,8 +69,22 @@ export const MessagingService = {
         platform: 'web',
         updatedAt: serverTimestamp()
       });
+      await this.updateUserNotificationStatus(true);
     } catch (error) {
       console.error("Error saving FCM token:", error);
+    }
+  },
+
+  async updateUserNotificationStatus(granted: boolean) {
+    if (!auth.currentUser) return;
+    try {
+      await setDoc(doc(db, 'users', auth.currentUser.uid), {
+        pushEnabled: granted,
+        pushConsentTimestamp: serverTimestamp(),
+        lastAuthUpdate: serverTimestamp()
+      }, { merge: true });
+    } catch (error) {
+      console.error("Error updating user notification status:", error);
     }
   },
 

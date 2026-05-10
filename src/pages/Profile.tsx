@@ -100,13 +100,8 @@ export default function Profile() {
         console.error("Profile User Listener:", error);
       });
 
-      // Fetch notifications in real-time
-      const unsubNotif = NotificationService.subscribeToNotifications(user.uid, (data) => {
-        setNotifications(data);
-      });
       return () => {
         unsubUser();
-        unsubNotif();
       };
     }
   }, [user]);
@@ -322,7 +317,6 @@ export default function Profile() {
           <div className="bg-white/5 rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
             <MenuItem icon={ClipboardList} label={t('profile.orders')} subtitle="Track and view past orders" to="/orders" />
             <MenuItem icon={Heart} label="My Wishlist" subtitle="Favorite products saved for later" to="/wishlist" color="text-red-500" />
-            <MenuItem icon={Bell} label="Notifications" subtitle="App updates and order status" onClick={() => setActiveModal('notifications')} />
           </div>
         </div>
 
@@ -558,38 +552,6 @@ export default function Profile() {
                             </div>
                             <button onClick={handleUpdatePayment} className="btn-primary w-full py-5 rounded-[2rem] mt-4 text-sm">Save Virtual Assets</button>
                         </div>
-                    </div>
-                )}
-                {activeModal === 'notifications' && (
-                    <div className="space-y-6">
-                        <div className="flex justify-between items-center mb-2 px-2">
-                             <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Transmission Buffer</span>
-                             <button onClick={() => NotificationService.markAllAsRead(notifications)} className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Flush All</button>
-                        </div>
-                        <div className="space-y-4">
-                            {notifications.map(notif => (
-                                <div key={notif.id} className={`p-6 rounded-[2.5rem] border transition-all ${notif.read ? 'bg-black/20 border-white/5 opacity-60' : 'bg-primary/5 border-primary/20'} relative group`}>
-                                    <div className="flex gap-4">
-                                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${notif.type === 'order' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' : notif.type === 'promo' ? 'bg-primary/10 text-primary border-primary/20' : 'bg-white/5 text-white/20 border-white/5'}`}>
-                                            <Bell size={18} />
-                                        </div>
-                                        <div className="flex-1 space-y-1">
-                                            <h4 className="font-bold text-sm text-white tracking-tight">{notif.title}</h4>
-                                            <p className="text-[12px] text-white/50 leading-relaxed font-medium">{notif.message}</p>
-                                            <p className="text-[9px] text-white/20 mt-3 font-mono italic">{format(notif.createdAt?.toDate() || new Date(), 'MMM dd, hh:mm a')}</p>
-                                        </div>
-                                        {!notif.read && (
-                                            <button onClick={() => NotificationService.markAsRead(notif.id)} className="w-2.5 h-2.5 bg-primary rounded-full mt-1.5 shadow-[0_0_10px_rgba(212,175,55,0.8)]" />
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        {notifications.length === 0 && (
-                            <div className="text-center py-20 bg-black/40 rounded-[3rem] border border-dashed border-white/5">
-                                <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.4em]">Zero incoming signals identified</p>
-                            </div>
-                        )}
                     </div>
                 )}
             </motion.div>

@@ -80,13 +80,19 @@ export default function Home() {
     { title: 'Big Save', icon: 'shopping-cart', color: 'from-[#D4AF37] to-[#B8860B]', path: '/discounts' },
   ];
 
+  const activeOffers = offers.filter(offer => {
+    if (!offer.timerEnabled) return true;
+    const timeLeft = timeLefts[offer.id];
+    return timeLeft && (timeLeft.hours > 0 || timeLeft.minutes > 0 || timeLeft.seconds > 0);
+  });
+
   const categories = dbCategories.slice(0, 10);
 
   const recommendedProducts = dbProducts
     .filter(p => {
       if (p.isOutOfStock) return false;
       // Filter out products that are part of an active offer
-      const isDealsProduct = offers.some(o => o.productIds?.includes(p.id) || p.category === o.categoryId);
+      const isDealsProduct = activeOffers.some(o => o.productIds?.includes(p.id) || p.category === o.categoryId);
       return !isDealsProduct;
     })
     .sort((a, b) => (b.salesCount || 0) - (a.salesCount || 0));
@@ -214,42 +220,60 @@ export default function Home() {
         </div>
       )}
 
-      {/* Strategic Deals Section (Vertical Grid - Discount Style) */}
-      {offers.length > 0 && (
-        <div className="px-4 mb-14 overflow-hidden">
-          <div className="flex items-center justify-between mb-8 px-1">
-            <div className="flex items-center gap-3">
-              <Sparkles size={24} className="text-secondary animate-pulse" />
-              <h2 className="text-xl font-display font-black text-white tracking-tight uppercase">
-                {offers[0].title}
-              </h2>
+      {/* Strategic Deals or Recommendations Section */}
+      <div className="px-4 mb-14 overflow-hidden">
+        {activeOffers.length > 0 ? (
+          <>
+            <div className="flex items-center justify-between mb-8 px-1">
+              <div className="flex items-center gap-3">
+                <Sparkles size={24} className="text-secondary animate-pulse" />
+                <h2 className="text-xl font-display font-black text-white tracking-tight uppercase">
+                  {activeOffers[0].title}
+                </h2>
+              </div>
             </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6">
+              {dbProducts
+                .filter(p => activeOffers.some(o => o.productIds?.includes(p.id) || p.category === o.categoryId))
+                .slice(0, 10)
+                .map(product => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center justify-between mb-8 px-1">
+              <h2 className="text-xl font-display font-black text-white tracking-tight uppercase">
+                Recommended for you
+              </h2>
+              <Link to="/products" className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline">See All</Link>
+            </div>
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6">
+              {recommendedProducts.slice(0, 15).map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* More Recommendations (Only if offers are active) */}
+      {activeOffers.length > 0 && (
+        <div className="mb-24 px-4 overflow-hidden">
+          <div className="flex items-center justify-between mb-8 px-1">
+            <h2 className="text-xl font-display font-black text-white tracking-tight uppercase">
+              More recommendations
+            </h2>
+            <Link to="/products" className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline">See All</Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6">
-            {dbProducts
-              .filter(p => offers.some(o => o.productIds?.includes(p.id) || p.category === o.categoryId))
-              .slice(0, 10)
-              .map(product => (
+          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6">
+            {recommendedProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
           </div>
         </div>
       )}
-
-      {/* Recommended Products (3-Column Grid on Mobile) */}
-      <div className="mb-24 px-4 overflow-hidden">
-        <div className="flex items-center justify-between mb-8 px-1">
-          <h2 className="text-xl font-display font-black text-white tracking-tight uppercase">
-            {offers.length > 0 ? "More recommendations" : "Recommended for you"}
-          </h2>
-          <Link to="/products" className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline">See All</Link>
-        </div>
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6">
-          {recommendedProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-        </div>
-      </div>
 
     </motion.div>
   );

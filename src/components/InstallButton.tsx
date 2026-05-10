@@ -72,7 +72,7 @@ export const InstallButton: React.FC = () => {
             className="flex items-center gap-1.5 bg-red-600 text-white px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tight shadow-lg shadow-red-500/20 active:scale-95 transition-transform shrink-0"
           >
             <Download size={12} strokeWidth={3} />
-            ইনস্টল
+            Install App
           </motion.button>
         )}
       </AnimatePresence>
