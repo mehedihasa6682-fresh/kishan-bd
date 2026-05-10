@@ -695,8 +695,8 @@ export default function AdminPanel() {
       animate={{ opacity: 1 }}
       className="min-h-screen bg-black text-white"
     >
-      <div className="max-w-6xl mx-auto px-5 pb-12">
-        <div className="flex items-center justify-between py-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pb-12">
+        <div className="flex items-center justify-between py-8 border-b border-white/5 mb-8">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 bg-white/5 border border-white/10 text-primary rounded-2xl flex items-center justify-center shadow-2xl">
               <ShieldCheck size={32} />
@@ -716,25 +716,36 @@ export default function AdminPanel() {
           </Link>
         </div>
 
-      {/* Modern Tab Bar */}
-      <div className="flex gap-3 overflow-x-auto pb-6 mb-8 scrollbar-hide -mx-5 px-5">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`flex items-center gap-2.5 px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border shadow-xl ${
-              activeTab === tab.id 
-                ? 'bg-primary text-black border-primary scale-105 shadow-primary/20' 
-                : 'bg-white/5 text-white/40 border-white/5 hover:border-white/20'
-            }`}
-          >
-            <tab.icon size={18} />
-            {tab.label}
-          </button>
-        ))}
-      </div>
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Sidebar Navigation */}
+          <aside className="w-full md:w-64 flex-shrink-0">
+            <div className="sticky top-24 space-y-2">
+              <div className="hidden md:block mb-4">
+                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] ml-1">Management Console</p>
+              </div>
+              
+              <div className="flex md:flex-col gap-2 overflow-x-auto pb-4 md:pb-0 scrollbar-hide">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`flex items-center gap-3 px-5 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border min-w-max md:min-w-0 md:w-full ${
+                      activeTab === tab.id 
+                        ? 'bg-primary text-black border-primary shadow-lg shadow-primary/20' 
+                        : 'bg-white/5 text-white/40 border-white/5 hover:border-white/20 hover:text-white'
+                    }`}
+                  >
+                    <tab.icon size={18} />
+                    {tab.label}
+                  </button>
+                ))}
+            </div>
+            </div>
+          </aside>
 
-      <AnimatePresence mode="wait">
+          {/* Main Workspace Area */}
+          <main className="flex-1 min-w-0 space-y-8">
+            <AnimatePresence mode="wait">
         {activeTab === 'dashboard' && (
           <motion.div
             key="dashboard"
@@ -4031,7 +4042,8 @@ export default function AdminPanel() {
             </motion.div>
         )}
       </AnimatePresence>
-      </div>
+          </main>
+        </div>
       
       {selectedOrder && (
         <Invoice order={selectedOrder} onClose={() => setSelectedOrder(null)} />
@@ -4624,6 +4636,7 @@ export default function AdminPanel() {
           </div>
         )}
       </AnimatePresence>
+      </div>
     </motion.div>
   );
 }

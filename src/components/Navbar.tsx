@@ -137,7 +137,7 @@ export default function Navbar() {
         className={`fixed ${appSettings.announcementBar ? 'top-7' : 'top-0'} left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-[#050E21]/95 shadow-lg py-2' : 'bg-[#050E21]/80 shadow-sm py-3'} border-b border-[#D4AF37]/30 px-4 h-auto backdrop-blur-md`}
         style={{ borderStyle: 'solid', fontFamily: 'Outfit, sans-serif' }}
       >
-        <div className="max-w-md mx-auto w-full">
+        <div className="max-w-6xl mx-auto w-full">
           {/* Row 1: Logo & Actions (Hides on Scroll) */}
           <motion.div 
             animate={{ 
@@ -161,7 +161,27 @@ export default function Navbar() {
                 )}
             </Link>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-6">
+              {/* Desktop Navigation Links */}
+              <div className="hidden md:flex items-center gap-6 mr-4 border-r border-white/5 pr-6">
+                {[
+                  { label: language === 'bn' ? 'হোম' : 'Home', path: '/' },
+                  { label: language === 'bn' ? 'ডিসকাউন্ট' : 'Deals', path: '/discounts' },
+                  { label: language === 'bn' ? 'অর্ডার' : 'Orders', path: '/orders' },
+                  { label: language === 'bn' ? 'প্রোফাইল' : 'Profile', path: '/profile' }
+                ].map(link => (
+                  <Link 
+                    key={link.path} 
+                    to={link.path}
+                    className={`text-[11px] font-black uppercase tracking-widest transition-colors ${
+                      location.pathname === link.path ? 'text-primary' : 'text-white/60 hover:text-white'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+
               <InstallButton />
               <button 
                 onClick={toggleLanguage}
@@ -186,7 +206,7 @@ export default function Navbar() {
           {/* Row 2: Search Bar - When scrolled on Home/Discounts, icons move here */}
           {(location.pathname === '/' || location.pathname === '/discounts') && (
             <div className="flex items-center gap-3">
-              <form ref={searchRef} onSubmit={handleSearch} className="relative group flex-1">
+              <form ref={searchRef} onSubmit={handleSearch} className="relative group flex-1 md:max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary transition-colors" size={16} />
                 <input 
                   type="text" 

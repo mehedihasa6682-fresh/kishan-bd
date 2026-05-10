@@ -16,7 +16,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 px-6 pb-4 pt-3 h-20 bg-[#050E21]/90 border-t border-white/10 flex justify-around items-center backdrop-blur-xl rounded-t-[2.5rem] shadow-[0_-15px_40px_rgba(0,0,0,0.5)] md:max-w-[500px] md:mx-auto md:bottom-6 md:rounded-[2.5rem] md:border md:border-white/10">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 px-6 pb-4 pt-3 h-20 bg-[#050E21]/90 border-t border-white/10 flex md:hidden justify-around items-center backdrop-blur-xl rounded-t-[2.5rem] shadow-[0_-15px_40px_rgba(0,0,0,0.5)]">
       {tabs.map((tab) => {
         const isActive = location.pathname === tab.path;
         const Icon = tab.icon;
