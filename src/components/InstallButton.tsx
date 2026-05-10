@@ -16,18 +16,19 @@ export const InstallButton: React.FC = () => {
     const handler = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
+      // Ensure visibility when prompt is available
       setIsVisible(true);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
 
-    // Check if app is already installed
+    // Precise check if app is already installed/standalone
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
     
     if (isStandalone) {
       setIsVisible(false);
-    } else if (isIOSDevice) {
-      // Always show on iOS if not standalone, since beforeinstallprompt won't fire
+    } else {
+      // ALWAYS show if not standalone, to follow user request
       setIsVisible(true);
     }
 
@@ -42,15 +43,21 @@ export const InstallButton: React.FC = () => {
       return;
     }
 
-    if (!deferredPrompt) return;
-
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-      setIsVisible(false);
+    if (!deferredPrompt) {
+      alert('ব্রাউজার মেনু থেকে "Install" বা "Add to Home Screen" এ ক্লিক করুন');
+      return;
     }
-    setDeferredPrompt(null);
+
+    try {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setIsVisible(false);
+      }
+    } catch (err) {
+      console.error("Install prompt error:", err);
+      alert('ব্রাউজার মেনু থেকে ইনষ্টল করুন');
+    }
   };
 
   return (

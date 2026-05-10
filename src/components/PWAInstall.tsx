@@ -16,12 +16,14 @@ export default function PWAInstall() {
     setIsIOS(isIOSDevice);
   }, []);
 
-  if (pwa?.isInstalled) return null;
+  const isStandalone = typeof window !== 'undefined' && 
+                        (window.matchMedia('(display-mode: standalone)').matches || 
+                        ('standalone' in window.navigator && (window.navigator as any).standalone === true));
+  
+  if (pwa?.isInstalled || isStandalone) return null;
 
-  // For Android/Chrome/Desktop
+  // showPrompt is only for Android/Chrome/Desktop
   const showPrompt = pwa?.deferredPrompt;
-
-  if (!showPrompt && !isIOS) return null;
 
   return (
     <AnimatePresence>

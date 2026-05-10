@@ -95,7 +95,7 @@ export default function AdminPanel() {
 
   const handleBroadcastOffer = async (offer: any) => {
     try {
-      await fetch('/api/broadcast-fcm', {
+      const response = await fetch('/api/broadcast-fcm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -108,15 +108,22 @@ export default function AdminPanel() {
                  offer.redirectType === 'deal' ? `/products?offer=${offer.id}` : 
                  offer.redirectType === 'category' ? `/products?category=${offer.categoryId}` :
                  offer.redirectType === 'product' ? `/product/${offer.redirectId}` :
-                 offer.redirectId || '/',
+                 offer.redirectId || `/deal/${offer.id}`,
             offerId: offer.id
           }
         })
       });
-      alert('Notification Transmission successful');
-    } catch (e) {
+      
+      const result = await response.json();
+      if (response.ok) {
+        alert(`Broadcast successful! Signals sent to ${result.successCount || 0} nodes.`);
+        console.log("Push Result:", result);
+      } else {
+        throw new Error(result.details || result.error || 'Unknown server error');
+      }
+    } catch (e: any) {
       console.error(e);
-      alert('Push Transmission Failed');
+      alert(`Push Transmission Failed: ${e.message}`);
     }
   };
 
@@ -173,6 +180,20 @@ export default function AdminPanel() {
   const [promotions, setPromotions] = useState<any[]>([]);
   const [pages, setPages] = useState<any[]>([]);
   const [appSettings, setAppSettings] = useState<any>({ logo: '' });
+  const [fcmStatus, setFcmStatus] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchFcmStatus = async () => {
+      try {
+        const res = await fetch('/api/fcm-status');
+        const data = await res.json();
+        setFcmStatus(data);
+      } catch (e) {
+        console.error("Failed to fetch FCM status:", e);
+      }
+    };
+    fetchFcmStatus();
+  }, []);
 
   // Filters & Bulk Actions
   const [productFilter, setProductFilter] = useState({ category: '', status: '', seller: '', search: '' });
@@ -779,6 +800,13 @@ export default function AdminPanel() {
                   color: 'text-white/80', 
                   bg: 'bg-white/5 border-white/5',
                   icon: <TrendingUp size={20} />
+                },
+                { 
+                  label: 'Neural Sync', 
+                  value: fcmStatus ? (fcmStatus.adminInitialized ? 'ONLINE' : 'SYNC ERR') : 'LOADING...', 
+                  color: fcmStatus?.adminInitialized ? 'text-green-400' : 'text-red-400', 
+                  bg: fcmStatus?.adminInitialized ? 'bg-green-500/5 border-green-500/20' : 'bg-red-500/5 border-red-500/20',
+                  icon: <Zap size={20} />
                 },
               ].map((stat) => (
                 <div key={stat.label} className={`${stat.bg} p-6 rounded-[2rem] border backdrop-blur-sm shadow-xl flex flex-col justify-between group hover:border-primary/40 transition-all duration-300`}>
