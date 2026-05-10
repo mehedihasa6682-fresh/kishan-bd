@@ -209,9 +209,9 @@ export default function Home() {
         </div>
       )}
 
-      {/* Strategic Deals Hub - 2 Line Layout Replacement for Recommended */}
+      {/* Strategic Deals Hub - 2 Line Layout (Priority Position) */}
       {offers.length > 0 && (
-        <div className="px-4 mb-24 overflow-hidden">
+        <div className="px-4 mb-20 overflow-hidden">
           <div className="flex items-center justify-between mb-6 px-1">
             <div className="flex items-center gap-3">
               <Sparkles size={24} className="text-secondary animate-pulse" />
@@ -281,6 +281,20 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {/* Recommended Products (Always present, but follows deals if active) */}
+      <div className="mb-24 px-4 overflow-hidden">
+        <div className="flex items-center justify-between mb-8 px-1">
+          <h2 className="text-xl font-display font-black text-white tracking-tight uppercase">Recommended for you</h2>
+          <Link to="/products" className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline">See All Assets</Link>
+        </div>
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6">
+          {recommendedProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+        </div>
+      </div>
+
     </motion.div>
   );
 }
