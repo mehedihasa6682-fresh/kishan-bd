@@ -17,7 +17,25 @@ try {
         if (configString.startsWith('"') && configString.endsWith('"')) {
           configString = JSON.parse(configString);
         }
-        const serviceAccount = typeof configString === 'string' ? JSON.parse(configString) : configString;
+        
+        // Final robustness check: if it looks like JSON but parsing might fail due to literal newlines
+        let serviceAccount: any;
+        try {
+          serviceAccount = typeof configString === 'string' ? JSON.parse(configString) : configString;
+        } catch (e) {
+          // Try replacing literal \n with actual newlines if it's a string
+          if (typeof configString === 'string') {
+            const fixed = configString.replace(/\\n/g, '\n');
+            serviceAccount = JSON.parse(fixed);
+          } else {
+            throw e;
+          }
+        }
+        
+        // Ensure private_key has correct newlines
+        if (serviceAccount.private_key) {
+          serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+        }
         
         admin.initializeApp({
           credential: admin.credential.cert(serviceAccount),
@@ -333,11 +351,21 @@ app.post("/api/send-fcm", async (req, res) => {
   }
 });
 
+// FCM Status Check
+app.get("/api/fcm-status", (req, res) => {
+  res.json({
+    adminInitialized: !!admin.apps.length,
+    hasServiceAccount: !!process.env.FIREBASE_SERVICE_ACCOUNT_JSON,
+    projectId: admin.apps.length ? admin.app().options.projectId : null
+  });
+});
+
 app.post("/api/broadcast-fcm", async (req, res) => {
   const { notification, data } = req.body;
   
   if (admin.apps.length === 0) {
-    return res.status(500).json({ error: "Firebase Admin not initialized" });
+    console.error("FCM Broadcast failed: Firebase Admin not initialized.");
+    return res.status(500).json({ error: "Firebase Admin not initialized. Check your FIREBASE_SERVICE_ACCOUNT_JSON environment variable." });
   }
   
     try {
@@ -397,13 +425,13 @@ app.post("/api/broadcast-fcm", async (req, res) => {
       
       if (staleTokens.length > 0) {
         console.log(`Cleaning up ${staleTokens.length} stale tokens...`);
-        // Note: tokens are stored by userId as doc ID. We need to query by token to delete.
+        // Batch delete is limited to 500 ops, which we are well under since we truncated to 500
+        const batch = db.batch();
         for (const token of staleTokens) {
           const staleSnapshot = await db.collection('fcmTokens').where('token', '==', token).get();
-          const batch = db.batch();
           staleSnapshot.forEach(doc => batch.delete(doc.ref));
-          await batch.commit();
         }
+        await batch.commit();
       }
     }
 

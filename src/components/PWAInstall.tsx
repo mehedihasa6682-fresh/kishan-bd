@@ -20,7 +20,10 @@ export default function PWAInstall() {
                         (window.matchMedia('(display-mode: standalone)').matches || 
                         ('standalone' in window.navigator && (window.navigator as any).standalone === true));
   
-  if (pwa?.isInstalled || isStandalone) return null;
+  // We keep track of local "dismissed" state for the banner
+  const [isDismissed, setIsDismissed] = useState(false);
+
+  if (pwa?.isInstalled || isStandalone || isDismissed) return null;
 
   // showPrompt is only for Android/Chrome/Desktop
   const showPrompt = pwa?.deferredPrompt;
@@ -63,6 +66,12 @@ export default function PWAInstall() {
                 ইনস্টল
               </button>
             )}
+            <button 
+              onClick={() => setIsDismissed(true)}
+              className="p-2 text-white/20 hover:text-white transition-colors"
+            >
+              <X size={16} />
+            </button>
         </div>
 
         {/* Modal for iOS Instructions */}
