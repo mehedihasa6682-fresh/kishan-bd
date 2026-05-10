@@ -209,18 +209,21 @@ export default function Home() {
         </div>
       )}
 
-      {/* Strategic Deals Hub - 2 Line Layout */}
+      {/* Strategic Deals Hub - 2 Line Layout Replacement for Recommended */}
       {offers.length > 0 && (
-        <div className="px-4 mb-10 overflow-hidden">
+        <div className="px-4 mb-24 overflow-hidden">
           <div className="flex items-center justify-between mb-6 px-1">
             <div className="flex items-center gap-3">
               <Sparkles size={24} className="text-secondary animate-pulse" />
-              <h2 className="text-xl font-display font-black text-white tracking-tight uppercase">Strategic Deals</h2>
+              <h2 className="text-xl font-display font-black text-white tracking-tight uppercase">
+                {offers[0].title}
+              </h2>
             </div>
-            <Link to="/discounts" className="px-4 py-1.5 bg-white/5 border border-white/5 rounded-full text-[9px] font-black text-white/40 uppercase tracking-widest hover:bg-secondary hover:text-black transition-all">All Missions</Link>
+            <Link to="/discounts" className="px-4 py-1.5 bg-white/5 border border-white/5 rounded-full text-[9px] font-black text-white/40 uppercase tracking-widest hover:bg-secondary hover:text-black transition-all">All Deals</Link>
           </div>
           
-          <div className="grid grid-flow-col grid-rows-2 gap-4 overflow-x-auto pb-6 scrollbar-hide snap-x">
+          <div className="grid grid-flow-col grid-rows-2 gap-4 overflow-x-auto pb-8 scrollbar-hide snap-x">
+             {/* Feature Banners for missions */}
              {offers.map(offer => (
                <motion.div
                  key={offer.id}
@@ -244,22 +247,21 @@ export default function Home() {
                     <p className="text-[9px] text-white/40 font-bold uppercase tracking-widest mt-1">Benefit: {offer.discountAmount}{offer.discountType === 'percentage' ? '%' : '৳'} OFF</p>
                  </div>
                  
-                 {/* Decorative Overlay */}
                  <div className="absolute top-4 right-4 p-2 bg-white/10 backdrop-blur-md border border-white/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                     <ChevronRight size={14} className="text-white" />
                  </div>
                </motion.div>
              ))}
 
-             {/* Deal Products In the same 2-line grid if room permits, or separate horizontal scroll */}
+             {/* Deal Products Horizontal 2-Line */}
              {dbProducts
                 .filter(p => offers.some(o => o.productIds?.includes(p.id) || p.category === o.categoryId))
-                .slice(0, 8)
+                .slice(0, 16)
                 .map(product => (
                   <motion.div
                     key={product.id}
                     onClick={() => navigate(`/product/${product.id}`)}
-                    className="flex-shrink-0 w-44 bg-white/5 p-3 rounded-[2rem] border border-white/5 snap-center group hover:border-primary/20 transition-all flex flex-col"
+                    className="flex-shrink-0 w-48 bg-white/5 p-3 rounded-[2rem] border border-white/5 snap-center group hover:border-primary/20 transition-all flex flex-col"
                   >
                     <div className="aspect-square rounded-2xl overflow-hidden mb-3 relative bg-black/20">
                       <img src={product.image || appSettings.logo} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
@@ -279,74 +281,6 @@ export default function Home() {
           </div>
         </div>
       )}
-
-      {/* Dynamic Offer Sections */}
-      {offers.map(offer => {
-        const products = dbProducts.filter(p => offer.productIds?.includes(p.id) || p.category === offer.categoryId);
-        if (products.length === 0) return null;
-
-        return (
-          <div key={offer.id} className="px-4 mb-14 overflow-hidden">
-            <div className="flex flex-col gap-6">
-              {/* Offer Header with Banner */}
-              <div className="relative rounded-[2.5rem] overflow-hidden border border-white/5 shadow-2xl bg-black/40 group">
-                {offer.bannerImage ? (
-                  <div className="relative h-48 md:h-64 overflow-hidden">
-                    <img src={offer.bannerImage} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt={offer.title} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  </div>
-                ) : (
-                  <div className="h-20 bg-gradient-to-br from-secondary/10 to-transparent p-6" />
-                )}
-                
-                <div className="absolute bottom-0 left-0 w-full p-6 md:p-8 flex flex-wrap items-end justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-3">
-                      <span className="px-3 py-1 bg-secondary text-black text-[9px] font-black uppercase tracking-widest rounded-full">{offer.type} Deal</span>
-                      {offer.timerEnabled && timeLefts[offer.id] && (
-                        <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
-                          <Clock size={12} className="text-secondary" />
-                          <span className="text-[10px] font-mono font-black text-secondary">
-                            {String(timeLefts[offer.id].hours).padStart(2, '0')}:
-                            {String(timeLefts[offer.id].minutes).padStart(2, '0')}:
-                            {String(timeLefts[offer.id].seconds).padStart(2, '0')}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <h2 className="text-2xl md:text-3xl font-display font-black text-white tracking-tight uppercase flex items-center gap-3 mt-2">
-                       {offer.title}
-                    </h2>
-                  </div>
-                  <Link to={`/products?offer=${offer.id}`} className="px-6 py-3 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-secondary hover:text-black transition-all">
-                    Explore Mission
-                  </Link>
-                </div>
-              </div>
-
-              {/* Product Grid - 2 line layout */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                 {products.slice(0, 8).map(product => (
-                   <ProductCard key={product.id} product={product} />
-                 ))}
-              </div>
-            </div>
-          </div>
-        );
-      })}
-
-      {/* Recommended For You Section */}
-      <div className="mb-24 px-4">
-        <div className="flex items-center justify-between mb-6 px-1">
-          <h2 className="text-xl font-display font-black text-white tracking-tight">Recommended for you</h2>
-          <Link to="/products" className="text-primary text-xs font-bold uppercase tracking-widest hover:underline">See All</Link>
-        </div>
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 px-1">
-          {recommendedProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-        </div>
-      </div>
     </motion.div>
   );
 }

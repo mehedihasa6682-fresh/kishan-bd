@@ -479,7 +479,8 @@ export default function AdminPanel() {
               body: newOffer.pushBody || `Limited time ${newOffer.type} offer started. Don't miss out! ⏰`
             },
             data: { 
-              url: newOffer.redirectType === 'deal' ? `/products?offer=${offerRef.id}` : 
+              url: newOffer.hasDetailsPage ? `/deal/${offerRef.id}` : 
+                   newOffer.redirectType === 'deal' ? `/products?offer=${offerRef.id}` : 
                    newOffer.redirectType === 'category' ? `/products?category=${newOffer.categoryId}` :
                    newOffer.redirectType === 'product' ? `/product/${newOffer.redirectId}` :
                    newOffer.redirectId || '/',
