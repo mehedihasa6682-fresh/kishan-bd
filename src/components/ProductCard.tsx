@@ -165,7 +165,9 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
                     <div className="absolute top-1 right-1 flex flex-col items-end gap-1 z-10 overflow-hidden">
                         <div className="bg-primary text-black rounded-lg px-1.5 py-0.5 flex items-center gap-1 shadow-xl border border-black/10 animate-pulse shrink-0">
                             <Zap size={9} fill="currentColor" />
-                            <span className="text-[8px] font-black uppercase tracking-tight">Flash Sale</span>
+                            <span className="text-[8px] font-black uppercase tracking-tight">
+                                {(effective.promotion as any)?.type ? 'DEAL' : 'Flash Sale'}
+                            </span>
                         </div>
                         <FlashTimer endTime={effective.promotion.endTime} />
                     </div>

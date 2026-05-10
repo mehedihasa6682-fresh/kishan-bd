@@ -83,7 +83,12 @@ export default function Home() {
   const categories = dbCategories.slice(0, 10);
 
   const recommendedProducts = dbProducts
-    .filter(p => !p.isOutOfStock)
+    .filter(p => {
+      if (p.isOutOfStock) return false;
+      // Filter out products that are part of an active offer
+      const isDealsProduct = offers.some(o => o.productIds?.includes(p.id) || p.category === o.categoryId);
+      return !isDealsProduct;
+    })
     .sort((a, b) => (b.salesCount || 0) - (a.salesCount || 0));
 
   useEffect(() => {
@@ -219,7 +224,6 @@ export default function Home() {
                 {offers[0].title}
               </h2>
             </div>
-            <Link to="/discounts" className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline">All Deals</Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6">
             {dbProducts
@@ -232,7 +236,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Recommended Products (Dynamic Grid Based on Deals) */}
+      {/* Recommended Products (3-Column Grid on Mobile) */}
       <div className="mb-24 px-4 overflow-hidden">
         <div className="flex items-center justify-between mb-8 px-1">
           <h2 className="text-xl font-display font-black text-white tracking-tight uppercase">
@@ -240,7 +244,7 @@ export default function Home() {
           </h2>
           <Link to="/products" className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline">See All</Link>
         </div>
-        <div className={`grid ${offers.length > 0 ? 'grid-cols-2' : 'grid-cols-3'} md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6`}>
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6">
           {recommendedProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

@@ -5,10 +5,14 @@ import { db } from '../firebase';
 interface Promotion {
   id: string;
   title: string;
-  percentage: number;
-  endTime: Timestamp;
-  targetType: 'all' | 'category' | 'product';
-  targetId: string;
+  percentage?: number;
+  discountAmount?: number;
+  discountType?: 'percentage' | 'fixed';
+  endTime: any;
+  targetType: 'all' | 'category' | 'product' | 'products' | 'subcategory';
+  targetId?: string;
+  productIds?: string[];
+  categoryId?: string;
   isActive: boolean;
 }
 
@@ -21,6 +25,7 @@ const PromotionContext = createContext<PromotionContextType | undefined>(undefin
 
 export const PromotionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [offers, setOffers] = useState<Promotion[]>([]);
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -34,19 +39,64 @@ export const PromotionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       where('isActive', '==', true)
     );
 
-    const unsub = onSnapshot(q, (snap) => {
+    const unsubPromos = onSnapshot(q, (snap) => {
       const allPromos = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Promotion));
       setPromotions(allPromos);
     }, (error) => {
-      console.error("PromotionContext Error:", error);
+      console.error("PromotionContext (Promotions) Error:", error);
     });
 
-    return unsub;
+    const unsubOffers = onSnapshot(query(collection(db, 'offers'), where('isActive', '==', true)), (snap) => {
+      setOffers(snap.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          // Normalize offer to promotion shape if needed
+          endTime: data.endTime ? (typeof data.endTime === 'string' ? Timestamp.fromDate(new Date(data.endTime)) : data.endTime) : null
+        } as Promotion;
+      }));
+    });
+
+    return () => {
+      unsubPromos();
+      unsubOffers();
+    };
   }, []);
 
   const getEffectivePrice = (product: any) => {
-    // 1. Find relevant promotions that haven't expired
-    // Priority: Product > Category > All
+    // 1. Check Offers (high priority)
+    const activeOffer = offers.find(o => {
+      if (!o.endTime) return false;
+      const end = o.endTime instanceof Timestamp ? o.endTime.toDate() : new Date(o.endTime);
+      if (end < now) return false;
+
+      if (o.targetType === 'all') return true;
+      if (o.targetType === 'category' && (o.categoryId === product.category || o.targetId === product.category)) return true;
+      if (o.targetType === 'products' && o.productIds?.includes(product.id)) return true;
+      if (o.targetType === 'product' && o.targetId === product.id) return true;
+      
+      return false;
+    });
+
+    if (activeOffer) {
+      const basePrice = product.price;
+      let discountAmount = 0;
+      if (activeOffer.discountType === 'percentage' || activeOffer.percentage) {
+        const perc = activeOffer.discountAmount || activeOffer.percentage || 0;
+        discountAmount = (basePrice * perc) / 100;
+      } else if (activeOffer.discountType === 'fixed') {
+        discountAmount = activeOffer.discountAmount || 0;
+      }
+
+      return {
+        price: basePrice,
+        discountPrice: Math.max(0, basePrice - discountAmount),
+        promotion: activeOffer as any
+      };
+    }
+
+    // 2. Check traditional Promotions
     const productPromo = promotions.find(p => p.targetType === 'product' && p.targetId === product.id && p.endTime.toDate() > now);
     const categoryPromo = promotions.find(p => p.targetType === 'category' && p.targetId === product.category && p.endTime.toDate() > now);
     const globalPromo = promotions.find(p => p.targetType === 'all' && p.endTime.toDate() > now);
@@ -61,12 +111,10 @@ export const PromotionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       };
     }
 
-    // Apply percentage discount to the BASE price
     const basePrice = product.price;
-    const promoDiscountAmount = (basePrice * activePromo.percentage) / 100;
+    const promoDiscountAmount = (basePrice * (activePromo.percentage || 0)) / 100;
     const promoPrice = basePrice - promoDiscountAmount;
 
-    // Use whichever is lower: existing discountPrice or promoPrice
     const finalDiscountPrice = product.discountPrice 
       ? Math.min(product.discountPrice, promoPrice)
       : promoPrice;

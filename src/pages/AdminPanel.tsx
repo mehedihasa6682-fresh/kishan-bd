@@ -93,6 +93,33 @@ export default function AdminPanel() {
     }
   };
 
+  const handleBroadcastOffer = async (offer: any) => {
+    try {
+      await fetch('/api/broadcast-fcm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          notification: {
+            title: offer.pushTitle || `🔥 ${offer.title} Deal is LIVE!`,
+            body: offer.pushBody || `Limited time ${offer.type} offer started. Don't miss out! ⏰`
+          },
+          data: { 
+            url: offer.hasDetailsPage ? `/deal/${offer.id}` : 
+                 offer.redirectType === 'deal' ? `/products?offer=${offer.id}` : 
+                 offer.redirectType === 'category' ? `/products?category=${offer.categoryId}` :
+                 offer.redirectType === 'product' ? `/product/${offer.redirectId}` :
+                 offer.redirectId || '/',
+            offerId: offer.id
+          }
+        })
+      });
+      alert('Notification Transmission successful');
+    } catch (e) {
+      console.error(e);
+      alert('Push Transmission Failed');
+    }
+  };
+
   const handleUpdateOrderStatus = async (order: any, status: string, paymentStatus?: string) => {
     await adminService.updateOrderStatus(order.id, status, paymentStatus);
     
@@ -3743,6 +3770,13 @@ export default function AdminPanel() {
                                   </span>
                                 </div>
                                 <div className="flex gap-2">
+                                  <button 
+                                      onClick={() => handleBroadcastOffer(offer)}
+                                      className="p-4 bg-secondary/10 border border-secondary/20 rounded-2xl text-secondary hover:bg-secondary hover:text-black transition-all shadow-xl"
+                                      title="Broadcast Notification"
+                                  >
+                                      <Bell size={18} />
+                                  </button>
                                   <button 
                                       onClick={() => deleteDoc(doc(db, 'offers', offer.id))}
                                       className="p-4 bg-red-500/5 border border-red-500/20 rounded-2xl text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xl"
