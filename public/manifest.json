@@ -28,9 +28,9 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "theme_color": "#16A34A",
-  "background_color": "#F8FAFC",
-  "lang": "bn-BD",
+  "theme_color": "#D4AF37",
+  "background_color": "#050E21",
+  "lang": "en-US",
   "dir": "ltr",
   "id": "/",
   "shortcuts": [
