@@ -209,86 +209,38 @@ export default function Home() {
         </div>
       )}
 
-      {/* Strategic Deals Hub - 2 Line Layout (Priority Position) */}
+      {/* Strategic Deals Section (Vertical Grid - Discount Style) */}
       {offers.length > 0 && (
-        <div className="px-4 mb-20 overflow-hidden">
-          <div className="flex items-center justify-between mb-6 px-1">
+        <div className="px-4 mb-14 overflow-hidden">
+          <div className="flex items-center justify-between mb-8 px-1">
             <div className="flex items-center gap-3">
               <Sparkles size={24} className="text-secondary animate-pulse" />
               <h2 className="text-xl font-display font-black text-white tracking-tight uppercase">
                 {offers[0].title}
               </h2>
             </div>
-            <Link to="/discounts" className="px-4 py-1.5 bg-white/5 border border-white/5 rounded-full text-[9px] font-black text-white/40 uppercase tracking-widest hover:bg-secondary hover:text-black transition-all">All Deals</Link>
+            <Link to="/discounts" className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline">All Deals</Link>
           </div>
-          
-          <div className="grid grid-flow-col grid-rows-2 gap-4 overflow-x-auto pb-8 scrollbar-hide snap-x">
-             {/* Feature Banners for missions */}
-             {offers.map(offer => (
-               <motion.div
-                 key={offer.id}
-                 whileTap={{ scale: 0.98 }}
-                 onClick={() => navigate(offer.hasDetailsPage ? `/deal/${offer.id}` : `/products?offer=${offer.id}`)}
-                 className="flex-shrink-0 w-72 h-40 relative rounded-[2.5rem] overflow-hidden border border-white/5 group cursor-pointer snap-center shadow-2xl"
-               >
-                 <img src={offer.bannerImage || appSettings.logo} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt={offer.title} />
-                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                 
-                 <div className="absolute inset-0 p-6 flex flex-col justify-end">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="px-3 py-1 bg-secondary text-black text-[8px] font-black uppercase tracking-widest rounded-lg shadow-xl">{offer.type}</span>
-                      {offer.timerEnabled && timeLefts[offer.id] && (
-                        <span className="text-[9px] font-mono font-black text-white bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-md border border-white/10">
-                          {String(timeLefts[offer.id].hours).padStart(2, '0')}:{String(timeLefts[offer.id].minutes).padStart(2, '0')}
-                        </span>
-                      )}
-                    </div>
-                    <h3 className="text-sm md:text-base font-black text-white uppercase tracking-tight line-clamp-1 group-hover:text-secondary transition-colors">{offer.title}</h3>
-                    <p className="text-[9px] text-white/40 font-bold uppercase tracking-widest mt-1">Benefit: {offer.discountAmount}{offer.discountType === 'percentage' ? '%' : '৳'} OFF</p>
-                 </div>
-                 
-                 <div className="absolute top-4 right-4 p-2 bg-white/10 backdrop-blur-md border border-white/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                    <ChevronRight size={14} className="text-white" />
-                 </div>
-               </motion.div>
-             ))}
-
-             {/* Deal Products Horizontal 2-Line */}
-             {dbProducts
-                .filter(p => offers.some(o => o.productIds?.includes(p.id) || p.category === o.categoryId))
-                .slice(0, 16)
-                .map(product => (
-                  <motion.div
-                    key={product.id}
-                    onClick={() => navigate(`/product/${product.id}`)}
-                    className="flex-shrink-0 w-48 bg-white/5 p-3 rounded-[2rem] border border-white/5 snap-center group hover:border-primary/20 transition-all flex flex-col"
-                  >
-                    <div className="aspect-square rounded-2xl overflow-hidden mb-3 relative bg-black/20">
-                      <img src={product.image || appSettings.logo} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
-                      <div className="absolute top-2 right-2 px-2 py-1 bg-primary text-black text-[8px] font-black rounded-lg shadow-lg">DEAL</div>
-                    </div>
-                    <div className="space-y-1 mt-auto">
-                      <h4 className="text-[10px] font-black text-white uppercase truncate px-1">
-                        {language === 'bn' ? (product.name || product.nameEn) : (product.nameEn || product.name)}
-                      </h4>
-                      <div className="flex items-center gap-2 px-1">
-                        <span className="text-[11px] font-black text-secondary">৳{Math.floor(product.price * 0.9)}</span>
-                        <span className="text-[8px] text-white/20 line-through">৳{product.price}</span>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6">
+            {dbProducts
+              .filter(p => offers.some(o => o.productIds?.includes(p.id) || p.category === o.categoryId))
+              .slice(0, 10)
+              .map(product => (
+                <ProductCard key={product.id} product={product} />
+              ))}
           </div>
         </div>
       )}
 
-      {/* Recommended Products (Always present, but follows deals if active) */}
+      {/* Recommended Products (Dynamic Grid Based on Deals) */}
       <div className="mb-24 px-4 overflow-hidden">
         <div className="flex items-center justify-between mb-8 px-1">
-          <h2 className="text-xl font-display font-black text-white tracking-tight uppercase">Recommended for you</h2>
-          <Link to="/products" className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline">See All Assets</Link>
+          <h2 className="text-xl font-display font-black text-white tracking-tight uppercase">
+            {offers.length > 0 ? "More recommendations" : "Recommended for you"}
+          </h2>
+          <Link to="/products" className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline">See All</Link>
         </div>
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6">
+        <div className={`grid ${offers.length > 0 ? 'grid-cols-2' : 'grid-cols-3'} md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6`}>
           {recommendedProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
