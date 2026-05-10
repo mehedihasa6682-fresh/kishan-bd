@@ -1,6 +1,6 @@
 {
   "name": "সদাই ভাই",
-  "description": "Premium grocery shopping experience with fresh products directly from verified sellers.",
+  "description": "Professional PWA e-commerce platform with native-like Android experience, advanced push notifications, and targeted email marketing systems.",
   "requestFramePermissions": ["geolocation"],
   "majorCapabilities": ["PWA", "Real-time tracking", "Firebase Backend"]
 }

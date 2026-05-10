@@ -310,18 +310,69 @@ app.post("/api/admin/bulk-email", async (req, res) => {
     const usersSnapshot = await query.get();
     const emails = usersSnapshot.docs.map((doc: any) => doc.data().email).filter((e: any) => !!e);
 
-    console.log(`Sending marketing email to ${emails.length} users (${target}). Subject: ${subject}`);
+    console.log(`Sending BCC marketing email to ${emails.length} users (${target}). Subject: ${subject}`);
     
     // In a real app, integrate with SendGrid, Mailgun, or AWS SES here
+    // We would use the 'emails' array as the BCC list to ensure user privacy.
     // For now, we simulate success and log
     
     res.json({ 
       success: true, 
       count: emails.length,
-      message: `Successfully queued ${emails.length} emails via simulated provider.` 
+      message: `Successfully queued ${emails.length} BCC emails via simulated provider.` 
     });
   } catch (error: any) {
     res.status(500).json({ error: "Email broadcast failed", details: error.message });
+  }
+});
+
+app.post("/api/admin/bulk-push", async (req, res) => {
+  const { title, body, target } = req.body;
+  if (!title || !body) return res.status(400).json({ error: "Title and body required" });
+
+  try {
+    const db = admin.firestore();
+    let query: any = db.collection('fcm_tokens');
+    
+    // In a more advanced version, we could filter by target (e.g. users who have pushEnabled: true)
+    // For now, we get all valid tokens
+    const tokensSnapshot = await query.get();
+    const tokens = tokensSnapshot.docs.map((doc: any) => doc.data().token).filter((t: any) => !!t);
+
+    if (tokens.length === 0) {
+      return res.json({ success: true, count: 0, message: "No valid FCM tokens found." });
+    }
+
+    console.log(`Sending bulk push to ${tokens.length} tokens. Title: ${title}`);
+    
+    const messages = tokens.map(token => ({
+      token,
+      notification: { title, body },
+      android: { priority: 'high' },
+      webpush: {
+        notification: {
+          icon: '/icons/icon-192x192.png',
+          badge: '/icons/icon-192x192.png',
+          click_action: '/'
+        }
+      }
+    }));
+
+    // Send in batches of 500 (FCM limit)
+    const results = [];
+    for (let i = 0; i < messages.length; i += 500) {
+      const batch = messages.slice(i, i + 500);
+      const response = await admin.messaging().sendEach(batch);
+      results.push(response);
+    }
+    
+    res.json({ 
+      success: true, 
+      count: tokens.length,
+      message: `Successfully sent ${tokens.length} push notifications.` 
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: "Bulk push failed", details: error.message });
   }
 });
 

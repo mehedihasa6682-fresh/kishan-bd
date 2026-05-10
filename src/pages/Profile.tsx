@@ -15,7 +15,6 @@ import Auth from '../components/Auth';
 import ImageUpload from '../components/ImageUpload';
 import { useLanguage } from '../context/LanguageContext';
 import { useSettings } from '../context/SettingsContext';
-import { NotificationService, AppNotification } from '../services/notificationService';
 import { MessagingService } from '../services/messagingService';
 import { format } from 'date-fns';
 
@@ -56,7 +55,6 @@ export default function Profile() {
   const { settings: appSettings } = useSettings();
   const [toast, setToast] = useState('');
   const [isPushEnabled, setIsPushEnabled] = useState(false);
-  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [activeModal, setActiveModal] = useState<'none' | 'profile' | 'addresses' | 'notifications' | 'payments' | 'referrals'>('none');
 
   useEffect(() => {
@@ -361,38 +359,6 @@ export default function Profile() {
                 ⚠️ Notifications are blocked. Please reset permissions in your browser settings (click the lock icon in URL bar) and refresh. Open in a new tab for best results.
               </p>
             )}
-
-<button
-  onClick={async () => {
-    if (user) {
-      // 1. Send in-app notification
-      NotificationService.sendNotification({
-        userId: user.uid,
-        title: 'অ্যাক্টিভেট হয়েছে! 🚀',
-        message: 'নোটিফিকেশন সিস্টেম এখন আপনার ফোনে সক্রিয়।',
-        type: 'system',
-        link: '/profile'
-      });
-      
-      // 2. Trigger REAL native push via FCM
-      try {
-        const { MessagingService } = await import('../services/messagingService');
-        const res = await MessagingService.testPush();
-        if (res.success) {
-          console.log("Push Signal Dispatched Successfully");
-        } else {
-          console.warn("Native Push failed:", res.error);
-        }
-      } catch (e) {
-        console.error("Test Push failed:", e);
-      }
-    }
-  }}
-  className="w-full py-4 bg-white/5 border border-white/10 text-white rounded-2xl flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-widest shadow-xl shadow-black/20 active:scale-95 transition-all"
->
-  <Bell size={18} className="text-primary" />
-  Test Full Sync Alert
-</button>
           </div>
 
           <div className="bg-white/5 rounded-3xl border border-white/10 shadow-2xl overflow-hidden mt-4">

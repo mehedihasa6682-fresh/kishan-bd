@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { auth, db } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { collection, onSnapshot, query, where, addDoc } from 'firebase/firestore';
 import { useState, useEffect, createContext, useContext } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CartProvider } from './context/CartContext';
@@ -84,6 +84,17 @@ function usePWA() {
       setIsInstalled(true);
       setDeferredPrompt(null);
       console.log('PWA: App installed successfully');
+      // Log install for analytics
+      try {
+        addDoc(collection(db, 'pwa_installs'), {
+          timestamp: new Date(),
+          platform: navigator.userAgent.includes('Android') ? 'Android' : 
+                   (navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad') ? 'iOS' : 'Desktop'),
+          userAgent: navigator.userAgent
+        });
+      } catch (e) {
+        console.warn("PWA logging error:", e);
+      }
     });
   }, []);
 

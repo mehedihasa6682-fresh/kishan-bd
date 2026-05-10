@@ -166,18 +166,21 @@ export default function Navbar() {
               <div className="hidden md:flex items-center gap-6 mr-4 border-r border-white/5 pr-6">
                 {[
                   { label: language === 'bn' ? 'হোম' : 'Home', path: '/' },
+                  { label: language === 'bn' ? 'ক্যাটাগরি' : 'Categories', path: '/products' },
                   { label: language === 'bn' ? 'ডিসকাউন্ট' : 'Deals', path: '/discounts' },
                   { label: language === 'bn' ? 'অর্ডার' : 'Orders', path: '/orders' },
+                  { label: language === 'bn' ? 'উইশলিস্ট' : 'Wishlist', path: '/wishlist' },
+                  { label: language === 'bn' ? 'কার্ট' : 'Cart', path: '/cart', suffix: `(${items.length})` },
                   { label: language === 'bn' ? 'প্রোফাইল' : 'Profile', path: '/profile' }
                 ].map(link => (
                   <Link 
                     key={link.path} 
                     to={link.path}
-                    className={`text-[11px] font-black uppercase tracking-widest transition-colors ${
+                    className={`text-[10px] font-black uppercase tracking-widest transition-colors ${
                       location.pathname === link.path ? 'text-primary' : 'text-white/60 hover:text-white'
                     }`}
                   >
-                    {link.label}
+                    {link.label} {link.suffix && <span className="text-primary ml-0.5">{link.suffix}</span>}
                   </Link>
                 ))}
               </div>

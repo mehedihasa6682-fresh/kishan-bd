@@ -137,28 +137,66 @@ export default function Home() {
 
       {/* Hero Banner Slider */}
       {banners.length > 0 && (
-        <div className="px-4 mt-2">
-          <div className="relative h-36 rounded-[1.5rem] overflow-hidden shadow-2xl border border-white/10">
+        <div className="px-1 md:px-0 mt-2 md:mt-6">
+          <div className="relative h-48 md:h-[450px] lg:h-[500px] rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 group">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeBanner}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.8 }}
+                initial={{ opacity: 0, scale: 1.05 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
                 className="absolute inset-0"
               >
-                <img src={banners[activeBanner % banners.length]?.image} className="w-full h-full object-cover" alt="Banner" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
+                {/* Responsive Image logic */}
+                <picture className="w-full h-full">
+                  {banners[activeBanner % banners.length]?.desktopImage && (
+                    <source media="(min-width: 768px)" srcSet={banners[activeBanner % banners.length].desktopImage} />
+                  )}
+                  {banners[activeBanner % banners.length]?.mobileImage && (
+                    <source media="(max-width: 767px)" srcSet={banners[activeBanner % banners.length].mobileImage} />
+                  )}
+                  <img 
+                    src={banners[activeBanner % banners.length]?.image || banners[activeBanner % banners.length]?.desktopImage || banners[activeBanner % banners.length]?.mobileImage} 
+                    className="w-full h-full object-cover" 
+                    alt={banners[activeBanner % banners.length]?.title || 'Banner'} 
+                  />
+                </picture>
+                
+                {/* Banner Content Overlay */}
+                {(banners[activeBanner % banners.length]?.title || banners[activeBanner % banners.length]?.subtitle) && (
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent flex flex-col justify-end p-6 md:p-12">
+                    {banners[activeBanner % banners.length]?.title && (
+                      <motion.h2 
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                        className="text-2xl md:text-5xl font-display font-black text-white mb-2 md:mb-4 tracking-tight"
+                      >
+                        {banners[activeBanner % banners.length].title}
+                      </motion.h2>
+                    )}
+                    {banners[activeBanner % banners.length]?.subtitle && (
+                      <motion.p 
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.4 }}
+                        className="text-[10px] md:text-lg text-white/80 font-bold uppercase tracking-[0.2em]"
+                      >
+                        {banners[activeBanner % banners.length].subtitle}
+                      </motion.p>
+                    )}
+                  </div>
+                )}
               </motion.div>
             </AnimatePresence>
             
-            <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+            <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-10">
               {banners.map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => setActiveBanner(idx)}
-                  className={`h-1.5 rounded-full transition-all duration-500 ${activeBanner === idx ? 'w-6 bg-primary' : 'w-1.5 bg-white/40'}`}
+                  className={`h-1.5 rounded-full transition-all duration-500 shadow-xl ${activeBanner === idx ? 'w-8 bg-primary' : 'w-1.5 bg-white/40'}`}
                 />
               ))}
             </div>

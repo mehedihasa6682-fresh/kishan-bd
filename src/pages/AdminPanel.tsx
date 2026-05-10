@@ -8,7 +8,7 @@ import {
   Layers, Camera, ChevronRight, Store, X, Clock, Bell,
   ArrowLeft, User, Box, Gift, Image as ImageIcon, FileText,
   MessageSquare, Package, Eye, EyeOff, MapPin, Phone, Globe,
-  TrendingUp, ArrowUpRight, Zap, Percent, ReceiptText, Sparkles
+  TrendingUp, ArrowUpRight, Zap, Percent, ReceiptText, Sparkles, Monitor, Smartphone, Tablet
 } from 'lucide-react';
 import { adminService } from '../services/adminService';
 import { formatCurrency } from '../lib/utils';
@@ -21,7 +21,7 @@ import { format, addHours } from 'date-fns';
 
 import { calculateDistance, formatDistance } from '../lib/geoUtils';
 
-type AdminTab = 'dashboard' | 'products' | 'approvals' | 'banners' | 'stories' | 'categories' | 'users' | 'orders' | 'bundles' | 'settings' | 'notifications' | 'riders' | 'financials' | 'promotions' | 'pages' | 'coupons' | 'abandonment' | 'deals' | 'email_marketing';
+type AdminTab = 'dashboard' | 'products' | 'approvals' | 'banners' | 'stories' | 'categories' | 'users' | 'riders' | 'financials' | 'promotions' | 'pages' | 'coupons' | 'abandonment' | 'deals' | 'neural_push' | 'email_marketing' | 'settings';
 
 export default function AdminPanel() {
   const { user, role, loading: authLoading } = useContext(AuthContext);
@@ -33,6 +33,7 @@ export default function AdminPanel() {
   const [sellers, setSellers] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
   const [payouts, setPayouts] = useState<any[]>([]);
+  const [userFilter, setUserFilter] = useState<'all' | 'push_enabled' | 'push_disabled' | 'pending'>('all');
 
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
   const [activeStatusModal, setActiveStatusModal] = useState<string | null>(null);
@@ -670,6 +671,7 @@ export default function AdminPanel() {
     { id: 'stories', label: 'Stories', icon: Camera },
     { id: 'categories', label: 'Categories', icon: Layers },
     { id: 'users', label: 'Users', icon: Users },
+    { id: 'neural_push', label: 'Neural Push', icon: Bell },
     { id: 'email_marketing', label: 'Neural Mailing', icon: MessageSquare },
     { id: 'settings', label: 'Brand & Site', icon: Settings },
     { id: 'promotions', label: 'Flash Deals', icon: Zap },
@@ -2079,15 +2081,41 @@ export default function AdminPanel() {
 
         {activeTab === 'users' && (
             <motion.div key="users" className="space-y-8">
-                <div className="flex items-center justify-between px-2">
-                    <h2 className="font-display font-black text-3xl text-white tracking-tight">Citizen Directory</h2>
-                    <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] bg-white/5 px-6 py-2 rounded-full border border-white/5">
-                      Unified Registry: {sellers.length} Total
-                    </span>
+                <div className="flex flex-col md:flex-row md:items-center justify-between px-2 gap-4">
+                    <div>
+                        <h2 className="font-display font-black text-3xl text-white tracking-tight">Citizen Directory</h2>
+                        <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mt-1">Unified Collective: {sellers.length} registered nodes</p>
+                    </div>
+                    
+                    <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/5">
+                        {[
+                            { id: 'all', label: 'All Agents' },
+                            { id: 'push_enabled', label: 'Push Sync' },
+                            { id: 'push_disabled', label: 'Blocked' },
+                            { id: 'pending', label: 'Neutral' }
+                        ].map((f) => (
+                            <button
+                                key={f.id}
+                                onClick={() => setUserFilter(f.id as any)}
+                                className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                                    userFilter === f.id ? 'bg-primary text-black' : 'text-white/40 hover:text-white/60'
+                                }`}
+                            >
+                                {f.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6">
-                    {sellers.map((u) => (
+                    {sellers
+                      .filter(u => {
+                          if (userFilter === 'push_enabled') return u.pushEnabled === true;
+                          if (userFilter === 'push_disabled') return u.pushEnabled === false;
+                          if (userFilter === 'pending') return u.pushEnabled === undefined;
+                          return true;
+                      })
+                      .map((u) => (
                         <div key={u.id} className="bg-white/5 p-8 rounded-[3rem] border border-white/5 transition-all hover:bg-white/[0.07] hover:border-primary/20 group relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-3xl opacity-0 group-hover:opacity-100 transition-all duration-700" />
                             
@@ -2191,10 +2219,17 @@ export default function AdminPanel() {
                                         <p className="text-[10px] font-mono text-white/30 tracking-tight">{u.id}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <div className={`w-2 h-2 rounded-full ${u.status === 'online' ? 'bg-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]' : 'bg-white/10'}`} />
-                                    <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">{u.status || 'offline'}</span>
-                                </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center border ${
+                                            u.pushEnabled === true ? 'bg-green-500/10 text-green-500 border-green-500/20' :
+                                            u.pushEnabled === false ? 'bg-red-500/10 text-red-500 border-red-500/20' :
+                                            'bg-white/5 text-white/20 border-white/5'
+                                        }`} title={u.pushEnabled === true ? "Neural Link Active" : u.pushEnabled === false ? "Neural Link Severed" : "Neural Link Pending"}>
+                                            <Bell size={14} />
+                                        </div>
+                                        <div className={`w-2 h-2 rounded-full ${u.status === 'online' ? 'bg-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]' : 'bg-white/10'}`} />
+                                        <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">{u.status || 'offline'}</span>
+                                    </div>
                             </div>
                         </div>
                     ))}
@@ -3287,155 +3322,114 @@ export default function AdminPanel() {
             )}
           </motion.div>
         )}
-        {activeTab === 'notifications' && (
-          <motion.div
-            key="notifications"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="space-y-10"
-          >
-                <h3 className="font-display font-black text-2xl mb-8 flex items-center gap-4 text-white uppercase tracking-[0.2em]">
-                    <Bell size={32} className="text-primary" />
-                    Neural Broadcast Console
-                </h3>
-                <div className="bg-white/5 p-12 rounded-[4rem] border border-white/5 shadow-2xl space-y-8 relative overflow-hidden group">
-                  <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full -ml-32 -mt-32 blur-[100px]" />
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Target Audience</label>
-                      <select id="notifTarget" className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-primary/40 appearance-none">
-                        <option value="all" className="bg-[#111]">Global Citizenry (All)</option>
-                        <option value="riders" className="bg-[#111]">Logistics Team (Riders)</option>
-                        <option value="sellers" className="bg-[#111]">Venture Partners (Sellers)</option>
-                      </select>
-                    </div>
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Signal Protocol</label>
-                      <select id="notifType" className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-primary/40 appearance-none">
-                        <option value="info" className="bg-[#111]">System Information</option>
-                        <option value="promo" className="bg-[#111]">Priority Promotion</option>
-                        <option value="alert" className="bg-[#111]">Critical Alert</option>
-                      </select>
-                    </div>
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Temporal Window</label>
-                      <select id="notifDuration" className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-primary/40 appearance-none">
-                        <option value="5" className="bg-[#111]">5 Pulse Cycle (Short)</option>
-                        <option value="10" className="bg-[#111]">10 Pulse Cycle (Standard)</option>
-                        <option value="30" className="bg-[#111]">30 Pulse Cycle (Extended)</option>
-                        <option value="60" className="bg-[#111]">60 Pulse Cycle (Long)</option>
-                        <option value="0" className="bg-[#111]">Stationary (Sticky)</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="space-y-3 relative z-10">
-                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Broadcast Header</label>
-                    <input id="notifTitle" placeholder="e.g. Weekend Rush Sale!" className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-[15px] font-bold text-white outline-none focus:border-primary/40 tracking-tight" />
-                  </div>
-                  <div className="space-y-3 relative z-10">
-                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Neural Payload (Message Body)</label>
-                    <textarea id="notifMessage" placeholder="Inject broadcast content..." className="w-full px-8 py-6 bg-black/40 border border-white/5 rounded-[2.5rem] text-[15px] text-white/80 outline-none focus:border-primary/40 h-32 resize-none leading-relaxed" />
-                  </div>
-                  <button 
-                    onClick={async () => {
-                      const title = (document.getElementById('notifTitle') as HTMLInputElement).value;
-                      const message = (document.getElementById('notifMessage') as HTMLTextAreaElement).value;
-                      const target = (document.getElementById('notifTarget') as HTMLSelectElement).value;
-                      const type = (document.getElementById('notifType') as HTMLSelectElement).value;
-                      const duration = parseInt((document.getElementById('notifDuration') as HTMLSelectElement).value);
 
-                      if (!title || !message) return alert('Header and Payload required for transmission');
-
-                      try {
-                        const { NotificationService } = await import('../services/notificationService');
-                        if (target === 'all') {
-                          await NotificationService.sendNotification({
-                            userId: 'all',
-                            title,
-                            message,
-                            type: type as any,
-                            duration: duration > 0 ? duration : undefined
-                          });
-                        } else {
-                          const roleToTarget = target === 'riders' ? 'rider' : 'seller';
-                          const targets = sellers.filter(s => s.role === roleToTarget);
-                          for (const t of targets) {
-                            await NotificationService.sendNotification({
-                              userId: t.id,
-                              title,
-                              message,
-                              type: type as any,
-                              duration: duration > 0 ? duration : undefined
-                            });
-                          }
-                        }
-                        alert('Broadcast Transmission Authorized!');
-                        (document.getElementById('notifTitle') as HTMLInputElement).value = '';
-                        (document.getElementById('notifMessage') as HTMLTextAreaElement).value = '';
-                      } catch (e) {
-                          alert('Neural Link Interrupted');
-                      }
-                    }}
-                    className="w-full py-6 bg-primary text-black rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-primary/30 hover:bg-primary-dark transition-all active:scale-95 relative z-10"
-                  >
-                    Authorize Dispatch
-                  </button>
+        {activeTab === 'neural_push' && (
+          <motion.div key="neural_push" className="space-y-10">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div>
+                        <h2 className="text-4xl font-black text-white tracking-tighter uppercase italic">Neural Push Broadcast</h2>
+                        <p className="text-white/40 text-[11px] font-bold mt-2 uppercase tracking-widest">Transmit real-time alerts to all connected nodes</p>
+                    </div>
                 </div>
 
-            <div className="bg-white/5 p-12 rounded-[4rem] border border-white/5 shadow-2xl relative">
-                <div className="flex items-center justify-between mb-10">
-                    <h3 className="font-display font-black text-xl flex items-center gap-4 text-white uppercase tracking-widest">
-                        <Bell size={24} className="text-primary" />
-                        Transmission Manifest
-                    </h3>
-                    {notifications.length > 0 && (
-                        <button 
-                            onClick={async () => {
-                                if(confirm('Permanently purge neural history? This action is irreversible.')) {
-                                    await adminService.deleteAllNotifications();
-                                }
-                            }}
-                            className="text-[10px] font-black text-red-500 uppercase tracking-[0.2em] px-6 py-3 bg-red-500/5 rounded-2xl border border-red-500/20 hover:bg-red-500/10 transition-all"
-                        >
-                            Purge Archives
-                        </button>
-                    )}
-                </div>
-                <div className="space-y-6">
-                    {notifications.length === 0 ? (
-                        <div className="text-center py-24 bg-black/20 rounded-[3rem] border border-dashed border-white/5">
-                            <p className="text-white/20 text-[11px] font-black uppercase tracking-[0.4em]">Archive is currently vacant</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div className="bg-white/5 rounded-[3rem] border border-white/10 p-10 space-y-10">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                                <MessageSquare size={24} />
+                            </div>
+                            <h3 className="text-xl font-bold">Compose Transmission</h3>
                         </div>
-                    ) : (
-                        notifications.map(notif => (
-                            <div key={notif.id} className="p-8 bg-black/40 rounded-[2.5rem] border border-white/5 flex flex-col gap-4 group hover:border-primary/30 transition-all">
-                                <div className="flex justify-between items-start">
-                                    <div className="flex items-center gap-4">
-                                        <span className={`px-4 py-1 rounded-xl text-[9px] font-black uppercase border ${
-                                            notif.type === 'promo' ? 'bg-secondary/10 text-secondary border-secondary/20' :
-                                            notif.type === 'order' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
-                                            'bg-white/5 text-white/40 border-white/10'
-                                        }`}>
-                                            {notif.type || 'system'}
-                                        </span>
-                                        <p className="text-[10px] text-white/30 font-black uppercase tracking-[0.2em]">
-                                            Echo To: {notif.userId === 'all' ? 'All Citizens' : `Node ${notif.userId?.slice(-8) || 'N/A'}`}
-                                        </p>
-                                    </div>
-                                    <p className="text-[10px] text-white/20 font-mono italic">
-                                        {notif.createdAt?.toDate ? format(notif.createdAt.toDate(), 'MMM d, h:mm a') : 'Instant'}
-                                    </p>
+                        
+                        <div className="space-y-6">
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Neural Header</label>
+                                <input 
+                                    id="pushTitle"
+                                    className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-primary/40 font-bold transition-all shadow-inner" 
+                                    placeholder="Enter Alert Title..."
+                                />
+                            </div>
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Transmission Load (Body)</label>
+                                <textarea 
+                                    id="pushBody"
+                                    className="w-full px-8 py-6 bg-black/40 border border-white/5 rounded-[2.5rem] text-sm text-white outline-none focus:border-primary/40 font-bold transition-all shadow-inner min-h-[160px] resize-none" 
+                                    placeholder="Manifest your message to all nodes..."
+                                />
+                            </div>
+                            <button 
+                                onClick={async () => {
+                                    const title = (document.getElementById('pushTitle') as HTMLInputElement).value;
+                                    const body = (document.getElementById('pushBody') as HTMLTextAreaElement).value;
+                                    if (!title || !body) return alert('Title and Body required');
+                                    
+                                    if (confirm('Initiate global push broadcast?')) {
+                                        try {
+                                            const res = await fetch('/api/admin/bulk-push', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ title, body })
+                                            });
+                                            const data = await res.json();
+                                            if (res.ok) {
+                                                alert(`Broadcast initiated! Targets reached: ${data.count}`);
+                                                (document.getElementById('pushTitle') as HTMLInputElement).value = '';
+                                                (document.getElementById('pushBody') as HTMLTextAreaElement).value = '';
+                                            } else {
+                                              throw new Error(data.error || 'Broadcast failed');
+                                            }
+                                        } catch (e: any) {
+                                            alert('Signal interruption: ' + e.message);
+                                        }
+                                    }
+                                }}
+                                className="w-full py-6 bg-primary text-black rounded-3xl font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-primary/20 active:scale-95 transition-all"
+                            >
+                                Transmit Neural Signal
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="bg-white/5 rounded-[3rem] border border-white/10 p-10 space-y-10">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-white/40">
+                                <BarChart3 size={24} />
+                            </div>
+                            <h3 className="text-xl font-bold">PWA Analytics</h3>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div className="p-8 bg-black/40 rounded-[2.5rem] border border-white/5 flex items-center justify-between">
+                                <div>
+                                    <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Active Push Channels</p>
+                                    <p className="text-2xl font-black text-white mt-1 tabular-nums">{sellers.filter(u => u.pushEnabled).length}</p>
                                 </div>
-                                <div className="mt-2">
-                                    <h5 className="text-[15px] font-black text-white mb-2 group-hover:text-primary transition-colors tracking-tight">{notif.title}</h5>
-                                    <p className="text-[13px] text-white/50 leading-relaxed max-w-4xl">{notif.message}</p>
+                                <div className="w-12 h-12 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-500">
+                                    <Zap size={20} />
                                 </div>
                             </div>
-                        ))
-                    )}
+                            <div className="p-8 bg-black/40 rounded-[2.5rem] border border-white/5 flex items-center justify-between">
+                                <div>
+                                    <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">PWA Installed Base</p>
+                                    <p className="text-2xl font-black text-white mt-1 tabular-nums italic">~{sellers.length} Nodes</p>
+                                </div>
+                                <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                                    <ShoppingBag size={20} />
+                                </div>
+                            </div>
+                            <div className="p-10 bg-black/40 rounded-[2.5rem] border border-white/5 relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 p-8 text-white/5 group-hover:text-white/10 transition-colors">
+                                    <ShieldCheck size={100} />
+                                </div>
+                                <div className="relative z-10 space-y-4">
+                                     <h4 className="text-xs font-black uppercase tracking-widest text-primary italic">Neural Compliance</h4>
+                                     <p className="text-[11px] text-white/50 leading-relaxed font-bold">Standard PWA manifests are forced into standalone protocol. All mobile nodes registered via Android App Drawer are being tracked for notification synchronization.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
           </motion.div>
         )}
         {activeTab === 'email_marketing' && (
@@ -3506,7 +3500,7 @@ export default function AdminPanel() {
                                         });
                                         const data = await res.json();
                                         if (res.ok) {
-                                            alert(`Broadcast sequence initiated! Group size: ${data.count}`);
+                                            alert(`Broadcast sequence initiated (via BCC)! Group size: ${data.count}`);
                                             (document.getElementById('emailSubject') as HTMLInputElement).value = '';
                                             (document.getElementById('emailBody') as HTMLTextAreaElement).value = '';
                                         } else {
