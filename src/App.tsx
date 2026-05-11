@@ -407,6 +407,7 @@ function RoutesContent() {
       </AnimatePresence>
 
       <OfflineIndicator />
+      <PWAInstall />
       {!isDashboardRoute && <NotificationPrompt />}
       {!isDashboardRoute && <WhatsAppSupport />}
       {!isDashboardRoute && <Navbar />}

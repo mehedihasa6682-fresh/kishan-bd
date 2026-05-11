@@ -30,7 +30,7 @@ export const InstallButton: React.FC = () => {
     }
 
     if (!pwa?.deferredPrompt) {
-      alert(language === 'bn' ? 'ব্রাউজার মেনু থেকে "Install" বা "Add to Home Screen" এ ক্লিক করুন' : 'Click "Install" or "Add to Home Screen" from your browser menu');
+      alert(language === 'bn' ? 'ব্রাউজার মেনু থেকে "Install Application" বা "Add to Home Screen" এ ক্লিক করুন' : 'Click "Install Application" or "Add to Home Screen" from your browser menu');
       return;
     }
 
