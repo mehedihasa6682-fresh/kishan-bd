@@ -70,30 +70,26 @@ function usePWA() {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
                           (window.navigator as any).standalone || 
                           document.referrer.includes('android-app://');
-      if (isStandalone) setIsInstalled(true);
+      setIsInstalled(isStandalone);
     };
 
     checkIsInstalled();
     
-    // Also check periodicially or on focus
     window.addEventListener('focus', checkIsInstalled);
+    window.addEventListener('visibilitychange', checkIsInstalled);
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      console.log('PWA: install prompt captured');
     });
 
     window.addEventListener('appinstalled', () => {
       setIsInstalled(true);
       setDeferredPrompt(null);
-      console.log('PWA: App installed successfully');
-      // Log install for analytics
       try {
         addDoc(collection(db, 'pwa_installs'), {
           timestamp: new Date(),
-          platform: navigator.userAgent.includes('Android') ? 'Android' : 
-                   (navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad') ? 'iOS' : 'Desktop'),
+          platform: 'Android', // We only show UI for Android now
           userAgent: navigator.userAgent
         });
       } catch (e) {
@@ -101,7 +97,10 @@ function usePWA() {
       }
     });
 
-    return () => window.removeEventListener('focus', checkIsInstalled);
+    return () => {
+      window.removeEventListener('focus', checkIsInstalled);
+      window.removeEventListener('visibilitychange', checkIsInstalled);
+    };
   }, []);
 
   const install = async () => {

@@ -672,7 +672,7 @@ export default function AdminPanel() {
     { id: 'categories', label: 'Categories', icon: Layers },
     { id: 'users', label: 'Users', icon: Users },
     { id: 'neural_push', label: 'Neural Push', icon: Bell },
-    { id: 'email_marketing', label: 'Neural Mailing', icon: MessageSquare },
+    { id: 'email_marketing', label: 'Email Marketing', icon: MessageSquare },
     { id: 'settings', label: 'Brand & Site', icon: Settings },
     { id: 'promotions', label: 'Flash Deals', icon: Zap },
     { id: 'deals', label: 'Deals System', icon: Sparkles },
@@ -3436,8 +3436,8 @@ export default function AdminPanel() {
           <motion.div key="email_marketing" className="space-y-10">
             <div className="flex items-center justify-between">
                 <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-white uppercase tracking-[0.2em]">
-                    <MessageSquare size={32} className="text-secondary" />
-                    Neural Mailing Console
+                    <MessageSquare size={32} className="text-[#D4AF37]" />
+                    Email Marketing Console
                 </h3>
                 <div className="flex gap-4">
                   <div className="bg-white/5 border border-white/10 px-6 py-3 rounded-2xl flex items-center gap-4">
@@ -3452,68 +3452,99 @@ export default function AdminPanel() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Email Composition */}
                 <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl space-y-8 relative overflow-hidden group">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-secondary to-transparent opacity-40" />
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent opacity-40" />
                     <h4 className="text-sm font-black text-white uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
-                        <Plus size={20} className="text-secondary" /> Draft Broadcast
+                        <Plus size={20} className="text-[#D4AF37]" /> Draft Marketing Campaign
                     </h4>
                     
                     <div className="space-y-6">
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Target Neural Group</label>
+                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Recipient Strategy (All sent via BCC)</label>
                             <select 
                                 id="emailTarget"
-                                className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 font-bold transition-all shadow-inner appearance-none"
+                                className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-[#D4AF37]/40 font-bold transition-all shadow-inner appearance-none"
+                                onChange={(e) => {
+                                    const customField = document.getElementById('customEmailsField');
+                                    if (customField) {
+                                        customField.style.display = e.target.value === 'custom' ? 'block' : 'none';
+                                    }
+                                }}
                             >
-                                <option value="all">All Verified Users ({sellers.filter(u => u.email).length})</option>
-                                <option value="no-push">Users with Push Disabled ({sellers.filter(u => u.email && !u.pushEnabled).length})</option>
+                                <option value="all">All Registered Users ({sellers.filter(u => u.email).length})</option>
+                                <option value="no-push">Users without Push Notifications ({sellers.filter(u => u.email && !u.pushEnabled).length})</option>
+                                <option value="custom">Custom Email List (Manual BCC)</option>
                             </select>
                         </div>
+
+                        <div id="customEmailsField" className="space-y-3 hidden">
+                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Manual Email Addresses (Comma separated)</label>
+                            <textarea 
+                                id="customEmails"
+                                placeholder="email1@example.com, email2@example.com..." 
+                                className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-[#D4AF37]/40 font-bold transition-all shadow-inner h-24"
+                            />
+                        </div>
+
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Subject Header</label>
+                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Campaign Subject</label>
                             <input 
                                 id="emailSubject"
-                                placeholder="Manifest your message subject..." 
-                                className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 font-bold transition-all shadow-inner"
+                                placeholder="Summer Flash Sale 2024..." 
+                                className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-[#D4AF37]/40 font-bold transition-all shadow-inner"
                             />
                         </div>
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Narrative Body (HTML Supported)</label>
+                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Marketing Content (HTML Allowed)</label>
                             <textarea 
                                 id="emailBody"
-                                placeholder="Compose the neural transmission..." 
-                                className="w-full px-8 py-6 bg-black/40 border border-white/5 rounded-[2.5rem] text-sm text-white/80 outline-none focus:border-secondary/40 h-64 resize-none leading-relaxed"
+                                placeholder="<h1>Fresh Arrival!</h1><p>Our premium mangoes are back in stock...</p>" 
+                                className="w-full px-8 py-6 bg-black/40 border border-white/5 rounded-[2.5rem] text-sm text-white/80 outline-none focus:border-[#D4AF37]/40 h-64 resize-none leading-relaxed"
                             />
                         </div>
+
+                        <div className="p-4 bg-white/5 rounded-2xl border border-white/5 flex items-start gap-4">
+                            <div className="w-8 h-8 bg-[#D4AF37]/10 rounded-lg flex items-center justify-center text-[#D4AF37] shrink-0">
+                                <ShieldCheck size={16} />
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-widest">Privacy Protocol Active</p>
+                                <p className="text-[9px] text-white/40 leading-relaxed">সকল মেইল BCC (Blind Carbon Copy) হিসেবে পাঠানো হবে। এতে কাস্টমাররা একে অপরের ইমেইল দেখতে পারবে না।</p>
+                            </div>
+                        </div>
+
                         <button 
                             onClick={async () => {
                                 const target = (document.getElementById('emailTarget') as HTMLSelectElement).value;
+                                const customEmails = (document.getElementById('customEmails') as HTMLTextAreaElement)?.value;
                                 const subject = (document.getElementById('emailSubject') as HTMLInputElement).value;
                                 const body = (document.getElementById('emailBody') as HTMLTextAreaElement).value;
-                                if (!subject || !body) return alert('Subject and Body required for transmission');
+                                if (!subject || !body) return alert('Subject and Body required for campaign');
+                                if (target === 'custom' && !customEmails) return alert('Please enter at least one recipient email');
                                 
-                                if (confirm(`Transmit this broadcast to selected nodes?`)) {
+                                if (confirm(`Authorize this marketing dispatch to selected nodes?`)) {
                                     try {
                                         const res = await fetch('/api/admin/bulk-email', {
                                             method: 'POST',
                                             headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ target, subject, content: body })
+                                            body: JSON.stringify({ target, subject, content: body, customEmails })
                                         });
                                         const data = await res.json();
                                         if (res.ok) {
-                                            alert(`Broadcast sequence initiated (via BCC)! Group size: ${data.count}`);
+                                            alert(`Marketing sequence successful! Emails sent via BCC to ${data.count} recipients.`);
                                             (document.getElementById('emailSubject') as HTMLInputElement).value = '';
                                             (document.getElementById('emailBody') as HTMLTextAreaElement).value = '';
+                                            if (target === 'custom') (document.getElementById('customEmails') as HTMLTextAreaElement).value = '';
                                         } else {
-                                          throw new Error(data.error || 'Transmission failed');
+                                          throw new Error(data.error || 'Dispatch failed');
                                         }
                                     } catch (e: any) {
-                                        alert('Neural Link Interrupted: ' + e.message);
+                                        alert('Marketing Link Interrupted: ' + e.message);
                                     }
                                 }
                             }}
-                            className="w-full py-6 bg-secondary text-black rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-secondary/30 hover:scale-[1.02] transition-all active:scale-95"
+                            className="w-full py-6 bg-[#D4AF37] text-black rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-[#D4AF37]/30 hover:scale-[1.02] transition-all active:scale-95"
                         >
-                            Authorize Global Dispatch
+                            Execute Global Dispatch
                         </button>
                     </div>
                 </div>

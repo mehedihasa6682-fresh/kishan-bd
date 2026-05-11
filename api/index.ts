@@ -337,20 +337,26 @@ app.post("/api/admin/bulk-email", async (req, res) => {
 
   try {
     const db = admin.firestore();
-    let query: any = db.collection('users');
-    
-    if (target === 'no-push') {
-      query = query.where('pushEnabled', '==', false);
-    }
+    let emails: string[] = [];
 
-    const usersSnapshot = await query.get();
-    const emails = usersSnapshot.docs.map((doc: any) => doc.data().email).filter((e: any) => !!e);
+    if (target === 'custom' && req.body.customEmails) {
+      emails = req.body.customEmails.split(',').map((e: string) => e.trim()).filter((e: string) => /^\S+@\S+\.\S+$/.test(e));
+    } else {
+      let query: any = db.collection('users');
+      
+      if (target === 'no-push') {
+        query = query.where('pushEnabled', '==', false);
+      }
+
+      const usersSnapshot = await query.get();
+      emails = usersSnapshot.docs.map((doc: any) => doc.data().email).filter((e: any) => !!e);
+    }
 
     if (emails.length === 0) {
-      return res.json({ success: true, count: 0, message: "No users with valid email addresses found." });
+      return res.json({ success: true, count: 0, message: "No valid email addresses found for dispatch." });
     }
 
-    console.log(`Sending real bulk email via SMTP to ${emails.length} users. Subject: ${subject}`);
+    console.log(`Sending marketing bulk email via SMTP to ${emails.length} users. Subject: ${subject}`);
     
     // Use BCC for privacy
     // Note: Most providers have limits on BCC count (e.g. 50-100 per email).
