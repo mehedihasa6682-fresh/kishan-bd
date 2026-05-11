@@ -15,27 +15,40 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
-        injectRegister: 'script',
-        includeAssets: ['favicon.ico', 'placeholder.png'],
+        strategies: 'generateSW',
+        includeAssets: ['favicon.ico', 'placeholder.png', 'logo.png', 'apple-touch-icon.png'],
         manifest: {
           name: 'সদাই ভাই - অনলাইন গ্রোছারি শপ',
           short_name: 'সদাই ভাই',
           description: 'Premium grocery and supermarket shopping experience. Fresh organic products delivered to your door.',
-          id: 'sodaibhai-pwa-v1',
-          start_url: '/',
+          id: 'com.sodaibhai.pwa.v1',
+          start_url: '.',
           scope: '/',
-          theme_color: '#050E21',
-          background_color: '#050E21',
           display: 'standalone',
-          display_override: ['standalone', 'window-controls-overlay'],
+          display_override: ['standalone', 'window-controls-overlay', 'minimal-ui'],
+          background_color: '#050E21',
+          theme_color: '#050E21',
           orientation: 'portrait',
-          categories: ['shopping', 'food'],
+          categories: ['shopping', 'food', 'lifestyle'],
           lang: 'bn-BD',
           dir: 'ltr',
+          prefer_related_applications: false,
           icons: [
             {
               src: 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png',
+              sizes: '144x144',
+              type: 'image/png',
+              purpose: 'any'
+            },
+            {
+              src: 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png',
               sizes: '192x192',
+              type: 'image/png',
+              purpose: 'any'
+            },
+            {
+              src: 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png',
+              sizes: '384x384',
               type: 'image/png',
               purpose: 'any'
             },
@@ -50,6 +63,22 @@ export default defineConfig(({ mode }) => {
               sizes: '512x512',
               type: 'image/png',
               purpose: 'maskable'
+            }
+          ],
+          shortcuts: [
+            {
+              name: 'সব পণ্য',
+              short_name: 'পণ্য',
+              description: 'সকল গ্রোছারি পণ্য দেখুন',
+              url: '/products',
+              icons: [{ src: 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png', sizes: '192x192' }]
+            },
+            {
+              name: 'আমার অর্ডার',
+              short_name: 'অর্ডার',
+              description: 'আপনার অর্ডারের অবস্থা দেখুন',
+              url: '/orders',
+              icons: [{ src: 'https://cdn-icons-png.flaticon.com/512/3500/3500833.png', sizes: '192x192' }]
             }
           ],
           screenshots: [
@@ -70,9 +99,13 @@ export default defineConfig(({ mode }) => {
           ]
         },
         workbox: {
+          importScripts: ['/firebase-messaging-sw.js'],
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
           maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
           navigateFallback: 'index.html',
+          cleanupOutdatedCaches: true,
+          clientsClaim: true,
+          skipWaiting: true,
           runtimeCaching: [
             {
               urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
@@ -80,7 +113,7 @@ export default defineConfig(({ mode }) => {
               options: {
                 cacheName: 'unsplash-images',
                 expiration: {
-                  maxEntries: 50,
+                  maxEntries: 100,
                   maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
                 },
                 cacheableResponse: {
@@ -89,10 +122,21 @@ export default defineConfig(({ mode }) => {
               },
             },
             {
+              urlPattern: ({ request }) => request.destination === 'image',
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'images',
+                expiration: {
+                  maxEntries: 100,
+                },
+              },
+            },
+            {
               urlPattern: /^https:\/\/firestore\.googleapis\.com\/.*/i,
               handler: 'NetworkFirst',
               options: {
                 cacheName: 'firestore-data',
+                networkTimeoutSeconds: 5,
               },
             },
           ],

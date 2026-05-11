@@ -66,13 +66,17 @@ function usePWA() {
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
-    try {
+    const checkIsInstalled = () => {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                          ('standalone' in window.navigator && (window.navigator as any).standalone === true);
+                          (window.navigator as any).standalone || 
+                          document.referrer.includes('android-app://');
       if (isStandalone) setIsInstalled(true);
-    } catch (e) {
-      console.warn("PWA check error:", e);
-    }
+    };
+
+    checkIsInstalled();
+    
+    // Also check periodicially or on focus
+    window.addEventListener('focus', checkIsInstalled);
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -96,6 +100,8 @@ function usePWA() {
         console.warn("PWA logging error:", e);
       }
     });
+
+    return () => window.removeEventListener('focus', checkIsInstalled);
   }, []);
 
   const install = async () => {

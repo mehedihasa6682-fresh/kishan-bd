@@ -2,12 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
     <meta name="theme-color" content="#050E21" />
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="সদাই ভাই">
+    <meta name="format-detection" content="telephone=no">
     <link rel="icon" id="favicon" href="https://cdn-icons-png.flaticon.com/512/3081/3081840.png" />
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3081/3081840.png" />
+    <link rel="mask-icon" href="https://cdn-icons-png.flaticon.com/512/3081/3081840.png" color="#050E21">
     <title>সদাই ভাই - অনলাইন গ্রোছারি শপ | Sodai Bhai Online Grocery Store</title>
     <meta name="description" content="সদাই ভাই - টাটকা ও অর্গানিক শাক-সবজি, মাছ এবং মাংস সরাসরি আপনার দুয়ারে। Fresh groceries delivered to your door." />
     <meta name="keywords" content="সদাই ভাই, Sodai Bhai, Fresh Grocery, Organic Vegetables, Online Bazaar, অনলাইন বাজার" />
@@ -19,21 +23,9 @@
     <meta name="twitter:title" content="সদাই ভাই - অনলাইন গ্রোছারি শপ" />
     <meta name="twitter:description" content="টাটকা ও অর্গানিক সবজি এবং নিত্যপ্রয়োজনীয় পণ্য কিনুন সদাই ভাই থেকে।" />
     <meta name="twitter:image" content="https://cdn-icons-png.flaticon.com/512/3081/3081840.png" />
-    <meta name="keywords" content="সদাই ভাই, Sodai Bhai, Online Store, Fresh Food, অনলাইন বাজার" />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://sodaibhai.vercel.app/" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/firebase-messaging-sw.js').then(reg => {
-            console.log('Firebase SW registered: ', reg);
-          }).catch(err => {
-            console.log('Firebase SW registration failed: ', err);
-          });
-        });
-      }
-    </script>
   </head>
   <body>
     <div id="root"></div>
