@@ -3346,21 +3346,30 @@ export default function AdminPanel() {
                                 <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Neural Header</label>
                                 <input 
                                     id="pushTitle"
-                                    className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-primary/40 font-bold transition-all shadow-inner" 
+                                    className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-[#D4AF37]/40 font-bold transition-all shadow-inner" 
                                     placeholder="Enter Alert Title..."
+                                />
+                            </div>
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Visual Heritage (Optional Image URL)</label>
+                                <input 
+                                    id="pushImage"
+                                    className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-[#D4AF37]/40 font-bold transition-all shadow-inner" 
+                                    placeholder="https://example.com/banner.jpg"
                                 />
                             </div>
                             <div className="space-y-3">
                                 <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Transmission Load (Body)</label>
                                 <textarea 
                                     id="pushBody"
-                                    className="w-full px-8 py-6 bg-black/40 border border-white/5 rounded-[2.5rem] text-sm text-white outline-none focus:border-primary/40 font-bold transition-all shadow-inner min-h-[160px] resize-none" 
+                                    className="w-full px-8 py-6 bg-black/40 border border-white/5 rounded-[2.5rem] text-sm text-white outline-none focus:border-[#D4AF37]/40 font-bold transition-all shadow-inner min-h-[160px] resize-none" 
                                     placeholder="Manifest your message to all nodes..."
                                 />
                             </div>
                             <button 
                                 onClick={async () => {
                                     const title = (document.getElementById('pushTitle') as HTMLInputElement).value;
+                                    const image = (document.getElementById('pushImage') as HTMLInputElement).value;
                                     const body = (document.getElementById('pushBody') as HTMLTextAreaElement).value;
                                     if (!title || !body) return alert('Title and Body required');
                                     
@@ -3369,12 +3378,13 @@ export default function AdminPanel() {
                                             const res = await fetch('/api/admin/bulk-push', {
                                                 method: 'POST',
                                                 headers: { 'Content-Type': 'application/json' },
-                                                body: JSON.stringify({ title, body })
+                                                body: JSON.stringify({ title, body, image })
                                             });
                                             const data = await res.json();
                                             if (res.ok) {
-                                                alert(`Broadcast initiated! Targets reached: ${data.count}`);
+                                                alert(`Broadcast initiated! Targets reached: ${data.count}. Sent successfully: ${data.sentCount}`);
                                                 (document.getElementById('pushTitle') as HTMLInputElement).value = '';
+                                                (document.getElementById('pushImage') as HTMLInputElement).value = '';
                                                 (document.getElementById('pushBody') as HTMLTextAreaElement).value = '';
                                             } else {
                                               throw new Error(data.error || 'Broadcast failed');
@@ -3384,7 +3394,7 @@ export default function AdminPanel() {
                                         }
                                     }
                                 }}
-                                className="w-full py-6 bg-primary text-black rounded-3xl font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-primary/20 active:scale-95 transition-all"
+                                className="w-full py-6 bg-[#D4AF37] text-black rounded-3xl font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-[#D4AF37]/20 active:scale-95 transition-all"
                             >
                                 Transmit Neural Signal
                             </button>

@@ -278,12 +278,15 @@ export default function Navbar() {
                     exit={{ width: 0, opacity: 0 }}
                     className="flex items-center gap-2 overflow-hidden"
                   >
-                    <button 
-                        onClick={() => setIsDrawerOpen(true)}
-                        className="w-9 h-9 flex items-center justify-center bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-xl text-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.1)]"
-                    >
-                        <Menu size={18} />
-                    </button>
+              <div className="flex items-center gap-2">
+                <InstallButton />
+                <button 
+                    onClick={() => setIsDrawerOpen(true)}
+                    className="w-9 h-9 flex items-center justify-center bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-xl text-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.1)]"
+                >
+                    <Menu size={18} />
+                </button>
+              </div>
                   </motion.div>
                 ) : null}
               </AnimatePresence>
@@ -326,6 +329,20 @@ export default function Navbar() {
               </div>
 
               <div className="flex-1 overflow-y-auto p-6 space-y-8">
+                {/* Install App Promotion */}
+                <div className="p-4 bg-[#D4AF37]/10 rounded-2xl border border-[#D4AF37]/20 mb-2 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                     <div className="w-8 h-8 bg-[#D4AF37] rounded-lg flex items-center justify-center">
+                        <ShoppingBag size={16} className="text-black" />
+                     </div>
+                     <div className="flex flex-col">
+                        <span className="text-[10px] font-black text-white uppercase tracking-wider">{language === 'bn' ? 'অ্যাপ নেই?' : 'No App?'}</span>
+                        <span className="text-[8px] text-white/40 uppercase tracking-widest">{language === 'bn' ? 'ইনস্টল করুন' : 'Install Now'}</span>
+                     </div>
+                  </div>
+                  <InstallButton />
+                </div>
+
                 {/* Main Links */}
                 <div className="space-y-3">
                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] ml-2">{language === 'bn' ? 'অ্যাকাউন্ট' : 'Account'}</p>

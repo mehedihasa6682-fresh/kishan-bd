@@ -12,7 +12,6 @@ import { useContext } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { formatCurrency } from '../lib/utils';
 import ProductCard from '../components/ProductCard';
-import { InstallButton } from '../components/InstallButton';
 
 export default function Home() {
   const [activeBanner, setActiveBanner] = useState(0);

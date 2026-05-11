@@ -10,11 +10,8 @@ export const InstallButton: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Check if Android
-    const isAndroid = /Android/.test(navigator.userAgent);
-    
-    // Only show on Android if not already installed
-    if (isAndroid && !pwa?.isInstalled) {
+    // Only show if not already installed
+    if (!pwa?.isInstalled) {
       setIsVisible(true);
     } else {
       setIsVisible(false);
@@ -23,7 +20,12 @@ export const InstallButton: React.FC = () => {
 
   const handleInstallClick = async () => {
     if (!pwa?.deferredPrompt) {
-      alert(language === 'bn' ? 'ব্রাউজার মেনু থেকে "Install Application" এ ক্লিক করুন' : 'Click "Install Application" from your browser menu');
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      if (isIOS) {
+        alert(language === 'bn' ? 'iOS এ ইনস্টল করতে: ব্রাউজার মেনু থেকে "Add to Home Screen" এ ক্লিক করুন' : 'To install on iOS: Click "Add to Home Screen" from your browser share menu');
+      } else {
+        alert(language === 'bn' ? 'ব্রাউজার মেনু থেকে "Install Application" এ ক্লিক করুন' : 'Click "Install Application" from your browser settings menu');
+      }
       return;
     }
 

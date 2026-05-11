@@ -75,21 +75,27 @@ function usePWA() {
 
     checkIsInstalled();
     
+    // Check periodically for state changes (like uninstallation)
+    const interval = setInterval(checkIsInstalled, 3000);
+    
     window.addEventListener('focus', checkIsInstalled);
     window.addEventListener('visibilitychange', checkIsInstalled);
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
+      // If we get a prompt, we are definitely NOT installed in standalone mode
+      setIsInstalled(false);
     });
 
     window.addEventListener('appinstalled', () => {
       setIsInstalled(true);
       setDeferredPrompt(null);
       try {
+        const platform = /iPhone|iPad|iPod/.test(navigator.userAgent) ? 'iOS' : 'Android';
         addDoc(collection(db, 'pwa_installs'), {
           timestamp: new Date(),
-          platform: 'Android', // We only show UI for Android now
+          platform: platform,
           userAgent: navigator.userAgent
         });
       } catch (e) {
@@ -98,6 +104,7 @@ function usePWA() {
     });
 
     return () => {
+      clearInterval(interval);
       window.removeEventListener('focus', checkIsInstalled);
       window.removeEventListener('visibilitychange', checkIsInstalled);
     };
@@ -412,7 +419,6 @@ function RoutesContent() {
       </AnimatePresence>
 
       <OfflineIndicator />
-      <PWAInstall />
       {!isDashboardRoute && <NotificationPrompt />}
       {!isDashboardRoute && <WhatsAppSupport />}
       {!isDashboardRoute && <Navbar />}

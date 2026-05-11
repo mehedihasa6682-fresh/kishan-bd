@@ -401,31 +401,50 @@ app.post("/api/admin/bulk-email", async (req, res) => {
 });
 
 app.post("/api/admin/bulk-push", async (req, res) => {
-  const { title, body, target } = req.body;
+  const { title, body, image } = req.body;
   if (!title || !body) return res.status(400).json({ error: "Title and body required" });
   if (admin.apps.length === 0) return res.status(503).json({ error: "Firebase Admin not initialized" });
 
   try {
     const db = admin.firestore();
-    let query: any = db.collection('fcm_tokens');
+    
+    // Fetch app settings for branding
+    const settingsSnap = await db.collection('settings').doc('app').get();
+    const appSettings = settingsSnap.exists ? settingsSnap.data() : {};
+    const appLogo = appSettings?.logo || 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png';
+    const appName = appSettings?.appName || 'সদাই ভাই';
+
+    let query: any = db.collection('fcmTokens');
     
     const tokensSnapshot = await query.get();
     const tokens = tokensSnapshot.docs.map((doc: any) => doc.data().token).filter((t: any) => !!t);
 
     if (tokens.length === 0) {
-      return res.json({ success: true, count: 0, message: "No valid FCM tokens found." });
+      return res.json({ success: true, count: 0, message: "No active push subscribers found." });
     }
 
     console.log(`Sending bulk push to ${tokens.length} tokens. Title: ${title}`);
     
     const messages = tokens.map(token => ({
       token,
-      notification: { title, body },
-      android: { priority: 'high' },
+      notification: { 
+        title: title || appName, 
+        body,
+        image: image || null
+      },
+      android: { 
+        priority: 'high' as const,
+        notification: {
+          icon: 'stock_ticker_update',
+          color: '#D4AF37',
+          image: image || null
+        }
+      },
       webpush: {
         notification: {
-          icon: '/logo.png',
-          badge: '/logo.png',
+          icon: appLogo,
+          badge: appLogo,
+          image: image || null,
           click_action: '/'
         }
       }
@@ -443,9 +462,10 @@ app.post("/api/admin/bulk-push", async (req, res) => {
       success: true, 
       count: tokens.length,
       sentCount: successCount,
-      message: `Dispatched ${tokens.length} push notifications.` 
+      message: `Dispatched ${successCount} push notifications successfully.` 
     });
   } catch (error: any) {
+    console.error("Bulk Push Error:", error);
     res.status(500).json({ error: "Bulk push failed", details: error.message });
   }
 });
@@ -463,11 +483,17 @@ app.post("/api/send-fcm", async (req, res) => {
   }
   
   try {
+    const db = admin.firestore();
+    const settingsSnap = await db.collection('settings').doc('app').get();
+    const appSettings = settingsSnap.exists ? settingsSnap.data() : {};
+    const appLogo = appSettings?.logo || "/logo.png";
+    const appName = appSettings?.appName || "সদাই ভাই";
+
     const message: any = {
       token: token,
       notification: {
-        title: notification.title || "সদাই ভাই",
-        body: notification.body || "Update from Sodai Bhai"
+        title: notification.title || appName,
+        body: notification.body || "Update from " + appName
       },
       data: data || {},
       android: {
@@ -480,8 +506,8 @@ app.post("/api/send-fcm", async (req, res) => {
       },
       webpush: {
         notification: {
-          icon: "/logo.png",
-          badge: "/logo.png",
+          icon: appLogo,
+          badge: appLogo,
           requireInteraction: true,
         },
         fcmOptions: {
@@ -506,6 +532,11 @@ app.post("/api/broadcast-fcm", async (req, res) => {
   
   try {
     const db = admin.firestore();
+    const settingsSnap = await db.collection('settings').doc('app').get();
+    const appSettings = settingsSnap.exists ? settingsSnap.data() : {};
+    const appLogo = appSettings?.logo || "/logo.png";
+    const appName = appSettings?.appName || "সদাই ভাই";
+
     const tokensSnapshot = await db.collection('fcmTokens').get();
     const tokens = tokensSnapshot.docs.map(doc => doc.data().token).filter(t => !!t);
     
@@ -517,7 +548,7 @@ app.post("/api/broadcast-fcm", async (req, res) => {
 
     const message = {
       notification: {
-        title: notification.title || "সদাই ভাই",
+        title: notification.title || appName,
         body: notification.body || "নতুন অফার এসেছে!"
       },
       data: data || {},
@@ -527,8 +558,8 @@ app.post("/api/broadcast-fcm", async (req, res) => {
           link: data?.url || '/'
         },
         notification: {
-          icon: "/logo.png",
-          badge: "/logo.png"
+          icon: appLogo,
+          badge: appLogo
         }
       }
     };
