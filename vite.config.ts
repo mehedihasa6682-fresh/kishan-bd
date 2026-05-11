@@ -15,21 +15,34 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+        injectRegister: false,
+        includeAssets: ['favicon.ico', 'placeholder.png'],
+        devOptions: {
+          enabled: true,
+          type: 'module',
+        },
         manifest: {
           name: 'সদাই ভাই - অনলাইন গ্রোছারি শপ',
           short_name: 'সদাই ভাই',
           description: 'Premium grocery and supermarket shopping experience. Fresh organic products delivered to your door.',
-          id: '/',
+          id: 'sodaibhai-com-pwa-v1',
           start_url: '/?source=pwa',
           scope: '/',
-          theme_color: '#D4AF37',
+          theme_color: '#050E21',
           background_color: '#050E21',
           display: 'standalone',
-          display_override: ['standalone', 'minimal-ui'],
+          display_override: ['standalone', 'window-controls-overlay', 'minimal-ui'],
           orientation: 'portrait',
           categories: ['shopping', 'food'],
+          dir: 'auto',
+          lang: 'bn',
           icons: [
+            {
+              src: 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png',
+              sizes: '144x144',
+              type: 'image/png',
+              purpose: 'any'
+            },
             {
               src: 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png',
               sizes: '192x192',
@@ -84,7 +97,8 @@ export default defineConfig(({ mode }) => {
         },
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-          maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
+          maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
+          navigateFallback: 'index.html',
           runtimeCaching: [
             {
               urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
