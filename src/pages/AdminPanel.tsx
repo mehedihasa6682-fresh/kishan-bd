@@ -21,7 +21,7 @@ import { format, addHours } from 'date-fns';
 
 import { calculateDistance, formatDistance } from '../lib/geoUtils';
 
-type AdminTab = 'dashboard' | 'products' | 'approvals' | 'banners' | 'stories' | 'categories' | 'users' | 'riders' | 'financials' | 'promotions' | 'pages' | 'coupons' | 'abandonment' | 'deals' | 'neural_push' | 'email_marketing' | 'settings';
+type AdminTab = 'dashboard' | 'products' | 'approvals' | 'banners' | 'stories' | 'categories' | 'users' | 'riders' | 'financials' | 'promotions' | 'pages' | 'coupons' | 'abandonment' | 'deals' | 'neural_push' | 'email_marketing' | 'settings' | 'orders' | 'bundles';
 
 export default function AdminPanel() {
   const { user, role, loading: authLoading } = useContext(AuthContext);

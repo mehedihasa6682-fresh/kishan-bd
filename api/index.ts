@@ -3,6 +3,7 @@ import webpush from "web-push";
 import dotenv from "dotenv";
 import path from "path";
 import admin from "firebase-admin";
+import nodemailer from "nodemailer";
 
 dotenv.config();
 
@@ -41,12 +42,12 @@ try {
           credential: admin.credential.cert(serviceAccount),
           projectId: serviceAccount.project_id
         });
-        console.log("Firebase Admin initialized successfully. Service account length:", rawServiceAccount.length);
+        console.log("Firebase Admin initialized successfully. Project:", serviceAccount.project_id);
       } catch (parseError: any) {
         console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT_JSON. Error:", parseError.message);
       }
     } else {
-      console.warn("FIREBASE_SERVICE_ACCOUNT_JSON missing. FCM Admin will not be available.");
+      console.warn("FIREBASE_SERVICE_ACCOUNT_JSON missing. Admin SDK will not be fully functional.");
     }
   }
 } catch (error) {
@@ -74,18 +75,50 @@ if (vapidKeys.publicKey && vapidKeys.privateKey) {
     console.error("Failed to set VAPID details:", err);
   }
 } else {
-  console.warn("VAPID keys are missing. Push notifications will not work.");
+  console.warn("VAPID keys are missing. Push notifications (WebPush) will not work.");
 }
+
+// Nodemailer Transporter Configuration
+const createTransporter = () => {
+  const host = process.env.SMTP_HOST;
+  const port = parseInt(process.env.SMTP_PORT || '587');
+  const user = process.env.EMAIL_USER;
+  const pass = process.env.EMAIL_PASS;
+
+  if (!host || !user || !pass) {
+    console.warn("Email configuration missing (SMTP_HOST, EMAIL_USER, EMAIL_PASS). Bulk email will fail.");
+    return null;
+  }
+
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465, // true for 465, false for other ports
+    auth: {
+      user,
+      pass,
+    },
+  });
+};
 
 // API Routes
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", timestamp: new Date().toISOString() });
+  res.json({ 
+    status: "ok", 
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV,
+    admin: admin.apps.length > 0
+  });
 });
 
 // Coupon Validation
 app.post("/api/coupons/validate", async (req, res) => {
   const { code, orderValue, userId } = req.body;
   if (!code) return res.status(400).json({ error: "Coupon code required" });
+
+  if (admin.apps.length === 0) {
+    return res.status(503).json({ error: "Service unavailable", details: "Database connection not initialized" });
+  }
 
   try {
     const db = admin.firestore();
@@ -141,6 +174,8 @@ app.post("/api/cart/abandon", async (req, res) => {
   const { userId, items, totalAmount } = req.body;
   if (!userId) return res.status(400).json({ error: "User identity required" });
 
+  if (admin.apps.length === 0) return res.status(503).json({ error: "Database not available" });
+
   try {
     const db = admin.firestore();
     await db.collection('abandoned_carts').doc(userId).set({
@@ -159,6 +194,8 @@ app.post("/api/cart/abandon", async (req, res) => {
 
 // Cart Recovery Engine (Should be called by a cron)
 app.get("/api/cart/recover-pings", async (req, res) => {
+  if (admin.apps.length === 0) return res.status(503).json({ error: "Database not available" });
+
   try {
     const db = admin.firestore();
     const threshold = new Date();
@@ -217,16 +254,15 @@ app.get("/api/fcm-status", (req, res) => {
   res.json({
     adminInitialized: admin.apps.length > 0,
     vapidSet: !!(vapidKeys.publicKey && vapidKeys.privateKey),
-    vercel: !!process.env.VERCEL,
+    vercel: !!(process.env.VERCEL || process.env.NOW_REGION),
     telegram: {
       hasToken: !!process.env.TELEGRAM_BOT_TOKEN,
       hasChatId: !!process.env.TELEGRAM_ADMIN_CHAT_ID,
-      botTokenPrefix: process.env.TELEGRAM_BOT_TOKEN ? process.env.TELEGRAM_BOT_TOKEN.substring(0, 5) + "..." : "none"
     },
-    env: {
-      hasServiceAccount: !!process.env.FIREBASE_SERVICE_ACCOUNT_JSON,
-      hasVapidPublic: !!process.env.VITE_VAPID_PUBLIC_KEY,
-      hasVapidPrivate: !!process.env.VAPID_PRIVATE_KEY
+    email: {
+      hasHost: !!process.env.SMTP_HOST,
+      hasUser: !!process.env.EMAIL_USER,
+      hasPass: !!process.env.EMAIL_PASS
     }
   });
 });
@@ -238,10 +274,9 @@ app.post("/api/order-notification", async (req, res) => {
   const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
 
   if (!token || !chatId) {
-    console.error("Missing Telegram configuration. TOKEN:", !!token, "CHAT_ID:", !!chatId);
+    console.error("Missing Telegram configuration.");
     return res.status(500).json({ 
-      error: "Notification service not configured", 
-      details: "TELEGRAM_BOT_TOKEN and TELEGRAM_ADMIN_CHAT_ID must be set on Vercel." 
+      error: "Notification service not configured"
     });
   }
 
@@ -263,7 +298,6 @@ app.post("/api/order-notification", async (req, res) => {
 
   try {
     const telegramUrl = `https://api.telegram.org/bot${token}/sendMessage`;
-    console.log(`Sending Telegram notification to ${chatId}...`);
     
     const response = await fetch(telegramUrl, {
       method: 'POST',
@@ -278,50 +312,84 @@ app.post("/api/order-notification", async (req, res) => {
     const responseData = await response.json();
 
     if (!response.ok) {
-      console.error("Telegram API Error Response:", responseData);
       return res.status(response.status).json({ 
         error: "Telegram API indicated failure", 
         details: responseData 
       });
     }
 
-    console.log("Telegram notification sent successfully");
     res.json({ success: true });
   } catch (error: any) {
-    console.error("Telegram notification network/runtime failed:", error);
     res.status(500).json({ error: "Failed to send notification via network", details: error.message });
   }
 });
 
 app.post("/api/admin/bulk-email", async (req, res) => {
   const { target, subject, content } = req.body;
+  
   if (!subject || !content) return res.status(400).json({ error: "Subject and content required" });
+  if (admin.apps.length === 0) return res.status(503).json({ error: "Firebase Admin not initialized" });
+
+  const transporter = createTransporter();
+  if (!transporter) {
+    return res.status(503).json({ error: "Email service not configured. Check EMAIL_USER, EMAIL_PASS and SMTP_HOST variables." });
+  }
 
   try {
     const db = admin.firestore();
     let query: any = db.collection('users');
     
     if (target === 'no-push') {
-      // Query users who have pushEnabled: false or field doesn't exist
-      // Since we can't easily query "field doesn't exist" in where, we might need to filter in memory or assume default
       query = query.where('pushEnabled', '==', false);
     }
 
     const usersSnapshot = await query.get();
     const emails = usersSnapshot.docs.map((doc: any) => doc.data().email).filter((e: any) => !!e);
 
-    console.log(`Sending BCC marketing email to ${emails.length} users (${target}). Subject: ${subject}`);
+    if (emails.length === 0) {
+      return res.json({ success: true, count: 0, message: "No users with valid email addresses found." });
+    }
+
+    console.log(`Sending real bulk email via SMTP to ${emails.length} users. Subject: ${subject}`);
     
-    // In a real app, integrate with SendGrid, Mailgun, or AWS SES here
-    // We would use the 'emails' array as the BCC list to ensure user privacy.
-    // For now, we simulate success and log
-    
+    // Use BCC for privacy
+    // Note: Most providers have limits on BCC count (e.g. 50-100 per email).
+    // For a real production app, we would chunk these.
+    const CHUNK_SIZE = 45;
+    const sendAttempts = [];
+
+    for (let i = 0; i < emails.length; i += CHUNK_SIZE) {
+      const bccBatch = emails.slice(i, i + CHUNK_SIZE);
+      sendAttempts.push(
+        transporter.sendMail({
+          from: `"Sodaibhai Admin" <${process.env.EMAIL_USER}>`,
+          to: process.env.EMAIL_USER, // Send to self, users in BCC
+          bcc: bccBatch,
+          subject: subject,
+          html: content.replace(/\n/g, '<br/>'),
+          text: content
+        })
+      );
+    }
+
+    const results = await Promise.allSettled(sendAttempts);
+    const failed = results.filter(r => r.status === 'rejected');
+
+    if (failed.length > 0) {
+       console.error("Email batch failed:", failed);
+       return res.status(500).json({ 
+         error: "Partial or total failure in sending emails", 
+         details: failed.map((f: any) => f.reason?.message || "Unknown error").join(', ')
+       });
+    }
+
     res.json({ 
       success: true, 
       count: emails.length,
-      message: `Successfully queued ${emails.length} BCC emails via simulated provider.` 
+      message: `Successfully dispatched emails in ${sendAttempts.length} batches.`
     });
   } catch (error: any) {
+    console.error("Bulk Email Error:", error);
     res.status(500).json({ error: "Email broadcast failed", details: error.message });
   }
 });
@@ -329,13 +397,12 @@ app.post("/api/admin/bulk-email", async (req, res) => {
 app.post("/api/admin/bulk-push", async (req, res) => {
   const { title, body, target } = req.body;
   if (!title || !body) return res.status(400).json({ error: "Title and body required" });
+  if (admin.apps.length === 0) return res.status(503).json({ error: "Firebase Admin not initialized" });
 
   try {
     const db = admin.firestore();
     let query: any = db.collection('fcm_tokens');
     
-    // In a more advanced version, we could filter by target (e.g. users who have pushEnabled: true)
-    // For now, we get all valid tokens
     const tokensSnapshot = await query.get();
     const tokens = tokensSnapshot.docs.map((doc: any) => doc.data().token).filter((t: any) => !!t);
 
@@ -351,25 +418,26 @@ app.post("/api/admin/bulk-push", async (req, res) => {
       android: { priority: 'high' },
       webpush: {
         notification: {
-          icon: '/icons/icon-192x192.png',
-          badge: '/icons/icon-192x192.png',
+          icon: '/logo.png',
+          badge: '/logo.png',
           click_action: '/'
         }
       }
     }));
 
     // Send in batches of 500 (FCM limit)
-    const results = [];
+    let successCount = 0;
     for (let i = 0; i < messages.length; i += 500) {
       const batch = messages.slice(i, i + 500);
       const response = await admin.messaging().sendEach(batch);
-      results.push(response);
+      successCount += response.successCount;
     }
     
     res.json({ 
       success: true, 
       count: tokens.length,
-      message: `Successfully sent ${tokens.length} push notifications.` 
+      sentCount: successCount,
+      message: `Dispatched ${tokens.length} push notifications.` 
     });
   } catch (error: any) {
     res.status(500).json({ error: "Bulk push failed", details: error.message });
@@ -382,9 +450,9 @@ app.post("/api/send-fcm", async (req, res) => {
   if (!token) return res.status(400).json({ error: "Missing FCM token" });
   
   if (admin.apps.length === 0) {
-    return res.status(500).json({ 
+    return res.status(503).json({ 
       error: "Firebase Admin not initialized", 
-      details: "FIREBASE_SERVICE_ACCOUNT_JSON environment variable is missing or invalid on Vercel dashboard." 
+      details: "Check your FIREBASE_SERVICE_ACCOUNT_JSON." 
     });
   }
   
@@ -399,26 +467,16 @@ app.post("/api/send-fcm", async (req, res) => {
       android: {
         priority: 'high',
         notification: {
-          icon: 'stock_ticker_update', // Use app icon
+          icon: 'stock_ticker_update',
           color: '#16A34A',
           sound: 'default',
-          clickAction: 'FLUTTER_NOTIFICATION_CLICK', // Common for cross-platform, but works for web too
-          notificationCount: 1,
         }
       },
       webpush: {
-        headers: {
-          Urgency: 'high'
-        },
         notification: {
           icon: "/logo.png",
           badge: "/logo.png",
-          vibrate: [200, 100, 200, 100, 200],
           requireInteraction: true,
-          renotify: true,
-          actions: [
-            { action: 'open', title: 'Open View' }
-          ]
         },
         fcmOptions: {
           link: data?.url || '/'
@@ -429,69 +487,48 @@ app.post("/api/send-fcm", async (req, res) => {
     const response = await admin.messaging().send(message);
     res.json({ success: true, messageId: response });
   } catch (error: any) {
-    console.error("FCM Send Error:", error);
     res.status(500).json({ error: "FCM Send Failed", details: error.message });
   }
-});
-
-// FCM Status Check
-app.get("/api/fcm-status", (req, res) => {
-  res.json({
-    adminInitialized: !!admin.apps.length,
-    hasServiceAccount: !!process.env.FIREBASE_SERVICE_ACCOUNT_JSON,
-    projectId: admin.apps.length ? admin.app().options.projectId : null
-  });
 });
 
 app.post("/api/broadcast-fcm", async (req, res) => {
   const { notification, data } = req.body;
   
   if (admin.apps.length === 0) {
-    console.error("FCM Broadcast failed: Firebase Admin not initialized.");
-    return res.status(500).json({ error: "Firebase Admin not initialized. Check your FIREBASE_SERVICE_ACCOUNT_JSON environment variable." });
+    return res.status(503).json({ error: "Firebase Admin not initialized." });
   }
   
-    try {
-      const db = admin.firestore();
-      console.log("Broadcasting to FCM tokens...");
-      const tokensSnapshot = await db.collection('fcmTokens').get();
-      const tokens = tokensSnapshot.docs.map(doc => doc.data().token).filter(t => !!t);
-      
-      console.log(`Found ${tokens.length} tokens to broadcast to.`);
+  try {
+    const db = admin.firestore();
+    const tokensSnapshot = await db.collection('fcmTokens').get();
+    const tokens = tokensSnapshot.docs.map(doc => doc.data().token).filter(t => !!t);
+    
+    if (tokens.length === 0) {
+      return res.json({ success: true, successCount: 0, message: "No active tokens found" });
+    }
 
-      if (tokens.length === 0) {
-        return res.json({ success: true, successCount: 0, message: "No active tokens found in database" });
-      }
+    const activeTokens = tokens.slice(0, 500);
 
-      // FCM sendEachForMulticast can handle up to 500 tokens per call
-      // For larger sets, we should chunk, but let's stick to 500 for now or log if more.
-      if (tokens.length > 500) {
-        console.warn(`Token count (${tokens.length}) exceeds 500. Truncating for now.`);
-      }
-
-      const activeTokens = tokens.slice(0, 500);
-
-      const message = {
-        notification: {
-          title: notification.title || "সদাই ভাই",
-          body: notification.body || "নতুন অফার এসেছে!"
+    const message = {
+      notification: {
+        title: notification.title || "সদাই ভাই",
+        body: notification.body || "নতুন অফার এসেছে!"
+      },
+      data: data || {},
+      tokens: activeTokens,
+      webpush: {
+        fcmOptions: {
+          link: data?.url || '/'
         },
-        data: data || {},
-        tokens: activeTokens,
-        webpush: {
-          fcmOptions: {
-            link: data?.url || '/'
-          },
-          notification: {
-            icon: "/logo.png",
-            badge: "/logo.png"
-          }
+        notification: {
+          icon: "/logo.png",
+          badge: "/logo.png"
         }
-      };
+      }
+    };
 
-      const response = await admin.messaging().sendEachForMulticast(message);
-      console.log(`Broadcast completed. Success: ${response.successCount}, Failure: ${response.failureCount}`);
-      
+    const response = await admin.messaging().sendEachForMulticast(message);
+    
     // Cleanup stale tokens
     if (response.failureCount > 0) {
       const staleTokens: string[] = [];
@@ -499,16 +536,13 @@ app.post("/api/broadcast-fcm", async (req, res) => {
         if (!resp.success && resp.error) {
           const code = resp.error.code;
           if (code === 'messaging/invalid-registration-token' || 
-              code === 'messaging/registration-token-not-registered' ||
-              code === 'messaging/mismatched-credential') {
+              code === 'messaging/registration-token-not-registered') {
             staleTokens.push(activeTokens[idx]);
           }
         }
       });
       
       if (staleTokens.length > 0) {
-        console.log(`Cleaning up ${staleTokens.length} stale tokens...`);
-        // Batch delete is limited to 500 ops, which we are well under since we truncated to 500
         const batch = db.batch();
         for (const token of staleTokens) {
           const staleSnapshot = await db.collection('fcmTokens').where('token', '==', token).get();
@@ -521,25 +555,16 @@ app.post("/api/broadcast-fcm", async (req, res) => {
     res.json({ 
       success: true, 
       successCount: response.successCount, 
-      failureCount: response.failureCount,
-      results: response.responses.slice(0, 5).map(r => ({ success: r.success, error: r.error?.message }))
+      failureCount: response.failureCount
     });
   } catch (error: any) {
-    console.error("FCM Broadcast Error (Full Details):", error);
-    const message = error.message || "Unknown FCM Error";
-    res.status(500).json({ 
-      error: "FCM Broadcast Failed", 
-      details: message,
-      code: error.code
-    });
+    res.status(500).json({ error: "FCM Broadcast Failed", details: error.message });
   }
 });
 
 app.post("/api/send-notification", async (req, res) => {
   const { subscription, payload } = req.body;
-  if (!vapidKeys.privateKey) {
-    return res.status(400).json({ error: "Missing VAPID_PRIVATE_KEY" });
-  }
+  if (!vapidKeys.privateKey) return res.status(400).json({ error: "Missing VAPID_PRIVATE_KEY" });
   try {
     await webpush.sendNotification(subscription, JSON.stringify(payload));
     res.json({ success: true });
@@ -554,16 +579,15 @@ app.get("/api/vapid-public-key", (req, res) => {
 
 // Helper for local dev only
 async function startServer() {
-  const isVercel = !!process.env.VERCEL || !!process.env.NOW_REGION;
+  const isVercel = !!(process.env.VERCEL || process.env.NOW_REGION || process.env.FUNCTIONS_EMULATOR);
   const isProd = process.env.NODE_ENV === "production";
 
   if (isVercel) {
-    console.log("Running in Vercel environment - Skipping local port listener");
+    console.log("Running in Serverless environment - Port listener bypassed.");
     return;
   }
 
   if (!isProd) {
-    // Dynamically import Vite only during development
     try {
       const { createServer: createViteServer } = await import('vite');
       const vite = await createViteServer({
@@ -580,35 +604,26 @@ async function startServer() {
       console.error("Failed to start Vite dev server:", err);
     }
   } else {
-    // Local Production: Serve static files from 'dist'
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
-      // For any route that's not an API, serve index.html
-      if (req.path.startsWith('/api')) {
-        return res.status(404).json({ error: "API route not found" });
-      }
+      if (req.path.startsWith('/api')) return res.status(404).json({ error: "API not found" });
       res.sendFile(path.join(distPath, 'index.html'));
     });
     
     const PORT = process.env.PORT || 3000;
     app.listen(Number(PORT), "0.0.0.0", () => {
-      console.log(`Local production server running on http://localhost:${PORT}`);
+      console.log(`Production server running on port ${PORT}`);
     });
   }
 }
 
-startServer().catch(err => {
-  console.error("Critical error in startServer:", err);
-});
+startServer().catch(err => console.error("Server Start Error:", err));
 
 app.get("/api/test-telegram", async (req, res) => {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
-
-  if (!token || !chatId) {
-    return res.json({ success: false, error: "Missing config", token: !!token, chatId: !!chatId });
-  }
+  if (!token || !chatId) return res.json({ success: false, error: "Config missing" });
 
   try {
     const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
@@ -616,7 +631,7 @@ app.get("/api/test-telegram", async (req, res) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: chatId,
-        text: "⚡️ Neural Link Test: Connection established successfully.",
+        text: "⚡️ Neural Link Test Success",
         parse_mode: 'HTML'
       })
     });
@@ -628,3 +643,4 @@ app.get("/api/test-telegram", async (req, res) => {
 });
 
 export default app;
+

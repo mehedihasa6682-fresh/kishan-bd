@@ -19,7 +19,10 @@ export default defineConfig(({ mode }) => {
         manifest: {
           name: 'সদাই ভাই - অনলাইন গ্রোছারি শপ',
           short_name: 'সদাই ভাই',
-          description: 'Premium grocery and supermarket shopping experience.',
+          description: 'Premium grocery and supermarket shopping experience. Fresh organic products delivered to your door.',
+          id: '/',
+          start_url: '/?source=pwa',
+          scope: '/',
           theme_color: '#D4AF37',
           background_color: '#050E21',
           display: 'standalone',
@@ -30,18 +33,52 @@ export default defineConfig(({ mode }) => {
             {
               src: 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png',
               sizes: '192x192',
-              type: 'image/png'
-            },
-            {
-              src: 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png',
-              sizes: '512x512',
-              type: 'image/png'
+              type: 'image/png',
+              purpose: 'any'
             },
             {
               src: 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png',
               sizes: '512x512',
               type: 'image/png',
-              purpose: 'any maskable'
+              purpose: 'any'
+            },
+            {
+              src: 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable'
+            }
+          ],
+          shortcuts: [
+            {
+              name: 'Marketplace',
+              short_name: 'Market',
+              description: 'View all farm products',
+              url: '/products',
+              icons: [{ src: 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png', sizes: '192x192' }]
+            },
+            {
+              name: 'My Orders',
+              short_name: 'Orders',
+              description: 'Check your order status',
+              url: '/dashboard/orders',
+              icons: [{ src: 'https://cdn-icons-png.flaticon.com/512/3500/3500833.png', sizes: '192x192' }]
+            }
+          ],
+          screenshots: [
+            {
+              src: 'https://images.unsplash.com/photo-1595246140625-573b715d11dc?w=1080&h=1920&fit=crop',
+              sizes: '1080x1920',
+              type: 'image/jpg',
+              form_factor: 'narrow',
+              label: 'সদাই ভাই Home Screen'
+            },
+            {
+              src: 'https://images.unsplash.com/photo-1464226110844-0c7746465494?w=1920&h=1080&fit=crop',
+              sizes: '1920x1080',
+              type: 'image/jpg',
+              form_factor: 'wide',
+              label: 'সদাই ভাই Desktop View'
             }
           ]
         },
