@@ -55,15 +55,15 @@ export default function ImageUpload({ onUpload, currentImage, label, className =
 
   return (
     <div className={`space-y-2 ${className}`}>
-      {label && <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>}
+      {label && <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-widest ml-1">{label}</label>}
       <div 
         onClick={() => fileInputRef.current?.click()}
-        className={`relative aspect-video rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-all overflow-hidden group`}
+        className={`relative aspect-video rounded-2xl border-2 border-dashed border-slate-200 bg-[#F5F5F7] flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-all overflow-hidden group`}
       >
         {currentImage ? (
           <>
             <img src={currentImage} className="w-full h-full object-cover" alt="Preview" />
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <div className="absolute inset-0 bg-[#FFFFFF] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <Camera className="text-white" size={24} />
             </div>
             <button 
@@ -78,10 +78,10 @@ export default function ImageUpload({ onUpload, currentImage, label, className =
           </>
         ) : (
           <>
-            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-400 mb-2 shadow-sm">
+            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#6B7280] mb-2 shadow-sm">
               <ImageIcon size={20} />
             </div>
-            <p className="text-[10px] font-bold text-slate-400">Click to upload image</p>
+            <p className="text-[10px] font-bold text-[#6B7280]">Click to upload image</p>
           </>
         )}
         <input 

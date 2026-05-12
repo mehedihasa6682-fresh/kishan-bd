@@ -44,7 +44,7 @@ export default function NotificationPrompt() {
   return (
     <AnimatePresence>
       {show && (
-        <div className="fixed inset-0 z-[200] flex items-end md:items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[200] flex items-end md:items-center justify-center p-4 bg-[#121212]/40 backdrop-blur-sm">
           <motion.div
             initial={{ y: 100, opacity: 0, scale: 0.9 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
@@ -63,7 +63,7 @@ export default function NotificationPrompt() {
                 নোটিফিকেশন অন রাখুন
               </h3>
               
-              <p className="text-sm text-slate-500 leading-relaxed mb-8">
+              <p className="text-sm text-[#6B7280] leading-relaxed mb-8">
                 আমাদের নিত্যনতুন সব পণ্যের অফার এবং ডেলিভারি আপডেট সম্পর্কে তাৎক্ষণিক জানতে নোটিফিকেশন অ্যালাউ করুন।
               </p>
               
@@ -79,7 +79,7 @@ export default function NotificationPrompt() {
                 
                 <button
                   onClick={handleDismiss}
-                  className="w-full py-3 text-slate-400 font-bold text-sm hover:text-slate-600 transition-colors"
+                  className="w-full py-3 text-[#6B7280] font-bold text-sm hover:text-[#6B7280] transition-colors"
                 >
                   পরে করব
                 </button>
@@ -89,7 +89,7 @@ export default function NotificationPrompt() {
             {/* Subtle Close Button */}
             <button 
               onClick={handleDismiss}
-              className="absolute top-6 right-6 text-slate-300 hover:text-slate-500 transition-colors"
+              className="absolute top-6 right-6 text-slate-300 hover:text-[#6B7280] transition-colors"
             >
               <X size={20} />
             </button>

@@ -39,14 +39,14 @@ export default function Discounts() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-7xl mx-auto px-5 pt-4 pb-32"
+      className="max-w-7xl mx-auto px-5 pb-32"
     >
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-display font-bold text-white tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl font-display font-bold text-[#111111] tracking-tight flex items-center gap-2">
             <Tag className="text-primary" /> সকল অফার
           </h1>
-          <p className="text-xs text-white/40 font-medium font-sans">সবচেয়ে কম দামে সেরা পণ্যগুলো বেছে নিন - লিমিটেড অফার!</p>
+          <p className="text-xs text-[#6B7280] font-medium font-sans">সবচেয়ে কম দামে সেরা পণ্যগুলো বেছে নিন - লিমিটেড অফার!</p>
         </div>
       </div>
 
@@ -57,9 +57,9 @@ export default function Discounts() {
       </div>
 
       {products.length === 0 && (
-        <div className="text-center py-24 bg-white/5 rounded-[4rem] border border-dashed border-white/10 mx-4">
-          <Zap size={48} className="mx-auto mb-4 text-white/10" />
-          <p className="text-sm font-black uppercase tracking-[0.4em] text-white/10">আপাতত কোন অফার নেই</p>
+        <div className="text-center py-24 bg-[#F9FAFB] border-[#ECECEC] rounded-[4rem] mx-4">
+          <Zap size={48} className="mx-auto mb-4 text-[#6B7280]/20" />
+          <p className="text-sm font-black uppercase tracking-[0.4em] text-[#6B7280]">আপাতত কোন অফার নেই</p>
         </div>
       )}
     </motion.div>

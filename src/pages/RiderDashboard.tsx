@@ -89,29 +89,29 @@ export default function RiderDashboard() {
   const earnings = myOrders.filter(o => o.status === 'delivered').reduce((acc, o) => acc + (o.deliveryFee || 40), 0);
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-50">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+    <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="w-8 h-8 border-4 border-[#E21E26] border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-white pb-20">
       {/* Header */}
-      <div className="bg-slate-900 text-white p-6 pt-12 rounded-b-[3rem] shadow-xl">
+      <div className="bg-[#121212] text-white p-6 pt-12 rounded-b-[3rem] shadow-xl">
         <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
+                <div className="w-12 h-12 bg-[#E21E26] rounded-2xl flex items-center justify-center shadow-lg shadow-[#E21E26]/20">
                     <Truck size={24} className="text-white" />
                 </div>
                 <div>
                     <h1 className="font-display font-bold text-xl leading-tight">Rider Central</h1>
-                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{user?.displayName}</p>
+                    <p className="text-[10px] font-black text-[#E21E26] uppercase tracking-[0.2em]">{user?.displayName}</p>
                 </div>
             </div>
             <div className="flex gap-2">
                 <button 
                     onClick={toggleStatus}
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all border ${status === 'online' ? 'bg-green-500 text-white border-green-400' : 'bg-white/10 text-white/60 border-white/10'}`}
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all border ${status === 'online' ? 'bg-[#16A34A] text-white border-[#16A34A]' : 'bg-white/10 text-white/60 border-white/10'}`}
                 >
                     <Power size={20} />
                 </button>
@@ -127,16 +127,16 @@ export default function RiderDashboard() {
         <div className="grid grid-cols-2 gap-3">
             <div className="bg-white/10 p-4 rounded-3xl backdrop-blur-sm border border-white/10">
                 <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">Delivered</span>
-                <p className="text-xl font-display font-bold text-primary">{myOrders.filter(o => o.status === 'delivered').length}</p>
+                <p className="text-xl font-display font-bold text-[#E21E26]">{myOrders.filter(o => o.status === 'delivered').length}</p>
                 <div className="mt-2 h-1 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-primary w-2/3" />
+                    <div className="h-full bg-[#E21E26] w-2/3" />
                 </div>
             </div>
             <div className="bg-white/10 p-4 rounded-3xl backdrop-blur-sm border border-white/10">
                 <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">Earnings</span>
-                <p className="text-xl font-display font-bold text-green-400">৳{formatCurrency(earnings)}</p>
+                <p className="text-xl font-display font-bold text-[#16A34A]">৳{formatCurrency(earnings)}</p>
                 <div className="mt-2 h-1 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-green-400 w-1/2" />
+                    <div className="h-full bg-[#16A34A] w-1/2" />
                 </div>
             </div>
         </div>
@@ -144,22 +144,22 @@ export default function RiderDashboard() {
 
       {/* Tabs */}
       <div className="px-6 -mt-6">
-          <div className="bg-white p-1.5 rounded-[2rem] flex shadow-lg border border-slate-100">
+          <div className="bg-white p-1.5 rounded-[2rem] flex shadow-lg border border-[#ECECEC]">
               <button 
                 onClick={() => setActiveTab('active')}
-                className={`flex-1 py-3.5 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'active' ? 'bg-primary text-white shadow-xl shadow-primary/20' : 'text-slate-400'}`}
+                className={`flex-1 py-3.5 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'active' ? 'bg-[#121212] text-white shadow-xl shadow-black/10' : 'text-[#6B7280]'}`}
               >
                   Tasks
               </button>
               <button 
                 onClick={() => setActiveTab('available')}
-                className={`flex-1 py-3.5 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'available' ? 'bg-primary text-white shadow-xl shadow-primary/20' : 'text-slate-400'}`}
+                className={`flex-1 py-3.5 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'available' ? 'bg-[#121212] text-white shadow-xl shadow-black/10' : 'text-[#6B7280]'}`}
               >
                   Pool
               </button>
               <button 
                 onClick={() => setActiveTab('account')}
-                className={`flex-1 py-3.5 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'account' ? 'bg-primary text-white shadow-xl shadow-primary/20' : 'text-slate-400'}`}
+                className={`flex-1 py-3.5 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'account' ? 'bg-[#121212] text-white shadow-xl shadow-black/10' : 'text-[#6B7280]'}`}
               >
                   Wallet
               </button>
@@ -180,11 +180,11 @@ export default function RiderDashboard() {
                     {myOrders.length === 0 ? (
                         <div className="text-center py-20 bg-white rounded-[2.5rem] border border-dashed border-slate-200">
                             <Navigation size={48} className="mx-auto text-slate-200 mb-4" />
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No active tasks</p>
+                            <p className="text-xs font-bold text-[#6B7280] uppercase tracking-widest">No active tasks</p>
                         </div>
                     ) : (
                         myOrders.map(order => (
-                            <div key={order.id} className="bg-white p-5 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden group">
+                            <div key={order.id} className="bg-white p-5 rounded-[2.5rem] shadow-sm border border-[#ECECEC] relative overflow-hidden group">
                                 {order.status === 'delivered' && (
                                     <div className="absolute inset-0 bg-green-50/50 backdrop-blur-[1px] flex items-center justify-center p-6 z-10 text-center">
                                         <div className="bg-green-500 text-white px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg mb-2">
@@ -196,11 +196,11 @@ export default function RiderDashboard() {
                                 <div className="flex justify-between items-start mb-4">
                                     <div>
                                         <h3 className="font-display font-bold text-lg leading-none mb-1">#{order.id.slice(-6)}</h3>
-                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{order.customerName}</p>
+                                        <p className="text-[10px] text-[#6B7280] font-bold uppercase tracking-widest">{order.customerName}</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="font-display font-bold text-primary">৳{formatCurrency(order.total || 0)}</p>
-                                        <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${order.paymentMethod === 'cod' ? 'bg-orange-50 text-orange-500' : 'bg-green-50 text-green-500'}`}>
+                                        <p className="font-display font-bold text-[#111111]">৳{formatCurrency(order.total || 0)}</p>
+                                        <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${order.paymentMethod === 'cod' ? 'bg-orange-50 text-orange-600' : 'bg-green-50 text-green-600'}`}>
                                             {order.paymentMethod === 'cod' ? 'Collection' : 'Paid'}
                                         </span>
                                     </div>
@@ -208,30 +208,30 @@ export default function RiderDashboard() {
                                 
                                 <div className="space-y-3 mb-6">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
+                                        <div className="w-8 h-8 bg-[#F9FAFB] rounded-xl flex items-center justify-center text-[#6B7280]">
                                             <Package size={16} />
                                         </div>
                                         <div className="flex-1">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase leading-none mb-1">Pick up from</p>
-                                            <p className="text-xs font-bold text-slate-700">{order.sellerName || 'Local Merchant'}</p>
+                                            <p className="text-[10px] font-black text-[#6B7280] uppercase leading-none mb-1">Pick up from</p>
+                                            <p className="text-xs font-bold text-[#111111]">{order.sellerName || 'Local Merchant'}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
+                                        <div className="w-8 h-8 bg-[#F9FAFB] rounded-xl flex items-center justify-center text-[#6B7280]">
                                             <MapPin size={16} />
                                         </div>
                                         <div className="flex-1">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase leading-none mb-1">Deliver to</p>
+                                            <p className="text-[10px] font-black text-[#6B7280] uppercase leading-none mb-1">Deliver to</p>
                                             <div className="flex items-center justify-between">
-                                              <p className="text-xs font-bold text-slate-700">{typeof order.address === 'string' ? order.address : (order.address?.address || 'No Address')}</p>
+                                              <p className="text-xs font-bold text-[#111111]">{typeof order.address === 'string' ? order.address : (order.address?.address || 'No Address')}</p>
                                               {currentLocation && order.location && (
-                                                <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+                                                <span className="text-[10px] font-black text-[#E21E26] bg-[#E21E26]/10 px-2 py-0.5 rounded-md">
                                                   {formatDistance(calculateDistance(currentLocation.lat, currentLocation.lng, order.location.lat, order.location.lng))}
                                                 </span>
                                               )}
                                             </div>
                                             {order.addressData && (
-                                                <p className="text-[9px] text-slate-400 mt-0.5">
+                                                <p className="text-[9px] text-[#6B7280] mt-0.5">
                                                     {order.addressData.type} • Floor: {order.addressData.floorNo || 'N/A'} • Apt: {order.addressData.apartment || 'N/A'}
                                                 </p>
                                             )}
@@ -240,14 +240,14 @@ export default function RiderDashboard() {
                                     <div className="flex gap-2">
                                         <button 
                                             onClick={() => setShowMap(showMap === order.id ? null : order.id)}
-                                            className={`flex-1 py-4 ${showMap === order.id ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'} rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl flex items-center justify-center gap-2 transition-all`}
+                                            className={`flex-1 py-4 ${showMap === order.id ? 'bg-[#121212] text-white' : 'bg-[#F9FAFB] border border-[#ECECEC] text-[#6B7280]'} rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-sm flex items-center justify-center gap-2 transition-all`}
                                         >
                                             <MapIcon size={16} />
                                             {showMap === order.id ? 'Close Map' : 'View Map'}
                                         </button>
                                         <a 
                                             href={`tel:${order.phone}`}
-                                            className="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl flex items-center justify-center gap-2"
+                                            className="flex-1 py-4 bg-[#E21E26] text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg flex items-center justify-center gap-2"
                                         >
                                             <Phone size={16} />
                                             Call
@@ -271,7 +271,7 @@ export default function RiderDashboard() {
                                                         href={`https://www.google.com/maps/dir/?api=1&destination=${order.location?.lat},${order.location?.lng}`}
                                                         target="_blank"
                                                         rel="noreferrer"
-                                                        className="text-[9px] font-black text-primary uppercase underline"
+                                                        className="text-[9px] font-black text-[#E21E26] uppercase underline"
                                                     >
                                                         Open in Google Maps
                                                     </a>
@@ -279,14 +279,14 @@ export default function RiderDashboard() {
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
-                                    <p className="text-[9px] text-center text-slate-400 mt-2 italic">* Communication is key for fast delivery</p>
+                                    <p className="text-[9px] text-center text-[#6B7280] mt-2 italic">* Communication is key for fast delivery</p>
                                 </div>
 
                                 <div className="flex flex-col gap-2 p-1">
                                   {order.status === 'shipped' && !order.subStatus && (
                                       <button 
                                           onClick={() => handleArrived(order.id)}
-                                          className="w-full py-4 bg-orange-500 text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl hover:bg-orange-600 transition-all active:scale-95"
+                                          className="w-full py-4 bg-orange-500 text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-lg hover:bg-orange-600 transition-all active:scale-95"
                                       >
                                           Arrived at Merchant
                                       </button>
@@ -294,7 +294,7 @@ export default function RiderDashboard() {
                                   {order.status === 'shipped' && order.subStatus === 'arrived_at_pickup' && (
                                       <button 
                                           onClick={() => handlePickUp(order.id)}
-                                          className="w-full py-4 bg-primary text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl hover:bg-primary/90 transition-all active:scale-95"
+                                          className="w-full py-4 bg-[#E21E26] text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-lg hover:bg-[#E21E26]/90 transition-all active:scale-95"
                                       >
                                           Picked Up & On the way
                                       </button>
@@ -302,7 +302,7 @@ export default function RiderDashboard() {
                                   {order.status === 'shipped' && order.subStatus === 'in_transit' && (
                                       <button 
                                           onClick={() => handleDeliver(order.id)}
-                                          className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl hover:bg-slate-800 transition-all active:scale-95"
+                                          className="w-full py-4 bg-[#121212] text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-lg hover:bg-black transition-all active:scale-95"
                                       >
                                           Delivery Done (Notify Customer)
                                       </button>
@@ -334,19 +334,19 @@ export default function RiderDashboard() {
                         </div>
                     )}
                     {status === 'online' && availableOrders.map(order => (
-                        <div key={order.id} className="bg-white p-5 rounded-[2.5rem] shadow-sm border border-slate-100 flex items-center justify-between group hover:shadow-xl transition-all duration-500">
+                        <div key={order.id} className="bg-white p-5 rounded-[2.5rem] shadow-sm border border-[#ECECEC] flex items-center justify-between group hover:shadow-xl transition-all duration-500">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-primary/5 rounded-[1.5rem] flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                                <div className="w-12 h-12 bg-[#E21E26]/5 rounded-[1.5rem] flex items-center justify-center text-[#E21E26] group-hover:scale-110 transition-transform">
                                     <Package size={24} />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Delivery Pay</span>
-                                    <h4 className="font-bold text-sm leading-none mb-1">৳{formatCurrency(order.deliveryFee || 40)}</h4>
-                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                                    <span className="text-[9px] font-black text-[#6B7280]/40 uppercase tracking-widest">Delivery Pay</span>
+                                    <h4 className="font-bold text-sm leading-none mb-1 text-[#111111]">৳{formatCurrency(order.deliveryFee || 40)}</h4>
+                                    <p className="text-[10px] text-[#6B7280] font-bold uppercase tracking-widest">
                                         {(typeof order.address === 'string' ? order.address : (order.address?.address || '')).split(',')[0]}...
                                     </p>
                                     {currentLocation && order.location && (
-                                        <p className="text-[8px] font-black text-primary mt-1 flex items-center gap-1">
+                                        <p className="text-[8px] font-black text-[#E21E26] mt-1 flex items-center gap-1">
                                             <Navigation size={8} />
                                             {formatDistance(calculateDistance(currentLocation.lat, currentLocation.lng, order.location.lat, order.location.lng))} away
                                         </p>
@@ -355,7 +355,7 @@ export default function RiderDashboard() {
                             </div>
                             <button 
                                 onClick={() => handleAccept(order.id)}
-                                className="px-6 py-3 bg-primary text-white rounded-2xl font-black text-[9px] uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+                                className="px-6 py-3 bg-[#E21E26] text-white rounded-2xl font-black text-[9px] uppercase tracking-widest shadow-lg shadow-[#E21E26]/20 hover:scale-105 active:scale-95 transition-all"
                             >
                                 Accept
                             </button>
@@ -376,9 +376,9 @@ export default function RiderDashboard() {
                     exit={{ opacity: 0, scale: 0.95 }}
                     className="space-y-6"
                 >
-                    <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-8 rounded-[3rem] text-white shadow-2xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-40 h-40 bg-primary/20 rounded-full translate-x-1/2 -translate-y-1/2 blur-3xl" />
-                        <CreditCard size={32} className="text-primary mb-12" />
+                    <div className="bg-[#121212] p-8 rounded-[3rem] text-white shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-40 h-40 bg-[#E21E26]/20 rounded-full translate-x-1/2 -translate-y-1/2 blur-3xl" />
+                        <CreditCard size={32} className="text-[#E21E26] mb-12" />
                         <p className="text-xs font-medium text-white/40 uppercase tracking-[0.2em] mb-2">Withdrawable Balance</p>
                         <h2 className="text-4xl font-display font-bold mb-8">৳{formatCurrency(earnings)}</h2>
                         
@@ -399,7 +399,7 @@ export default function RiderDashboard() {
                                             }
                                             }
                                         }}
-                                        className="text-[10px] font-black text-primary uppercase underline"
+                                        className="text-[10px] font-black text-[#E21E26] uppercase underline"
                                     >
                                         Edit
                                     </button>
@@ -421,31 +421,31 @@ export default function RiderDashboard() {
                                    }
                                  }
                                }}
-                               className="w-full py-4 bg-primary text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all"
+                               className="w-full py-4 bg-[#E21E26] text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl shadow-[#E21E26]/20 hover:scale-[1.02] transition-all"
                              >
                                Withdraw Now
                              </button>
                         </div>
                     </div>
 
-                    <div className="bg-white p-6 rounded-3xl border border-slate-100 divide-y divide-slate-50">
+                    <div className="bg-white p-6 rounded-3xl border border-[#ECECEC] divide-y divide-[#F9FAFB]">
                         <div className="py-4 first:pt-0 flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
+                                <div className="w-10 h-10 bg-[#F9FAFB] rounded-xl flex items-center justify-center text-[#6B7280]">
                                     <User size={18} />
                                 </div>
-                                <span className="text-sm font-bold text-slate-700">Account Verified</span>
+                                <span className="text-sm font-bold text-[#111111]">Account Verified</span>
                             </div>
                             <span className="text-[10px] font-black text-green-500 uppercase">Success</span>
                         </div>
                         <div className="py-4 flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
+                                <div className="w-10 h-10 bg-[#F9FAFB] rounded-xl flex items-center justify-center text-[#6B7280]">
                                     <Truck size={18} />
                                 </div>
-                                <span className="text-sm font-bold text-slate-700">Vehicle Type</span>
+                                <span className="text-sm font-bold text-[#111111]">Vehicle Type</span>
                             </div>
-                            <span className="text-[10px] font-black text-slate-400 uppercase underline">Add Details</span>
+                            <span className="text-[10px] font-black text-[#6B7280] uppercase underline">Add Details</span>
                         </div>
                     </div>
                 </motion.div>

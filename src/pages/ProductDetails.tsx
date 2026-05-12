@@ -140,17 +140,17 @@ export default function ProductDetails() {
   };
 
   if (loading) return (
-    <div className="max-w-md mx-auto min-h-screen animate-pulse">
-        <div className="h-[480px] bg-white/5 rounded-b-[4rem]" />
+    <div className="max-w-md mx-auto min-h-screen animate-pulse bg-white">
+        <div className="h-[480px] bg-gray-100 rounded-b-[4rem]" />
         <div className="px-6 -mt-20">
-            <div className="glass-card p-8 h-96 bg-white/5" />
+            <div className="bg-white p-8 h-96 rounded-[2.5rem] shadow-lg border border-gray-100" />
         </div>
     </div>
   );
 
   if (!product) return (
-    <div className="text-center py-24 px-10">
-        <h2 className="font-display font-black text-2xl text-white tracking-tight">Product not found</h2>
+    <div className="text-center py-24 px-10 bg-white min-h-screen">
+        <h2 className="font-display font-black text-2xl text-[#111111] tracking-tight">Product not found</h2>
         <Link to="/products" className="mt-6 text-primary font-black uppercase tracking-widest bg-primary/10 px-8 py-3 rounded-full border border-primary/20 inline-block">Return to shop</Link>
     </div>
   );
@@ -159,10 +159,10 @@ export default function ProductDetails() {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-md mx-auto min-h-screen"
+      className="max-w-md mx-auto min-h-screen bg-white"
     >
       <Helmet>
-        <title>{dData(product.name, product.nameEn)} - Premium Mall</title>
+        <title>{dData(product.name, product.nameEn)} - Shwapno</title>
         <meta name="description" content={product.seoDescription || dData(product.description, product.descriptionEn) || `Fresh ${dData(product.name, product.nameEn)} delivered to your door.`} />
       </Helmet>
 
@@ -174,15 +174,15 @@ export default function ProductDetails() {
           className="w-full h-full object-cover rounded-b-[4rem] shadow-2xl" 
           alt={dData(product.name, product.nameEn)} 
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050E21]/60 via-transparent to-black/30 rounded-b-[4rem]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-white/60 via-transparent to-black/30 rounded-b-[4rem]" />
         
-        <button onClick={() => navigate(-1)} className="absolute top-8 left-6 w-12 h-12 glass-card rounded-full flex items-center justify-center text-white hover:bg-primary hover:text-black transition-all border-white/20">
+        <button onClick={() => navigate(-1)} className="absolute top-8 left-6 w-12 h-12 glass-card rounded-full flex items-center justify-center text-[#111111] hover:bg-primary hover:text-white transition-all border-[#ECECEC]">
           <ArrowLeft size={24} />
         </button>
         <button 
           onClick={toggleWishlist}
           className={`absolute top-8 right-6 w-12 h-12 glass-card rounded-full flex items-center justify-center transition-all ${
-            isWishlisted ? 'bg-red-500 text-white border-red-400' : 'text-white hover:bg-white hover:text-red-500 border-white/20'
+            isWishlisted ? 'bg-red-500 text-white border-red-400' : 'text-[#111111] hover:bg-white hover:text-red-500 border-[#ECECEC]'
           }`}
         >
           <Heart size={24} fill={isWishlisted ? "currentColor" : "none"} />
@@ -190,17 +190,17 @@ export default function ProductDetails() {
       </div>
 
       <div className="px-6 -mt-20 relative z-10 pb-32">
-        <div className="glass-card p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-white/20">
+        <div className="glass-card p-8 shadow-xl border-[#ECECEC]">
           <div className="flex justify-between items-start mb-6">
             <div className="flex-1 mr-4">
               <span className="text-primary font-black text-[10px] uppercase tracking-[0.3em] mb-3 block flex items-center gap-2">
                 <div className="w-4 h-[1px] bg-primary"></div>
                 {product.category}
               </span>
-              <h1 className="font-display font-black text-3xl text-white leading-tight tracking-tight">{dData(product.name, product.nameEn)}</h1>
+              <h1 className="font-display font-black text-3xl text-[#111111] leading-tight tracking-tight">{dData(product.name, product.nameEn)}</h1>
               {effective.promotion && (
                   <div className="mt-3 flex flex-col gap-2">
-                    <div className="bg-primary/20 text-primary px-3 py-1.5 rounded-full w-fit flex items-center gap-1.5 border border-primary/30 backdrop-blur-md animate-pulse">
+                    <div className="bg-primary/10 text-primary px-3 py-1.5 rounded-full w-fit flex items-center gap-1.5 border border-primary/20 backdrop-blur-md animate-pulse">
                         <Zap size={12} fill="currentColor" />
                         <span className="text-[9px] font-black uppercase tracking-widest">Active Flash Sale: {effective.promotion.title}</span>
                     </div>
@@ -210,15 +210,15 @@ export default function ProductDetails() {
                   </div>
               )}
               {product.isPreOrder && (
-                  <div className="mt-3 bg-blue-500/20 text-blue-300 px-3 py-1.5 rounded-full w-fit flex items-center gap-1.5 border border-blue-500/30 backdrop-blur-md">
+                  <div className="mt-3 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full w-fit flex items-center gap-1.5 border border-blue-200">
                       <Clock size={12} />
                       <span className="text-[9px] font-black uppercase tracking-widest">Pre-order Specialist</span>
                   </div>
               )}
             </div>
-            <div className="glass-card bg-white/10 px-4 py-2 flex items-center gap-2 border-white/10 rounded-2xl">
-              <Star size={18} className="text-primary fill-primary" />
-              <span className="text-sm font-black text-white">
+            <div className="glass-card bg-[#F9FAFB] px-4 py-2 flex items-center gap-2 border-[#ECECEC] rounded-2xl">
+              <Star size={18} className="text-primary fill-[#E21E26]" />
+              <span className="text-sm font-black text-[#111111]">
                 {reviews.length > 0 
                   ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
                   : (product.rating || '4.5')}
@@ -226,7 +226,7 @@ export default function ProductDetails() {
             </div>
           </div>
 
-          <div className="flex items-center gap-6 mb-6 text-white/40">
+          <div className="flex items-center gap-6 mb-6 text-[#6B7280]">
             <div className="flex items-center gap-2">
               <ShieldCheck size={18} className="text-primary" />
               <span className="text-[10px] font-black uppercase tracking-widest">Premium quality</span>
@@ -240,14 +240,14 @@ export default function ProductDetails() {
           {product.tags && product.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-8">
               {product.tags.map((tag: string) => (
-                <span key={tag} className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 bg-white/5 border border-white/10 px-3 py-1 rounded-lg">
+                <span key={tag} className="text-[9px] font-black uppercase tracking-[0.2em] text-[#6B7280] bg-[#F9FAFB] border border-[#ECECEC] px-3 py-1 rounded-lg">
                   #{tag}
                 </span>
               ))}
             </div>
           )}
 
-          <p className="text-white/60 text-sm leading-relaxed mb-10 font-medium">
+          <p className="text-[#6B7280] text-sm leading-relaxed mb-10 font-medium">
             {dData(product.description, product.descriptionEn) || `Experience the finest ${dData(product.name, product.nameEn)} sourced directly from our verified premium merchants.`}
           </p>
 
@@ -255,25 +255,25 @@ export default function ProductDetails() {
             {/* Price section */}
             <div className="flex flex-col">
               <div className="flex items-baseline gap-3">
-                <span className="text-4xl font-display font-black text-primary leading-none tracking-tight drop-shadow-md">
+                <span className="text-4xl font-display font-black text-primary leading-none tracking-tight">
                    ৳{formatCurrency(isWeightBased 
                       ? (unitBasePrice / 1000) * selectedWeight 
                       : unitBasePrice)}
                 </span>
                 {productDiscountPrice && (
-                    <span className="text-xl font-bold text-white/20 line-through">
+                    <span className="text-xl font-bold text-[#6B7280] line-through">
                        ৳{formatCurrency(isWeightBased 
                           ? (productPrice / 1000) * selectedWeight 
                           : productPrice)}
                     </span>
                 )}
-                <span className="text-xs font-black text-white/30 uppercase tracking-widest">
-                  / {isWeightBased ? formatWeight(selectedWeight) : (product.unit || 'pkt')}
+                <span className="text-xs font-black text-[#6B7280] uppercase tracking-widest">
+                   / {isWeightBased ? formatWeight(selectedWeight) : (product.unit || 'pkt')}
                 </span>
               </div>
               
               {qtyInCart > 0 && (
-                <div className="mt-2 text-[10px] font-bold text-white/40 uppercase tracking-widest flex items-center gap-2">
+                <div className="mt-2 text-[10px] font-bold text-[#6B7280] uppercase tracking-widest flex items-center gap-2">
                    <div className="w-1 h-1 bg-primary rounded-full animate-pulse"></div>
                    Cart Total: ৳{formatCurrency((isWeightBased 
                       ? (unitBasePrice / 1000) * selectedWeight 
@@ -281,7 +281,7 @@ export default function ProductDetails() {
                 </div>
               )}
 
-              <div className="text-[9px] text-white/40 mt-3 font-black uppercase tracking-widest bg-white/5 self-start px-4 py-1.5 rounded-full border border-white/5">
+              <div className="text-[9px] text-[#6B7280] mt-3 font-black uppercase tracking-widest bg-[#F9FAFB] self-start px-4 py-1.5 rounded-full border border-[#ECECEC]">
                 {isWeightBased ? (
                     <>BASE PRICE: ৳{formatCurrency(unitBasePrice)} / KG</>
                 ) : (
@@ -293,8 +293,8 @@ export default function ProductDetails() {
             {/* Weight Selection Chips */}
             {isWeightBased && (
                 <div className="space-y-4">
-                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] flex items-center gap-3">
-                        <div className="w-10 h-[1px] bg-white/10"></div>
+                    <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] flex items-center gap-3">
+                        <div className="w-10 h-[1px] bg-[#ECECEC]"></div>
                         Select Option
                     </label>
                     <div className="flex flex-wrap gap-3">
@@ -304,8 +304,8 @@ export default function ProductDetails() {
                                 onClick={() => setSelectedWeight(parseFloat(w))}
                                 className={`px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border ${
                                     selectedWeight === parseFloat(w)
-                                        ? 'bg-primary text-black border-primary shadow-[0_10px_20px_rgba(212,175,55,0.2)] scale-105'
-                                        : 'bg-white/5 text-white/40 border-white/10 hover:border-white/20'
+                                        ? 'bg-[#121212] text-white border-[#121212] shadow-lg scale-105'
+                                        : 'bg-white text-[#6B7280] border-[#ECECEC] hover:border-primary/40'
                                 }`}
                             >
                                 {formatWeight(w)}
@@ -317,8 +317,8 @@ export default function ProductDetails() {
 
             {/* Quantity Selector / Add Flow */}
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] flex items-center gap-3">
-                <div className="w-10 h-[1px] bg-white/10"></div>
+              <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] flex items-center gap-3">
+                <div className="w-10 h-[1px] bg-[#ECECEC]"></div>
                 {qtyInCart > 0 ? 'Managing Selection' : 'Quantity Selection'}
               </label>
               
@@ -329,7 +329,7 @@ export default function ProductDetails() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     onClick={() => addToCart(product, isWeightBased ? selectedWeight : undefined)}
-                    className="w-full bg-primary text-black font-black uppercase tracking-[0.2em] text-xs py-6 rounded-[2rem] shadow-[0_15px_35px_rgba(212,175,55,0.2)] transition-all flex items-center justify-center gap-3 h-20"
+                    className="w-full bg-[#121212] text-white font-black uppercase tracking-[0.2em] text-xs py-6 rounded-[2rem] shadow-xl transition-all flex items-center justify-center gap-3 h-20 active:scale-95 hover:bg-black"
                   >
                     <ShoppingCart size={24} />
                     Add to Cart Corner
@@ -338,27 +338,27 @@ export default function ProductDetails() {
                   <motion.div 
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="flex items-center gap-8 bg-white/5 p-3 rounded-[2.5rem] border border-white/10 w-full backdrop-blur-md"
+                    className="flex items-center gap-8 bg-[#F9FAFB] p-3 rounded-[2.5rem] border border-[#ECECEC] w-full shadow-sm"
                   >
                     <motion.button 
                       whileTap={{ scale: 0.9 }}
                       onClick={() => updateQuantity(product.id, qtyInCart - 1, isWeightBased ? selectedWeight : undefined)}
-                      className="w-16 h-16 bg-white/10 rounded-3xl shadow-xl flex items-center justify-center text-white hover:bg-white/20 transition-all border border-white/10"
+                      className="w-16 h-16 bg-white rounded-3xl shadow-sm flex items-center justify-center text-[#111111] hover:bg-gray-50 transition-all border border-[#ECECEC]"
                     >
                       <Minus size={28} strokeWidth={3} />
                     </motion.button>
                     
                     <div className="flex-1 flex flex-col items-center">
-                      <span className="font-black text-3xl font-display text-white tracking-tighter">
+                      <span className="font-black text-3xl font-display text-[#111111] tracking-tighter">
                         {qtyInCart} <span className="text-primary text-sm uppercase tracking-widest ml-1">{isWeightBased ? formatWeight(selectedWeight) : (product.unit || 'pcs')}</span>
                       </span>
-                      <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em] mt-1">Adjust Quantity</span>
+                      <span className="text-[8px] font-black text-[#6B7280] uppercase tracking-[0.2em] mt-1">Adjust Quantity</span>
                     </div>
 
                     <motion.button 
                        whileTap={{ scale: 0.9 }}
                        onClick={() => updateQuantity(product.id, qtyInCart + 1, isWeightBased ? selectedWeight : undefined)}
-                       className="w-16 h-16 bg-primary rounded-3xl shadow-[0_10px_25px_rgba(212,175,55,0.3)] flex items-center justify-center text-black transition-all hover:bg-white"
+                       className="w-16 h-16 bg-[#121212] rounded-3xl shadow-xl flex items-center justify-center text-white transition-all hover:bg-black"
                     >
                       <Plus size={28} strokeWidth={3} />
                     </motion.button>
@@ -376,14 +376,14 @@ export default function ProductDetails() {
                 onClick={() => {
                     navigate('/checkout');
                 }}
-                className={`text-white font-black uppercase tracking-[0.2em] text-xs py-5 rounded-[1.5rem] border border-white/20 transition-all flex items-center justify-center shadow-2xl h-16 ${qtyInCart > 0 ? 'bg-primary/20 hover:bg-primary/30 border-primary/30' : 'bg-white/5 opacity-50 cursor-not-allowed'}`}
+                className={`text-white font-black uppercase tracking-[0.2em] text-xs py-5 rounded-[1.5rem] border border-[#ECECEC] transition-all flex items-center justify-center shadow-lg h-16 ${qtyInCart > 0 ? 'bg-primary hover:bg-[#B71C1C]' : 'bg-[#F9FAFB] text-[#6B7280] opacity-50 cursor-not-allowed'}`}
               >
                 Proceed to Checkout
               </motion.button>
               <motion.button 
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/')}
-                className="bg-white/5 hover:bg-white/10 text-white/60 font-black uppercase tracking-[0.2em] text-xs py-5 rounded-[1.5rem] border border-white/10 transition-all flex items-center justify-center h-16"
+                className="bg-white hover:bg-gray-50 text-[#111111] font-black uppercase tracking-[0.2em] text-xs py-5 rounded-[1.5rem] border border-[#ECECEC] transition-all flex items-center justify-center h-16 shadow-sm"
               >
                 Continue Shopping
               </motion.button>
@@ -418,7 +418,7 @@ export default function ProductDetails() {
                       alert('Service not available.');
                    }
                 }}
-                className="py-4 bg-white/5 text-white/60 rounded-[1.5rem] flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-widest border border-white/5 shadow-inner"
+                className="py-4 bg-[#F9FAFB] text-[#6B7280] rounded-[1.5rem] flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-widest border border-[#ECECEC] shadow-sm hover:text-[#111111] transition-all"
               >
                 <Phone size={20} fill="currentColor" />
                 Hotline Call
@@ -436,7 +436,7 @@ export default function ProductDetails() {
             <div className="flex justify-between items-end px-2">
                 <div className="flex flex-col">
                   <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2">Customer Experience</span>
-                  <h3 className="font-display font-black text-2xl text-white">Reviews ({reviews.length})</h3>
+                  <h3 className="font-display font-black text-2xl text-[#111111]">Reviews ({reviews.length})</h3>
                 </div>
                 {user && (
                     <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full border border-primary/20 text-primary font-black text-[9px] uppercase tracking-widest">
@@ -447,7 +447,7 @@ export default function ProductDetails() {
             </div>
 
             {user && (
-                <form onSubmit={handleReviewSubmit} className="glass-card p-6 border-white/10">
+                <form onSubmit={handleReviewSubmit} className="glass-card p-6 border-[#ECECEC]">
                     <div className="flex gap-3 mb-6">
                         {[1, 2, 3, 4, 5].map((star) => (
                             <button
@@ -458,7 +458,7 @@ export default function ProductDetails() {
                             >
                                 <Star 
                                     size={32} 
-                                    className={`${newReview.rating >= star ? 'text-primary fill-primary drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]' : 'text-white/10'}`} 
+                                    className={`${newReview.rating >= star ? 'text-primary fill-[#E21E26]' : 'text-gray-200'}`} 
                                 />
                             </button>
                         ))}
@@ -467,16 +467,16 @@ export default function ProductDetails() {
                         <textarea
                             required
                             placeholder="Share your thoughts about this product..."
-                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm min-h-[120px] outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-white placeholder:text-white/20 backdrop-blur-sm"
+                            className="w-full bg-[#F9FAFB] border border-[#ECECEC] rounded-2xl p-5 text-sm min-h-[120px] outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-[#111111] placeholder:text-[#6B7280]"
                             value={newReview.comment}
                             onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
                         />
                         <button 
                             type="submit"
                             disabled={submittingReview}
-                            className="absolute bottom-4 right-4 w-12 h-12 bg-primary text-black rounded-xl shadow-xl hover:bg-white transition-all disabled:opacity-50 flex items-center justify-center"
+                            className="absolute bottom-4 right-4 w-12 h-12 bg-[#121212] text-white rounded-xl shadow-xl hover:bg-black transition-all disabled:opacity-50 flex items-center justify-center"
                         >
-                            {submittingReview ? <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : <Send size={20} />}
+                            {submittingReview ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Send size={20} />}
                         </button>
                     </div>
                 </form>
@@ -484,44 +484,44 @@ export default function ProductDetails() {
 
             <div className="grid grid-cols-1 gap-6">
                 {reviews.length === 0 ? (
-                    <div className="text-center py-16 glass-card border-white/5">
-                        <p className="text-white/30 text-xs font-bold uppercase tracking-widest">No reviews yet. Be the first to rate!</p>
+                    <div className="text-center py-16 glass-card border-[#ECECEC]">
+                        <p className="text-[#6B7280] text-xs font-bold uppercase tracking-widest">No reviews yet. Be the first to rate!</p>
                     </div>
                 ) : (
                     reviews.map((review) => (
-                        <div key={review.id} className="glass-card p-6 border-white/10 shadow-lg relative overflow-hidden group">
+                        <div key={review.id} className="glass-card p-6 border-[#ECECEC] shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
                             <div className="absolute top-0 right-0 p-4 opacity-[0.03] -rotate-12">
-                              <Star size={60} className="text-white" />
+                              <Star size={60} className="#111111" />
                             </div>
                             <div className="flex justify-between items-start mb-4 relative z-10">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 glass-card rounded-2xl overflow-hidden flex items-center justify-center border-white/10 bg-white/5 shrink-0">
+                                    <div className="w-12 h-12 glass-card rounded-2xl overflow-hidden flex items-center justify-center border-[#ECECEC] bg-[#F9FAFB] shrink-0">
                                         {review.userPhoto ? (
                                             <img src={review.userPhoto} alt={review.userName} className="w-full h-full object-cover" />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-white/20">
+                                            <div className="w-full h-full flex items-center justify-center text-gray-400">
                                               <UserIcon size={24} />
                                             </div>
                                         )}
                                     </div>
                                     <div>
-                                        <h4 className="text-sm font-black text-white mb-1">{review.userName}</h4>
+                                        <h4 className="text-sm font-black text-[#111111] mb-1">{review.userName}</h4>
                                         <div className="flex items-center gap-1">
                                             {[...Array(5)].map((_, i) => (
                                                 <Star 
                                                     key={i} 
                                                     size={10} 
-                                                    className={`${i < review.rating ? 'text-primary fill-primary' : 'text-white/10'}`} 
+                                                    className={`${i < review.rating ? 'text-primary fill-[#E21E26]' : 'text-gray-200'}`} 
                                                 />
                                             ))}
                                         </div>
                                     </div>
                                 </div>
-                                <span className="text-[9px] text-white/30 font-black uppercase tracking-widest">
+                                <span className="text-[9px] text-[#6B7280] font-black uppercase tracking-widest">
                                     {review.createdAt?.toDate().toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) || 'JUST NOW'}
                                 </span>
                             </div>
-                            <p className="text-sm text-white/70 leading-relaxed font-medium relative z-10 bg-white/5 p-4 rounded-xl border border-white/5 italic">
+                            <p className="text-sm text-[#4B5563] leading-relaxed font-medium relative z-10 bg-[#F9FAFB] p-4 rounded-xl border border-[#ECECEC] italic">
                                 "{review.comment}"
                             </p>
                         </div>
@@ -535,8 +535,8 @@ export default function ProductDetails() {
             <div className="mt-16 mb-24">
                 <div className="flex items-center justify-between mb-8 px-2">
                   <div className="flex flex-col">
-                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2">curated Selection</span>
-                    <h3 className="font-display font-black text-2xl text-white">Recommended</h3>
+                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2">Curated Selection</span>
+                    <h3 className="font-display font-black text-2xl text-[#111111]">Recommended</h3>
                   </div>
                   <Link to="/products" className="text-primary text-[10px] font-black uppercase tracking-widest bg-primary/10 px-4 py-2 rounded-full border border-primary/20">All Deals</Link>
                 </div>

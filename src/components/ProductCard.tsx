@@ -76,16 +76,16 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
         return (
             <motion.div 
                 whileHover={{ y: -2 }}
-                className="flex-shrink-0 w-44 glass-card p-2 relative group flex flex-col h-full"
+                className="flex-shrink-0 w-44 bg-white border border-[#ECECEC] shadow-sm p-3 rounded-2xl relative group flex flex-col h-full"
             >
                 <div 
-                    className="aspect-square rounded-xl overflow-hidden mb-2 cursor-pointer bg-white/5 relative"
+                    className="aspect-square rounded-xl overflow-hidden mb-2 cursor-pointer bg-white relative"
                     onClick={() => navigate(`/product/${product.id}`)}
                 >
                     <img src={product.image || appSettings.logo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={product.name} />
                     {effective.promotion && (
                         <div className="absolute top-1 right-1 flex flex-col items-end gap-1 z-10 scale-75 origin-top-right">
-                             <div className="bg-primary text-black rounded-lg px-1 py-0.5 flex items-center gap-1 animate-pulse shrink-0">
+                             <div className="bg-primary text-white rounded-lg px-2 py-1 flex items-center gap-1 animate-pulse shrink-0">
                                 <Zap size={8} fill="currentColor" />
                                 <span className="text-[6px] font-black uppercase tracking-tight">Flash</span>
                             </div>
@@ -94,19 +94,16 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
                     )}
                 </div>
                 
-                <h3 className="font-bold text-[11px] text-white truncate mb-1 leading-tight">{dData(product.name, product.nameEn)}</h3>
+                <h3 className="font-bold text-[11px] text-[#111111] truncate mb-1 leading-tight">{dData(product.name, product.nameEn)}</h3>
                 
                 <div className="flex flex-col gap-0.5 mb-2">
                     <div className="flex items-baseline gap-1">
                         <span className="text-[13px] font-black text-primary">৳{formatCurrency(displayPrice)}</span>
                         {discountPrice && (
-                            <span className="text-[9px] text-white/30 font-bold line-through">৳{formatCurrency(displayStrikePrice)}</span>
+                            <span className="text-[9px] text-[#6B7280] font-bold line-through opacity-50">৳{formatCurrency(displayStrikePrice)}</span>
                         )}
-                        <span className="text-[8px] text-white/40 font-bold uppercase tracking-tighter"> / {isWeightBased ? formatWeight(selectedWeight) : product.unit}</span>
+                        <span className="text-[8px] text-[#6B7280] font-bold uppercase tracking-tighter"> / {isWeightBased ? formatWeight(selectedWeight) : product.unit}</span>
                     </div>
-                    {isWeightBased && (
-                        <span className="text-[7px] text-white/30 font-bold uppercase">৳{formatCurrency(basePrice)}/KG</span>
-                    )}
                 </div>
 
                 {isWeightBased && (
@@ -120,8 +117,8 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
                                 }}
                                 className={`px-1.5 py-0.5 rounded-md text-[7px] font-black uppercase transition-all border ${
                                     selectedWeight === parseFloat(w)
-                                        ? 'bg-primary text-black border-primary'
-                                        : 'bg-white/5 text-white/40 border-white/10 hover:border-white/20'
+                                        ? 'bg-primary text-white border-primary'
+                                        : 'bg-[#F9FAFB] text-[#6B7280] border-[#ECECEC] hover:border-primary/20'
                                 }`}
                             >
                                 {formatWeight(w)}
@@ -153,17 +150,17 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
             layout
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="glass-card p-2 relative group flex flex-col h-full hover:shadow-primary/5 transition-all border-white/20"
+            className="bg-white border border-[#ECECEC] shadow-sm p-3 rounded-2xl relative group flex flex-col h-full hover:shadow-lg transition-all"
         >
             <div 
-                className="relative aspect-square rounded-xl overflow-hidden mb-2 cursor-pointer bg-white/5"
+                className="relative aspect-square rounded-xl overflow-hidden mb-2 cursor-pointer bg-white"
                 onClick={() => navigate(`/product/${product.id}`)}
             >
                 <img src={product.image || appSettings.logo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={product.name} />
                 
                 {effective.promotion && (
                     <div className="absolute top-1 right-1 flex flex-col items-end gap-1 z-10 overflow-hidden">
-                        <div className="bg-primary text-black rounded-lg px-1.5 py-0.5 flex items-center gap-1 shadow-xl border border-black/10 animate-pulse shrink-0">
+                        <div className="bg-primary text-white rounded-lg px-2 py-1 flex items-center gap-1 shadow-md border border-white/10 animate-pulse shrink-0">
                             <Zap size={9} fill="currentColor" />
                             <span className="text-[8px] font-black uppercase tracking-tight">
                                 {(effective.promotion as any)?.type ? 'DEAL' : 'Flash Sale'}
@@ -174,7 +171,7 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
                 )}
 
                 {discountPrice && (
-                    <div className="absolute top-1.5 left-0 bg-primary text-black text-[8px] font-black px-1.5 py-0.5 rounded-r-md shadow-lg">
+                    <div className="absolute top-1.5 left-0 bg-primary text-white text-[8px] font-black px-2 py-1 rounded-r-md shadow-lg">
                         SAVE ৳{formatCurrency(isWeightBased ? (displayStrikePrice - displayPrice) : (price - discountPrice))}
                     </div>
                 )}
@@ -182,20 +179,20 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
             
             <div className="flex flex-col flex-1">
                 <div className="flex justify-between items-start mb-0.5">
-                    <span className="text-[8px] text-white/40 font-bold uppercase tracking-tight">
+                    <span className="text-[8px] text-[#6B7280] font-bold uppercase tracking-tight">
                         {isWeightBased ? `Min. ${formatWeight(product.minWeight || parsedWeights[0])}` : `Per ${product.unit || 'Piece'}`}
                     </span>
                 </div>
                 
-                <h3 className="font-bold text-[11px] text-white truncate mb-1.5 leading-tight group-hover:text-primary transition-colors">{dData(product.name, product.nameEn)}</h3>
+                <h3 className="font-bold text-[11px] text-[#111111] truncate mb-1.5 leading-tight group-hover:text-primary transition-colors">{dData(product.name, product.nameEn)}</h3>
                 
                 <div className="flex flex-col mb-2">
                     <div className="flex items-center gap-1 flex-wrap">
                         <span className="text-[13px] font-black text-primary">৳{formatCurrency(displayPrice)}</span>
                         {discountPrice && (
-                            <span className="text-[9px] text-white/30 font-bold line-through">৳{formatCurrency(displayStrikePrice)}</span>
+                            <span className="text-[9px] text-[#6B7280] font-bold line-through opacity-50">৳{formatCurrency(displayStrikePrice)}</span>
                         )}
-                        <span className="text-[8px] text-white/40 font-bold uppercase tracking-tighter"> / {isWeightBased ? formatWeight(selectedWeight) : product.unit}</span>
+                        <span className="text-[8px] text-[#6B7280] font-bold uppercase tracking-tighter"> / {isWeightBased ? formatWeight(selectedWeight) : product.unit}</span>
                     </div>
                 </div>
 
@@ -210,8 +207,8 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
                                 }}
                                 className={`px-1.5 py-0.5 rounded-md text-[7px] font-black uppercase transition-all border ${
                                     selectedWeight === parseFloat(w)
-                                        ? 'bg-primary text-black border-primary shadow-[0_0_10px_rgba(212,175,55,0.3)]'
-                                        : 'bg-white/5 text-white/40 border-white/10 hover:border-white/20'
+                                        ? 'bg-primary text-white border-primary shadow-sm'
+                                        : 'bg-[#F9FAFB] text-[#6B7280] border-[#ECECEC] hover:border-primary/20'
                                 }`}
                             >
                                 {formatWeight(w)}

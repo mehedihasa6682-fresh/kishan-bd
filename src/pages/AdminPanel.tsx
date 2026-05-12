@@ -568,7 +568,7 @@ export default function AdminPanel() {
       });
     } catch (e) {
       console.error(e);
-      alert('Offer Registry Failed');
+      alert('System Registry Failed');
     }
   };
 
@@ -584,7 +584,7 @@ export default function AdminPanel() {
       setNewCoupon({ code: '', type: 'percentage', value: 0, minOrder: 0, maxDiscount: 500, usageLimit: 100, expiryDate: '', isActive: true });
     } catch (e) {
       console.error(e);
-      alert('Coupon Registry Failed');
+      alert('Coupon Entry Failed');
     }
   };
 
@@ -671,7 +671,7 @@ export default function AdminPanel() {
     { id: 'stories', label: 'Stories', icon: Camera },
     { id: 'categories', label: 'Categories', icon: Layers },
     { id: 'users', label: 'Users', icon: Users },
-    { id: 'neural_push', label: 'Neural Push', icon: Bell },
+    { id: 'neural_push', label: 'App Notifications', icon: Bell },
     { id: 'email_marketing', label: 'Email Marketing', icon: MessageSquare },
     { id: 'settings', label: 'Brand & Site', icon: Settings },
     { id: 'promotions', label: 'Flash Deals', icon: Zap },
@@ -683,8 +683,8 @@ export default function AdminPanel() {
   ];
 
   if (authLoading) return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+    <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="w-12 h-12 border-4 border-[#E21E26] border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
@@ -694,23 +694,23 @@ export default function AdminPanel() {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen bg-black text-white"
+      className="min-h-screen bg-white text-[#111111]"
     >
       <div className="max-w-7xl mx-auto px-4 md:px-6 pb-12">
-        <div className="flex items-center justify-between py-8 border-b border-white/5 mb-8">
+        <div className="flex items-center justify-between py-8 border-b border-[#ECECEC] mb-8">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-white/5 border border-white/10 text-primary rounded-2xl flex items-center justify-center shadow-2xl">
+            <div className="w-14 h-14 bg-white border border-[#ECECEC] text-[#E21E26] rounded-2xl flex items-center justify-center shadow-lg">
               <ShieldCheck size={32} />
             </div>
             <div>
-              <h1 className="font-display font-bold text-2xl mb-0.5 text-white">Admin Central</h1>
-              <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] leading-none">System Management</p>
+              <h1 className="font-display font-bold text-2xl mb-0.5 text-[#111111]">Admin Central</h1>
+              <p className="text-[#6B7280] text-[10px] font-black uppercase tracking-[0.2em] leading-none">System Management</p>
             </div>
           </div>
 
           <Link 
             to="/" 
-            className="flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-primary transition-all shadow-sm"
+            className="flex items-center gap-2 px-6 py-3 bg-white border border-[#ECECEC] rounded-2xl text-[10px] font-black uppercase tracking-widest text-[#6B7280] hover:text-[#E21E26] transition-all shadow-sm"
           >
             <ArrowLeft size={16} />
             Back to Shop
@@ -722,7 +722,7 @@ export default function AdminPanel() {
           <aside className="w-full md:w-64 flex-shrink-0">
             <div className="sticky top-24 space-y-2">
               <div className="hidden md:block mb-4">
-                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] ml-1">Management Console</p>
+                <p className="text-[10px] font-black text-[#6B7280]/40 uppercase tracking-[0.3em] ml-1">Management Console</p>
               </div>
               
               <div className="flex md:flex-col gap-2 overflow-x-auto pb-4 md:pb-0 scrollbar-hide">
@@ -732,8 +732,8 @@ export default function AdminPanel() {
                     onClick={() => setActiveTab(tab.id as any)}
                     className={`flex items-center gap-3 px-5 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border min-w-max md:min-w-0 md:w-full ${
                       activeTab === tab.id 
-                        ? 'bg-primary text-black border-primary shadow-lg shadow-primary/20' 
-                        : 'bg-white/5 text-white/40 border-white/5 hover:border-white/20 hover:text-white'
+                        ? 'bg-[#111111] text-[#111111] border-[#111111] shadow-lg shadow-black/10' 
+                        : 'bg-white text-[#6B7280] border-[#ECECEC] hover:border-[#E21E26]/20 hover:text-[#E21E26]'
                     }`}
                   >
                     <tab.icon size={18} />
@@ -761,69 +761,69 @@ export default function AdminPanel() {
                   label: 'Total Orders', 
                   value: orders.length.toLocaleString(), 
                   color: 'text-blue-400', 
-                  bg: 'bg-white/5 border-white/5',
+                  bg: 'bg-[#ECECEC] border-[#ECECEC]',
                   icon: <Truck size={20} />
                 },
                 { 
                   label: 'Processing', 
                   value: orders.filter(o => ['pending', 'verified', 'confirmed'].includes(o.status)).length.toLocaleString(), 
-                  color: 'text-primary', 
-                  bg: 'bg-white/5 border-white/5',
+                  color: 'text-[#E21E26]', 
+                  bg: 'bg-white border-[#ECECEC]',
                   icon: <Package size={20} />
                 },
                 { 
                   label: 'Net Revenue', 
                   value: `৳${formatCurrency(orders.filter(o => o.status !== 'cancelled').reduce((acc, o) => acc + (Number(o.total || 0)), 0))}`, 
-                  color: 'text-primary', 
-                  bg: 'bg-primary/5 border-primary/20',
+                  color: 'text-[#E21E26]', 
+                  bg: 'bg-red-50 border-[#E21E26]/20',
                   icon: <ArrowUpRight size={20} />
                 },
                 { 
                   label: 'All Users', 
                   value: (sellers.length || 0).toLocaleString(), 
-                  color: 'text-white/80', 
-                  bg: 'bg-white/5 border-white/5',
+                  color: 'text-[#111111]', 
+                  bg: 'bg-white border-[#ECECEC]',
                   icon: <Users size={20} />
                 },
                 { 
                   label: 'Total Sellers', 
                   value: (sellers.filter(s => s.role === 'seller').length || 0).toLocaleString(), 
-                  color: 'text-blue-400', 
-                  bg: 'bg-white/5 border-white/5',
+                  color: 'text-blue-600', 
+                  bg: 'bg-white border-[#ECECEC]',
                   icon: <ShoppingBag size={20} />
                 },
                 { 
                   label: 'Total Riders', 
                   value: (sellers.filter(s => s.role === 'rider').length || 0).toLocaleString(), 
-                  color: 'text-primary', 
-                  bg: 'bg-white/5 border-white/5',
+                  color: 'text-[#E21E26]', 
+                  bg: 'bg-white border-[#ECECEC]',
                   icon: <Truck size={20} />
                 },
                 { 
                   label: 'Total Products', 
                   value: (products.length || 0).toLocaleString(), 
-                  color: 'text-pink-400', 
-                  bg: 'bg-white/5 border-white/5',
+                  color: 'text-pink-600', 
+                  bg: 'bg-white border-[#ECECEC]',
                   icon: <Plus size={20} />
                 },
                 { 
                   label: 'Avg Order Val', 
                   value: `৳${formatCurrency(orders.length > 0 ? (orders.reduce((acc, o) => acc + (Number(o.total || 0)), 0) / orders.length) : 0)}`, 
-                  color: 'text-white/80', 
-                  bg: 'bg-white/5 border-white/5',
+                  color: 'text-[#111111]', 
+                  bg: 'bg-white border-[#ECECEC]',
                   icon: <TrendingUp size={20} />
                 },
                 { 
-                  label: 'Neural Sync', 
+                  label: 'System Status', 
                   value: fcmStatus ? (fcmStatus.adminInitialized ? 'ONLINE' : 'SYNC ERR') : 'LOADING...', 
-                  color: fcmStatus?.adminInitialized ? 'text-green-400' : 'text-red-400', 
-                  bg: fcmStatus?.adminInitialized ? 'bg-green-500/5 border-green-500/20' : 'bg-red-500/5 border-red-500/20',
+                  color: fcmStatus?.adminInitialized ? 'text-green-600' : 'text-red-400', 
+                  bg: fcmStatus?.adminInitialized ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200',
                   icon: <Zap size={20} />
                 },
               ].map((stat) => (
-                <div key={stat.label} className={`${stat.bg} p-6 rounded-[2rem] border backdrop-blur-sm shadow-xl flex flex-col justify-between group hover:border-primary/40 transition-all duration-300`}>
+                <div key={stat.label} className={`${stat.bg} p-6 rounded-[2rem] border shadow-sm flex flex-col justify-between group hover:border-[#E21E26]/40 transition-all duration-300`}>
                   <div className="flex items-center justify-between mb-4">
-                    <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none">{stat.label}</p>
+                    <p className="text-[10px] font-black text-[#6B7280] uppercase tracking-widest leading-none">{stat.label}</p>
                     <div className={`${stat.color} opacity-40 group-hover:opacity-100 transition-opacity`}>
                         {stat.icon}
                     </div>
@@ -833,26 +833,26 @@ export default function AdminPanel() {
               ))}
             </div>
 
-            <div className="bg-white/5 p-8 rounded-[2.5rem] border border-white/5 shadow-2xl">
-                <h3 className="font-display font-bold text-lg mb-8 text-white">Recent Order Activity</h3>
+            <div className="bg-white p-8 rounded-[2.5rem] border border-[#ECECEC] shadow-sm">
+                <h3 className="font-display font-bold text-lg mb-8 text-[#111111]">Recent Order Activity</h3>
                 <div className="space-y-6">
                     {orders.slice(0, 5).map(order => (
-                        <div key={order.id} className="flex items-center justify-between py-4 border-b border-white/5 last:border-0">
+                        <div key={order.id} className="flex items-center justify-between py-4 border-b border-[#ECECEC] last:border-0">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-white/40">
+                                <div className="w-12 h-12 bg-gray-50 border border-[#ECECEC] rounded-2xl flex items-center justify-center text-[#6B7280]">
                                     <Truck size={24} />
                                 </div>
                                 <div>
-                                    <h5 className="text-xs font-bold text-white">Order #{order.id.slice(-6).toUpperCase()}</h5>
-                                    <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1">{order.customerName}</p>
+                                    <h5 className="text-xs font-bold text-[#111111]">Order #{order.id.slice(-6).toUpperCase()}</h5>
+                                    <p className="text-[10px] text-[#6B7280] font-bold uppercase tracking-widest mt-1">{order.customerName}</p>
                                 </div>
                             </div>
                             <div className="text-right">
-                                <p className="text-sm font-bold text-primary">৳{formatCurrency(order.total || 0)}</p>
+                                <p className="text-sm font-bold text-[#E21E26]">৳{formatCurrency(order.total || 0)}</p>
                                 <span className={`text-[9px] font-black uppercase px-3 py-1 rounded-full mt-1 inline-block ${
-                                    order.status === 'delivered' ? 'bg-green-500/10 text-green-500 border border-green-500/20' :
+                                    order.status === 'delivered' ? 'bg-[#16A34A]/10 text-[#16A34A] border border-[#16A34A]/20' :
                                     order.status === 'cancelled' ? 'bg-red-500/10 text-red-500 border border-red-500/20' :
-                                    'bg-primary/10 text-primary border border-primary/20'
+                                    'bg-[#E21E26]/10 text-[#E21E26] border border-[#E21E26]/20'
                                 }`}>
                                     {order.status}
                                 </span>
@@ -867,29 +867,29 @@ export default function AdminPanel() {
         {activeTab === 'approvals' && (
           <motion.div key="approvals" className="space-y-8">
             <div className="space-y-4">
-              <h3 className="font-display font-bold text-lg px-2 flex items-center gap-3 text-white">
-                <Store size={24} className="text-primary" />
+              <h3 className="font-display font-bold text-lg px-2 flex items-center gap-3 text-[#111111]">
+                <Store size={24} className="text-[#E21E26]" />
                 Seller Verification Queue ({pendingSellers.length})
               </h3>
               {pendingSellers.map((seller) => (
-                <div key={seller.id} className="bg-white/5 p-6 rounded-3xl border border-white/5 shadow-xl">
+                <div key={seller.id} className="bg-white p-6 rounded-3xl border border-[#ECECEC] shadow-sm">
                   <div className="flex justify-between items-start mb-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-white/20">
+                      <div className="w-14 h-14 bg-gray-50 border border-[#ECECEC] rounded-2xl flex items-center justify-center text-[#6B7280]">
                         <User size={28} />
                       </div>
                       <div>
-                        <h4 className="font-bold text-sm text-white">{seller.shopName || seller.displayName}</h4>
-                        <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1">{seller.email}</p>
-                        <p className="text-[10px] text-primary font-black mt-2 tracking-widest uppercase">Requested Role: SELLER</p>
+                        <h4 className="font-bold text-sm text-[#111111]">{seller.shopName || seller.displayName}</h4>
+                        <p className="text-[10px] text-[#6B7280] font-bold uppercase tracking-widest mt-1">{seller.email}</p>
+                        <p className="text-[10px] text-[#E21E26] font-black mt-2 tracking-widest uppercase">Requested Role: SELLER</p>
                       </div>
                     </div>
-                    <div className="bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest">Review Required</div>
+                    <div className="bg-[#E21E26]/10 text-[#E21E26] border border-[#E21E26]/20 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest">Review Required</div>
                   </div>
                   <div className="flex gap-3">
                     <button 
                       onClick={() => adminService.verifySeller(seller.id)}
-                      className="flex-1 py-4 bg-primary text-black rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all"
+                      className="flex-1 py-4 bg-[#F9FAFB] text-[#111111] rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-md hover:bg-[#F9FAFB] transition-all"
                     >
                       Approve Seller
                     </button>
@@ -897,47 +897,47 @@ export default function AdminPanel() {
                 </div>
               ))}
               {pendingSellers.length === 0 && (
-                <div className="text-center py-16 text-white/20 text-xs bg-white/5 rounded-[2.5rem] border border-dashed border-white/10">
+                <div className="text-center py-16 text-[#6B7280]/40 text-xs bg-gray-50 rounded-[2.5rem] border border-dashed border-[#ECECEC]">
                   No sellers pending verification.
                 </div>
               )}
             </div>
 
             <div className="space-y-6">
-              <h3 className="font-display font-bold text-lg px-2 flex items-center gap-3 text-white">
-                <Package size={24} className="text-primary" />
+              <h3 className="font-display font-bold text-lg px-2 flex items-center gap-3 text-[#111111]">
+                <Package size={24} className="text-[#E21E26]" />
                 Product Approval Queue ({pendingProducts.length})
               </h3>
               {pendingProducts.map((prod) => (
-              <div key={prod.id} className="bg-white/5 p-6 rounded-3xl border border-white/5 shadow-xl transition-all hover:border-primary/20">
+              <div key={prod.id} className="bg-white p-6 rounded-3xl border border-[#ECECEC] shadow-sm transition-all hover:border-[#E21E26]/20">
                 <div className="flex justify-between items-start mb-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-white/20 overflow-hidden shadow-inner">
+                    <div className="w-14 h-14 bg-[#F9FAFB] border border-[#ECECEC] rounded-2xl flex items-center justify-center text-[#6B7280] overflow-hidden shadow-inner">
                       {prod.image ? <img src={prod.image} className="w-full h-full object-cover" alt="Product" /> : <ShoppingBag size={28} />}
                     </div>
                     <div>
-                      <h4 className="font-bold text-sm text-white">{prod.name}</h4>
-                      <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1">{prod.farmerName || 'Unknown Seller'}</p>
-                      <p className="text-xs font-bold text-primary mt-2">৳{formatCurrency(prod.price)}</p>
+                      <h4 className="font-bold text-sm text-[#111111]">{prod.name}</h4>
+                      <p className="text-[10px] text-[#6B7280] font-bold uppercase tracking-widest mt-1">{prod.farmerName || 'Unknown Seller'}</p>
+                      <p className="text-xs font-bold text-[#E21E26] mt-2">৳{formatCurrency(prod.price)}</p>
                     </div>
                   </div>
-                  <div className="bg-white/5 text-white/40 border border-white/10 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest">Pending</div>
+                  <div className="bg-[#F9FAFB] text-[#6B7280] border border-[#ECECEC] px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest">Pending</div>
                 </div>
                 
-                <div className="bg-white/5 p-4 rounded-2xl mb-6 text-[11px] text-white/60 leading-relaxed italic border border-white/5">
+                <div className="bg-[#F9FAFB] p-4 rounded-2xl mb-6 text-[11px] text-[#4B5563] leading-relaxed italic border border-[#ECECEC]">
                   "{prod.description || 'No description provided'}"
                 </div>
 
                 <div className="flex gap-3">
                   <button 
                     onClick={() => adminService.rejectProduct(prod.id)}
-                    className="flex-1 py-4 bg-white/5 text-red-500 border border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all"
+                    className="flex-1 py-4 bg-white text-red-600 border border-[#ECECEC] rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-50 transition-all"
                   >
                     Reject Item
                   </button>
                   <button 
                     onClick={() => adminService.approveProduct(prod.id)}
-                    className="flex-1 py-4 bg-primary text-black rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all"
+                    className="flex-1 py-4 bg-[#E21E26] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#E21E26]/20 hover:bg-[#B71C1C] transition-all"
                   >
                     Go Live
                   </button>
@@ -945,7 +945,7 @@ export default function AdminPanel() {
               </div>
             ))}
             {pendingProducts.length === 0 && (
-              <div className="text-center py-20 text-white/20 text-sm bg-white/5 rounded-[2.5rem] border border-dashed border-white/10">
+              <div className="text-center py-20 text-[#6B7280]/40 text-sm bg-[#F9FAFB] rounded-[2.5rem] border border-dashed border-[#ECECEC]">
                 No products pending approval.
               </div>
             )}
@@ -955,26 +955,26 @@ export default function AdminPanel() {
 
       {activeTab === 'orders' && (
           <motion.div key="orders" className="space-y-6">
-            <h3 className="font-display font-bold text-lg px-2 text-white">Recent Transactions</h3>
+            <h3 className="font-display font-bold text-lg px-2 text-[#111111]">Recent Tasks</h3>
             {orders.map((order) => (
-              <div key={order.id} className="bg-white/5 p-6 rounded-[2.5rem] border border-white/5 shadow-2xl space-y-6">
+              <div key={order.id} className="bg-white p-6 rounded-[2.5rem] border border-[#ECECEC] shadow-sm space-y-6">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h4 className="font-bold text-xs text-white">#{order.id.slice(-8).toUpperCase()}</h4>
-                    <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1">{order.customerName}</p>
+                    <h4 className="font-bold text-xs text-[#111111]">#{order.id.slice(-8).toUpperCase()}</h4>
+                    <p className="text-[10px] text-[#6B7280] font-bold uppercase tracking-widest mt-1">{order.customerName}</p>
                     <div className="flex flex-col gap-1 mt-3">
-                      <p className="text-[10px] text-white/60 flex items-center gap-2">
-                        <Phone size={10} className="text-primary" /> {order.phone}
+                      <p className="text-[10px] text-[#6B7280] flex items-center gap-2">
+                        <Phone size={10} className="text-[#E21E26]" /> {order.phone}
                       </p>
-                      <p className="text-[10px] text-white/60 flex items-center gap-2">
-                        <MapPin size={10} className="text-primary" /> {typeof order.address === 'string' ? order.address : (order.address?.address || 'No Address')}
+                      <p className="text-[10px] text-[#6B7280] flex items-center gap-2">
+                        <MapPin size={10} className="text-[#E21E26]" /> {typeof order.address === 'string' ? order.address : (order.address?.address || 'No Address')}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-display font-black text-lg text-primary leading-none">৳{formatCurrency(order.total || 0)}</p>
-                    <p className="text-[10px] text-white/40 font-black uppercase tracking-widest mt-2">{order.paymentMethod}</p>
-                    {(order.discount || 0) > 0 && <p className="text-[9px] text-secondary font-black tracking-widest mt-1">DISCOUNT: -৳{formatCurrency(order.discount)}</p>}
+                    <p className="font-display font-black text-lg text-[#E21E26] leading-none">৳{formatCurrency(order.total || 0)}</p>
+                    <p className="text-[10px] text-[#6B7280] font-black uppercase tracking-widest mt-2">{order.paymentMethod}</p>
+                    {(order.discount || 0) > 0 && <p className="text-[9px] text-[#E21E26] font-black tracking-widest mt-1">DISCOUNT: -৳{formatCurrency(order.discount)}</p>}
                     {order.location && (
                       <div className="flex flex-col items-end gap-2 mt-4">
                         <a 
@@ -986,7 +986,7 @@ export default function AdminPanel() {
                           <Truck size={12} /> Navigate
                         </a>
                         {order.riderId && riderLocations[order.riderId] && (
-                          <span className="text-[9px] font-black text-primary bg-primary/10 border border-primary/20 px-3 py-1 rounded-lg uppercase tracking-widest">
+                          <span className="text-[9px] font-black text-[#E21E26] bg-[#E21E26]/10 border border-[#E21E26]/20 px-3 py-1 rounded-lg uppercase tracking-widest">
                             Rider: {formatDistance(calculateDistance(riderLocations[order.riderId].lat, riderLocations[order.riderId].lng, order.location.lat, order.location.lng))} away
                           </span>
                         )}
@@ -995,22 +995,22 @@ export default function AdminPanel() {
                   </div>
                 </div>
 
-                <div className="bg-black/40 rounded-2xl p-5 space-y-3 border border-white/5">
-                    <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Itemized Receipt</p>
+                <div className="bg-[#FFFFFF] rounded-2xl p-5 space-y-3 border border-[#ECECEC]">
+                    <p className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em]">Itemized Receipt</p>
                     {order.items?.map((item: any, idx: number) => (
-                        <div key={idx} className="flex justify-between items-center text-[11px] pb-2 border-b border-white/5 last:border-0 last:pb-0">
+                        <div key={idx} className="flex justify-between items-center text-[11px] pb-2 border-b border-[#ECECEC] last:border-0 last:pb-0">
                             <div className="flex items-center gap-3">
                                 <span className="font-black text-primary bg-primary/10 px-2 py-0.5 rounded text-[9px]">{item.quantity || 0}x</span>
-                                <span className="text-white/80 font-medium">{item.name}</span>
+                                <span className="text-[#6B7280] font-medium">{item.name}</span>
                             </div>
-                            <span className="font-bold text-white/40">৳{formatCurrency((item.price || 0) * (item.quantity || 0))}</span>
+                            <span className="font-bold text-[#6B7280]">৳{formatCurrency((item.price || 0) * (item.quantity || 0))}</span>
                         </div>
                     ))}
                 </div>
 
                 {order.paymentMethod !== 'cod' && (
-                  <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-                    <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Transaction ID</p>
+                  <div className="bg-[#ECECEC] p-4 rounded-2xl border border-[#ECECEC]">
+                    <p className="text-[9px] font-black text-[#6B7280] uppercase tracking-widest mb-1">Transaction ID</p>
                     <p className="text-xs font-mono font-bold text-primary tracking-wider">{order.transactionId || 'NOT PROVIDED'}</p>
                   </div>
                 )}
@@ -1030,11 +1030,11 @@ export default function AdminPanel() {
                     <motion.div 
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="absolute inset-0 z-10 bg-black/90 backdrop-blur-md rounded-[2.5rem] p-6 flex flex-col items-center justify-center gap-4 text-center"
+                      className="absolute inset-0 z-10 bg-black/5 backdrop-blur-md rounded-[2.5rem] p-6 flex flex-col items-center justify-center gap-4 text-center"
                     >
                       <div className="mb-2">
                         <h5 className="font-display font-black text-xs uppercase tracking-widest text-primary mb-1">Confirm Order</h5>
-                        <p className="text-[10px] text-white/40 font-bold">অর্ডারের যাচাইকরণ সম্পন্ন করুন</p>
+                        <p className="text-[10px] text-[#6B7280] font-bold">অর্ডারের যাচাইকরণ সম্পন্ন করুন</p>
                       </div>
                       <div className="flex flex-col gap-3 w-full max-w-xs">
                         <button 
@@ -1045,19 +1045,19 @@ export default function AdminPanel() {
                         </button>
                         <button 
                           onClick={() => handleUpdateOrderStatus(order, 'pending', 'verified')}
-                          className="w-full py-4 bg-white/10 text-white border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                          className="w-full py-4 bg-[#ECECEC] text-[#111111] border border-[#ECECEC] rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
                         >
                           <CreditCard size={14} /> Payment Verified Only
                         </button>
                         <button 
                           onClick={() => handleUpdateOrderStatus(order, 'confirmed')}
-                          className="w-full py-4 bg-white/5 text-white/60 border border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                          className="w-full py-4 bg-[#ECECEC] text-[#6B7280] border border-[#ECECEC] rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
                         >
                           <CheckCircle size={14} /> Direct Confirm (COD)
                         </button>
                         <button 
                           onClick={() => setActiveStatusModal(null)}
-                          className="w-full py-3 text-white/30 text-[9px] font-bold uppercase tracking-widest hover:text-white"
+                          className="w-full py-3 text-[#6B7280] text-[9px] font-bold uppercase tracking-widest hover:text-[#111111]"
                         >
                           Cancel
                         </button>
@@ -1073,7 +1073,7 @@ export default function AdminPanel() {
                   </button>
                   <button 
                     onClick={() => setSelectedOrder(order)}
-                    className="px-6 py-4 bg-white/5 border border-white/10 text-white/40 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:text-white transition-all shadow-xl flex items-center gap-2"
+                    className="px-6 py-4 bg-[#ECECEC] border border-[#ECECEC] text-[#6B7280] rounded-2xl text-[10px] font-black uppercase tracking-widest hover:text-[#111111] transition-all shadow-xl flex items-center gap-2"
                   >
                     <ReceiptText size={14} />
                     Invoice / মেমো
@@ -1081,7 +1081,7 @@ export default function AdminPanel() {
                 </div>
               </div>
             ))}
-            {orders.length === 0 && <p className="text-center py-24 text-white/20 text-sm font-bold tracking-widest uppercase">No transactions found</p>}
+            {orders.length === 0 && <p className="text-center py-24 text-[#6B7280] text-sm font-bold tracking-widest uppercase">No transactions found</p>}
           </motion.div>
         )}
 
@@ -1113,63 +1113,63 @@ export default function AdminPanel() {
             </div>
 
             {/* Premium Filters */}
-            <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-[#ECECEC] p-10 rounded-[3rem] border border-[#ECECEC] shadow-2xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div>
-                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.25em] block mb-3 ml-2">Search Catalog</label>
+                    <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Search Catalog</label>
                     <div className="relative group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" size={18} />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6B7280] group-focus-within:text-primary transition-colors" size={18} />
                         <input 
                             placeholder="Find items..." 
-                            className="w-full pl-12 pr-4 py-4 bg-black/40 border border-white/10 rounded-2xl text-sm outline-none focus:border-primary/40 text-white transition-all shadow-inner"
+                            className="w-full pl-12 pr-4 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm outline-none focus:border-primary/40 text-[#111111] transition-all shadow-inner"
                             value={productFilter.search}
                             onChange={e => setProductFilter({...productFilter, search: e.target.value})}
                         />
                     </div>
                 </div>
                 <div>
-                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.25em] block mb-3 ml-2">Department</label>
+                    <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Department</label>
                     <div className="relative">
                       <select 
-                          className="w-full px-5 py-4 bg-black/40 border border-white/10 rounded-2xl text-sm outline-none appearance-none text-white focus:border-primary/40 transition-all shadow-inner"
+                          className="w-full px-5 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm outline-none appearance-none text-[#111111] focus:border-primary/40 transition-all shadow-inner"
                           value={productFilter.category}
                           onChange={e => setProductFilter({...productFilter, category: e.target.value})}
                       >
-                          <option value="" className="bg-slate-900">All Collections</option>
-                          {categories.map(c => <option key={c.id} value={c.title} className="bg-slate-900">{c.title}</option>)}
+                          <option value="" className="bg-[#F9FAFB]">All Collections</option>
+                          {categories.map(c => <option key={c.id} value={c.title} className="bg-[#F9FAFB]">{c.title}</option>)}
                       </select>
-                      <Layers className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" size={16} />
+                      <Layers className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6B7280] pointer-events-none" size={16} />
                     </div>
                 </div>
                 <div>
-                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.25em] block mb-3 ml-2">Status</label>
+                    <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Status</label>
                     <div className="relative">
                       <select 
-                          className="w-full px-5 py-4 bg-black/40 border border-white/10 rounded-2xl text-sm outline-none appearance-none text-white focus:border-primary/40 transition-all shadow-inner"
+                          className="w-full px-5 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm outline-none appearance-none text-[#111111] focus:border-primary/40 transition-all shadow-inner"
                           value={productFilter.status}
                           onChange={e => setProductFilter({...productFilter, status: e.target.value})}
                       >
-                          <option value="" className="bg-slate-900">All Visibility</option>
-                          <option value="approved" className="bg-slate-900">Live (Approved)</option>
-                          <option value="pending" className="bg-slate-900">Pending Review</option>
-                          <option value="rejected" className="bg-slate-900">Rejected</option>
+                          <option value="" className="bg-[#F9FAFB]">All Visibility</option>
+                          <option value="approved" className="bg-[#F9FAFB]">Live (Approved)</option>
+                          <option value="pending" className="bg-[#F9FAFB]">Pending Review</option>
+                          <option value="rejected" className="bg-[#F9FAFB]">Rejected</option>
                       </select>
-                      <Clock className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" size={16} />
+                      <Clock className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6B7280] pointer-events-none" size={16} />
                     </div>
                 </div>
                 <div>
-                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.25em] block mb-3 ml-2">Partner Store</label>
+                    <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Partner Store</label>
                     <div className="relative">
                       <select 
-                          className="w-full px-5 py-4 bg-black/40 border border-white/10 rounded-2xl text-sm outline-none appearance-none text-white focus:border-primary/40 transition-all shadow-inner"
+                          className="w-full px-5 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm outline-none appearance-none text-[#111111] focus:border-primary/40 transition-all shadow-inner"
                           value={productFilter.seller}
                           onChange={e => setProductFilter({...productFilter, seller: e.target.value})}
                       >
-                          <option value="" className="bg-slate-900">All Partners</option>
+                          <option value="" className="bg-[#F9FAFB]">All Partners</option>
                           {Array.from(new Set(products.map(p => p.farmer || p.farmerName))).filter(Boolean).map(s => (
-                              <option key={s} value={s} className="bg-slate-900">{s}</option>
+                              <option key={s} value={s} className="bg-[#F9FAFB]">{s}</option>
                           ))}
                       </select>
-                      <Store className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" size={16} />
+                      <Store className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6B7280] pointer-events-none" size={16} />
                     </div>
                 </div>
             </div>
@@ -1180,100 +1180,100 @@ export default function AdminPanel() {
                   initial={{ height: 0, opacity: 0 }} 
                   animate={{ height: 'auto', opacity: 1 }} 
                   exit={{ height: 0, opacity: 0 }} 
-                  className="bg-white/5 p-10 rounded-[3rem] border border-primary/20 overflow-hidden mb-8 shadow-2xl relative"
+                  className="bg-[#ECECEC] p-10 rounded-[3rem] border border-primary/20 overflow-hidden mb-8 shadow-2xl relative"
                 >
-                  <div className="flex justify-between items-center mb-10 pb-6 border-b border-white/5">
+                  <div className="flex justify-between items-center mb-10 pb-6 border-b border-[#ECECEC]">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary border border-primary/20">
                         {editingProductId ? <Settings size={24} /> : <Plus size={24} />}
                       </div>
-                      <h4 className="font-display font-bold text-xl text-white">{editingProductId ? 'Alter Product Record' : 'Curate New Offering'}</h4>
+                      <h4 className="font-display font-bold text-xl text-[#111111]">{editingProductId ? 'Alter Product Record' : 'Curate New Offering'}</h4>
                     </div>
                     <button onClick={() => {
                         setIsAdding(false);
                         setEditingProductId(null);
-                    }} className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-white/20 hover:text-white hover:border-white/20 border border-transparent transition-all">
+                    }} className="w-12 h-12 bg-[#ECECEC] rounded-2xl flex items-center justify-center text-[#6B7280] hover:text-[#111111] hover:border-[#ECECEC] border border-transparent transition-all">
                       <X size={24} />
                     </button>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-8">
                     <div className="col-span-2 lg:col-span-1">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Name (Bangla)</label>
+                      <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Name (Bangla)</label>
                       <input 
                         placeholder="ভোরের তাজা সবজি" 
-                        className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all font-medium"
+                        className="w-full px-6 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-[1.5rem] text-sm text-[#111111] outline-none focus:border-primary/40 transition-all font-medium"
                         value={newProduct.name}
                         onChange={e => setNewProduct({...newProduct, name: e.target.value})}
                       />
                     </div>
                     <div className="col-span-2 lg:col-span-1">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Name (English)</label>
+                      <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Name (English)</label>
                       <input 
                         placeholder="Fresh Garden Produce" 
-                        className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all font-medium"
+                        className="w-full px-6 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-[1.5rem] text-sm text-[#111111] outline-none focus:border-primary/40 transition-all font-medium"
                         value={newProduct.nameEn}
                         onChange={e => setNewProduct({...newProduct, nameEn: e.target.value})}
                       />
                     </div>
                     
                     <div className="col-span-1">
-                        <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Appraisal Value (৳)</label>
+                        <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Appraisal Value (৳)</label>
                         <input 
                           type="number"
                           placeholder="Price per unit" 
-                          className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all font-mono font-bold"
+                          className="w-full px-6 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-[1.5rem] text-sm text-[#111111] outline-none focus:border-primary/40 transition-all font-mono font-bold"
                           value={newProduct.price}
                           onChange={e => setNewProduct({...newProduct, price: e.target.value})}
                         />
                     </div>
                     <div className="col-span-1">
-                        <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Privileged Rate (Optional)</label>
+                        <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Privileged Rate (Optional)</label>
                         <input 
                           type="number"
                           placeholder="Discounted Price" 
-                          className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all font-mono font-bold"
+                          className="w-full px-6 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-[1.5rem] text-sm text-[#111111] outline-none focus:border-primary/40 transition-all font-mono font-bold"
                           value={newProduct.discountPrice}
                           onChange={e => setNewProduct({...newProduct, discountPrice: e.target.value})}
                         />
                     </div>
 
                     <div className="col-span-1">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Collection</label>
+                      <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Collection</label>
                       <div className="relative">
                         <select 
-                          className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 appearance-none transition-all"
+                          className="w-full px-6 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-[1.5rem] text-sm text-[#111111] outline-none focus:border-primary/40 appearance-none transition-all"
                           value={newProduct.category}
                           onChange={e => setNewProduct({...newProduct, category: e.target.value, subCategory: ''})}
                         >
-                          <option value="" className="bg-slate-900">Select Collection</option>
-                          {categories.map(c => <option key={c.id} value={c.title} className="bg-slate-900">{c.title}</option>)}
+                          <option value="" className="bg-[#F9FAFB]">Select Collection</option>
+                          {categories.map(c => <option key={c.id} value={c.title} className="bg-[#F9FAFB]">{c.title}</option>)}
                         </select>
-                        <Layers className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" size={16} />
+                        <Layers className="absolute right-6 top-1/2 -translate-y-1/2 text-[#6B7280] pointer-events-none" size={16} />
                       </div>
                     </div>
                     <div className="col-span-1">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Niche / Origin</label>
+                      <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Niche / Origin</label>
                       <div className="relative">
                         <select 
-                          className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none appearance-none focus:border-primary/40 transition-all"
+                          className="w-full px-6 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-[1.5rem] text-sm text-[#111111] outline-none appearance-none focus:border-primary/40 transition-all"
                           value={newProduct.subCategory}
                           onChange={e => setNewProduct({...newProduct, subCategory: e.target.value})}
                         >
-                          <option value="" className="bg-slate-900">Select Sub-Category</option>
+                          <option value="" className="bg-[#F9FAFB]">Select Sub-Category</option>
                           {categories.find(c => c.title === newProduct.category)?.subCategories?.map((sub: string) => (
-                            <option key={sub} value={sub} className="bg-slate-900">{sub}</option>
+                            <option key={sub} value={sub} className="bg-[#F9FAFB]">{sub}</option>
                           ))}
                         </select>
-                        <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" size={16} />
+                        <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 text-[#6B7280] pointer-events-none" size={16} />
                       </div>
                     </div>
 
                     <div className="col-span-2">
-                        <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Visual Heritage (Image Source)</label>
+                        <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Visual Heritage (Image Source)</label>
                         <input 
                           placeholder="Public URI for high-res visual..." 
-                          className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all font-mono"
+                          className="w-full px-6 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-[1.5rem] text-sm text-[#111111] outline-none focus:border-primary/40 transition-all font-mono"
                           value={newProduct.image}
                           onChange={e => setNewProduct({...newProduct, image: e.target.value})}
                         />
@@ -1288,51 +1288,51 @@ export default function AdminPanel() {
                     </div>
 
                     <div className="col-span-1">
-                        <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Direct Hub contact</label>
+                        <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Direct Hub contact</label>
                         <div className="relative">
-                          <MessageSquare className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                          <MessageSquare className="absolute left-6 top-1/2 -translate-y-1/2 text-[#6B7280]" size={18} />
                           <input 
                             placeholder="+8801..." 
-                            className="w-full pl-14 pr-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all"
+                            className="w-full pl-14 pr-6 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-[1.5rem] text-sm text-[#111111] outline-none focus:border-primary/40 transition-all"
                             value={newProduct.whatsappNumber}
                             onChange={e => setNewProduct({...newProduct, whatsappNumber: e.target.value})}
                           />
                         </div>
                     </div>
                     <div className="col-span-1">
-                        <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Sales Trajectory</label>
+                        <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Sales Trajectory</label>
                         <div className="relative">
-                          <TrendingUp className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                          <TrendingUp className="absolute left-6 top-1/2 -translate-y-1/2 text-[#6B7280]" size={18} />
                           <input 
                             type="number"
                             placeholder="Initial Sales Volume" 
-                            className="w-full pl-14 pr-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all font-mono"
+                            className="w-full pl-14 pr-6 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-[1.5rem] text-sm text-[#111111] outline-none focus:border-primary/40 transition-all font-mono"
                             value={newProduct.salesCount}
                             onChange={e => setNewProduct({...newProduct, salesCount: e.target.value})}
                           />
                         </div>
                     </div>
                     <div className="col-span-1">
-                        <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Pricing Context</label>
+                        <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Pricing Context</label>
                         <div className="flex gap-2">
                            <button 
                              type="button"
                              onClick={() => setNewProduct({...newProduct, pricingType: 'weight', unit: 'kg'})}
-                             className={`flex-1 py-4 rounded-2xl text-[8px] font-black uppercase tracking-widest border transition-all ${newProduct.pricingType === 'weight' ? 'bg-primary text-black border-primary' : 'bg-white/5 text-white/40 border-white/10'}`}
+                             className={`flex-1 py-4 rounded-2xl text-[8px] font-black uppercase tracking-widest border transition-all ${newProduct.pricingType === 'weight' ? 'bg-primary text-black border-primary' : 'bg-[#ECECEC] text-[#6B7280] border-[#ECECEC]'}`}
                            >
                              Weight Based
                            </button>
                            <button 
                              type="button"
                              onClick={() => setNewProduct({...newProduct, pricingType: 'piece', unit: 'kg'})}
-                             className={`flex-1 py-4 rounded-2xl text-[8px] font-black uppercase tracking-widest border transition-all ${newProduct.pricingType === 'piece' && newProduct.unit === 'kg' ? 'bg-primary text-black border-primary' : 'bg-white/5 text-white/40 border-white/10'}`}
+                             className={`flex-1 py-4 rounded-2xl text-[8px] font-black uppercase tracking-widest border transition-all ${newProduct.pricingType === 'piece' && newProduct.unit === 'kg' ? 'bg-primary text-black border-primary' : 'bg-[#ECECEC] text-[#6B7280] border-[#ECECEC]'}`}
                            >
                              Fixed Unit
                            </button>
                            <button 
                              type="button"
                              onClick={() => setNewProduct({...newProduct, pricingType: 'piece', unit: 'piece'})}
-                             className={`flex-1 py-4 rounded-2xl text-[8px] font-black uppercase tracking-widest border transition-all ${newProduct.pricingType === 'piece' && newProduct.unit !== 'kg' ? 'bg-primary text-black border-primary' : 'bg-white/5 text-white/40 border-white/10'}`}
+                             className={`flex-1 py-4 rounded-2xl text-[8px] font-black uppercase tracking-widest border transition-all ${newProduct.pricingType === 'piece' && newProduct.unit !== 'kg' ? 'bg-primary text-black border-primary' : 'bg-[#ECECEC] text-[#6B7280] border-[#ECECEC]'}`}
                            >
                              Per Piece
                            </button>
@@ -1340,11 +1340,11 @@ export default function AdminPanel() {
                     </div>
 
                     <div className="col-span-1">
-                        <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Sale Unit (e.g. pkt, box, kg)</label>
+                        <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Sale Unit (e.g. pkt, box, kg)</label>
                         <div className="relative">
                           <input 
                             placeholder="Unit name..." 
-                            className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all font-mono"
+                            className="w-full px-6 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-[1.5rem] text-sm text-[#111111] outline-none focus:border-primary/40 transition-all font-mono"
                             value={newProduct.unit}
                             onChange={e => setNewProduct({...newProduct, unit: e.target.value})}
                           />
@@ -1354,30 +1354,30 @@ export default function AdminPanel() {
                     {newProduct.pricingType === 'weight' && (
                       <>
                         <div className="col-span-1">
-                            <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Min Order Qty (Grams/Unit)</label>
+                            <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Min Order Qty (Grams/Unit)</label>
                             <input 
                               type="number"
                               placeholder="e.g. 100 for 100g" 
-                              className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all font-mono"
+                              className="w-full px-6 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-[1.5rem] text-sm text-[#111111] outline-none focus:border-primary/40 transition-all font-mono"
                               value={newProduct.minWeight}
                               onChange={e => setNewProduct({...newProduct, minWeight: e.target.value})}
                             />
                         </div>
                         <div className="col-span-1">
-                            <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Allowed Options (Separated by comma)</label>
+                            <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Allowed Options (Separated by comma)</label>
                             <input 
                               placeholder="100g, 250g, 500g, 1kg" 
-                              className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all"
+                              className="w-full px-6 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-[1.5rem] text-sm text-[#111111] outline-none focus:border-primary/40 transition-all"
                               value={newProduct.allowedWeights}
                               onChange={e => setNewProduct({...newProduct, allowedWeights: e.target.value})}
                             />
                         </div>
                         <div className="col-span-1">
-                            <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Base Weight (Default selection in grams)</label>
+                            <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Base Weight (Default selection in grams)</label>
                             <input 
                               type="number"
                               placeholder="e.g. 250" 
-                              className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all font-mono"
+                              className="w-full px-6 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-[1.5rem] text-sm text-[#111111] outline-none focus:border-primary/40 transition-all font-mono"
                               value={newProduct.defaultWeight}
                               onChange={e => setNewProduct({...newProduct, defaultWeight: e.target.value})}
                             />
@@ -1386,24 +1386,24 @@ export default function AdminPanel() {
                     )}
 
                     <div className="col-span-1">
-                         <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Inventory Threshold (Alert)</label>
+                         <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Inventory Threshold (Alert)</label>
                          <input 
                            type="number"
                            placeholder="Alert when stock below..." 
-                           className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all font-mono"
+                           className="w-full px-6 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-[1.5rem] text-sm text-[#111111] outline-none focus:border-primary/40 transition-all font-mono"
                            value={newProduct.lowStockAlert}
                            onChange={e => setNewProduct({...newProduct, lowStockAlert: e.target.value})}
                          />
                     </div>
 
                     <div className="col-span-1">
-                        <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Registry Supply</label>
+                        <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Registry Supply</label>
                         <div className="relative">
-                          <Box className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                          <Box className="absolute left-6 top-1/2 -translate-y-1/2 text-[#6B7280]" size={18} />
                           <input 
                             type="number"
                             placeholder="Available Stock" 
-                            className="w-full pl-14 pr-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all"
+                            className="w-full pl-14 pr-6 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-[1.5rem] text-sm text-[#111111] outline-none focus:border-primary/40 transition-all"
                             value={newProduct.stockQuantity}
                             onChange={e => setNewProduct({...newProduct, stockQuantity: e.target.value})}
                           />
@@ -1411,7 +1411,7 @@ export default function AdminPanel() {
                     </div>
 
                     <div className="col-span-2 space-y-4 pt-4">
-                        <label className="flex items-center gap-5 cursor-pointer bg-white/5 border border-white/5 p-6 rounded-[2rem] transition-all hover:border-red-500/30 group">
+                        <label className="flex items-center gap-5 cursor-pointer bg-[#ECECEC] border border-[#ECECEC] p-6 rounded-[2rem] transition-all hover:border-red-500/30 group">
                             <input 
                                 type="checkbox"
                                 className="w-6 h-6 accent-red-500 rounded-lg"
@@ -1419,15 +1419,15 @@ export default function AdminPanel() {
                                 onChange={e => setNewProduct({...newProduct, isOutOfStock: e.target.checked})}
                             />
                             <div className="flex flex-col">
-                                <span className="text-sm font-bold text-white group-hover:text-red-400 transition-colors">Withdraw from Public Catalog</span>
-                                <span className="text-[11px] text-white/30 font-medium tracking-wide">Sets stock status to 'Depleted' and hides from storefront immediately.</span>
+                                <span className="text-sm font-bold text-[#111111] group-hover:text-red-400 transition-colors">Withdraw from Public Catalog</span>
+                                <span className="text-[11px] text-[#6B7280] font-medium tracking-wide">Sets stock status to 'Depleted' and hides from storefront immediately.</span>
                             </div>
                         </label>
                     </div>
 
                     <div className="col-span-2 space-y-4">
                         <div className="flex items-center justify-between px-2">
-                            <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block ml-2">Search Keywords / Alternate Names</label>
+                            <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block ml-2">Search Keywords / Alternate Names</label>
                             <button 
                                 type="button"
                                 onClick={() => {
@@ -1451,39 +1451,39 @@ export default function AdminPanel() {
                                     const merged = Array.from(new Set([...current.split(',').map(s => s.trim()), ...permutations])).filter(Boolean).join(', ');
                                     setNewProduct({...newProduct, searchKeywords: merged});
                                 }}
-                                className="text-[8px] font-black text-primary uppercase tracking-widest hover:text-white transition-colors"
+                                className="text-[8px] font-black text-primary uppercase tracking-widest hover:text-[#111111] transition-colors"
                             >
                                 [ Cognitive Suggestion ]
                             </button>
                         </div>
                         <textarea 
                             placeholder="টমেটো, tomato, tmato, tomoto, tometo, tomato local, red tomato" 
-                            className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none h-24 resize-none focus:border-primary/40 transition-all font-medium"
+                            className="w-full px-6 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-[1.5rem] text-sm text-[#111111] outline-none h-24 resize-none focus:border-primary/40 transition-all font-medium"
                             value={newProduct.searchKeywords || ''}
                             onChange={e => setNewProduct({...newProduct, searchKeywords: e.target.value})}
                         />
-                        <p className="text-[10px] text-white/20 mt-2 ml-2 font-medium tracking-wide">Enter synonyms, local names, or common misspellings separated by commas.</p>
+                        <p className="text-[10px] text-[#6B7280] mt-2 ml-2 font-medium tracking-wide">Enter synonyms, local names, or common misspellings separated by commas.</p>
                     </div>
 
-                    <div className="col-span-2 pt-6 border-t border-white/5 mt-4">
-                        <h5 className="text-[11px] font-black text-white/30 uppercase tracking-[0.3em] mb-6 flex items-center gap-3">
+                    <div className="col-span-2 pt-6 border-t border-[#ECECEC] mt-4">
+                        <h5 className="text-[11px] font-black text-[#6B7280] uppercase tracking-[0.3em] mb-6 flex items-center gap-3">
                             <Globe size={18} className="text-blue-400" /> Digital Discoverability (SEO)
                         </h5>
                         <div className="space-y-6">
                             <div>
-                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Market Meta Description</label>
+                                <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Market Meta Description</label>
                                 <textarea 
                                     placeholder="Craft a narrative for search engine crawlers..." 
-                                    className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none h-28 resize-none focus:border-primary/40 transition-all font-medium"
+                                    className="w-full px-6 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-[1.5rem] text-sm text-[#111111] outline-none h-28 resize-none focus:border-primary/40 transition-all font-medium"
                                     value={newProduct.seoDescription || ''}
                                     onChange={e => setNewProduct({...newProduct, seoDescription: e.target.value})}
                                 />
                             </div>
                             <div>
-                                <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] block mb-3 ml-2">Strategic Keywords</label>
+                                <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.25em] block mb-3 ml-2">Strategic Keywords</label>
                                 <input 
                                     placeholder="e.g. Heirloom, Gaibandha Gold, Pure Harvest" 
-                                    className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-[1.5rem] text-sm text-white outline-none focus:border-primary/40 transition-all lowercase"
+                                    className="w-full px-6 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-[1.5rem] text-sm text-[#111111] outline-none focus:border-primary/40 transition-all lowercase"
                                     value={newProduct.seoKeywords || ''}
                                     onChange={e => setNewProduct({...newProduct, seoKeywords: e.target.value})}
                                 />
@@ -1493,7 +1493,7 @@ export default function AdminPanel() {
 
                     <button 
                       onClick={handleAddProduct}
-                      className="col-span-2 py-6 bg-primary text-black rounded-[2.5rem] font-black uppercase tracking-[0.3em] text-[11px] shadow-2xl shadow-primary/40 hover:bg-primary-dark transition-all hover:scale-[1.01] active:scale-95 mt-8 border border-primary/20"
+                      className="col-span-2 py-6 bg-[#E21E26] text-white rounded-[2.5rem] font-black uppercase tracking-[0.3em] text-[11px] shadow-2xl shadow-[#E21E26]/40 hover:bg-[#B71C1C] transition-all hover:scale-[1.01] active:scale-95 mt-8 border border-[#E21E26]/20"
                     >
                       {editingProductId ? 'Push Manifest Updates' : 'Authorize & Launch Offering'}
                     </button>
@@ -1503,7 +1503,7 @@ export default function AdminPanel() {
             </AnimatePresence>
 
             <div className="flex items-center justify-between px-4 mb-8">
-                <h3 className="font-display font-black text-xl text-white tracking-tight">System Inventory <span className="text-white/20 ml-2 font-sans font-medium">({filteredProducts.length})</span></h3>
+                <h3 className="font-display font-black text-xl text-[#111111] tracking-tight">System Inventory <span className="text-[#6B7280] ml-2 font-sans font-medium">({filteredProducts.length})</span></h3>
                 <button 
                   onClick={() => {
                     if (selectedProducts.length === filteredProducts.length) setSelectedProducts([]);
@@ -1515,63 +1515,63 @@ export default function AdminPanel() {
                 </button>
             </div>
 
-            <div className="bg-white/5 rounded-[3rem] border border-white/5 shadow-2xl overflow-hidden">
+            <div className="bg-[#ECECEC] rounded-[3rem] border border-[#ECECEC] shadow-2xl overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="bg-white/5 border-b border-white/5">
-                                <th className="px-10 py-7 text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Identity</th>
-                                <th className="px-10 py-7 text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Guardian</th>
-                                <th className="px-10 py-7 text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Sales</th>
-                                <th className="px-10 py-7 text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Supply</th>
-                                <th className="px-10 py-7 text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Audit Status</th>
-                                <th className="px-10 py-7 text-center text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Actions</th>
+                            <tr className="bg-[#ECECEC] border-b border-[#ECECEC]">
+                                <th className="px-10 py-7 text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em]">Identity</th>
+                                <th className="px-10 py-7 text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em]">Guardian</th>
+                                <th className="px-10 py-7 text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em]">Sales</th>
+                                <th className="px-10 py-7 text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em]">Supply</th>
+                                <th className="px-10 py-7 text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em]">Audit Status</th>
+                                <th className="px-10 py-7 text-center text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em]">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
                             {filteredProducts.map((p) => (
-                                <tr key={p.id} className="hover:bg-white/5 transition-colors group">
+                                <tr key={p.id} className="hover:bg-[#ECECEC] transition-colors group">
                                     <td className="px-10 py-7">
                                         <div className="flex items-center gap-6">
                                             <div className="relative">
                                                 <input 
                                                     type="checkbox" 
-                                                    className="absolute -left-12 top-1/2 -translate-y-1/2 w-5 h-5 rounded-lg border-white/10 bg-transparent accent-primary cursor-pointer transition-all"
+                                                    className="absolute -left-12 top-1/2 -translate-y-1/2 w-5 h-5 rounded-lg border-[#ECECEC] bg-transparent accent-primary cursor-pointer transition-all"
                                                     checked={selectedProducts.includes(p.id)}
                                                     onChange={(e) => {
                                                         if (e.target.checked) setSelectedProducts([...selectedProducts, p.id]);
                                                         else setSelectedProducts(selectedProducts.filter(id => id !== p.id));
                                                     }}
                                                 />
-                                                <div className="w-16 h-16 rounded-2xl bg-black border border-white/10 overflow-hidden shadow-2xl group-hover:border-primary/40 transition-all p-0.5">
+                                                <div className="w-16 h-16 rounded-2xl bg-[#F9FAFB] border border-[#ECECEC] overflow-hidden shadow-2xl group-hover:border-primary/40 transition-all p-0.5">
                                                     <img src={p.image} className="w-full h-full object-cover rounded-[0.9rem]" alt={p.name} />
                                                 </div>
                                             </div>
                                             <div>
-                                                <p className="text-sm font-black text-white group-hover:text-primary transition-colors mb-1">{p.nameEn || p.name}</p>
-                                                <p className="text-[10px] text-white/30 uppercase font-black tracking-widest">{p.category} <span className="mx-2 opacity-20">|</span> {p.subCategory}</p>
+                                                <p className="text-sm font-black text-[#111111] group-hover:text-primary transition-colors mb-1">{p.nameEn || p.name}</p>
+                                                <p className="text-[10px] text-[#6B7280] uppercase font-black tracking-widest">{p.category} <span className="mx-2 opacity-20">|</span> {p.subCategory}</p>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="px-10 py-7">
-                                        <p className="text-xs text-white/60 font-bold tracking-wide">{p.farmerName || p.farmer || 'System Admin'}</p>
-                                        <p className="text-[9px] text-white/20 font-black uppercase tracking-widest mt-1">Authorized Seller</p>
+                                        <p className="text-xs text-[#6B7280] font-bold tracking-wide">{p.farmerName || p.farmer || 'System Admin'}</p>
+                                        <p className="text-[9px] text-[#6B7280] font-black uppercase tracking-widest mt-1">Authorized Seller</p>
                                     </td>
                                     <td className="px-10 py-7">
                                         <div className="flex items-center gap-2">
                                             <TrendingUp size={14} className="text-primary" />
-                                            <span className="text-sm font-black text-white">{p.salesCount || 0}</span>
+                                            <span className="text-sm font-black text-[#111111]">{p.salesCount || 0}</span>
                                         </div>
-                                        <p className="text-[9px] text-white/20 font-black uppercase tracking-widest mt-1">Total Sold</p>
+                                        <p className="text-[9px] text-[#6B7280] font-black uppercase tracking-widest mt-1">Total Sold</p>
                                     </td>
                                     <td className="px-10 py-7">
                                       <div className="flex flex-col gap-2">
                                         <div className="flex items-center gap-3">
-                                          <Box size={14} className="text-white/20" />
+                                          <Box size={14} className="text-[#6B7280]" />
                                           <input 
                                               type="number"
-                                              className={`w-16 bg-white/5 border rounded-lg text-xs font-black p-2 outline-none text-white focus:border-primary/40 transition-all ${
-                                                  p.stockQuantity <= (p.lowStockAlert || 10) ? 'border-red-500/50' : 'border-white/10'
+                                              className={`w-16 bg-[#ECECEC] border rounded-lg text-xs font-black p-2 outline-none text-[#111111] focus:border-primary/40 transition-all ${
+                                                  p.stockQuantity <= (p.lowStockAlert || 10) ? 'border-red-500/50' : 'border-[#ECECEC]'
                                               }`}
                                               value={p.stockQuantity || 0}
                                               onChange={(e) => adminService.updateStockStatus(p.id, p.isOutOfStock ? 'Out of Stock' : 'In Stock', Number(e.target.value), p.isOutOfStock || false)}
@@ -1601,7 +1601,7 @@ export default function AdminPanel() {
                                           }`}>
                                               {p.status}
                                           </span>
-                                          <p className="text-[10px] font-black text-primary text-center">৳{formatCurrency(p.price)} <span className="text-white/20 font-sans">/ {p.unit}</span></p>
+                                          <p className="text-[10px] font-black text-primary text-center">৳{formatCurrency(p.price)} <span className="text-[#6B7280] font-sans">/ {p.unit}</span></p>
                                         </div>
                                     </td>
                                     <td className="px-10 py-7">
@@ -1609,7 +1609,7 @@ export default function AdminPanel() {
                                             <button 
                                               onClick={() => adminService.updateProduct(p.id, { status: p.status === 'hidden' ? 'approved' : 'hidden' })}
                                               className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all border shadow-xl ${
-                                                p.status === 'hidden' ? 'bg-white/5 border-white/10 text-white/20' : 'bg-blue-500/10 border-blue-500/20 text-blue-400'
+                                                p.status === 'hidden' ? 'bg-[#ECECEC] border-[#ECECEC] text-[#6B7280]' : 'bg-blue-500/10 border-blue-500/20 text-blue-400'
                                               }`}
                                               title={p.status === 'hidden' ? 'Release from Archive' : 'Move to Archive'}
                                             >
@@ -1617,13 +1617,13 @@ export default function AdminPanel() {
                                             </button>
                                             <button 
                                                 onClick={() => startEditingProduct(p)}
-                                                className="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all shadow-xl active:scale-90"
+                                                className="w-12 h-12 bg-[#ECECEC] border border-[#ECECEC] rounded-2xl flex items-center justify-center text-[#6B7280] hover:text-primary hover:border-primary/40 transition-all shadow-xl active:scale-90"
                                             >
                                                 <Settings size={20} />
                                             </button>
                                             <button 
                                                 onClick={() => adminService.deleteProduct(p.id)}
-                                                className="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-white/40 hover:text-red-500 hover:border-red-500/40 transition-all shadow-xl active:scale-90"
+                                                className="w-12 h-12 bg-[#ECECEC] border border-[#ECECEC] rounded-2xl flex items-center justify-center text-[#6B7280] hover:text-red-500 hover:border-red-500/40 transition-all shadow-xl active:scale-90"
                                             >
                                                 <Trash2 size={20} />
                                             </button>
@@ -1635,8 +1635,8 @@ export default function AdminPanel() {
                     </table>
                 </div>
                 {filteredProducts.length === 0 && (
-                    <div className="text-center py-32 bg-white/5">
-                        <p className="text-[11px] font-black text-white/10 uppercase tracking-[0.5em]">Inventory Registry Empty</p>
+                    <div className="text-center py-32 bg-[#ECECEC]">
+                        <p className="text-[11px] font-black text-[#6B7280] uppercase tracking-[0.5em]">Inventory Registry Empty</p>
                     </div>
                 )}
             </div>
@@ -1654,36 +1654,36 @@ export default function AdminPanel() {
 
             <AnimatePresence>
               {isAdding && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="bg-white/5 p-10 rounded-[3rem] border border-primary/20 overflow-hidden mb-8 shadow-2xl">
-                  <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/5">
-                    <h4 className="font-display font-bold text-lg text-white uppercase tracking-widest">Banner Configuration</h4>
-                    <button onClick={() => setIsAdding(false)} className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white/40 hover:text-white transition-colors">
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="bg-[#ECECEC] p-10 rounded-[3rem] border border-primary/20 overflow-hidden mb-8 shadow-2xl">
+                  <div className="flex justify-between items-center mb-8 pb-4 border-b border-[#ECECEC]">
+                    <h4 className="font-display font-bold text-lg text-[#111111] uppercase tracking-widest">Banner Configuration</h4>
+                    <button onClick={() => setIsAdding(false)} className="w-10 h-10 bg-[#ECECEC] rounded-full flex items-center justify-center text-[#6B7280] hover:text-[#111111] transition-colors">
                       <X size={20} />
                     </button>
                   </div>
                   <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-6">
                         <div className="col-span-2">
-                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Header Title</label>
+                            <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2 ml-2">Header Title</label>
                             <input 
                               placeholder="Title (Optional)" 
-                              className="w-full px-5 py-4 bg-black/40 border border-white/5 rounded-2xl text-sm text-white outline-none focus:border-primary/40 transition-all shadow-inner"
+                              className="w-full px-5 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] outline-none focus:border-primary/40 transition-all shadow-inner"
                               value={newBanner.title}
                               onChange={e => setNewBanner({...newBanner, title: e.target.value})}
                             />
                         </div>
                         <div className="col-span-2">
-                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Call to Action Subtitle</label>
+                            <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2 ml-2">Call to Action Subtitle</label>
                             <input 
                               placeholder="Subtitle (Optional)" 
-                              className="w-full px-5 py-4 bg-black/40 border border-white/5 rounded-2xl text-sm text-white outline-none focus:border-primary/40 transition-all shadow-inner"
+                              className="w-full px-5 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] outline-none focus:border-primary/40 transition-all shadow-inner"
                               value={newBanner.subtitle}
                               onChange={e => setNewBanner({...newBanner, subtitle: e.target.value})}
                             />
                         </div>
                     </div>
                     <div>
-                        <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Visual Heritage (6:4 Ratio Recommended)</label>
+                        <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2 ml-2">Visual Heritage (6:4 Ratio Recommended)</label>
                         <ImageUpload 
                             label="Launch Banner Visual"
                             currentImage={newBanner.image}
@@ -1703,19 +1703,19 @@ export default function AdminPanel() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {banners.map((item) => (
-                <div key={item.id} className="bg-white/5 p-4 rounded-[2.5rem] border border-white/5 flex items-center justify-between group hover:border-primary/20 transition-all shadow-2xl">
+                <div key={item.id} className="bg-[#ECECEC] p-4 rounded-[2.5rem] border border-[#ECECEC] flex items-center justify-between group hover:border-primary/20 transition-all shadow-2xl">
                   <div className="flex items-center gap-5">
-                    <div className="w-24 h-16 bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl group-hover:border-primary/40 transition-all">
+                    <div className="w-24 h-16 bg-[#F9FAFB] rounded-2xl overflow-hidden border border-[#ECECEC] shadow-2xl group-hover:border-primary/40 transition-all">
                       <img src={item.image} className="w-full h-full object-cover" alt={item.title} />
                     </div>
                     <div>
-                      <h4 className="font-bold text-sm text-white group-hover:text-primary transition-colors">{item.title || 'Master Visual'}</h4>
-                      <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mt-1">{item.subtitle || 'Promotional Event'}</p>
+                      <h4 className="font-bold text-sm text-[#111111] group-hover:text-primary transition-colors">{item.title || 'Master Visual'}</h4>
+                      <p className="text-[10px] font-black text-[#6B7280] uppercase tracking-widest mt-1">{item.subtitle || 'Promotional Event'}</p>
                     </div>
                   </div>
                   <button 
                     onClick={() => adminService.deleteBanner(item.id)}
-                    className="w-11 h-11 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-white/20 hover:text-red-500 hover:border-red-500/40 transition-all active:scale-90"
+                    className="w-11 h-11 bg-[#ECECEC] border border-[#ECECEC] rounded-2xl flex items-center justify-center text-[#6B7280] hover:text-red-500 hover:border-red-500/40 transition-all active:scale-90"
                   >
                     <Trash2 size={20} />
                   </button>
@@ -1723,8 +1723,8 @@ export default function AdminPanel() {
               ))}
             </div>
             {banners.length === 0 && (
-              <div className="text-center py-20 bg-white/5 rounded-[3rem] border border-dashed border-white/10">
-                <p className="text-[11px] font-black text-white/10 uppercase tracking-[0.4em]">No Live Banners</p>
+              <div className="text-center py-20 bg-[#ECECEC] rounded-[3rem] border border-dashed border-[#ECECEC]">
+                <p className="text-[11px] font-black text-[#6B7280] uppercase tracking-[0.4em]">No Live Banners</p>
               </div>
             )}
           </motion.div>
@@ -1741,32 +1741,32 @@ export default function AdminPanel() {
 
                 <AnimatePresence>
                   {isAdding && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="bg-white/5 p-10 rounded-[3rem] border border-primary/20 overflow-hidden mb-8 shadow-2xl">
-                      <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/5">
-                        <h4 className="font-display font-bold text-lg text-white uppercase tracking-widest">Story Manifest</h4>
-                        <button onClick={() => setIsAdding(false)} className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white/40 hover:text-white transition-colors">
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="bg-[#ECECEC] p-10 rounded-[3rem] border border-primary/20 overflow-hidden mb-8 shadow-2xl">
+                      <div className="flex justify-between items-center mb-8 pb-4 border-b border-[#ECECEC]">
+                        <h4 className="font-display font-bold text-lg text-[#111111] uppercase tracking-widest">Story Manifest</h4>
+                        <button onClick={() => setIsAdding(false)} className="w-10 h-10 bg-[#ECECEC] rounded-full flex items-center justify-center text-[#6B7280] hover:text-[#111111] transition-colors">
                           <X size={20} />
                         </button>
                       </div>
                       <div className="space-y-6">
                         <div className="grid grid-cols-2 gap-6">
                             <div className="col-span-2 lg:col-span-1">
-                                <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Author / Protagonist</label>
+                                <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2 ml-2">Author / Protagonist</label>
                                 <input 
                                   placeholder="e.g. Kashem Miya" 
-                                  className="w-full px-5 py-4 bg-black/40 border border-white/5 rounded-2xl text-sm text-white outline-none focus:border-primary/40 transition-all font-medium"
+                                  className="w-full px-5 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] outline-none focus:border-primary/40 transition-all font-medium"
                                   value={newStory.name}
                                   onChange={e => setNewStory({...newStory, name: e.target.value})}
                                 />
                             </div>
                             <div className="col-span-2 lg:col-span-1">
-                                <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Classification</label>
+                                <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2 ml-2">Classification</label>
                                 <div className="flex gap-2">
                                   {['Farmer', 'Customer', 'Seller'].map(type => (
                                     <button 
                                       key={type}
                                       onClick={() => setNewStory({...newStory, type})}
-                                      className={`flex-1 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${newStory.type === type ? 'bg-primary text-black border-primary' : 'bg-white/5 text-white/40 border-white/10 hover:border-white/20'}`}
+                                      className={`flex-1 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${newStory.type === type ? 'bg-primary text-black border-primary' : 'bg-[#ECECEC] text-[#6B7280] border-[#ECECEC] hover:border-[#ECECEC]'}`}
                                     >
                                       {type === 'Farmer' ? 'Merchant' : type}
                                     </button>
@@ -1775,16 +1775,16 @@ export default function AdminPanel() {
                             </div>
                         </div>
                         <div>
-                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Authentic Narrative / Quote</label>
+                            <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2 ml-2">Authentic Narrative / Quote</label>
                             <textarea 
                               placeholder="Share the heritage or testimonial..." 
-                              className="w-full px-5 py-4 bg-black/40 border border-white/5 rounded-2xl text-sm text-white outline-none focus:border-primary/40 h-28 resize-none transition-all font-medium"
+                              className="w-full px-5 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] outline-none focus:border-primary/40 h-28 resize-none transition-all font-medium"
                               value={newStory.quote}
                               onChange={e => setNewStory({...newStory, quote: e.target.value})}
                             />
                         </div>
                         <div>
-                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Portrait Visual</label>
+                            <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2 ml-2">Portrait Visual</label>
                             <ImageUpload 
                                 label="Upload Identity Asset"
                                 currentImage={newStory.image}
@@ -1804,19 +1804,19 @@ export default function AdminPanel() {
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {stories.map((item) => (
-                        <div key={item.id} className="aspect-[3/4.5] bg-black rounded-[2.5rem] border border-white/5 overflow-hidden relative group shadow-2xl">
+                        <div key={item.id} className="aspect-[3/4.5] bg-[#F9FAFB] rounded-[2.5rem] border border-[#ECECEC] overflow-hidden relative group shadow-2xl">
                             <img src={item.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={item.name} />
                             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80" />
                             <div className="absolute inset-x-0 bottom-0 p-5 z-10">
                                 <span className="text-[8px] font-black tracking-widest bg-primary text-black px-3 py-1 rounded-full uppercase mb-2 inline-block shadow-lg">
                                     {item.type}
                                 </span>
-                                <h4 className="text-sm font-black text-white tracking-wide truncate">{item.name}</h4>
-                                <p className="text-[9px] text-white/40 line-clamp-2 mt-1 font-medium">{item.quote}</p>
+                                <h4 className="text-sm font-black text-[#111111] tracking-wide truncate">{item.name}</h4>
+                                <p className="text-[9px] text-[#6B7280] line-clamp-2 mt-1 font-medium">{item.quote}</p>
                             </div>
                             <button 
                               onClick={() => adminService.deleteStory(item.id)}
-                              className="absolute top-4 right-4 w-10 h-10 bg-black/40 backdrop-blur-md rounded-2xl text-white/40 hover:text-red-500 flex items-center justify-center transition-all border border-white/5 active:scale-90"
+                              className="absolute top-4 right-4 w-10 h-10 bg-[#FFFFFF] backdrop-blur-md rounded-2xl text-[#6B7280] hover:text-red-500 flex items-center justify-center transition-all border border-[#ECECEC] active:scale-90"
                             >
                                 <Trash2 size={18} />
                             </button>
@@ -1824,8 +1824,8 @@ export default function AdminPanel() {
                     ))}
                 </div>
                 {stories.length === 0 && (
-                    <div className="text-center py-20 bg-white/5 rounded-[3rem] border border-dashed border-white/10">
-                        <p className="text-[11px] font-black text-white/10 uppercase tracking-[0.4em]">No Stories in Registry</p>
+                    <div className="text-center py-20 bg-[#ECECEC] rounded-[3rem] border border-dashed border-[#ECECEC]">
+                        <p className="text-[11px] font-black text-[#6B7280] uppercase tracking-[0.4em]">No Stories in Registry</p>
                     </div>
                 )}
             </motion.div>
@@ -1842,46 +1842,46 @@ export default function AdminPanel() {
 
                 <AnimatePresence>
                   {isAdding && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="bg-white/5 p-10 rounded-[3rem] border border-primary/20 overflow-hidden mb-8 shadow-2xl">
-                      <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/5">
-                        <h4 className="font-display font-bold text-lg text-white uppercase tracking-widest">Department Registry</h4>
-                        <button onClick={() => setIsAdding(false)} className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white/40 hover:text-white transition-colors">
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="bg-[#ECECEC] p-10 rounded-[3rem] border border-primary/20 overflow-hidden mb-8 shadow-2xl">
+                      <div className="flex justify-between items-center mb-8 pb-4 border-b border-[#ECECEC]">
+                        <h4 className="font-display font-bold text-lg text-[#111111] uppercase tracking-widest">Department Registry</h4>
+                        <button onClick={() => setIsAdding(false)} className="w-10 h-10 bg-[#ECECEC] rounded-full flex items-center justify-center text-[#6B7280] hover:text-[#111111] transition-colors">
                           <X size={20} />
                         </button>
                       </div>
                       <div className="space-y-6">
                         <div className="grid grid-cols-2 gap-6">
                             <div className="col-span-2 lg:col-span-1">
-                                <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Display Title (Bangla)</label>
+                                <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2 ml-2">Display Title (Bangla)</label>
                                 <input 
                                   placeholder="e.g. সবজি বাগান" 
-                                  className="w-full px-5 py-4 bg-black/40 border border-white/5 rounded-2xl text-sm text-white outline-none focus:border-primary/40 transition-all font-medium"
+                                  className="w-full px-5 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] outline-none focus:border-primary/40 transition-all font-medium"
                                   value={newCategory.title}
                                   onChange={e => setNewCategory({...newCategory, title: e.target.value})}
                                 />
                             </div>
                             <div className="col-span-2 lg:col-span-1">
-                                <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Display Title (English)</label>
+                                <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2 ml-2">Display Title (English)</label>
                                 <input 
                                   placeholder="e.g. Fresh Vegetables" 
-                                  className="w-full px-5 py-4 bg-black/40 border border-white/5 rounded-2xl text-sm text-white outline-none focus:border-primary/40 transition-all font-medium"
+                                  className="w-full px-5 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] outline-none focus:border-primary/40 transition-all font-medium"
                                   value={newCategory.titleEn}
                                   onChange={e => setNewCategory({...newCategory, titleEn: e.target.value})}
                                 />
                             </div>
                             <div className="col-span-2">
-                                <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Institutional Sales Volume</label>
+                                <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2 ml-2">Institutional Sales Volume</label>
                                 <input 
                                   type="number"
                                   placeholder="Initial aggregate sales..." 
-                                  className="w-full px-5 py-4 bg-black/40 border border-white/5 rounded-2xl text-sm text-white outline-none focus:border-primary/40 transition-all font-mono"
+                                  className="w-full px-5 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] outline-none focus:border-primary/40 transition-all font-mono"
                                   value={newCategory.salesCount}
                                   onChange={e => setNewCategory({...newCategory, salesCount: e.target.value})}
                                 />
                             </div>
                         </div>
                         <div>
-                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Iconography Visual</label>
+                            <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2 ml-2">Iconography Visual</label>
                             <ImageUpload 
                                 label="Upload Category Emblem"
                                 currentImage={newCategory.image}
@@ -1890,19 +1890,19 @@ export default function AdminPanel() {
                         </div>
                         <div className="grid grid-cols-2 gap-6">
                             <div className="col-span-2">
-                                <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Niche Collections (Bangla, comma separated)</label>
+                                <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2 ml-2">Niche Collections (Bangla, comma separated)</label>
                                 <input 
                                   placeholder="e.g. আলু, বেগুন, মরিচ" 
-                                  className="w-full px-5 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-primary/40 transition-all"
+                                  className="w-full px-5 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[13px] text-[#111111] outline-none focus:border-primary/40 transition-all"
                                   value={newCategory.subCategories}
                                   onChange={e => setNewCategory({...newCategory, subCategories: e.target.value})}
                                 />
                             </div>
                             <div className="col-span-2">
-                                <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Niche Collections (English, comma separated)</label>
+                                <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2 ml-2">Niche Collections (English, comma separated)</label>
                                 <input 
                                   placeholder="e.g. Potato, Brinjal, Chilli" 
-                                  className="w-full px-5 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-primary/40 transition-all"
+                                  className="w-full px-5 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[13px] text-[#111111] outline-none focus:border-primary/40 transition-all"
                                   value={newCategory.subCategoriesEn}
                                   onChange={e => setNewCategory({...newCategory, subCategoriesEn: e.target.value})}
                                 />
@@ -1919,23 +1919,23 @@ export default function AdminPanel() {
                   )}
                 </AnimatePresence>
 
-                <div className="bg-white/5 rounded-[3rem] border border-white/5 shadow-2xl overflow-hidden divide-y divide-white/5">
+                <div className="bg-[#ECECEC] rounded-[3rem] border border-[#ECECEC] shadow-2xl overflow-hidden divide-y divide-white/5">
                     {categories.map((cat) => (
                         <div key={cat.id} className="flex flex-col">
-                            <div className="p-8 flex items-center justify-between transition-colors hover:bg-white/5">
+                            <div className="p-8 flex items-center justify-between transition-colors hover:bg-[#ECECEC]">
                                 <div className="flex items-center gap-6">
-                                    <div className="w-16 h-16 bg-black border border-white/10 rounded-[1.5rem] overflow-hidden shadow-2xl p-0.5">
+                                    <div className="w-16 h-16 bg-[#F9FAFB] border border-[#ECECEC] rounded-[1.5rem] overflow-hidden shadow-2xl p-0.5">
                                       <img src={cat.image} className="w-full h-full object-cover rounded-[1.3rem]" alt={cat.title} />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-base font-black text-white group-hover:text-primary transition-colors tracking-tight">{cat.title}</span>
+                                        <span className="text-base font-black text-[#111111] group-hover:text-primary transition-colors tracking-tight">{cat.title}</span>
                                         <div className="flex items-center gap-2 mt-1">
-                                          <p className="text-[10px] text-white/30 font-black uppercase tracking-widest">
+                                          <p className="text-[10px] text-[#6B7280] font-black uppercase tracking-widest">
                                               {cat.subCategories?.length || 0} Niche Collections
                                           </p>
-                                          <span className="w-1 h-1 bg-white/10 rounded-full" />
+                                          <span className="w-1 h-1 bg-[#ECECEC] rounded-full" />
                                           <p className="text-[10px] text-primary/60 font-medium italic">{(cat as any).titleEn}</p>
-                                          <span className="w-1 h-1 bg-white/10 rounded-full" />
+                                          <span className="w-1 h-1 bg-[#ECECEC] rounded-full" />
                                           <p className="text-[10px] text-green-400/60 font-black tracking-widest">
                                               SALES: {cat.salesCount || 0}
                                           </p>
@@ -1945,13 +1945,13 @@ export default function AdminPanel() {
                                 <div className="flex items-center gap-4">
                                     <button 
                                       onClick={() => setEditingCategory(editingCategory === cat.id ? null : cat.id)}
-                                      className={`w-12 h-12 rounded-2xl transition-all flex items-center justify-center border ${editingCategory === cat.id ? 'bg-primary border-primary text-black' : 'bg-white/5 border-white/10 text-white/40 hover:text-white hover:border-white/20'}`}
+                                      className={`w-12 h-12 rounded-2xl transition-all flex items-center justify-center border ${editingCategory === cat.id ? 'bg-primary border-primary text-black' : 'bg-[#ECECEC] border-[#ECECEC] text-[#6B7280] hover:text-[#111111] hover:border-[#ECECEC]'}`}
                                     >
                                         <Settings size={22} />
                                     </button>
                                     <button 
                                       onClick={() => adminService.deleteCategory(cat.id)}
-                                      className="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-white/20 hover:text-red-500 hover:border-red-500/40 transition-all active:scale-90"
+                                      className="w-12 h-12 bg-[#ECECEC] border border-[#ECECEC] rounded-2xl flex items-center justify-center text-[#6B7280] hover:text-red-500 hover:border-red-500/40 transition-all active:scale-90"
                                     >
                                         <Trash2 size={22} />
                                     </button>
@@ -1964,16 +1964,16 @@ export default function AdminPanel() {
                                         initial={{ height: 0, opacity: 0 }}
                                         animate={{ height: 'auto', opacity: 1 }}
                                         exit={{ height: 0, opacity: 0 }}
-                                        className="px-10 pb-10 bg-black/20"
+                                        className="px-10 pb-10 bg-black/5"
                                     >
                                         <div className="pt-6 space-y-6">
                                             <div className="flex flex-wrap gap-3">
                                                 {cat.subCategories?.map((sub: string) => (
-                                                    <div key={sub} className="group flex items-center gap-2 bg-white/5 border border-white/5 px-4 py-2 rounded-xl transition-all hover:border-primary/30">
-                                                        <span className="text-[11px] font-black text-white/60 tracking-wide">{sub}</span>
+                                                    <div key={sub} className="group flex items-center gap-2 bg-[#ECECEC] border border-[#ECECEC] px-4 py-2 rounded-xl transition-all hover:border-primary/30">
+                                                        <span className="text-[11px] font-black text-[#6B7280] tracking-wide">{sub}</span>
                                                         <button 
                                                             onClick={() => handleRemoveSubCategory(cat.id, cat.subCategories, sub)}
-                                                            className="text-white/20 hover:text-red-400 transition-colors"
+                                                            className="text-[#6B7280] hover:text-red-400 transition-colors"
                                                         >
                                                             <X size={14} />
                                                         </button>
@@ -1984,7 +1984,7 @@ export default function AdminPanel() {
                                             <div className="flex gap-4">
                                                 <input 
                                                     placeholder="Inject new sub-collection..." 
-                                                    className="flex-1 px-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-xs text-white outline-none focus:border-primary/40 transition-all"
+                                                    className="flex-1 px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-xs text-[#111111] outline-none focus:border-primary/40 transition-all"
                                                     value={newSubCategory}
                                                     onChange={e => setNewSubCategory(e.target.value)}
                                                     onKeyPress={e => e.key === 'Enter' && handleAddSubCategory(cat.id, cat.subCategories)}
@@ -2009,30 +2009,30 @@ export default function AdminPanel() {
         {activeTab === 'riders' && (
           <motion.div key="riders-management" className="space-y-8">
             <div className="flex items-center justify-between px-2">
-                <h3 className="font-display font-black text-2xl text-white tracking-tight">Delivery Elite Force</h3>
-                <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] bg-white/5 px-4 py-1.5 rounded-full border border-white/5">
+                <h3 className="font-display font-black text-2xl text-[#111111] tracking-tight">Delivery Elite Force</h3>
+                <span className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] bg-[#ECECEC] px-4 py-1.5 rounded-full border border-[#ECECEC]">
                   Registry: {sellers.filter(u => u.role === 'rider').length} Active
                 </span>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {sellers.filter(u => u.role === 'rider').map((rider) => (
-                <div key={rider.id} className="bg-white/5 p-8 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden group hover:border-primary/20 transition-all">
+                <div key={rider.id} className="bg-[#ECECEC] p-8 rounded-[3rem] border border-[#ECECEC] shadow-2xl relative overflow-hidden group hover:border-primary/20 transition-all">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-primary/10 transition-all" />
                   
                   <div className="relative z-10 flex flex-col items-center text-center">
-                    <div className="w-24 h-24 bg-black rounded-[2.5rem] border border-white/5 flex items-center justify-center text-primary shadow-2xl mb-6 group-hover:border-primary/40 transition-all p-1">
+                    <div className="w-24 h-24 bg-[#F9FAFB] rounded-[2.5rem] border border-[#ECECEC] flex items-center justify-center text-primary shadow-2xl mb-6 group-hover:border-primary/40 transition-all p-1">
                       {rider.photoURL ? (
                         <img src={rider.photoURL} className="w-full h-full object-cover rounded-[2.2rem]" alt="" />
                       ) : (
-                        <div className="w-full h-full bg-white/5 rounded-[2.2rem] flex items-center justify-center">
+                        <div className="w-full h-full bg-[#ECECEC] rounded-[2.2rem] flex items-center justify-center">
                           <User size={32} />
                         </div>
                       )}
                     </div>
                     
-                    <h4 className="font-display font-bold text-lg text-white mb-1 group-hover:text-primary transition-colors">{rider.realName || rider.displayName}</h4>
-                    <p className="text-[10px] text-white/30 font-black uppercase tracking-[0.25em] mb-4">{rider.phone || 'Registry Unverified'}</p>
+                    <h4 className="font-display font-bold text-lg text-[#111111] mb-1 group-hover:text-primary transition-colors">{rider.realName || rider.displayName}</h4>
+                    <p className="text-[10px] text-[#6B7280] font-black uppercase tracking-[0.25em] mb-4">{rider.phone || 'Registry Unverified'}</p>
                     
                     <div className="flex items-center gap-3 mb-8">
                       <span className={`text-[8px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full border ${
@@ -2045,7 +2045,7 @@ export default function AdminPanel() {
                       <span className={`text-[8px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full border ${
                         rider.status === 'online' 
                           ? 'bg-primary/10 text-primary border-primary/20' 
-                          : 'bg-white/5 text-white/20 border-white/10'
+                          : 'bg-[#ECECEC] text-[#6B7280] border-[#ECECEC]'
                       }`}>
                         {rider.status || 'Offline'}
                       </span>
@@ -2062,7 +2062,7 @@ export default function AdminPanel() {
                         )}
                         <button 
                           onClick={() => adminService.deleteUser(rider.id)}
-                          className="w-full py-4 bg-white/5 border border-white/5 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-red-500 hover:border-red-500/40 transition-all flex items-center justify-center gap-2"
+                          className="w-full py-4 bg-[#ECECEC] border border-[#ECECEC] rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] text-[#6B7280] hover:text-red-500 hover:border-red-500/40 transition-all flex items-center justify-center gap-2"
                         >
                           <Trash2 size={16} /> Decommission Partner
                         </button>
@@ -2072,8 +2072,8 @@ export default function AdminPanel() {
               ))}
             </div>
             {sellers.filter(u => u.role === 'rider').length === 0 && (
-                <div className="text-center py-32 bg-white/5 rounded-[3rem] border border-dashed border-white/10">
-                    <p className="text-[11px] font-black text-white/10 uppercase tracking-[0.5em]">No Delivery Partners Found</p>
+                <div className="text-center py-32 bg-[#ECECEC] rounded-[3rem] border border-dashed border-[#ECECEC]">
+                    <p className="text-[11px] font-black text-[#6B7280] uppercase tracking-[0.5em]">No Delivery Partners Found</p>
                 </div>
             )}
           </motion.div>
@@ -2083,11 +2083,11 @@ export default function AdminPanel() {
             <motion.div key="users" className="space-y-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between px-2 gap-4">
                     <div>
-                        <h2 className="font-display font-black text-3xl text-white tracking-tight">Citizen Directory</h2>
-                        <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mt-1">Unified Collective: {sellers.length} registered nodes</p>
+                        <h2 className="font-display font-black text-3xl text-[#111111] tracking-tight">Citizen Directory</h2>
+                        <p className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.2em] mt-1">Unified Collective: {sellers.length} registered nodes</p>
                     </div>
                     
-                    <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/5">
+                    <div className="flex bg-[#ECECEC] p-1.5 rounded-2xl border border-[#ECECEC]">
                         {[
                             { id: 'all', label: 'All Agents' },
                             { id: 'push_enabled', label: 'Push Sync' },
@@ -2098,7 +2098,7 @@ export default function AdminPanel() {
                                 key={f.id}
                                 onClick={() => setUserFilter(f.id as any)}
                                 className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
-                                    userFilter === f.id ? 'bg-primary text-black' : 'text-white/40 hover:text-white/60'
+                                    userFilter === f.id ? 'bg-primary text-black' : 'text-[#6B7280] hover:text-[#6B7280]'
                                 }`}
                             >
                                 {f.label}
@@ -2116,16 +2116,16 @@ export default function AdminPanel() {
                           return true;
                       })
                       .map((u) => (
-                        <div key={u.id} className="bg-white/5 p-8 rounded-[3rem] border border-white/5 transition-all hover:bg-white/[0.07] hover:border-primary/20 group relative overflow-hidden">
+                        <div key={u.id} className="bg-[#ECECEC] p-8 rounded-[3rem] border border-[#ECECEC] transition-all hover:bg-white/[0.07] hover:border-primary/20 group relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-3xl opacity-0 group-hover:opacity-100 transition-all duration-700" />
                             
                             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 relative z-10">
                                 <div className="flex items-center gap-8">
                                     <div className={`w-20 h-20 rounded-[2rem] border shadow-2xl flex items-center justify-center transition-all group-hover:scale-105 ${
                                         u.role === 'admin' ? 'bg-primary border-primary text-black' : 
-                                        u.role === 'seller' ? 'bg-white/10 border-white/20 text-primary' : 
-                                        u.role === 'rider' ? 'bg-white/10 border-white/20 text-blue-400' : 
-                                        'bg-white/5 border-white/10 text-white/20'
+                                        u.role === 'seller' ? 'bg-[#ECECEC] border-[#ECECEC] text-primary' : 
+                                        u.role === 'rider' ? 'bg-[#ECECEC] border-[#ECECEC] text-blue-400' : 
+                                        'bg-[#ECECEC] border-[#ECECEC] text-[#6B7280]'
                                     }`}>
                                         {u.role === 'admin' ? <ShieldCheck size={32} /> : 
                                          u.role === 'seller' ? <Store size={32} /> : 
@@ -2134,21 +2134,21 @@ export default function AdminPanel() {
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-3">
-                                            <h4 className="font-display font-bold text-xl text-white tracking-wide">{u.displayName || 'Anonymous Citizen'}</h4>
+                                            <h4 className="font-display font-bold text-xl text-[#111111] tracking-wide">{u.displayName || 'Anonymous Citizen'}</h4>
                                             {u.isVerified && <CheckCircle size={18} className="text-primary" />}
                                         </div>
                                         <div className="flex flex-wrap items-center gap-4 mt-2">
                                             <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{u.role || 'customer'}</span>
-                                            <span className="w-1 h-1 bg-white/10 rounded-full" />
-                                            <span className="text-[10px] font-bold text-white/40 tracking-wider font-mono">{u.email}</span>
+                                            <span className="w-1 h-1 bg-[#ECECEC] rounded-full" />
+                                            <span className="text-[10px] font-bold text-[#6B7280] tracking-wider font-mono">{u.email}</span>
                                             {u.isBlocked && (
                                                 <span className="bg-red-500/20 text-red-500 text-[8px] px-3 py-1 rounded-full font-black uppercase tracking-widest border border-red-500/20">Access Restricted</span>
                                             )}
                                         </div>
                                         {u.payoutAccount && (
-                                            <div className="flex items-center gap-3 mt-4 bg-black/40 px-4 py-2 rounded-xl border border-white/5 w-fit">
+                                            <div className="flex items-center gap-3 mt-4 bg-[#FFFFFF] px-4 py-2 rounded-xl border border-[#ECECEC] w-fit">
                                                 <span className="text-[8px] font-black text-primary uppercase tracking-widest leading-none">{u.paymentMethod}</span>
-                                                <span className="text-[10px] font-mono text-white/60 tracking-wider">{u.payoutAccount}</span>
+                                                <span className="text-[10px] font-mono text-[#6B7280] tracking-wider">{u.payoutAccount}</span>
                                             </div>
                                         )}
                                     </div>
@@ -2164,10 +2164,10 @@ export default function AdminPanel() {
                                         </button>
                                     )}
                                     
-                                    <div className="flex items-center gap-2 bg-black/40 p-2 rounded-2xl border border-white/5">
+                                    <div className="flex items-center gap-2 bg-[#FFFFFF] p-2 rounded-2xl border border-[#ECECEC]">
                                         <button 
                                             onClick={() => adminService.blockUser(u.id, !u.isBlocked)}
-                                            className={`w-11 h-11 flex items-center justify-center rounded-xl border transition-all ${u.isBlocked ? 'bg-red-500 border-red-500 text-white' : 'bg-white/5 border-white/5 text-white/20 hover:text-red-500 hover:border-red-500/40'}`}
+                                            className={`w-11 h-11 flex items-center justify-center rounded-xl border transition-all ${u.isBlocked ? 'bg-red-500 border-red-500 text-[#111111]' : 'bg-[#ECECEC] border-[#ECECEC] text-[#6B7280] hover:text-red-500 hover:border-red-500/40'}`}
                                             title={u.isBlocked ? "Unblock User" : "Block User"}
                                         >
                                             <XCircle size={20} />
@@ -2177,7 +2177,7 @@ export default function AdminPanel() {
                                             <select 
                                                 value={u.role || 'customer'}
                                                 onChange={(e) => adminService.updateUserRole(u.id, e.target.value)}
-                                                className="bg-transparent text-white text-[10px] font-black uppercase tracking-widest px-4 py-2.5 outline-none cursor-pointer"
+                                                className="bg-transparent text-[#111111] text-[10px] font-black uppercase tracking-widest px-4 py-2.5 outline-none cursor-pointer"
                                             >
                                                 <option className="bg-zinc-900" value="customer">Customer</option>
                                                 <option className="bg-zinc-900" value="seller">Seller</option>
@@ -2198,7 +2198,7 @@ export default function AdminPanel() {
                                                     adminService.deleteSeller(u.id);
                                                 }
                                             }}
-                                            className="w-11 h-11 flex items-center justify-center rounded-xl bg-white/5 border border-white/5 text-white/20 hover:text-red-500 hover:border-red-500/40 transition-all active:scale-90"
+                                            className="w-11 h-11 flex items-center justify-center rounded-xl bg-[#ECECEC] border border-[#ECECEC] text-[#6B7280] hover:text-red-500 hover:border-red-500/40 transition-all active:scale-90"
                                         >
                                             <Trash2 size={20} />
                                         </button>
@@ -2206,29 +2206,29 @@ export default function AdminPanel() {
                                 </div>
                             </div>
                             
-                            <div className="mt-8 pt-8 border-t border-white/5 flex justify-between items-center px-2">
+                            <div className="mt-8 pt-8 border-t border-[#ECECEC] flex justify-between items-center px-2">
                                 <div className="flex gap-12">
                                     <div className="flex flex-col gap-1.5">
-                                        <p className="text-[8px] font-black text-white/20 uppercase tracking-[0.3em]">Last Pulse Detected</p>
-                                        <p className="text-[11px] font-black text-white/60 tracking-wider font-mono italic">
+                                        <p className="text-[8px] font-black text-[#6B7280] uppercase tracking-[0.3em]">Last Pulse Detected</p>
+                                        <p className="text-[11px] font-black text-[#6B7280] tracking-wider font-mono italic">
                                             {u.lastLogin?.toDate ? format(u.lastLogin.toDate(), 'dd MMM yyyy - HH:mm:ss') : 'Pulse Silent'}
                                         </p>
                                     </div>
                                     <div className="flex flex-col gap-1.5">
-                                        <p className="text-[8px] font-black text-white/20 uppercase tracking-[0.3em]">Citizen ID</p>
-                                        <p className="text-[10px] font-mono text-white/30 tracking-tight">{u.id}</p>
+                                        <p className="text-[8px] font-black text-[#6B7280] uppercase tracking-[0.3em]">Citizen ID</p>
+                                        <p className="text-[10px] font-mono text-[#6B7280] tracking-tight">{u.id}</p>
                                     </div>
                                 </div>
                                     <div className="flex items-center gap-2">
                                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center border ${
                                             u.pushEnabled === true ? 'bg-green-500/10 text-green-500 border-green-500/20' :
                                             u.pushEnabled === false ? 'bg-red-500/10 text-red-500 border-red-500/20' :
-                                            'bg-white/5 text-white/20 border-white/5'
+                                            'bg-[#ECECEC] text-[#6B7280] border-[#ECECEC]'
                                         }`} title={u.pushEnabled === true ? "Neural Link Active" : u.pushEnabled === false ? "Neural Link Severed" : "Neural Link Pending"}>
                                             <Bell size={14} />
                                         </div>
-                                        <div className={`w-2 h-2 rounded-full ${u.status === 'online' ? 'bg-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]' : 'bg-white/10'}`} />
-                                        <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">{u.status || 'offline'}</span>
+                                        <div className={`w-2 h-2 rounded-full ${u.status === 'online' ? 'bg-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]' : 'bg-[#ECECEC]'}`} />
+                                        <span className="text-[9px] font-black text-[#6B7280] uppercase tracking-widest">{u.status || 'offline'}</span>
                                     </div>
                             </div>
                         </div>
@@ -2248,29 +2248,29 @@ export default function AdminPanel() {
 
                 <AnimatePresence>
                   {isAdding && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="bg-white/5 p-10 rounded-[3rem] border border-primary/20 overflow-hidden mb-8 shadow-2xl">
-                      <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/5">
-                        <h4 className="font-display font-bold text-lg text-white uppercase tracking-widest">Bundle Manifest</h4>
-                        <button onClick={() => setIsAdding(false)} className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white/40 hover:text-white transition-colors">
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="bg-[#ECECEC] p-10 rounded-[3rem] border border-primary/20 overflow-hidden mb-8 shadow-2xl">
+                      <div className="flex justify-between items-center mb-8 pb-4 border-b border-[#ECECEC]">
+                        <h4 className="font-display font-bold text-lg text-[#111111] uppercase tracking-widest">Bundle Manifest</h4>
+                        <button onClick={() => setIsAdding(false)} className="w-10 h-10 bg-[#ECECEC] rounded-full flex items-center justify-center text-[#6B7280] hover:text-[#111111] transition-colors">
                           <X size={20} />
                         </button>
                       </div>
                       <div className="space-y-6">
                         <div className="grid grid-cols-2 gap-6">
                             <div className="col-span-2 lg:col-span-1">
-                                <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Bundle Designation (Bangla)</label>
+                                <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2 ml-2">Bundle Designation (Bangla)</label>
                                 <input 
                                   placeholder="e.g. রমজান স্পেশাল" 
-                                  className="w-full px-5 py-4 bg-black/40 border border-white/5 rounded-2xl text-sm text-white outline-none focus:border-primary/40 transition-all"
+                                  className="w-full px-5 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] outline-none focus:border-primary/40 transition-all"
                                   value={newBundle.name}
                                   onChange={e => setNewBundle({...newBundle, name: e.target.value})}
                                 />
                             </div>
                             <div className="col-span-2 lg:col-span-1">
-                                <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Bundle Designation (English)</label>
+                                <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2 ml-2">Bundle Designation (English)</label>
                                 <input 
                                   placeholder="e.g. Ramadan Feast" 
-                                  className="w-full px-5 py-4 bg-black/40 border border-white/5 rounded-2xl text-sm text-white outline-none focus:border-primary/40 transition-all font-medium"
+                                  className="w-full px-5 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] outline-none focus:border-primary/40 transition-all font-medium"
                                   value={newBundle.nameEn}
                                   onChange={e => setNewBundle({...newBundle, nameEn: e.target.value})}
                                 />
@@ -2278,17 +2278,17 @@ export default function AdminPanel() {
                         </div>
                         <div className="grid grid-cols-2 gap-6">
                             <div className="col-span-2 lg:col-span-1">
-                                <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Appraised Value (৳)</label>
+                                <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2 ml-2">Appraised Value (৳)</label>
                                 <input 
                                   type="number"
                                   placeholder="e.g. 1500" 
-                                  className="w-full px-5 py-4 bg-black/40 border border-white/5 rounded-2xl text-sm text-white outline-none focus:border-primary/40 transition-all font-mono"
+                                  className="w-full px-5 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] outline-none focus:border-primary/40 transition-all font-mono"
                                   value={newBundle.price}
                                   onChange={e => setNewBundle({...newBundle, price: e.target.value})}
                                 />
                             </div>
                             <div className="col-span-2 lg:col-span-1">
-                                <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Collection Visual</label>
+                                <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2 ml-2">Collection Visual</label>
                                 <ImageUpload 
                                     label="Upload Bundle Identity Asset"
                                     currentImage={newBundle.image}
@@ -2297,10 +2297,10 @@ export default function AdminPanel() {
                             </div>
                         </div>
                         <div>
-                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-2 ml-2">Curation Narrative</label>
+                            <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2 ml-2">Curation Narrative</label>
                             <textarea 
                               placeholder="Describe the items in this exclusive collection..." 
-                              className="w-full px-5 py-4 bg-black/40 border border-white/5 rounded-2xl text-sm text-white outline-none focus:border-primary/40 h-28 resize-none transition-all"
+                              className="w-full px-5 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] outline-none focus:border-primary/40 h-28 resize-none transition-all"
                               value={newBundle.description}
                               onChange={e => setNewBundle({...newBundle, description: e.target.value})}
                             />
@@ -2318,24 +2318,24 @@ export default function AdminPanel() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {bundles.map((bundle) => (
-                        <div key={bundle.id} className="bg-white/5 p-6 rounded-[2.5rem] border border-white/5 flex items-center justify-between shadow-2xl hover:border-primary/20 group transition-all">
+                        <div key={bundle.id} className="bg-[#ECECEC] p-6 rounded-[2.5rem] border border-[#ECECEC] flex items-center justify-between shadow-2xl hover:border-primary/20 group transition-all">
                             <div className="flex items-center gap-6">
-                                <div className="w-24 h-24 bg-black rounded-3xl overflow-hidden border border-white/5 shadow-2xl p-0.5">
+                                <div className="w-24 h-24 bg-[#F9FAFB] rounded-3xl overflow-hidden border border-[#ECECEC] shadow-2xl p-0.5">
                                     <img src={bundle.image} className="w-full h-full object-cover rounded-[1.4rem]" alt={bundle.name} />
                                 </div>
                                 <div>
-                                    <h4 className="font-display font-bold text-lg text-white group-hover:text-primary transition-all">{bundle.name}</h4>
+                                    <h4 className="font-display font-bold text-lg text-[#111111] group-hover:text-primary transition-all">{bundle.name}</h4>
                                     <div className="flex items-center gap-3 mt-1">
                                         <span className="text-[10px] font-black text-primary tracking-widest uppercase">৳{formatCurrency(bundle.price)}</span>
-                                        <span className="w-1 h-1 bg-white/10 rounded-full" />
-                                        <p className="text-[10px] font-medium text-white/30 italic">{(bundle as any).nameEn}</p>
+                                        <span className="w-1 h-1 bg-[#ECECEC] rounded-full" />
+                                        <p className="text-[10px] font-medium text-[#6B7280] italic">{(bundle as any).nameEn}</p>
                                     </div>
-                                    <p className="text-[9px] text-white/20 mt-2 line-clamp-1 max-w-[200px]">{bundle.description}</p>
+                                    <p className="text-[9px] text-[#6B7280] mt-2 line-clamp-1 max-w-[200px]">{bundle.description}</p>
                                 </div>
                             </div>
                             <button 
                                 onClick={() => adminService.deleteBundle(bundle.id)}
-                                className="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-white/20 hover:text-red-500 hover:border-red-500/40 transition-all active:scale-90"
+                                className="w-12 h-12 bg-[#ECECEC] border border-[#ECECEC] rounded-2xl flex items-center justify-center text-[#6B7280] hover:text-red-500 hover:border-red-500/40 transition-all active:scale-90"
                             >
                                 <Trash2 size={22} />
                             </button>
@@ -2343,8 +2343,8 @@ export default function AdminPanel() {
                     ))}
                 </div>
                 {bundles.length === 0 && (
-                    <div className="text-center py-32 bg-white/5 rounded-[3rem] border border-dashed border-white/10">
-                        <p className="text-[11px] font-black text-white/10 uppercase tracking-[0.5em]">No Bundle Assets in Inventory</p>
+                    <div className="text-center py-32 bg-[#ECECEC] rounded-[3rem] border border-dashed border-[#ECECEC]">
+                        <p className="text-[11px] font-black text-[#6B7280] uppercase tracking-[0.5em]">No Bundle Assets in Inventory</p>
                     </div>
                 )}
             </motion.div>
@@ -2352,11 +2352,11 @@ export default function AdminPanel() {
 
         {activeTab === 'settings' && (
             <motion.div key="settings" className="space-y-10">
-                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                <div className="bg-[#ECECEC] p-10 rounded-[3rem] border border-[#ECECEC] shadow-2xl relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 rounded-full -mr-24 -mt-24 blur-3xl group-hover:bg-blue-500/20 transition-all duration-1000" />
                     <div className="absolute bottom-0 left-0 w-48 h-48 bg-amber-500/5 rounded-full -ml-24 -mb-24 blur-3xl group-hover:bg-amber-500/10 transition-all duration-1000" />
                     
-                    <h3 className="font-display font-black text-2xl mb-8 flex items-center gap-4 text-white uppercase tracking-[0.2em] relative z-10">
+                    <h3 className="font-display font-black text-2xl mb-8 flex items-center gap-4 text-[#111111] uppercase tracking-[0.2em] relative z-10">
                         <Globe size={28} className="text-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.4)]" />
                         Domain & URL Protection
                     </h3>
@@ -2364,25 +2364,25 @@ export default function AdminPanel() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 relative z-10">
                         {/* 1. Main Website Domain */}
                         <div className="space-y-6">
-                            <div className="p-6 bg-black/40 border border-white/5 rounded-[2rem] space-y-4">
+                            <div className="p-6 bg-[#FFFFFF] border border-[#ECECEC] rounded-[2rem] space-y-4">
                                 <h4 className="text-[10px] font-black text-blue-400 uppercase tracking-[0.3em] flex items-center gap-2">
                                     <ShieldCheck size={14} /> Global Identity Nexus
                                 </h4>
                                 <div className="space-y-4">
                                     <div className="space-y-2">
-                                        <label className="text-[9px] font-black text-white/30 uppercase tracking-widest ml-2">Primary Authority (Domain)</label>
+                                        <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-widest ml-2">Primary Authority (Domain)</label>
                                         <input 
                                             placeholder="kichukini.com" 
-                                            className="w-full px-6 py-4 bg-black/60 border border-white/5 rounded-2xl text-xs text-white font-mono outline-none focus:border-blue-500/40 transition-all"
+                                            className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-xs text-[#111111] font-mono outline-none focus:border-blue-500/40 transition-all"
                                             defaultValue={appSettings.primaryDomain || ''}
                                             id="primaryDomain"
                                         />
                                     </div>
                                     <div className="flex items-center justify-between px-3">
-                                        <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Enforce WWW Redirect</span>
+                                        <span className="text-[9px] font-bold text-[#6B7280] uppercase tracking-widest">Enforce WWW Redirect</span>
                                         <button 
                                             onClick={() => adminService.updateAppSetting('enforceWww', !appSettings.enforceWww)}
-                                            className={`w-12 h-6 rounded-full transition-all relative ${appSettings.enforceWww ? 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'bg-white/10'}`}
+                                            className={`w-12 h-6 rounded-full transition-all relative ${appSettings.enforceWww ? 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'bg-[#ECECEC]'}`}
                                         >
                                             <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${appSettings.enforceWww ? 'right-1' : 'left-1'}`} />
                                         </button>
@@ -2391,14 +2391,14 @@ export default function AdminPanel() {
                             </div>
 
                             {/* 2. Common Domain Misspellings */}
-                            <div className="p-6 bg-black/40 border border-white/5 rounded-[2rem] space-y-4">
+                            <div className="p-6 bg-[#FFFFFF] border border-[#ECECEC] rounded-[2rem] space-y-4">
                                 <h4 className="text-[10px] font-black text-amber-400 uppercase tracking-[0.3em] flex items-center gap-2">
                                     <XCircle size={14} /> Typo-Tolerance Shield
                                 </h4>
                                 <div className="space-y-3">
                                     <textarea 
                                         placeholder="kicukini, kichukeni, kisu kini..." 
-                                        className="w-full px-6 py-4 bg-black/60 border border-white/5 rounded-2xl text-xs text-white h-24 outline-none focus:border-amber-500/40 transition-all resize-none font-medium leading-relaxed"
+                                        className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-xs text-[#111111] h-24 outline-none focus:border-amber-500/40 transition-all resize-none font-medium leading-relaxed"
                                         defaultValue={appSettings.domainMisspellings || ''}
                                         id="domainMisspellings"
                                     />
@@ -2424,18 +2424,18 @@ export default function AdminPanel() {
                                         </button>
                                     </div>
                                 </div>
-                                <p className="text-[8px] text-white/20 px-2 leading-relaxed">Systematic variation vectors help search engines correctly associate misspellings with your primary authority.</p>
+                                <p className="text-[8px] text-[#6B7280] px-2 leading-relaxed">Systematic variation vectors help search engines correctly associate misspellings with your primary authority.</p>
                             </div>
 
                             {/* 7. Broken URL Recovery */}
-                            <div className="p-6 bg-black/40 border border-white/5 rounded-[2rem] space-y-4">
-                                <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] flex items-center gap-2">
-                                    <TrendingUp size={14} className="text-white/40" /> URL Recovery Extraction
+                            <div className="p-6 bg-[#FFFFFF] border border-[#ECECEC] rounded-[2rem] space-y-4">
+                                <h4 className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] flex items-center gap-2">
+                                    <TrendingUp size={14} className="text-[#6B7280]" /> URL Recovery Extraction
                                 </h4>
                                 <div className="flex items-center gap-3">
                                     <select 
                                         id="brokenUrlAction"
-                                        className="flex-1 px-4 py-3 bg-black/60 border border-white/5 rounded-xl text-[10px] font-black text-white/60 uppercase tracking-widest outline-none appearance-none"
+                                        className="flex-1 px-4 py-3 bg-[#FFFFFF] border border-[#ECECEC] rounded-xl text-[10px] font-black text-[#6B7280] uppercase tracking-widest outline-none appearance-none"
                                         defaultValue={appSettings.brokenUrlAction || 'suggest'}
                                     >
                                         <option value="home">Instant Homepage Extraction</option>
@@ -2452,21 +2452,21 @@ export default function AdminPanel() {
                         {/* Right Column: SEO & Redirects */}
                         <div className="space-y-6">
                             {/* 3. Smart Redirect Rules */}
-                            <div className="p-8 bg-black/40 border border-white/5 rounded-[3rem] space-y-6">
+                            <div className="p-8 bg-[#FFFFFF] border border-[#ECECEC] rounded-[3rem] space-y-6">
                                 <h4 className="text-[10px] font-black text-blue-400 uppercase tracking-[0.3em] flex items-center gap-2">
                                     <BarChart3 size={16} /> Redirect Architecture
                                 </h4>
                                 <div className="max-h-48 overflow-y-auto space-y-3 pr-2 scrollbar-hide">
                                     {(appSettings.redirectRules || []).length === 0 && (
-                                        <div className="py-8 text-center border border-dashed border-white/5 rounded-[1.5rem]">
-                                            <p className="text-[9px] font-black text-white/10 uppercase tracking-widest">No active routing rules</p>
+                                        <div className="py-8 text-center border border-dashed border-[#ECECEC] rounded-[1.5rem]">
+                                            <p className="text-[9px] font-black text-[#6B7280] uppercase tracking-widest">No active routing rules</p>
                                         </div>
                                     )}
                                     {(appSettings.redirectRules || []).map((rule: any, idx: number) => (
-                                        <div key={idx} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group/rule">
+                                        <div key={idx} className="flex items-center justify-between p-4 bg-[#ECECEC] rounded-2xl border border-[#ECECEC] group/rule">
                                             <div className="flex items-center gap-4 overflow-hidden">
                                                 <div className="text-[10px] space-y-1 overflow-hidden">
-                                                    <p className="text-white/40 font-mono truncate">{rule.from}</p>
+                                                    <p className="text-[#6B7280] font-mono truncate">{rule.from}</p>
                                                     <div className="flex items-center gap-2">
                                                         <ArrowUpRight size={10} className="text-blue-400" />
                                                         <p className="text-blue-400 font-mono truncate">{rule.to}</p>
@@ -2474,13 +2474,13 @@ export default function AdminPanel() {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-3">
-                                                <span className="text-[8px] font-black text-white/20 bg-white/5 px-2 py-1 rounded-lg">{rule.type}</span>
+                                                <span className="text-[8px] font-black text-[#6B7280] bg-[#ECECEC] px-2 py-1 rounded-lg">{rule.type}</span>
                                                 <button 
                                                     onClick={async () => {
                                                         const newRules = appSettings.redirectRules.filter((_: any, i: number) => i !== idx);
                                                         await adminService.updateAppSetting('redirectRules', newRules);
                                                     }}
-                                                    className="w-8 h-8 rounded-xl flex items-center justify-center text-white/10 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                                                    className="w-8 h-8 rounded-xl flex items-center justify-center text-[#6B7280] hover:text-red-500 hover:bg-red-500/10 transition-all"
                                                 >
                                                     <Trash2 size={14} />
                                                 </button>
@@ -2488,13 +2488,13 @@ export default function AdminPanel() {
                                         </div>
                                     ))}
                                 </div>
-                                <div className="space-y-4 pt-4 border-t border-white/5">
+                                <div className="space-y-4 pt-4 border-t border-[#ECECEC]">
                                     <div className="grid grid-cols-2 gap-3">
-                                        <input id="redFrom" placeholder="/old-path" className="bg-black/60 border border-white/5 px-4 py-3 rounded-xl text-[11px] text-white font-mono outline-none" />
-                                        <input id="redTo" placeholder="/new-path" className="bg-black/60 border border-white/5 px-4 py-3 rounded-xl text-[11px] text-white font-mono outline-none" />
+                                        <input id="redFrom" placeholder="/old-path" className="bg-[#FFFFFF] border border-[#ECECEC] px-4 py-3 rounded-xl text-[11px] text-[#111111] font-mono outline-none" />
+                                        <input id="redTo" placeholder="/new-path" className="bg-[#FFFFFF] border border-[#ECECEC] px-4 py-3 rounded-xl text-[11px] text-[#111111] font-mono outline-none" />
                                     </div>
                                     <div className="flex gap-3">
-                                        <select id="redType" className="bg-black/60 border border-white/5 px-4 py-3 rounded-xl text-[10px] font-black text-white/40 uppercase tracking-widest outline-none flex-1 appearance-none">
+                                        <select id="redType" className="bg-[#FFFFFF] border border-[#ECECEC] px-4 py-3 rounded-xl text-[10px] font-black text-[#6B7280] uppercase tracking-widest outline-none flex-1 appearance-none">
                                             <option value="301">301 Permanent</option>
                                             <option value="302">302 Temporary</option>
                                         </select>
@@ -2510,7 +2510,7 @@ export default function AdminPanel() {
                                                     (document.getElementById('redTo') as HTMLInputElement).value = '';
                                                 }
                                             }}
-                                            className="px-6 py-3 bg-blue-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20"
+                                            className="px-6 py-3 bg-blue-500 text-[#111111] rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20"
                                         >
                                             Add Rule
                                         </button>
@@ -2519,36 +2519,36 @@ export default function AdminPanel() {
                             </div>
 
                             {/* 4. Search Engine SEO Settings */}
-                            <div className="p-8 bg-black/40 border border-white/5 rounded-[3rem] space-y-6">
+                            <div className="p-8 bg-[#FFFFFF] border border-[#ECECEC] rounded-[3rem] space-y-6">
                                 <h4 className="text-[10px] font-black text-amber-400 uppercase tracking-[0.3em] flex items-center gap-2">
                                     <Search size={16} /> Global SEO Propagation
                                 </h4>
                                 <div className="space-y-4">
                                     <div className="grid grid-cols-1 gap-4">
                                         <div className="space-y-2">
-                                            <label className="text-[9px] font-black text-white/30 uppercase tracking-widest ml-2">Meta Authority Title</label>
-                                            <input id="seoTitle" defaultValue={appSettings.seoTitle || ''} className="w-full px-5 py-3 bg-black/60 border border-white/5 rounded-xl text-xs text-white" />
+                                            <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-widest ml-2">Meta Authority Title</label>
+                                            <input id="seoTitle" defaultValue={appSettings.seoTitle || ''} className="w-full px-5 py-3 bg-[#FFFFFF] border border-[#ECECEC] rounded-xl text-xs text-[#111111]" />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[9px] font-black text-white/30 uppercase tracking-widest ml-2">Description Narrative</label>
-                                            <textarea id="seoDesc" defaultValue={appSettings.seoDescription || ''} className="w-full px-5 py-3 bg-black/60 border border-white/5 rounded-xl text-xs text-white h-20 resize-none" />
+                                            <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-widest ml-2">Description Narrative</label>
+                                            <textarea id="seoDesc" defaultValue={appSettings.seoDescription || ''} className="w-full px-5 py-3 bg-[#FFFFFF] border border-[#ECECEC] rounded-xl text-xs text-[#111111] h-20 resize-none" />
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
-                                            <span className="text-[8px] font-black text-white/40 uppercase tracking-widest leading-tight">Google Indexing</span>
+                                        <div className="flex items-center justify-between p-4 bg-[#ECECEC] rounded-2xl border border-[#ECECEC]">
+                                            <span className="text-[8px] font-black text-[#6B7280] uppercase tracking-widest leading-tight">Google Indexing</span>
                                             <button 
                                                 onClick={() => adminService.updateAppSetting('allowIndexing', !appSettings.allowIndexing)}
-                                                className={`w-10 h-5 rounded-full transition-all relative ${appSettings.allowIndexing ? 'bg-green-500' : 'bg-white/10'}`}
+                                                className={`w-10 h-5 rounded-full transition-all relative ${appSettings.allowIndexing ? 'bg-green-500' : 'bg-[#ECECEC]'}`}
                                             >
                                                 <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-all ${appSettings.allowIndexing ? 'right-0.5' : 'left-0.5'}`} />
                                             </button>
                                         </div>
-                                        <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
-                                            <span className="text-[8px] font-black text-white/40 uppercase tracking-widest leading-tight">Auto Sitemap</span>
+                                        <div className="flex items-center justify-between p-4 bg-[#ECECEC] rounded-2xl border border-[#ECECEC]">
+                                            <span className="text-[8px] font-black text-[#6B7280] uppercase tracking-widest leading-tight">Auto Sitemap</span>
                                             <button 
                                                 onClick={() => adminService.updateAppSetting('autoSitemap', !appSettings.autoSitemap)}
-                                                className={`w-10 h-5 rounded-full transition-all relative ${appSettings.autoSitemap ? 'bg-blue-500' : 'bg-white/10'}`}
+                                                className={`w-10 h-5 rounded-full transition-all relative ${appSettings.autoSitemap ? 'bg-blue-500' : 'bg-[#ECECEC]'}`}
                                             >
                                                 <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-all ${appSettings.autoSitemap ? 'right-0.5' : 'left-0.5'}`} />
                                             </button>
@@ -2559,7 +2559,7 @@ export default function AdminPanel() {
                         </div>
                     </div>
 
-                    <div className="mt-12 pt-10 border-t border-white/5 flex justify-center">
+                    <div className="mt-12 pt-10 border-t border-[#ECECEC] flex justify-center">
                         <button 
                             onClick={async () => {
                                 const primary = (document.getElementById('primaryDomain') as HTMLInputElement).value;
@@ -2580,37 +2580,37 @@ export default function AdminPanel() {
                                 });
                                 alert('Domain Protection Grid Authorized!');
                             }}
-                            className="px-12 py-5 bg-gradient-to-r from-blue-600 to-blue-400 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.4em] shadow-[0_20px_50px_rgba(37,99,235,0.3)] hover:scale-[1.05] transition-all active:scale-95"
+                            className="px-12 py-5 bg-gradient-to-r from-blue-600 to-blue-400 text-[#111111] rounded-[2rem] font-black text-xs uppercase tracking-[0.4em] shadow-[0_20px_50px_rgba(37,99,235,0.3)] hover:scale-[1.05] transition-all active:scale-95"
                         >
                             Sync Global Protection Grid
                         </button>
                     </div>
                 </div>
 
-                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden group">
-                    <div className="absolute top-0 left-0 w-32 h-32 bg-secondary/10 rounded-full -ml-16 -mt-16 blur-2xl group-hover:bg-secondary/20 transition-all duration-700" />
-                    <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-white uppercase tracking-widest relative z-10">
-                        <MessageSquare size={24} className="text-secondary" />
+                <div className="bg-[#ECECEC] p-10 rounded-[3rem] border border-[#ECECEC] shadow-2xl relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-32 h-32 bg-[#E21E26]/10 rounded-full -ml-16 -mt-16 blur-2xl group-hover:bg-[#E21E26]/20 transition-all duration-700" />
+                    <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-[#111111] uppercase tracking-widest relative z-10">
+                        <MessageSquare size={24} className="text-[#E21E26]" />
                         Marketing Ecosystem
                     </h3>
-                    <div className="space-y-6 text-[11px] text-white/40 leading-relaxed relative z-10">
-                        <div className="p-8 bg-black/40 border border-secondary/20 rounded-[2rem] shadow-inner mb-2">
-                          <p className="font-black text-secondary uppercase tracking-[0.2em] mb-4 text-xs">Propaganda Strategy (Free Tier):</p>
+                    <div className="space-y-6 text-[11px] text-[#6B7280] leading-relaxed relative z-10">
+                        <div className="p-8 bg-[#FFFFFF] border border-[#E21E26]/20 rounded-[2rem] shadow-inner mb-2">
+                          <p className="font-black text-[#E21E26] uppercase tracking-[0.2em] mb-4 text-xs">Propaganda Strategy (Free Tier):</p>
                           <ul className="space-y-4 font-medium">
                             <li className="flex items-start gap-3">
-                                <span className="w-1.5 h-1.5 bg-secondary rounded-full mt-1.5 shadow-[0_0_8px_rgba(var(--secondary-rgb),0.5)]" />
+                                <span className="w-1.5 h-1.5 bg-[#E21E26] rounded-full mt-1.5 shadow-[0_0_8px_rgba(var(--secondary-rgb),0.5)]" />
                                 <span><strong>In-App Pulse:</strong> Use "Targeted Notification" with empty UID to reach the entire population. Zero cost.</span>
                             </li>
                             <li className="flex items-start gap-3">
-                                <span className="w-1.5 h-1.5 bg-secondary rounded-full mt-1.5 shadow-[0_0_8px_rgba(var(--secondary-rgb),0.5)]" />
+                                <span className="w-1.5 h-1.5 bg-[#E21E26] rounded-full mt-1.5 shadow-[0_0_8px_rgba(var(--secondary-rgb),0.5)]" />
                                 <span><strong>Push Transmission:</strong> VAPID keys are authorized. Subscribed citizens will receive alerts on all devices.</span>
                             </li>
                             <li className="flex items-start gap-3">
-                                <span className="w-1.5 h-1.5 bg-secondary rounded-full mt-1.5 shadow-[0_0_8px_rgba(var(--secondary-rgb),0.5)]" />
+                                <span className="w-1.5 h-1.5 bg-[#E21E26] rounded-full mt-1.5 shadow-[0_0_8px_rgba(var(--secondary-rgb),0.5)]" />
                                 <span><strong>Broadcast Email:</strong> Use "Email All Users" to trigger a secure BCC broadcast from your terminal.</span>
                             </li>
                             <li className="flex items-start gap-3">
-                                <span className="w-1.5 h-1.5 bg-secondary rounded-full mt-1.5 shadow-[0_0_8px_rgba(var(--secondary-rgb),0.5)]" />
+                                <span className="w-1.5 h-1.5 bg-[#E21E26] rounded-full mt-1.5 shadow-[0_0_8px_rgba(var(--secondary-rgb),0.5)]" />
                                 <span><strong>Global Alert:</strong> Deploy the Promo Banner below for universal visibility.</span>
                             </li>
                           </ul>
@@ -2618,18 +2618,18 @@ export default function AdminPanel() {
                     </div>
                 </div>
 
-                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl overflow-hidden relative group">
+                <div className="bg-[#ECECEC] p-10 rounded-[3rem] border border-[#ECECEC] shadow-2xl overflow-hidden relative group">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-primary/20 transition-all duration-700" />
-                    <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-white uppercase tracking-widest relative z-10">
+                    <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-[#111111] uppercase tracking-widest relative z-10">
                         <Layout size={24} className="text-primary" />
                         Promotional Broadcast
                     </h3>
                     <div className="space-y-6 max-w-lg relative z-10">
                         <div className="space-y-3">
-                          <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Broadcast Script (e.g. Eid Al-Adha Collection)</label>
+                          <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2">Broadcast Script (e.g. Eid Al-Adha Collection)</label>
                           <input 
                               placeholder="Enter the message of the day..." 
-                              className="w-full px-6 py-5 bg-black/40 border border-white/5 rounded-2xl text-sm text-white outline-none focus:border-primary/40 transition-all shadow-inner font-medium"
+                              className="w-full px-6 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] outline-none focus:border-primary/40 transition-all shadow-inner font-medium"
                               id="promoText"
                               defaultValue={appSettings.promoBanner || ''}
                           />
@@ -2661,7 +2661,7 @@ export default function AdminPanel() {
                                   (document.getElementById('promoText') as HTMLInputElement).value = '';
                                   alert('Broadcast Silenced!');
                               }}
-                              className="py-5 bg-white/5 text-white/40 rounded-2xl font-black text-[11px] uppercase tracking-[0.25em] border border-white/5 hover:bg-white/10 transition-all active:scale-95"
+                              className="py-5 bg-[#ECECEC] text-[#6B7280] rounded-2xl font-black text-[11px] uppercase tracking-[0.25em] border border-[#ECECEC] hover:bg-[#ECECEC] transition-all active:scale-95"
                           >
                               Deactivate
                           </button>
@@ -2669,27 +2669,27 @@ export default function AdminPanel() {
                     </div>
                 </div>
 
-                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                <div className="bg-[#ECECEC] p-10 rounded-[3rem] border border-[#ECECEC] shadow-2xl relative overflow-hidden group">
                     <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/5 rounded-full -ml-16 -mb-16 blur-2xl group-hover:bg-primary/10 transition-all duration-700" />
-                    <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-white uppercase tracking-widest relative z-10">
+                    <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-[#111111] uppercase tracking-widest relative z-10">
                         <Bell size={24} className="text-primary" />
                         Targeted Frequency
                     </h3>
                     <div className="space-y-6 max-w-lg relative z-10">
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
-                             <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">UID (Clear for All)</label>
+                             <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">UID (Clear for All)</label>
                              <input 
                                  placeholder="Identity ID" 
-                                 className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-primary/40 font-mono"
+                                 className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[13px] text-[#111111] outline-none focus:border-primary/40 font-mono"
                                  id="targetUserId"
                              />
                           </div>
                           <div className="space-y-2">
-                             <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Frequency Type</label>
+                             <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Frequency Type</label>
                              <select 
                                id="notifType"
-                               className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[10px] outline-none font-black text-white/60 uppercase tracking-widest cursor-pointer"
+                               className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[10px] outline-none font-black text-[#6B7280] uppercase tracking-widest cursor-pointer"
                              >
                                <option className="bg-zinc-900" value="promo">Exclusive Offer</option>
                                <option className="bg-zinc-900" value="order">Logistics Update</option>
@@ -2699,22 +2699,22 @@ export default function AdminPanel() {
                           </div>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Transmission Header</label>
+                            <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Transmission Header</label>
                             <input 
                                 placeholder="Core notification title..." 
-                                className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-sm text-white outline-none focus:border-primary/40 font-bold tracking-wide"
+                                className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] outline-none focus:border-primary/40 font-bold tracking-wide"
                                 id="notifTitle"
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Detailed Narrative</label>
+                            <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Detailed Narrative</label>
                             <textarea 
                                 placeholder="Message encryption body..." 
-                                className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-sm text-white h-32 outline-none focus:border-primary/40 resize-none font-medium leading-relaxed"
+                                className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] h-32 outline-none focus:border-primary/40 resize-none font-medium leading-relaxed"
                                 id="notifMessage"
                             />
                         </div>
-                        <div className="grid grid-cols-2 gap-4 pt-2">
+                        <div className="pt-2">
                             <button 
                                 onClick={async () => {
                                     const uid = (document.getElementById('targetUserId') as HTMLInputElement).value;
@@ -2756,86 +2756,58 @@ export default function AdminPanel() {
                             >
                                 Initiate Transmission
                             </button>
-                            <button 
-                                onClick={async () => {
-                                    const title = (document.getElementById('notifTitle') as HTMLInputElement).value;
-                                    const msg = (document.getElementById('notifMessage') as HTMLInputElement).value;
-                                    const { getDocs, collection } = await import('firebase/firestore');
-                                    const { db } = await import('../firebase');
-                                    
-                                    if (!title || !msg) {
-                                      alert('Validation Error: Header and Body Required for Email Broadcast');
-                                      return;
-                                    }
-
-                                    const usersSnap = await getDocs(collection(db, 'users'));
-                                    const emails = usersSnap.docs.map(d => d.data().email).filter(e => e);
-                                    
-                                    if (emails.length === 0) {
-                                      alert('Directory Error: No citizen emails identified');
-                                      return;
-                                    }
-
-                                    const bcc = emails.join(',');
-                                    const mailtoUrl = `mailto:?bcc=${bcc}&subject=${encodeURIComponent(title)}&body=${encodeURIComponent(msg)}`;
-                                    window.open(mailtoUrl, '_blank');
-                                }}
-                                className="w-full bg-white/5 text-white/40 py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.25em] border border-white/5 hover:bg-white/10 transition-all active:scale-95"
-                            >
-                                Broadcast Email
-                            </button>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative group overflow-hidden">
+                <div className="bg-[#ECECEC] p-10 rounded-[3rem] border border-[#ECECEC] shadow-2xl relative group overflow-hidden">
                     <div className="absolute top-0 left-0 w-32 h-32 bg-primary/5 rounded-full -ml-16 -mt-16 blur-2xl group-hover:bg-primary/10 transition-all duration-700" />
-                    <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-white uppercase tracking-widest relative z-10">
+                    <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-[#111111] uppercase tracking-widest relative z-10">
                         <MessageSquare size={24} className="text-primary" />
                         Infrastructure & Support
                     </h3>
                     <div className="space-y-6 max-w-sm relative z-10">
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Secure WhatsApp Link</label>
+                          <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2">Secure WhatsApp Link</label>
                           <input 
                               placeholder="+8801..." 
-                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-primary/40 font-mono"
+                              className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[13px] text-[#111111] outline-none focus:border-primary/40 font-mono"
                               id="whatsappNum"
                               defaultValue={appSettings.whatsappNumber || ''}
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Official Support Email</label>
+                          <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2">Official Support Email</label>
                           <input 
                               placeholder="support@example.com" 
-                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-primary/40 font-medium"
+                              className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[13px] text-[#111111] outline-none focus:border-primary/40 font-medium"
                               id="supportEmail"
                               defaultValue={appSettings.supportEmail || ''}
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Official Hotline Number</label>
+                          <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2">Official Hotline Number</label>
                           <input 
                               placeholder="+8801..." 
-                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-primary/40 font-mono"
+                              className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[13px] text-[#111111] outline-none focus:border-primary/40 font-mono"
                               id="hotlineNumber"
                               defaultValue={appSettings.hotlineNumber || ''}
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Headquarters Address</label>
+                          <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2">Headquarters Address</label>
                           <input 
                               placeholder="House 0, Road 0..." 
-                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-primary/40 font-medium"
+                              className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[13px] text-[#111111] outline-none focus:border-primary/40 font-medium"
                               id="shopAddress"
                               defaultValue={appSettings.shopAddress || ''}
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Ticker Announcement Text</label>
+                          <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2">Ticker Announcement Text</label>
                           <input 
                               placeholder="Free delivery on orders over 1000tk!" 
-                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-primary/40 font-medium italic"
+                              className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[13px] text-[#111111] outline-none focus:border-primary/40 font-medium italic"
                               id="announcementBar"
                               defaultValue={appSettings.announcementBar || ''}
                           />
@@ -2873,36 +2845,36 @@ export default function AdminPanel() {
                     </div>
                 </div>
 
-                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative group overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-secondary/10 transition-all duration-700" />
-                    <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-white uppercase tracking-widest relative z-10">
-                        <CreditCard size={24} className="text-secondary" />
+                <div className="bg-[#ECECEC] p-10 rounded-[3rem] border border-[#ECECEC] shadow-2xl relative group overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#E21E26]/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-[#E21E26]/10 transition-all duration-700" />
+                    <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-[#111111] uppercase tracking-widest relative z-10">
+                        <CreditCard size={24} className="text-[#E21E26]" />
                         Merchant Financial Grid
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">bKash Personal</label>
+                          <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2">bKash Personal</label>
                           <input 
                               placeholder="017..." 
-                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-secondary/40 font-mono"
+                              className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[13px] text-[#111111] outline-none focus:border-[#E21E26]/40 font-mono"
                               id="bkashNum"
                               defaultValue={appSettings.bkashNumber || '01700-000000'}
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Nagad Personal</label>
+                          <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2">Nagad Personal</label>
                           <input 
                               placeholder="017..." 
-                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-secondary/40 font-mono"
+                              className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[13px] text-[#111111] outline-none focus:border-[#E21E26]/40 font-mono"
                               id="nagadNum"
                               defaultValue={appSettings.nagadNumber || '01700-000000'}
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Rocket Personal</label>
+                          <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2">Rocket Personal</label>
                           <input 
                               placeholder="017..." 
-                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-secondary/40 font-mono"
+                              className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[13px] text-[#111111] outline-none focus:border-[#E21E26]/40 font-mono"
                               id="rocketNum"
                               defaultValue={appSettings.rocketNumber || '01700-000000'}
                           />
@@ -2910,18 +2882,18 @@ export default function AdminPanel() {
                     </div>
                 </div>
 
-                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative group">
+                <div className="bg-[#ECECEC] p-10 rounded-[3rem] border border-[#ECECEC] shadow-2xl relative group">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-primary/10 transition-all duration-700" />
-                    <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-white uppercase tracking-widest relative z-10">
+                    <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-[#111111] uppercase tracking-widest relative z-10">
                         <ImageIcon size={24} className="text-primary" />
                         Aesthetic & Identity
                     </h3>
                     <div className="space-y-10 relative z-10">
                         <div className="max-w-md space-y-3">
-                          <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Venture Designation (App Name)</label>
+                          <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2">Venture Designation (App Name)</label>
                           <input 
                               placeholder="e.g. সদাই ভাই" 
-                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[14px] text-white font-bold outline-none focus:border-primary/40 tracking-wide"
+                              className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[14px] text-[#111111] font-bold outline-none focus:border-primary/40 tracking-wide"
                               id="appNameInput"
                               defaultValue={appSettings.appName || ''}
                               onBlur={async (e) => {
@@ -2936,13 +2908,13 @@ export default function AdminPanel() {
                                 currentImage={appSettings.logo}
                                 onUpload={updateLogo}
                             />
-                            <p className="text-[9px] text-white/20 mt-4 leading-relaxed font-black uppercase tracking-[0.2em] italic">
+                            <p className="text-[9px] text-[#6B7280] mt-4 leading-relaxed font-black uppercase tracking-[0.2em] italic">
                                 Appears on navbar, secure communications, and app icon.
                             </p>
                         </div>
 
-                        <div className="border-t border-white/5 pt-10">
-                          <h4 className="font-display font-bold text-xs uppercase tracking-[0.3em] text-white/40 mb-6 font-mono">PWA Deployment Visuals</h4>
+                        <div className="border-t border-[#ECECEC] pt-10">
+                          <h4 className="font-display font-bold text-xs uppercase tracking-[0.3em] text-[#6B7280] mb-6 font-mono">PWA Deployment Visuals</h4>
                           <div className="grid grid-cols-2 gap-8">
                             <ImageUpload 
                                 label="Mobile Frame (9:16)"
@@ -2955,15 +2927,15 @@ export default function AdminPanel() {
                                 onUpload={(base64) => adminService.updateAppSetting('screenshotDesktop', base64)}
                             />
                           </div>
-                          <p className="text-[9px] text-white/20 mt-6 leading-relaxed font-black uppercase tracking-[0.2em] italic">
+                          <p className="text-[9px] text-[#6B7280] mt-6 leading-relaxed font-black uppercase tracking-[0.2em] italic">
                               Interface previews presented during verified application installation sequences.
                           </p>
                         </div>
 
-                        <div className="border-t border-white/5 pt-10">
-                          <h4 className="font-display font-bold text-xs uppercase tracking-[0.3em] text-white/40 mb-6 font-mono">Push Frequency Diagnostics</h4>
-                          <div className="p-8 bg-black/40 rounded-[2rem] border border-white/10 shadow-inner">
-                            <p className="text-[9px] text-white/20 font-black uppercase tracking-[0.3em] mb-4">Neural Backend Connectivity</p>
+                        <div className="border-t border-[#ECECEC] pt-10">
+                          <h4 className="font-display font-bold text-xs uppercase tracking-[0.3em] text-[#6B7280] mb-6 font-mono">Push Frequency Diagnostics</h4>
+                          <div className="p-8 bg-[#FFFFFF] rounded-[2rem] border border-[#ECECEC] shadow-inner">
+                            <p className="text-[9px] text-[#6B7280] font-black uppercase tracking-[0.3em] mb-4">Neural Backend Connectivity</p>
                             
                             <div className="mb-6 space-y-3">
                                 <button 
@@ -2992,7 +2964,7 @@ export default function AdminPanel() {
                                       alert("Connectivity Error: " + e.message);
                                     }
                                   }}
-                                  className="w-full py-3 bg-white/5 text-white/40 border border-white/5 rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all"
+                                  className="w-full py-3 bg-[#ECECEC] text-[#6B7280] border border-[#ECECEC] rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-[#ECECEC] transition-all"
                                 >
                                   Ping Backend Infrastructure
                                 </button>
@@ -3010,7 +2982,7 @@ export default function AdminPanel() {
                                       alert("Connectivity Error: " + e.message);
                                     }
                                   }}
-                                  className="w-full py-3 bg-white/5 text-white/40 border border-white/5 rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all mb-3"
+                                  className="w-full py-3 bg-[#ECECEC] text-[#6B7280] border border-[#ECECEC] rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-[#ECECEC] transition-all mb-3"
                                 >
                                   Test Telegram Signal
                                 </button>
@@ -3024,7 +2996,7 @@ export default function AdminPanel() {
                                       alert("Token Error: " + e.message);
                                     }
                                   }}
-                                  className="w-full py-3 bg-white/5 text-white/40 border border-white/5 rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all"
+                                  className="w-full py-3 bg-[#ECECEC] text-[#6B7280] border border-[#ECECEC] rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-[#ECECEC] transition-all"
                                 >
                                   Check Client Permissions
                                 </button>
@@ -3045,11 +3017,11 @@ export default function AdminPanel() {
                                   alert("Error: " + e.message);
                                 }
                               }}
-                              className="w-full py-5 bg-white/5 text-white/60 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] shadow-lg hover:bg-white/10 hover:text-white transition-all active:scale-[0.98]"
+                              className="w-full py-5 bg-[#ECECEC] text-[#6B7280] border border-[#ECECEC] rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] shadow-lg hover:bg-[#ECECEC] hover:text-[#111111] transition-all active:scale-[0.98]"
                             >
                               Dispatch Signal
                             </button>
-                            <p className="text-[8px] text-white/10 mt-4 italic font-medium tracking-wider">
+                            <p className="text-[8px] text-[#6B7280] mt-4 italic font-medium tracking-wider">
                                 * Node.js core push requires VAPID_PRIVATE_KEY and FIREBASE_SERVICE_ACCOUNT_JSON secure vault secrets.
                             </p>
                           </div>
@@ -3057,23 +3029,23 @@ export default function AdminPanel() {
                     </div>
                 </div>
 
-                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                <div className="bg-[#ECECEC] p-10 rounded-[3rem] border border-[#ECECEC] shadow-2xl relative overflow-hidden group">
                     <div className="absolute top-0 left-0 w-32 h-32 bg-primary/5 rounded-full -ml-16 -mt-16 blur-2xl group-hover:bg-primary/10 transition-all duration-700" />
-                    <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-white uppercase tracking-widest relative z-10">
+                    <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-[#111111] uppercase tracking-widest relative z-10">
                         <Layout size={24} className="text-primary" />
                         Feature Action Buttons
                     </h3>
                     <div className="space-y-6 relative z-10">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             { (appSettings.featureButtons || []).map((btn: any, idx: number) => (
-                                <div key={idx} className="p-6 bg-black/40 border border-white/5 rounded-2xl flex items-center justify-between">
+                                <div key={idx} className="p-6 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl flex items-center justify-between">
                                     <div className="flex items-center gap-4">
-                                        <div className={`w-10 h-10 bg-gradient-to-br ${btn.color} rounded-xl flex items-center justify-center text-white shadow-lg`}>
+                                        <div className={`w-10 h-10 bg-gradient-to-br ${btn.color} rounded-xl flex items-center justify-center text-[#111111] shadow-lg`}>
                                             <TrendingUp size={18} />
                                         </div>
                                         <div>
-                                            <p className="font-bold text-[13px] text-white">{btn.title}</p>
-                                            <p className="text-[9px] text-white/40 uppercase font-mono tracking-tighter">{btn.path}</p>
+                                            <p className="font-bold text-[13px] text-[#111111]">{btn.title}</p>
+                                            <p className="text-[9px] text-[#6B7280] uppercase font-mono tracking-tighter">{btn.path}</p>
                                         </div>
                                     </div>
                                     <button 
@@ -3089,24 +3061,24 @@ export default function AdminPanel() {
                             ))}
                         </div>
 
-                        <div className="p-8 bg-black/60 rounded-[2.5rem] border border-white/5 space-y-5">
-                            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] font-mono">Deploy New Vector</p>
+                        <div className="p-8 bg-[#FFFFFF] rounded-[2.5rem] border border-[#ECECEC] space-y-5">
+                            <p className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] font-mono">Deploy New Vector</p>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                  <label className="text-[9px] font-black text-white/20 uppercase tracking-widest ml-1">Title</label>
-                                  <input id="fTitle" placeholder="Button Title" className="w-full bg-black/40 border border-white/5 p-4 rounded-xl text-xs outline-none focus:border-primary/40 text-white" />
+                                  <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-widest ml-1">Title</label>
+                                  <input id="fTitle" placeholder="Button Title" className="w-full bg-[#FFFFFF] border border-[#ECECEC] p-4 rounded-xl text-xs outline-none focus:border-primary/40 text-[#111111]" />
                                 </div>
                                 <div className="space-y-2">
-                                  <label className="text-[9px] font-black text-white/20 uppercase tracking-widest ml-1">Path</label>
-                                  <input id="fPath" placeholder="/products?brand=... " className="w-full bg-black/40 border border-white/5 p-4 rounded-xl text-xs outline-none focus:border-primary/40 text-white" />
+                                  <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-widest ml-1">Path</label>
+                                  <input id="fPath" placeholder="/products?brand=... " className="w-full bg-[#FFFFFF] border border-[#ECECEC] p-4 rounded-xl text-xs outline-none focus:border-primary/40 text-[#111111]" />
                                 </div>
                                 <div className="space-y-2">
-                                  <label className="text-[9px] font-black text-white/20 uppercase tracking-widest ml-1">Gradient Class</label>
-                                  <input id="fColor" placeholder="from-blue-400 to-indigo-500" className="w-full bg-black/40 border border-white/5 p-4 rounded-xl text-xs outline-none focus:border-primary/40 text-white" />
+                                  <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-widest ml-1">Gradient Class</label>
+                                  <input id="fColor" placeholder="from-blue-400 to-indigo-500" className="w-full bg-[#FFFFFF] border border-[#ECECEC] p-4 rounded-xl text-xs outline-none focus:border-primary/40 text-[#111111]" />
                                 </div>
                                 <div className="space-y-2">
-                                  <label className="text-[9px] font-black text-white/20 uppercase tracking-widest ml-1">Visual Symbol</label>
-                                  <select id="fIcon" className="w-full bg-black/40 border border-white/5 p-4 rounded-xl text-xs outline-none text-white/60 appearance-none">
+                                  <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-widest ml-1">Visual Symbol</label>
+                                  <select id="fIcon" className="w-full bg-[#FFFFFF] border border-[#ECECEC] p-4 rounded-xl text-xs outline-none text-[#6B7280] appearance-none">
                                       <option value="zap">Zap (Bolt)</option>
                                       <option value="gift">Gift</option>
                                       <option value="award">Award (Star)</option>
@@ -3139,29 +3111,29 @@ export default function AdminPanel() {
                     </div>
                 </div>
 
-                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                <div className="bg-[#ECECEC] p-10 rounded-[3rem] border border-[#ECECEC] shadow-2xl relative overflow-hidden group">
                     <div className="absolute top-0 left-0 w-32 h-32 bg-primary/5 rounded-full -ml-16 -mt-16 blur-2xl group-hover:bg-primary/10 transition-all duration-700" />
-                    <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-white uppercase tracking-widest relative z-10">
+                    <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-[#111111] uppercase tracking-widest relative z-10">
                         <Truck size={24} className="text-primary" />
                         Logistics Jurisdiction
                     </h3>
                     
                     <div className="space-y-4 mb-10 relative z-10">
                         {deliveryAreas.map(area => (
-                            <div key={area.id} className="flex items-center justify-between p-8 bg-black/40 rounded-[2rem] border border-white/5 group/area hover:border-primary/20 transition-all">
+                            <div key={area.id} className="flex items-center justify-between p-8 bg-[#FFFFFF] rounded-[2rem] border border-[#ECECEC] group/area hover:border-primary/20 transition-all">
                                 <div className="flex gap-10">
                                     <div className="space-y-1">
-                                        <h4 className="text-[8px] font-black text-white/20 uppercase tracking-[0.3em]">Sector Name</h4>
-                                        <p className="font-bold text-sm text-white group-hover/area:text-primary transition-colors tracking-wide">{area.name}</p>
+                                        <h4 className="text-[8px] font-black text-[#6B7280] uppercase tracking-[0.3em]">Sector Name</h4>
+                                        <p className="font-bold text-sm text-[#111111] group-hover/area:text-primary transition-colors tracking-wide">{area.name}</p>
                                     </div>
                                     <div className="space-y-1">
-                                        <p className="text-[8px] font-black text-white/20 uppercase tracking-[0.3em]">Unit Tariff</p>
+                                        <p className="text-[8px] font-black text-[#6B7280] uppercase tracking-[0.3em]">Unit Tariff</p>
                                         <p className="text-sm font-black text-primary font-mono">৳{formatCurrency(area.fee)}</p>
                                     </div>
                                 </div>
                                 <button 
                                     onClick={() => adminService.deleteDeliveryArea(area.id)}
-                                    className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-white/20 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                                    className="w-12 h-12 bg-[#ECECEC] rounded-2xl flex items-center justify-center text-[#6B7280] hover:text-red-500 hover:bg-red-500/10 transition-all"
                                 >
                                     <Trash2 size={20} />
                                 </button>
@@ -3169,38 +3141,38 @@ export default function AdminPanel() {
                         ))}
                     </div>
 
-                    <div className="bg-black/60 p-10 rounded-[2.5rem] border border-white/5 shadow-inner relative z-10">
-                        <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] mb-8 text-center">Incorporate New logistics sector</p>
+                    <div className="bg-[#FFFFFF] p-10 rounded-[2.5rem] border border-[#ECECEC] shadow-inner relative z-10">
+                        <p className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.4em] mb-8 text-center">Incorporate New logistics sector</p>
                         <div className="flex flex-wrap gap-4 mb-8 justify-center">
                             <button 
                                 onClick={() => setNewArea({ name: 'গাইবান্ধা পৌরসভা (ভিতর)', fee: 40 })}
-                                className="text-[9px] font-black uppercase px-5 py-3 bg-white/5 border border-white/5 rounded-xl text-primary hover:bg-white/10 transition-all"
+                                className="text-[9px] font-black uppercase px-5 py-3 bg-[#ECECEC] border border-[#ECECEC] rounded-xl text-primary hover:bg-[#ECECEC] transition-all"
                             >
                                 + Municipal Internal (40৳)
                             </button>
                             <button 
                                 onClick={() => setNewArea({ name: 'গাইবান্ধা পৌরসভা (বাহির)', fee: 60 })}
-                                className="text-[9px] font-black uppercase px-5 py-3 bg-white/5 border border-white/5 rounded-xl text-primary hover:bg-white/10 transition-all"
+                                className="text-[9px] font-black uppercase px-5 py-3 bg-[#ECECEC] border border-[#ECECEC] rounded-xl text-primary hover:bg-[#ECECEC] transition-all"
                             >
                                 + Municipal External (60৳)
                             </button>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                             <div className="space-y-2">
-                                <label className="text-[9px] font-black text-white/20 uppercase tracking-widest ml-1">Sector Designation</label>
+                                <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-widest ml-1">Sector Designation</label>
                                 <input 
                                     placeholder="Sector Name (e.g. Uttara)" 
-                                    className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-primary/40 font-medium"
+                                    className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[13px] text-[#111111] outline-none focus:border-primary/40 font-medium"
                                     value={newArea.name}
                                     onChange={e => setNewArea({...newArea, name: e.target.value})}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[9px] font-black text-white/20 uppercase tracking-widest ml-1">Tariff rate</label>
+                                <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-widest ml-1">Tariff rate</label>
                                 <input 
                                     placeholder="Fee" 
                                     type="number"
-                                    className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-primary outline-none focus:border-primary/40 font-mono font-bold"
+                                    className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[13px] text-primary outline-none focus:border-primary/40 font-mono font-bold"
                                     value={isNaN(newArea.fee) ? '' : newArea.fee}
                                     onChange={e => {
                                         const val = parseInt(e.target.value);
@@ -3221,23 +3193,23 @@ export default function AdminPanel() {
                     </div>
                 </div>
 
-                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-secondary/10 transition-all duration-700" />
-                    <h3 className="font-display font-black text-xl mb-6 flex items-center gap-4 text-white uppercase tracking-widest relative z-10">
-                        <CreditCard size={24} className="text-secondary" />
+                <div className="bg-[#ECECEC] p-10 rounded-[3rem] border border-[#ECECEC] shadow-2xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#E21E26]/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-[#E21E26]/10 transition-all duration-700" />
+                    <h3 className="font-display font-black text-xl mb-6 flex items-center gap-4 text-[#111111] uppercase tracking-widest relative z-10">
+                        <CreditCard size={24} className="text-[#E21E26]" />
                         Infrastructure Parameters
                     </h3>
-                    <p className="text-[10px] text-white/30 mb-10 font-bold uppercase tracking-[0.2em] relative z-10">Critical global overrides for system maintenance and promo synchronization.</p>
+                    <p className="text-[10px] text-[#6B7280] mb-10 font-bold uppercase tracking-[0.2em] relative z-10">Critical global overrides for system maintenance and promo synchronization.</p>
                     <div className="grid grid-cols-2 gap-6 relative z-10">
-                        <button className="py-6 bg-black/40 border border-white/5 rounded-[2rem] text-[10px] font-black uppercase tracking-[0.3em] text-white/40 hover:bg-white/5 hover:text-white hover:border-white/20 transition-all active:scale-95 shadow-lg">Maintenance Sequence</button>
-                        <button className="py-6 bg-black/40 border border-white/5 rounded-[2rem] text-[10px] font-black uppercase tracking-[0.3em] text-white/40 hover:bg-white/5 hover:text-white hover:border-white/20 transition-all active:scale-95 shadow-lg">Neural Sale Toggle</button>
+                        <button className="py-6 bg-[#FFFFFF] border border-[#ECECEC] rounded-[2rem] text-[10px] font-black uppercase tracking-[0.3em] text-[#6B7280] hover:bg-[#ECECEC] hover:text-[#111111] hover:border-[#ECECEC] transition-all active:scale-95 shadow-lg">Maintenance Sequence</button>
+                        <button className="py-6 bg-[#FFFFFF] border border-[#ECECEC] rounded-[2rem] text-[10px] font-black uppercase tracking-[0.3em] text-[#6B7280] hover:bg-[#ECECEC] hover:text-[#111111] hover:border-[#ECECEC] transition-all active:scale-95 shadow-lg">Neural Sale Toggle</button>
                     </div>
                 </div>
             </motion.div>
         )}
         {activeTab === 'riders' && (
           <motion.div key="riders-tracking" className="space-y-10">
-            <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-white uppercase tracking-[0.2em]">
+            <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-[#111111] uppercase tracking-[0.2em]">
                 <Truck size={32} className="text-primary" />
                 Live Fleet Tracking ({sellers.filter(s => s.role === 'rider').length})
             </h3>
@@ -3246,31 +3218,31 @@ export default function AdminPanel() {
                 {sellers.filter(s => s.role === 'rider').map(rider => {
                     const activeDeliveries = orders.filter(o => o.riderId === rider.id && o.status !== 'delivered' && o.status !== 'cancelled');
                     return (
-                        <div key={rider.id} className="bg-white/5 p-8 rounded-[3rem] border border-white/5 shadow-2xl space-y-6 group hover:border-primary/20 transition-all relative overflow-hidden">
+                        <div key={rider.id} className="bg-[#ECECEC] p-8 rounded-[3rem] border border-[#ECECEC] shadow-2xl space-y-6 group hover:border-primary/20 transition-all relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 blur-2xl group-hover:bg-primary/10 transition-all" />
                             <div className="flex justify-between items-start relative z-10">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-16 h-16 bg-black/60 text-white rounded-[1.5rem] flex items-center justify-center relative shadow-2xl border border-white/5">
-                                        <User size={32} className="text-white/40" />
-                                        <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-4 border-[#0a0a0a] shadow-lg ${rider.status === 'online' ? 'bg-green-500' : 'bg-white/20'}`} />
+                                    <div className="w-16 h-16 bg-[#FFFFFF] text-[#111111] rounded-[1.5rem] flex items-center justify-center relative shadow-2xl border border-[#ECECEC]">
+                                        <User size={32} className="text-[#6B7280]" />
+                                        <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-4 border-[#0a0a0a] shadow-lg ${rider.status === 'online' ? 'bg-green-500' : 'bg-[#ECECEC]'}`} />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-lg text-white group-hover:text-primary transition-colors">{rider.displayName || 'Anonymous Operative'}</h4>
-                                        <p className="text-[10px] text-white/30 font-black uppercase tracking-[0.2em]">{rider.phone || 'No Contact Data'}</p>
+                                        <h4 className="font-bold text-lg text-[#111111] group-hover:text-primary transition-colors">{rider.displayName || 'Anonymous Operative'}</h4>
+                                        <p className="text-[10px] text-[#6B7280] font-black uppercase tracking-[0.2em]">{rider.phone || 'No Contact Data'}</p>
                                     </div>
                                 </div>
-                                <span className={`text-[9px] font-black uppercase px-3 py-1.5 rounded-xl border ${rider.status === 'online' ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-white/5 text-white/20 border-white/5'}`}>
+                                <span className={`text-[9px] font-black uppercase px-3 py-1.5 rounded-xl border ${rider.status === 'online' ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-[#ECECEC] text-[#6B7280] border-[#ECECEC]'}`}>
                                     {rider.status || 'Offline'}
                                 </span>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4 relative z-10">
-                                <div className="bg-black/40 p-4 rounded-2xl border border-white/5">
-                                    <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] block mb-2">Active Sorties</span>
-                                    <p className="font-display font-black text-white text-xl">{activeDeliveries.length}</p>
+                                <div className="bg-[#FFFFFF] p-4 rounded-2xl border border-[#ECECEC]">
+                                    <span className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2">Active Sorties</span>
+                                    <p className="font-display font-black text-[#111111] text-xl">{activeDeliveries.length}</p>
                                 </div>
-                                <div className="bg-black/40 p-4 rounded-2xl border border-white/5">
-                                    <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] block mb-2">Signal Echo</span>
+                                <div className="bg-[#FFFFFF] p-4 rounded-2xl border border-[#ECECEC]">
+                                    <span className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-2">Signal Echo</span>
                                     <p className="text-[10px] font-bold text-primary uppercase">
                                         {rider.lastLocationUpdate ? format(rider.lastLocationUpdate.toDate ? rider.lastLocationUpdate.toDate() : new Date(rider.lastLocationUpdate), 'h:mm a') : 'No Link'}
                                     </p>
@@ -3278,14 +3250,14 @@ export default function AdminPanel() {
                             </div>
 
                             <div className="space-y-3 relative z-10">
-                                <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] block">Active Mission Manifest</span>
+                                <span className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] block">Active Mission Manifest</span>
                                 {activeDeliveries.length > 0 ? (
                                     <div className="space-y-2">
                                         {activeDeliveries.map(order => (
-                                            <div key={order.id} className="p-4 bg-black/40 border border-white/5 rounded-2xl flex items-center justify-between group/manifest hover:border-primary/30 transition-all">
+                                            <div key={order.id} className="p-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl flex items-center justify-between group/manifest hover:border-primary/30 transition-all">
                                                 <div>
-                                                    <p className="text-[11px] font-bold text-white tracking-tight">Order #{order.id.slice(-6).toUpperCase()}</p>
-                                                    <p className="text-[9px] text-white/40 uppercase font-mono">{order.customerName}</p>
+                                                    <p className="text-[11px] font-bold text-[#111111] tracking-tight">Order #{order.id.slice(-6).toUpperCase()}</p>
+                                                    <p className="text-[9px] text-[#6B7280] uppercase font-mono">{order.customerName}</p>
                                                 </div>
                                                 <span className="text-[8px] font-black uppercase text-primary bg-primary/5 px-2 py-1 rounded-lg border border-primary/20">
                                                     {order.status}
@@ -3294,8 +3266,8 @@ export default function AdminPanel() {
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="py-4 text-center border border-dashed border-white/5 rounded-2xl">
-                                        <p className="text-[9px] font-black text-white/10 uppercase tracking-widest">No active sorties</p>
+                                    <div className="py-4 text-center border border-dashed border-[#ECECEC] rounded-2xl">
+                                        <p className="text-[9px] font-black text-[#6B7280] uppercase tracking-widest">No active sorties</p>
                                     </div>
                                 )}
                             </div>
@@ -3305,7 +3277,7 @@ export default function AdminPanel() {
                                     href={`https://www.google.com/maps?q=${rider.location.lat},${rider.location.lng}`}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="w-full py-4 bg-white/5 text-white/60 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-3 hover:bg-white/10 hover:text-white transition-all active:scale-[0.98] relative z-10"
+                                    className="w-full py-4 bg-[#ECECEC] text-[#6B7280] border border-[#ECECEC] rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-3 hover:bg-[#ECECEC] hover:text-[#111111] transition-all active:scale-[0.98] relative z-10"
                                 >
                                     <MapPin size={16} className="text-primary" /> Intercept Position
                                 </a>
@@ -3315,9 +3287,9 @@ export default function AdminPanel() {
                 })}
             </div>
             {sellers.filter(s => s.role === 'rider').length === 0 && (
-                <div className="text-center py-32 bg-white/5 rounded-[4rem] border border-dashed border-white/10">
-                    <Truck size={64} className="mx-auto text-white/5 mb-6" />
-                    <p className="text-[11px] font-black text-white/20 uppercase tracking-[0.4em]">Fleet currently decommissioned</p>
+                <div className="text-center py-32 bg-[#ECECEC] rounded-[4rem] border border-dashed border-[#ECECEC]">
+                    <Truck size={64} className="mx-auto text-[#6B7280] mb-6" />
+                    <p className="text-[11px] font-black text-[#6B7280] uppercase tracking-[0.4em]">Fleet currently decommissioned</p>
                 </div>
             )}
           </motion.div>
@@ -3327,13 +3299,13 @@ export default function AdminPanel() {
           <motion.div key="neural_push" className="space-y-10">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <h2 className="text-4xl font-black text-white tracking-tighter uppercase italic">Neural Push Broadcast</h2>
-                        <p className="text-white/40 text-[11px] font-bold mt-2 uppercase tracking-widest">Transmit real-time alerts to all connected nodes</p>
+                        <h2 className="text-4xl font-black text-[#111111] tracking-tighter uppercase italic">Neural Push Broadcast</h2>
+                        <p className="text-[#6B7280] text-[11px] font-bold mt-2 uppercase tracking-widest">Transmit real-time alerts to all connected nodes</p>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <div className="bg-white/5 rounded-[3rem] border border-white/10 p-10 space-y-10">
+                    <div className="bg-[#ECECEC] rounded-[3rem] border border-[#ECECEC] p-10 space-y-10">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
                                 <MessageSquare size={24} />
@@ -3343,26 +3315,26 @@ export default function AdminPanel() {
                         
                         <div className="space-y-6">
                             <div className="space-y-3">
-                                <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Neural Header</label>
+                                <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2">Neural Header</label>
                                 <input 
                                     id="pushTitle"
-                                    className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-[#D4AF37]/40 font-bold transition-all shadow-inner" 
+                                    className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-[#D50000]/40 font-bold transition-all shadow-inner" 
                                     placeholder="Enter Alert Title..."
                                 />
                             </div>
                             <div className="space-y-3">
-                                <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Visual Heritage (Optional Image URL)</label>
+                                <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2">Visual Heritage (Optional Image URL)</label>
                                 <input 
                                     id="pushImage"
-                                    className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-[#D4AF37]/40 font-bold transition-all shadow-inner" 
+                                    className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-[#D50000]/40 font-bold transition-all shadow-inner" 
                                     placeholder="https://example.com/banner.jpg"
                                 />
                             </div>
                             <div className="space-y-3">
-                                <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Transmission Load (Body)</label>
+                                <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2">Transmission Load (Body)</label>
                                 <textarea 
                                     id="pushBody"
-                                    className="w-full px-8 py-6 bg-black/40 border border-white/5 rounded-[2.5rem] text-sm text-white outline-none focus:border-[#D4AF37]/40 font-bold transition-all shadow-inner min-h-[160px] resize-none" 
+                                    className="w-full px-8 py-6 bg-[#FFFFFF] border border-[#ECECEC] rounded-[2.5rem] text-sm text-[#111111] outline-none focus:border-[#D50000]/40 font-bold transition-all shadow-inner min-h-[160px] resize-none" 
                                     placeholder="Manifest your message to all nodes..."
                                 />
                             </div>
@@ -3394,47 +3366,47 @@ export default function AdminPanel() {
                                         }
                                     }
                                 }}
-                                className="w-full py-6 bg-[#D4AF37] text-black rounded-3xl font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-[#D4AF37]/20 active:scale-95 transition-all"
+                                className="w-full py-6 bg-[#D50000] text-black rounded-3xl font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-[#D50000]/20 active:scale-95 transition-all"
                             >
                                 Transmit Neural Signal
                             </button>
                         </div>
                     </div>
 
-                    <div className="bg-white/5 rounded-[3rem] border border-white/10 p-10 space-y-10">
+                    <div className="bg-[#ECECEC] rounded-[3rem] border border-[#ECECEC] p-10 space-y-10">
                         <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-white/40">
+                            <div className="w-12 h-12 bg-[#ECECEC] rounded-2xl flex items-center justify-center text-[#6B7280]">
                                 <BarChart3 size={24} />
                             </div>
                             <h3 className="text-xl font-bold">PWA Analytics</h3>
                         </div>
 
                         <div className="space-y-6">
-                            <div className="p-8 bg-black/40 rounded-[2.5rem] border border-white/5 flex items-center justify-between">
+                            <div className="p-8 bg-[#FFFFFF] rounded-[2.5rem] border border-[#ECECEC] flex items-center justify-between">
                                 <div>
-                                    <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Active Push Channels</p>
-                                    <p className="text-2xl font-black text-white mt-1 tabular-nums">{sellers.filter(u => u.pushEnabled).length}</p>
+                                    <p className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.2em]">Active Push Channels</p>
+                                    <p className="text-2xl font-black text-[#111111] mt-1 tabular-nums">{sellers.filter(u => u.pushEnabled).length}</p>
                                 </div>
                                 <div className="w-12 h-12 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-500">
                                     <Zap size={20} />
                                 </div>
                             </div>
-                            <div className="p-8 bg-black/40 rounded-[2.5rem] border border-white/5 flex items-center justify-between">
+                            <div className="p-8 bg-[#FFFFFF] rounded-[2.5rem] border border-[#ECECEC] flex items-center justify-between">
                                 <div>
-                                    <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">PWA Installed Base</p>
-                                    <p className="text-2xl font-black text-white mt-1 tabular-nums italic">~{sellers.length} Nodes</p>
+                                    <p className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.2em]">PWA Installed Base</p>
+                                    <p className="text-2xl font-black text-[#111111] mt-1 tabular-nums italic">~{sellers.length} Nodes</p>
                                 </div>
                                 <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
                                     <ShoppingBag size={20} />
                                 </div>
                             </div>
-                            <div className="p-10 bg-black/40 rounded-[2.5rem] border border-white/5 relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 p-8 text-white/5 group-hover:text-white/10 transition-colors">
+                            <div className="p-10 bg-[#FFFFFF] rounded-[2.5rem] border border-[#ECECEC] relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 p-8 text-[#6B7280] group-hover:text-[#6B7280] transition-colors">
                                     <ShieldCheck size={100} />
                                 </div>
                                 <div className="relative z-10 space-y-4">
                                      <h4 className="text-xs font-black uppercase tracking-widest text-primary italic">Neural Compliance</h4>
-                                     <p className="text-[11px] text-white/50 leading-relaxed font-bold">Standard PWA manifests are forced into standalone protocol. All mobile nodes registered via Android App Drawer are being tracked for notification synchronization.</p>
+                                     <p className="text-[11px] text-[#6B7280] leading-relaxed font-bold">Standard PWA manifests are forced into standalone protocol. All mobile nodes registered via Android App Drawer are being tracked for notification synchronization.</p>
                                 </div>
                             </div>
                         </div>
@@ -3445,15 +3417,15 @@ export default function AdminPanel() {
         {activeTab === 'email_marketing' && (
           <motion.div key="email_marketing" className="space-y-10">
             <div className="flex items-center justify-between">
-                <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-white uppercase tracking-[0.2em]">
-                    <MessageSquare size={32} className="text-[#D4AF37]" />
+                <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-[#111111] uppercase tracking-[0.2em]">
+                    <MessageSquare size={32} className="text-[#D50000]" />
                     Email Marketing Console
                 </h3>
                 <div className="flex gap-4">
-                  <div className="bg-white/5 border border-white/10 px-6 py-3 rounded-2xl flex items-center gap-4">
+                  <div className="bg-[#ECECEC] border border-[#ECECEC] px-6 py-3 rounded-2xl flex items-center gap-4">
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                        <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Active nodes: {sellers.filter(u => u.email).length}</span>
+                        <span className="text-[10px] font-black text-[#6B7280] uppercase tracking-widest">Active nodes: {sellers.filter(u => u.email).length}</span>
                     </div>
                   </div>
                 </div>
@@ -3461,18 +3433,18 @@ export default function AdminPanel() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Email Composition */}
-                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl space-y-8 relative overflow-hidden group">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent opacity-40" />
-                    <h4 className="text-sm font-black text-white uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
-                        <Plus size={20} className="text-[#D4AF37]" /> Draft Marketing Campaign
+                <div className="bg-[#ECECEC] p-10 rounded-[3rem] border border-[#ECECEC] shadow-2xl space-y-8 relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#D50000] to-transparent opacity-40" />
+                    <h4 className="text-sm font-black text-[#111111] uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                        <Plus size={20} className="text-[#D50000]" /> Draft Marketing Campaign
                     </h4>
                     
                     <div className="space-y-6">
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Recipient Strategy (All sent via BCC)</label>
+                            <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2">Recipient Strategy (All sent via BCC)</label>
                             <select 
                                 id="emailTarget"
-                                className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-[#D4AF37]/40 font-bold transition-all shadow-inner appearance-none"
+                                className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-[#D50000]/40 font-bold transition-all shadow-inner appearance-none"
                                 onChange={(e) => {
                                     const customField = document.getElementById('customEmailsField');
                                     if (customField) {
@@ -3487,38 +3459,38 @@ export default function AdminPanel() {
                         </div>
 
                         <div id="customEmailsField" className="space-y-3 hidden">
-                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Manual Email Addresses (Comma separated)</label>
+                            <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2">Manual Email Addresses (Comma separated)</label>
                             <textarea 
                                 id="customEmails"
                                 placeholder="email1@example.com, email2@example.com..." 
-                                className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-[#D4AF37]/40 font-bold transition-all shadow-inner h-24"
+                                className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-[#D50000]/40 font-bold transition-all shadow-inner h-24"
                             />
                         </div>
 
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Campaign Subject</label>
+                            <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2">Campaign Subject</label>
                             <input 
                                 id="emailSubject"
                                 placeholder="Summer Flash Sale 2024..." 
-                                className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-[#D4AF37]/40 font-bold transition-all shadow-inner"
+                                className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-[#D50000]/40 font-bold transition-all shadow-inner"
                             />
                         </div>
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">Marketing Content (HTML Allowed)</label>
+                            <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2">Marketing Content (HTML Allowed)</label>
                             <textarea 
                                 id="emailBody"
                                 placeholder="<h1>Fresh Arrival!</h1><p>Our premium mangoes are back in stock...</p>" 
-                                className="w-full px-8 py-6 bg-black/40 border border-white/5 rounded-[2.5rem] text-sm text-white/80 outline-none focus:border-[#D4AF37]/40 h-64 resize-none leading-relaxed"
+                                className="w-full px-8 py-6 bg-[#FFFFFF] border border-[#ECECEC] rounded-[2.5rem] text-sm text-[#6B7280] outline-none focus:border-[#D50000]/40 h-64 resize-none leading-relaxed"
                             />
                         </div>
 
-                        <div className="p-4 bg-white/5 rounded-2xl border border-white/5 flex items-start gap-4">
-                            <div className="w-8 h-8 bg-[#D4AF37]/10 rounded-lg flex items-center justify-center text-[#D4AF37] shrink-0">
+                        <div className="p-4 bg-[#ECECEC] rounded-2xl border border-[#ECECEC] flex items-start gap-4">
+                            <div className="w-8 h-8 bg-[#D50000]/10 rounded-lg flex items-center justify-center text-[#D50000] shrink-0">
                                 <ShieldCheck size={16} />
                             </div>
                             <div className="space-y-1">
-                                <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-widest">Privacy Protocol Active</p>
-                                <p className="text-[9px] text-white/40 leading-relaxed">সকল মেইল BCC (Blind Carbon Copy) হিসেবে পাঠানো হবে। এতে কাস্টমাররা একে অপরের ইমেইল দেখতে পারবে না।</p>
+                                <p className="text-[10px] font-black text-[#D50000] uppercase tracking-widest">Privacy Protocol Active</p>
+                                <p className="text-[9px] text-[#6B7280] leading-relaxed">সকল মেইল BCC (Blind Carbon Copy) হিসেবে পাঠানো হবে। এতে কাস্টমাররা একে অপরের ইমেইল দেখতে পারবে না।</p>
                             </div>
                         </div>
 
@@ -3532,27 +3504,30 @@ export default function AdminPanel() {
                                 if (target === 'custom' && !customEmails) return alert('Please enter at least one recipient email');
                                 
                                 if (confirm(`Authorize this marketing dispatch to selected nodes?`)) {
-                                    try {
-                                        const res = await fetch('/api/admin/bulk-email', {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ target, subject, content: body, customEmails })
-                                        });
-                                        const data = await res.json();
-                                        if (res.ok) {
-                                            alert(`Marketing sequence successful! Emails sent via BCC to ${data.count} recipients.`);
-                                            (document.getElementById('emailSubject') as HTMLInputElement).value = '';
-                                            (document.getElementById('emailBody') as HTMLTextAreaElement).value = '';
-                                            if (target === 'custom') (document.getElementById('customEmails') as HTMLTextAreaElement).value = '';
-                                        } else {
-                                          throw new Error(data.error || 'Dispatch failed');
-                                        }
-                                    } catch (e: any) {
-                                        alert('Marketing Link Interrupted: ' + e.message);
+                                    let bccList: string[] = [];
+                                    if (target === 'all') {
+                                        bccList = sellers.filter(u => u.email).map(u => u.email as string);
+                                    } else if (target === 'no-push') {
+                                        bccList = sellers.filter(u => u.email && !u.pushEnabled).map(u => u.email as string);
+                                    } else if (target === 'custom') {
+                                        bccList = customEmails.split(',').map(e => e.trim()).filter(e => e);
                                     }
+                                    
+                                    if (bccList.length === 0) {
+                                        alert('No valid emails found for the selected target.');
+                                        return;
+                                    }
+
+                                    const bcc = bccList.join(',');
+                                    const mailtoUrl = `mailto:?bcc=${bcc}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                                    window.open(mailtoUrl, '_blank');
+                                    
+                                    (document.getElementById('emailSubject') as HTMLInputElement).value = '';
+                                    (document.getElementById('emailBody') as HTMLTextAreaElement).value = '';
+                                    if (target === 'custom') (document.getElementById('customEmails') as HTMLTextAreaElement).value = '';
                                 }
                             }}
-                            className="w-full py-6 bg-[#D4AF37] text-black rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-[#D4AF37]/30 hover:scale-[1.02] transition-all active:scale-95"
+                            className="w-full py-6 bg-[#D50000] text-black rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-[#D50000]/30 hover:scale-[1.02] transition-all active:scale-95"
                         >
                             Execute Global Dispatch
                         </button>
@@ -3561,36 +3536,36 @@ export default function AdminPanel() {
 
                 {/* User Tracking & Analytics */}
                 <div className="space-y-8">
-                    <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl">
-                        <h4 className="text-sm font-black text-white uppercase tracking-[0.3em] mb-8 flex items-center gap-2">
-                            <BarChart3 size={20} className="text-secondary" /> Subscription Analytics
+                    <div className="bg-[#ECECEC] p-10 rounded-[3rem] border border-[#ECECEC] shadow-2xl">
+                        <h4 className="text-sm font-black text-[#111111] uppercase tracking-[0.3em] mb-8 flex items-center gap-2">
+                            <BarChart3 size={20} className="text-[#E21E26]" /> Subscription Analytics
                         </h4>
                         <div className="grid grid-cols-2 gap-6">
-                            <div className="p-6 bg-black/40 rounded-3xl border border-white/5">
-                                <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mb-2">Push Enabled</p>
-                                <p className="text-2xl font-black text-white">{sellers.filter(u => u.fcmToken).length} <span className="text-[10px] text-green-500 ml-1">Nodes</span></p>
+                            <div className="p-6 bg-[#FFFFFF] rounded-3xl border border-[#ECECEC]">
+                                <p className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] mb-2">Push Enabled</p>
+                                <p className="text-2xl font-black text-[#111111]">{sellers.filter(u => u.fcmToken).length} <span className="text-[10px] text-green-500 ml-1">Nodes</span></p>
                             </div>
-                            <div className="p-6 bg-black/40 rounded-3xl border border-white/5">
-                                <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mb-2">Email Reach</p>
-                                <p className="text-2xl font-black text-white">{sellers.filter(u => u.email).length} <span className="text-[10px] text-secondary ml-1">Nodes</span></p>
+                            <div className="p-6 bg-[#FFFFFF] rounded-3xl border border-[#ECECEC]">
+                                <p className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] mb-2">Email Reach</p>
+                                <p className="text-2xl font-black text-[#111111]">{sellers.filter(u => u.email).length} <span className="text-[10px] text-[#E21E26] ml-1">Nodes</span></p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl overflow-hidden">
-                        <h4 className="text-sm font-black text-white uppercase tracking-[0.3em] mb-8 flex items-center gap-2">
-                            <Users size={20} className="text-secondary" /> Recent Subscriptions
+                    <div className="bg-[#ECECEC] p-10 rounded-[3rem] border border-[#ECECEC] shadow-2xl overflow-hidden">
+                        <h4 className="text-sm font-black text-[#111111] uppercase tracking-[0.3em] mb-8 flex items-center gap-2">
+                            <Users size={20} className="text-[#E21E26]" /> Recent Subscriptions
                         </h4>
                         <div className="space-y-4 max-h-[400px] overflow-y-auto scrollbar-hide pr-2">
                             {sellers.slice(0, 20).map(u => (
-                                <div key={u.id} className="p-4 bg-black/40 rounded-2xl border border-white/5 flex items-center justify-between group hover:border-secondary/30 transition-all">
+                                <div key={u.id} className="p-4 bg-[#FFFFFF] rounded-2xl border border-[#ECECEC] flex items-center justify-between group hover:border-[#E21E26]/30 transition-all">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/20">
+                                        <div className="w-10 h-10 rounded-xl bg-[#ECECEC] flex items-center justify-center text-[#6B7280]">
                                             <User size={20} />
                                         </div>
                                         <div>
-                                            <p className="text-xs font-bold text-white group-hover:text-secondary transition-colors">{u.displayName || 'Anonymous Node'}</p>
-                                            <p className="text-[10px] text-white/30 font-mono italic">{u.email || 'No Email'}</p>
+                                            <p className="text-xs font-bold text-[#111111] group-hover:text-[#E21E26] transition-colors">{u.displayName || 'Anonymous Node'}</p>
+                                            <p className="text-[10px] text-[#6B7280] font-mono italic">{u.email || 'No Email'}</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
@@ -3614,58 +3589,58 @@ export default function AdminPanel() {
         )}
         {activeTab === 'financials' && (
           <motion.div key="financials" className="space-y-10">
-            <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-white uppercase tracking-[0.2em]">
-                <CreditCard size={32} className="text-secondary" />
+            <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-[#111111] uppercase tracking-[0.2em]">
+                <CreditCard size={32} className="text-[#E21E26]" />
                 Treasury & Settlements
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                <div className="bg-[#ECECEC] p-10 rounded-[3rem] border border-[#ECECEC] shadow-2xl relative overflow-hidden group">
                     <div className="absolute top-0 left-0 w-32 h-32 bg-primary/5 rounded-full -ml-16 -mt-16 blur-2xl group-hover:bg-primary/10 transition-all duration-700" />
-                    <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-4 relative z-10 font-mono">Total Liquidated Payouts</p>
+                    <p className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] mb-4 relative z-10 font-mono">Total Liquidated Payouts</p>
                     <h4 className="text-4xl font-display font-black text-primary relative z-10">৳{formatCurrency(payouts.filter(p => p.status === 'completed').reduce((acc, p) => acc + (p.amount || 0), 0))}</h4>
                 </div>
-                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                <div className="bg-[#ECECEC] p-10 rounded-[3rem] border border-[#ECECEC] shadow-2xl relative overflow-hidden group">
                     <div className="absolute top-0 left-0 w-32 h-32 bg-orange-500/5 rounded-full -ml-16 -mt-16 blur-2xl group-hover:bg-orange-500/10 transition-all duration-700" />
-                    <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-4 relative z-10 font-mono">Pending Authorizations</p>
+                    <p className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] mb-4 relative z-10 font-mono">Pending Authorizations</p>
                     <h4 className="text-4xl font-display font-black text-orange-500 relative z-10">{payouts.filter(p => p.status === 'pending').length}</h4>
                 </div>
-                <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden group">
-                    <div className="absolute top-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mt-16 blur-2xl group-hover:bg-white/10 transition-all duration-700" />
-                    <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-4 relative z-10 font-mono">Estimated Liability</p>
-                    <h4 className="text-4xl font-display font-black text-white/40 relative z-10">৳{formatCurrency(orders.filter(o => o.status === 'delivered').reduce((acc, o) => acc + (o.total || 0), 0) - payouts.filter(p => p.status === 'completed').reduce((acc, p) => acc + (p.amount || 0), 0))}</h4>
+                <div className="bg-[#ECECEC] p-10 rounded-[3rem] border border-[#ECECEC] shadow-2xl relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-32 h-32 bg-[#ECECEC] rounded-full -ml-16 -mt-16 blur-2xl group-hover:bg-[#ECECEC] transition-all duration-700" />
+                    <p className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] mb-4 relative z-10 font-mono">Estimated Liability</p>
+                    <h4 className="text-4xl font-display font-black text-[#6B7280] relative z-10">৳{formatCurrency(orders.filter(o => o.status === 'delivered').reduce((acc, o) => acc + (o.total || 0), 0) - payouts.filter(p => p.status === 'completed').reduce((acc, p) => acc + (p.amount || 0), 0))}</h4>
                 </div>
             </div>
 
-            <div className="bg-white/5 rounded-[4rem] border border-white/5 shadow-2xl overflow-hidden relative">
-                <div className="p-10 border-b border-white/5 flex justify-between items-center bg-black/20">
-                    <h4 className="font-display font-black text-lg uppercase tracking-widest text-white">Neural Settlement Log</h4>
-                    <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] font-mono">Status: Descending</span>
+            <div className="bg-[#ECECEC] rounded-[4rem] border border-[#ECECEC] shadow-2xl overflow-hidden relative">
+                <div className="p-10 border-b border-[#ECECEC] flex justify-between items-center bg-black/5">
+                    <h4 className="font-display font-black text-lg uppercase tracking-widest text-[#111111]">Neural Settlement Log</h4>
+                    <span className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] font-mono">Status: Descending</span>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="bg-black/40 border-b border-white/5">
-                                <th className="px-10 py-6 text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Entity / Identity</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Asset value</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Medium / Destination</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Authorization Status</th>
-                                <th className="px-10 py-6 text-[10px] font-black text-white/30 uppercase tracking-[0.3em] text-right">Operations</th>
+                            <tr className="bg-[#FFFFFF] border-b border-[#ECECEC]">
+                                <th className="px-10 py-6 text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em]">Entity / Identity</th>
+                                <th className="px-10 py-6 text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em]">Asset value</th>
+                                <th className="px-10 py-6 text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em]">Medium / Destination</th>
+                                <th className="px-10 py-6 text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em]">Authorization Status</th>
+                                <th className="px-10 py-6 text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] text-right">Operations</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
                             {payouts.map((payout) => {
                                 const targetUser = sellers.find(s => s.id === payout.userId);
                                 return (
-                                    <tr key={payout.id} className="hover:bg-white/5 transition-all group">
+                                    <tr key={payout.id} className="hover:bg-[#ECECEC] transition-all group">
                                         <td className="px-10 py-8">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-2xl bg-black/60 flex items-center justify-center text-white/20 border border-white/5 shadow-inner">
+                                                <div className="w-12 h-12 rounded-2xl bg-[#FFFFFF] flex items-center justify-center text-[#6B7280] border border-[#ECECEC] shadow-inner">
                                                     <User size={24} />
                                                 </div>
                                                 <div>
-                                                    <p className="text-[14px] font-bold text-white group-hover:text-primary transition-colors">{targetUser?.displayName || 'Unknown Entity'}</p>
-                                                    <p className="text-[9px] font-black text-white/20 uppercase tracking-widest mt-1 font-mono">{payout.role}</p>
+                                                    <p className="text-[14px] font-bold text-[#111111] group-hover:text-primary transition-colors">{targetUser?.displayName || 'Unknown Entity'}</p>
+                                                    <p className="text-[9px] font-black text-[#6B7280] uppercase tracking-widest mt-1 font-mono">{payout.role}</p>
                                                 </div>
                                             </div>
                                         </td>
@@ -3673,8 +3648,8 @@ export default function AdminPanel() {
                                             <p className="text-[15px] font-black text-primary font-mono tracking-tight">৳{formatCurrency(payout.amount)}</p>
                                         </td>
                                         <td className="px-10 py-8">
-                                            <p className="text-[13px] font-bold text-white/70">{payout.method}</p>
-                                            <p className="text-[11px] text-white/30 font-mono mt-1">{payout.account}</p>
+                                            <p className="text-[13px] font-bold text-[#6B7280]">{payout.method}</p>
+                                            <p className="text-[11px] text-[#6B7280] font-mono mt-1">{payout.account}</p>
                                         </td>
                                         <td className="px-10 py-8">
                                             <span className={`text-[9px] font-black uppercase px-3 py-1.5 rounded-xl border ${
@@ -3711,7 +3686,7 @@ export default function AdminPanel() {
                             {payouts.length === 0 && (
                                 <tr>
                                     <td colSpan={5} className="py-40 text-center">
-                                        <p className="text-white/10 text-[11px] font-black uppercase tracking-[0.4em]">No financial records identified</p>
+                                        <p className="text-[#6B7280] text-[11px] font-black uppercase tracking-[0.4em]">No financial records identified</p>
                                     </td>
                                 </tr>
                             )}
@@ -3731,7 +3706,7 @@ export default function AdminPanel() {
             className="space-y-10"
           >
             <div className="flex items-center justify-between">
-                <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-white uppercase tracking-[0.2em]">
+                <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-[#111111] uppercase tracking-[0.2em]">
                     <Zap size={32} className="text-primary" />
                     Flash Deals & Neural Sales
                 </h3>
@@ -3745,23 +3720,23 @@ export default function AdminPanel() {
             
             <div className="grid grid-cols-1 gap-6">
                 {promotions.length === 0 ? (
-                    <div className="text-center py-24 bg-white/5 rounded-[4rem] border border-dashed border-white/10">
-                        <Zap size={64} className="mx-auto text-white/5 mb-6" />
-                        <p className="text-[11px] font-black text-white/20 uppercase tracking-[0.4em]">No active flash sales in circulation</p>
+                    <div className="text-center py-24 bg-[#ECECEC] rounded-[4rem] border border-dashed border-[#ECECEC]">
+                        <Zap size={64} className="mx-auto text-[#6B7280] mb-6" />
+                        <p className="text-[11px] font-black text-[#6B7280] uppercase tracking-[0.4em]">No active flash sales in circulation</p>
                     </div>
                 ) : (
                     promotions.map(promo => {
                         const isExpired = promo.endTime?.toDate() < new Date();
                         return (
-                            <div key={promo.id} className={`p-8 rounded-[3rem] border shadow-2xl flex items-center justify-between group transition-all ${isExpired ? 'bg-black/40 border-white/5 opacity-50 grayscale' : 'bg-white/5 border-primary/20 hover:border-primary/40'}`}>
+                            <div key={promo.id} className={`p-8 rounded-[3rem] border shadow-2xl flex items-center justify-between group transition-all ${isExpired ? 'bg-[#FFFFFF] border-[#ECECEC] opacity-50 grayscale' : 'bg-[#ECECEC] border-primary/20 hover:border-primary/40'}`}>
                                 <div className="flex items-center gap-6">
-                                    <div className={`w-16 h-16 rounded-3xl flex items-center justify-center text-2xl font-black shadow-inner border ${isExpired ? 'bg-white/5 text-white/20 border-white/5' : 'bg-primary/20 text-primary border-primary/20'}`}>
+                                    <div className={`w-16 h-16 rounded-3xl flex items-center justify-center text-2xl font-black shadow-inner border ${isExpired ? 'bg-[#ECECEC] text-[#6B7280] border-[#ECECEC]' : 'bg-primary/20 text-primary border-primary/20'}`}>
                                         {promo.percentage}%
                                     </div>
                                     <div>
-                                        <h4 className="text-lg font-bold text-white mb-1 uppercase tracking-tight">{promo.title}</h4>
+                                        <h4 className="text-lg font-bold text-[#111111] mb-1 uppercase tracking-tight">{promo.title}</h4>
                                         <div className="flex items-center gap-4">
-                                            <span className="text-[9px] font-black text-white/30 uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded border border-white/5">
+                                            <span className="text-[9px] font-black text-[#6B7280] uppercase tracking-widest bg-[#ECECEC] px-2 py-0.5 rounded border border-[#ECECEC]">
                                                 Scope: {promo.targetType === 'all' ? 'Universal' : promo.targetType === 'category' ? `Category: ${promo.targetId}` : `Product: ${promo.targetId}`}
                                             </span>
                                             <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 ${isExpired ? 'text-red-500/60' : 'text-primary'}`}>
@@ -3772,7 +3747,7 @@ export default function AdminPanel() {
                                 </div>
                                 <button 
                                     onClick={() => adminService.deletePromotion(promo.id)}
-                                    className="p-4 bg-white/5 text-white/20 rounded-2xl hover:bg-red-500/10 hover:text-red-500 border border-white/5 transition-all shadow-xl"
+                                    className="p-4 bg-[#ECECEC] text-[#6B7280] rounded-2xl hover:bg-red-500/10 hover:text-red-500 border border-[#ECECEC] transition-all shadow-xl"
                                 >
                                     <Trash2 size={20} />
                                 </button>
@@ -3787,13 +3762,13 @@ export default function AdminPanel() {
         {activeTab === 'deals' && (
           <motion.div key="deals" className="space-y-10">
             <div className="flex items-center justify-between">
-                <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-white uppercase tracking-[0.2em]">
-                    <Sparkles size={32} className="text-secondary" />
+                <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-[#111111] uppercase tracking-[0.2em]">
+                    <Sparkles size={32} className="text-[#E21E26]" />
                     Strategic Deals Hub
                 </h3>
                 <button 
                   onClick={() => setIsAdding(true)}
-                  className="px-10 py-5 bg-secondary text-black rounded-[2rem] text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-4 shadow-xl shadow-secondary/20 hover:scale-105 active:scale-95 transition-all"
+                  className="px-10 py-5 bg-[#E21E26] text-white rounded-[2rem] text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-4 shadow-xl shadow-[#E21E26]/20 hover:scale-105 active:scale-95 transition-all"
                 >
                   <Plus size={20} /> Create Deal
                 </button>
@@ -3801,13 +3776,13 @@ export default function AdminPanel() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {offers.length === 0 ? (
-                  <div className="col-span-full py-32 bg-white/5 border border-dashed border-white/10 rounded-[4rem] text-center">
-                    <Sparkles size={48} className="mx-auto text-white/10 mb-6" />
-                    <p className="text-[12px] font-black text-white/30 uppercase tracking-[0.5em]">No Active Strategic Deals</p>
+                  <div className="col-span-full py-32 bg-[#ECECEC] border border-dashed border-[#ECECEC] rounded-[4rem] text-center">
+                    <Sparkles size={48} className="mx-auto text-[#6B7280] mb-6" />
+                    <p className="text-[12px] font-black text-[#6B7280] uppercase tracking-[0.5em]">No Active Strategic Deals</p>
                   </div>
                 ) : (
                   offers.map(offer => (
-                    <div key={offer.id} className="bg-white/5 p-10 rounded-[3.5rem] border border-white/5 shadow-2xl relative overflow-hidden group hover:border-secondary/30 transition-all">
+                    <div key={offer.id} className="bg-[#ECECEC] p-10 rounded-[3.5rem] border border-[#ECECEC] shadow-2xl relative overflow-hidden group hover:border-[#E21E26]/30 transition-all">
                         {offer.bannerImage && (
                             <div className="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-1000">
                                 <img src={offer.bannerImage} className="w-full h-full object-cover" />
@@ -3817,7 +3792,7 @@ export default function AdminPanel() {
                             <div className="flex justify-between items-start mb-8">
                                 <div>
                                     <div className="flex items-center gap-3">
-                                      <span className="px-3 py-1 bg-secondary text-black rounded-lg text-[8px] font-black uppercase tracking-widest">{offer.type}</span>
+                                      <span className="px-3 py-1 bg-[#E21E26] text-white rounded-lg text-[8px] font-black uppercase tracking-widest">{offer.type}</span>
                                       {offer.isActive ? (
                                         <div className="flex items-center gap-1.5 px-2 py-0.5 bg-green-500/10 border border-green-500/20 rounded-full">
                                           <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
@@ -3827,44 +3802,44 @@ export default function AdminPanel() {
                                         <span className="px-2 py-0.5 bg-red-500/10 border border-red-500/20 rounded-full text-[7px] text-red-500 font-black uppercase tracking-widest">Standby</span>
                                       )}
                                     </div>
-                                    <h4 className="text-xl font-display font-black text-white tracking-wide mt-4 uppercase group-hover:text-secondary transition-colors">{offer.title}</h4>
+                                    <h4 className="text-xl font-display font-black text-[#111111] tracking-wide mt-4 uppercase group-hover:text-[#E21E26] transition-colors">{offer.title}</h4>
                                 </div>
                             </div>
                             
                             <div className="space-y-4 mb-10">
-                              <div className="flex items-center gap-4 text-[10px] font-black text-white/40 uppercase tracking-widest">
-                                  <Clock size={16} className="text-white/20" />
+                              <div className="flex items-center gap-4 text-[10px] font-black text-[#6B7280] uppercase tracking-widest">
+                                  <Clock size={16} className="text-[#6B7280]" />
                                   <span>Expires: {offer.endTime ? format(new Date(offer.endTime), 'MMM d, p') : 'Permanent'}</span>
                               </div>
-                              <div className="flex items-center gap-4 text-[10px] font-black text-white/40 uppercase tracking-widest">
-                                  <Percent size={16} className="text-white/20" />
-                                  <span>Discount: <span className="text-secondary">{offer.discountAmount}{offer.discountType === 'percentage' ? '%' : '৳'}</span></span>
+                              <div className="flex items-center gap-4 text-[10px] font-black text-[#6B7280] uppercase tracking-widest">
+                                  <Percent size={16} className="text-[#6B7280]" />
+                                  <span>Discount: <span className="text-[#E21E26]">{offer.discountAmount}{offer.discountType === 'percentage' ? '%' : '৳'}</span></span>
                               </div>
-                              <div className="flex items-center gap-4 text-[10px] font-black text-white/40 uppercase tracking-widest">
-                                  <Layout size={16} className="text-white/20" />
+                              <div className="flex items-center gap-4 text-[10px] font-black text-[#6B7280] uppercase tracking-widest">
+                                  <Layout size={16} className="text-[#6B7280]" />
                                   <span>Scope: <span className="text-primary">{offer.targetType}</span></span>
                               </div>
                             </div>
 
-                            <div className="flex items-center justify-between pt-8 border-t border-white/5">
+                            <div className="flex items-center justify-between pt-8 border-t border-[#ECECEC]">
                                 <div className="flex items-center gap-3">
-                                  {offer.sendPush && <Bell size={14} className="text-secondary" />}
+                                  {offer.sendPush && <Bell size={14} className="text-[#E21E26]" />}
                                   {offer.hasDetailsPage && <FileText size={14} className="text-primary" />}
-                                  <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">
+                                  <span className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em]">
                                       {offer.productIds?.length || 0} Products
                                   </span>
                                 </div>
                                 <div className="flex gap-2">
                                   <button 
                                       onClick={() => handleBroadcastOffer(offer)}
-                                      className="p-4 bg-secondary/10 border border-secondary/20 rounded-2xl text-secondary hover:bg-secondary hover:text-black transition-all shadow-xl"
+                                      className="p-4 bg-[#E21E26]/10 border border-[#E21E26]/20 rounded-2xl text-[#E21E26] hover:bg-[#E21E26] hover:text-white transition-all shadow-xl"
                                       title="Broadcast Notification"
                                   >
                                       <Bell size={18} />
                                   </button>
                                   <button 
                                       onClick={() => deleteDoc(doc(db, 'offers', offer.id))}
-                                      className="p-4 bg-red-500/5 border border-red-500/20 rounded-2xl text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xl"
+                                      className="p-4 bg-red-500/5 border border-red-500/20 rounded-2xl text-red-500 hover:bg-red-500 hover:text-[#111111] transition-all shadow-xl"
                                   >
                                       <Trash2 size={18} />
                                   </button>
@@ -3881,13 +3856,13 @@ export default function AdminPanel() {
         {activeTab === 'coupons' && (
           <motion.div key="coupons" className="space-y-10">
             <div className="flex items-center justify-between">
-                <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-white uppercase tracking-[0.2em]">
-                    <Percent size={32} className="text-secondary" />
+                <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-[#111111] uppercase tracking-[0.2em]">
+                    <Percent size={32} className="text-[#E21E26]" />
                     Coupon Protocols & Vouchers
                 </h3>
                 <button 
                   onClick={() => setIsAdding(true)}
-                  className="px-8 py-4 bg-secondary text-black rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3 shadow-xl shadow-secondary/20 hover:scale-105 transition-all"
+                  className="px-8 py-4 bg-[#E21E26] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3 shadow-xl shadow-[#E21E26]/20 hover:scale-105 transition-all"
                 >
                   <Plus size={18} /> Generate Token
                 </button>
@@ -3895,32 +3870,32 @@ export default function AdminPanel() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {coupons.map(coupon => (
-                    <div key={coupon.id} className="bg-white/5 p-8 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden group hover:border-secondary/30 transition-all">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/5 rounded-full -mr-12 -mt-12 blur-2xl group-hover:bg-secondary/10 transition-all" />
+                    <div key={coupon.id} className="bg-[#ECECEC] p-8 rounded-[3rem] border border-[#ECECEC] shadow-2xl relative overflow-hidden group hover:border-[#E21E26]/30 transition-all">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-[#E21E26]/5 rounded-full -mr-12 -mt-12 blur-2xl group-hover:bg-[#E21E26]/10 transition-all" />
                         <div className="flex justify-between items-start mb-6">
                             <div>
-                                <h4 className="text-2xl font-display font-black text-white tracking-widest">{coupon.code}</h4>
-                                <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mt-1">{coupon.type === 'percentage' ? `${coupon.value}% Discount` : `৳${formatCurrency(coupon.value)} Flat Discount`}</p>
+                                <h4 className="text-2xl font-display font-black text-[#111111] tracking-widest">{coupon.code}</h4>
+                                <p className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.2em] mt-1">{coupon.type === 'percentage' ? `${coupon.value}% Discount` : `৳${formatCurrency(coupon.value)} Flat Discount`}</p>
                             </div>
                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center border transition-all ${coupon.isActive ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
                                 <Zap size={20} />
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4 mb-6">
-                            <div className="p-4 bg-black/40 rounded-2xl border border-white/5">
-                                <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em] block mb-1">Used Count</span>
-                                <p className="text-lg font-black text-white">{coupon.usedCount || 0} / {coupon.usageLimit}</p>
+                            <div className="p-4 bg-[#FFFFFF] rounded-2xl border border-[#ECECEC]">
+                                <span className="text-[8px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-1">Used Count</span>
+                                <p className="text-lg font-black text-[#111111]">{coupon.usedCount || 0} / {coupon.usageLimit}</p>
                             </div>
-                            <div className="p-4 bg-black/40 rounded-2xl border border-white/5">
-                                <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em] block mb-1">Min Order</span>
-                                <p className="text-lg font-black text-secondary">৳{formatCurrency(coupon.minOrder)}</p>
+                            <div className="p-4 bg-[#FFFFFF] rounded-2xl border border-[#ECECEC]">
+                                <span className="text-[8px] font-black text-[#6B7280] uppercase tracking-[0.2em] block mb-1">Min Order</span>
+                                <p className="text-lg font-black text-[#E21E26]">৳{formatCurrency(coupon.minOrder)}</p>
                             </div>
                         </div>
                         <div className="flex items-center justify-between">
-                            <span className="text-[9px] font-black text-white/20 uppercase tracking-widest italic">Exp: {coupon.expiryDate || 'Perpetual'}</span>
+                            <span className="text-[9px] font-black text-[#6B7280] uppercase tracking-widest italic">Exp: {coupon.expiryDate || 'Perpetual'}</span>
                             <button 
                                 onClick={() => adminService.deleteCoupon(coupon.id)}
-                                className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white/20 hover:text-red-500 hover:border-red-500/40 transition-all shadow-xl active:scale-95"
+                                className="w-10 h-10 bg-[#ECECEC] border border-[#ECECEC] rounded-xl flex items-center justify-center text-[#6B7280] hover:text-red-500 hover:border-red-500/40 transition-all shadow-xl active:scale-95"
                             >
                                 <Trash2 size={18} />
                             </button>
@@ -3934,7 +3909,7 @@ export default function AdminPanel() {
         {activeTab === 'abandonment' && (
           <motion.div key="abandonment" className="space-y-10">
             <div className="flex items-center justify-between">
-                <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-white uppercase tracking-[0.2em]">
+                <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-[#111111] uppercase tracking-[0.2em]">
                     <Trash2 size={32} className="text-orange-500" />
                     Abandoned Cart Recovery
                 </h3>
@@ -3950,28 +3925,28 @@ export default function AdminPanel() {
                 </button>
             </div>
 
-            <div className="bg-white/5 rounded-[3rem] border border-white/5 shadow-2xl overflow-hidden">
+            <div className="bg-[#ECECEC] rounded-[3rem] border border-[#ECECEC] shadow-2xl overflow-hidden">
                 <table className="w-full text-left">
                     <thead>
-                        <tr className="bg-black/40 border-b border-white/5">
-                            <th className="px-10 py-6 text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Customer Node</th>
-                            <th className="px-10 py-6 text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Asset Value</th>
-                            <th className="px-10 py-6 text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Payload Density</th>
-                            <th className="px-10 py-6 text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Signal Echo</th>
-                            <th className="px-10 py-6 text-[10px] font-black text-white/30 uppercase tracking-[0.3em] text-right">Ops</th>
+                        <tr className="bg-[#FFFFFF] border-b border-[#ECECEC]">
+                            <th className="px-10 py-6 text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em]">Customer Node</th>
+                            <th className="px-10 py-6 text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em]">Asset Value</th>
+                            <th className="px-10 py-6 text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em]">Payload Density</th>
+                            <th className="px-10 py-6 text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em]">Signal Echo</th>
+                            <th className="px-10 py-6 text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] text-right">Ops</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                         {abandonedCarts.map(cart => (
-                            <tr key={cart.id} className="hover:bg-white/5 transition-all group">
+                            <tr key={cart.id} className="hover:bg-[#ECECEC] transition-all group">
                                 <td className="px-10 py-8">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-black/40 border border-white/5 rounded-2xl flex items-center justify-center text-white/20">
+                                        <div className="w-12 h-12 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl flex items-center justify-center text-[#6B7280]">
                                             <User size={20} />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-white group-hover:text-orange-400 transition-colors">User: {cart.userId?.slice(-8)}</p>
-                                            <p className="text-[10px] text-white/20 font-black uppercase tracking-widest mt-1">Status: Abandoned</p>
+                                            <p className="text-sm font-bold text-[#111111] group-hover:text-orange-400 transition-colors">User: {cart.userId?.slice(-8)}</p>
+                                            <p className="text-[10px] text-[#6B7280] font-black uppercase tracking-widest mt-1">Status: Abandoned</p>
                                         </div>
                                     </div>
                                 </td>
@@ -3979,16 +3954,16 @@ export default function AdminPanel() {
                                     <p className="text-lg font-black text-orange-500 font-mono tracking-tight">৳{formatCurrency(cart.total)}</p>
                                 </td>
                                 <td className="px-10 py-8">
-                                    <p className="text-[13px] font-bold text-white/60">{cart.items?.length || 0} Discrete Units</p>
+                                    <p className="text-[13px] font-bold text-[#6B7280]">{cart.items?.length || 0} Discrete Units</p>
                                 </td>
                                 <td className="px-10 py-8">
-                                    <p className="text-[11px] font-mono text-white/20">
+                                    <p className="text-[11px] font-mono text-[#6B7280]">
                                         {cart.createdAt?.toDate ? format(cart.createdAt.toDate(), 'MMM d, h:mm a') : 'Now'}
                                     </p>
                                 </td>
                                 <td className="px-10 py-8 text-right">
                                     <button 
-                                        className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white/20 hover:text-orange-400 hover:border-orange-400/40 transition-all shadow-xl active:scale-95"
+                                        className="w-10 h-10 bg-[#ECECEC] border border-[#ECECEC] rounded-xl flex items-center justify-center text-[#6B7280] hover:text-orange-400 hover:border-orange-400/40 transition-all shadow-xl active:scale-95"
                                         title="Inspect Payload"
                                     >
                                         <Eye size={18} />
@@ -3999,7 +3974,7 @@ export default function AdminPanel() {
                         {abandonedCarts.length === 0 && (
                             <tr>
                                 <td colSpan={5} className="py-32 text-center">
-                                    <p className="text-white/10 text-[11px] font-black uppercase tracking-[0.4em]">No abandoned assets identified</p>
+                                    <p className="text-[#6B7280] text-[11px] font-black uppercase tracking-[0.4em]">No abandoned assets identified</p>
                                 </td>
                             </tr>
                         )}
@@ -4018,9 +3993,9 @@ export default function AdminPanel() {
                 className="space-y-10"
             >
                 <div className="flex items-center justify-between">
-                    <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-white uppercase tracking-[0.2em]">
-                        <Layout size={32} className="text-secondary" />
-                        Dynamic Page Matrix
+                    <h3 className="font-display font-black text-2xl px-2 flex items-center gap-4 text-[#111111] uppercase tracking-[0.2em]">
+                        <Layout size={32} className="text-[#E21E26]" />
+                        Dynamic Page Manager
                     </h3>
                     <button 
                         onClick={() => {
@@ -4036,32 +4011,32 @@ export default function AdminPanel() {
                             });
                             setIsAdding(true);
                         }}
-                        className="px-8 py-4 bg-secondary text-black rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3 shadow-xl shadow-secondary/20 hover:scale-105 transition-all"
+                        className="px-8 py-4 bg-[#E21E26] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3 shadow-sm hover:scale-105 transition-all"
                     >
-                        <Plus size={18} /> Initialize New Node
+                        <Plus size={18} /> Add New Page
                     </button>
                 </div>
                 
                 <div className="grid grid-cols-1 gap-6">
                     {pages.length === 0 ? (
-                        <div className="text-center py-24 bg-white/5 rounded-[4rem] border border-dashed border-white/10">
-                            <Layout size={64} className="mx-auto text-white/5 mb-6" />
-                            <p className="text-[11px] font-black text-white/20 uppercase tracking-[0.4em]">Grid currently vacant</p>
+                        <div className="text-center py-24 bg-[#F9FAFB] rounded-[4rem] border border-dashed border-[#ECECEC]">
+                            <Layout size={64} className="mx-auto text-[#ECECEC] mb-6" />
+                            <p className="text-[11px] font-black text-[#6B7280]/60 uppercase tracking-[0.4em]">Grid currently vacant</p>
                         </div>
                     ) : (
                         pages.map(page => (
-                            <div key={page.id} className="p-8 bg-white/5 rounded-[3rem] border border-white/5 shadow-2xl flex items-center justify-between group transition-all hover:border-secondary/30">
+                            <div key={page.id} className="p-8 bg-white rounded-[3rem] border border-[#ECECEC] shadow-sm flex items-center justify-between group transition-all hover:border-[#E21E26]/30">
                                 <div className="flex items-center gap-6">
-                                    <div className="w-16 h-16 bg-secondary/10 border border-secondary/20 rounded-3xl flex items-center justify-center text-secondary shadow-inner">
+                                    <div className="w-16 h-16 bg-[#F9FAFB] border border-[#ECECEC] rounded-3xl flex items-center justify-center text-[#E21E26] shadow-inner">
                                         <Globe size={28} />
                                     </div>
                                     <div>
-                                        <h4 className="text-lg font-bold text-white mb-1 uppercase tracking-tight">{page.title}</h4>
+                                        <h4 className="text-lg font-bold text-[#111111] mb-1 uppercase tracking-tight">{page.title}</h4>
                                         <div className="flex items-center gap-4">
-                                            <span className="text-[9px] font-black text-white/30 uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded border border-white/5 font-mono">
+                                            <span className="text-[9px] font-black text-[#6B7280] uppercase tracking-widest bg-[#F9FAFB] px-2 py-0.5 rounded border border-[#ECECEC] font-mono">
                                                 Path: /{page.slug}
                                             </span>
-                                            <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 ${page.isVisible ? 'text-green-500' : 'text-red-500'}`}>
+                                            <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 ${page.isVisible ? 'text-green-600' : 'text-red-600'}`}>
                                                 {page.isVisible ? <Eye size={12} /> : <EyeOff size={12} />} {page.isVisible ? 'VISIBLE' : 'HIDDEN'}
                                             </span>
                                         </div>
@@ -4070,13 +4045,13 @@ export default function AdminPanel() {
                                 <div className="flex items-center gap-3">
                                     <button 
                                         onClick={() => startEditingPage(page)}
-                                        className="p-4 bg-white/5 text-white/40 rounded-2xl hover:bg-white/10 hover:text-white border border-white/5 transition-all shadow-xl"
+                                        className="p-4 bg-[#F9FAFB] text-[#6B7280] rounded-2xl hover:bg-white hover:text-[#111111] border border-[#ECECEC] transition-all shadow-sm"
                                     >
                                         <Settings size={20} />
                                     </button>
                                     <button 
                                         onClick={() => adminService.deletePage(page.id)}
-                                        className="p-4 bg-white/5 text-white/20 rounded-2xl hover:bg-red-500/10 hover:text-red-500 border border-white/5 transition-all shadow-xl"
+                                        className="p-4 bg-[#F9FAFB] text-[#6B7280] rounded-2xl hover:bg-red-50 hover:text-red-600 border border-[#ECECEC] transition-all shadow-sm"
                                     >
                                         <Trash2 size={20} />
                                     </button>
@@ -4104,25 +4079,25 @@ export default function AdminPanel() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsAdding(false)}
-              className="absolute inset-0 bg-black/90 backdrop-blur-3xl"
+              className="absolute inset-0 bg-black/5 backdrop-blur-3xl"
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-xl bg-[#050E21] border border-white/10 rounded-[3.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] p-12 overflow-hidden"
+              className="relative w-full max-w-xl bg-[#F5F5F7] border border-[#ECECEC] rounded-[3.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] p-12 overflow-hidden"
             >
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-40" />
-              <h3 className="font-display font-black text-2xl text-white mb-10 flex items-center gap-4 uppercase tracking-[0.2em]">
+              <h3 className="font-display font-black text-2xl text-[#111111] mb-10 flex items-center gap-4 uppercase tracking-[0.2em]">
                   <Zap size={28} className="text-primary" /> Deploy Sale
               </h3>
 
               <div className="space-y-8">
                   <div className="space-y-3">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Mission Alias (Title)</label>
+                      <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2 font-mono">Mission Alias (Title)</label>
                       <input 
                           placeholder="e.g. Midnight Surge..." 
-                          className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-primary/40 font-bold transition-all"
+                          className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-primary/40 font-bold transition-all"
                           value={newPromotion.title}
                           onChange={e => setNewPromotion({...newPromotion, title: e.target.value})}
                       />
@@ -4130,19 +4105,19 @@ export default function AdminPanel() {
 
                   <div className="grid grid-cols-2 gap-6">
                       <div className="space-y-3">
-                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Discount Index (%)</label>
+                          <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2 font-mono">Discount Index (%)</label>
                           <input 
                               type="number" 
                               placeholder="5" 
-                              className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-primary/40 text-center font-black"
+                              className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-primary/40 text-center font-black"
                               value={newPromotion.percentage || 0}
                               onChange={e => setNewPromotion({...newPromotion, percentage: parseInt(e.target.value) || 0})}
                           />
                       </div>
                       <div className="space-y-3">
-                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Temporal Window (Hours)</label>
+                          <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2 font-mono">Temporal Window (Hours)</label>
                           <select 
-                              className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-primary/40 appearance-none text-center font-black"
+                              className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-primary/40 appearance-none text-center font-black"
                               value={newPromotion.duration}
                               onChange={e => setNewPromotion({...newPromotion, duration: parseInt(e.target.value) || 1})}
                           >
@@ -4158,9 +4133,9 @@ export default function AdminPanel() {
 
                   <div className="grid grid-cols-2 gap-6">
                       <div className="space-y-3">
-                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Target Protocol</label>
+                          <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2 font-mono">Target Protocol</label>
                           <select 
-                              className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-primary/40 appearance-none text-center font-bold"
+                              className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-primary/40 appearance-none text-center font-bold"
                               value={newPromotion.targetType}
                               onChange={e => setNewPromotion({...newPromotion, targetType: e.target.value, targetId: ''})}
                           >
@@ -4171,9 +4146,9 @@ export default function AdminPanel() {
                       </div>
                       {newPromotion.targetType !== 'all' && (
                           <div className="space-y-3">
-                              <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Target Identifier</label>
+                              <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2 font-mono">Target Identifier</label>
                               <select 
-                                  className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-primary/40 appearance-none text-center font-bold"
+                                  className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-primary/40 appearance-none text-center font-bold"
                                   value={newPromotion.targetId}
                                   onChange={e => setNewPromotion({...newPromotion, targetId: e.target.value})}
                               >
@@ -4203,23 +4178,23 @@ export default function AdminPanel() {
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setIsAdding(false)}
-              className="absolute inset-0 bg-black/90 backdrop-blur-3xl"
+              className="absolute inset-0 bg-black/5 backdrop-blur-3xl"
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-4xl bg-[#050E21] border border-white/10 rounded-[3.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] p-12 overflow-hidden max-h-[90vh] overflow-y-auto"
+              className="relative w-full max-w-4xl bg-white border border-[#ECECEC] rounded-[3.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] p-12 overflow-hidden max-h-[90vh] overflow-y-auto"
             >
-              <h3 className="font-display font-black text-2xl text-white mb-10 flex items-center gap-4 uppercase tracking-[0.2em]">
-                  <Sparkles size={28} className="text-secondary" /> Deploy Strategic Deal
+              <h3 className="font-display font-black text-2xl text-[#111111] mb-10 flex items-center gap-4 uppercase tracking-[0.2em]">
+                  <Sparkles size={28} className="text-[#E21E26]" /> Deploy Strategic Deal
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                 {/* Left Column: Basic Info & Discount */}
                 <div className="space-y-8">
                   <div className="space-y-3">
-                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">Deal Identity (Name)</label>
+                    <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] font-mono">Deal Identity (Name)</label>
                     <input 
-                      className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 font-black tracking-widest"
+                      className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-[#E21E26]/40 font-black tracking-widest"
                       value={newOffer.title}
                       placeholder="E.g. Lunar Midnight Sale"
                       onChange={e => setNewOffer({...newOffer, title: e.target.value})}
@@ -4228,9 +4203,9 @@ export default function AdminPanel() {
 
                   <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">Deal Archetype</label>
+                      <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] font-mono">Deal Archetype</label>
                       <select 
-                        className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-[11px] text-white outline-none font-black appearance-none"
+                        className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-[11px] text-[#111111] outline-none font-black appearance-none"
                         value={newOffer.type}
                         onChange={e => setNewOffer({...newOffer, type: e.target.value as any})}
                       >
@@ -4243,9 +4218,9 @@ export default function AdminPanel() {
                       </select>
                     </div>
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">Discount Logic</label>
+                      <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] font-mono">Discount Logic</label>
                       <select 
-                        className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-[11px] text-white outline-none font-black appearance-none"
+                        className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-[11px] text-[#111111] outline-none font-black appearance-none"
                         value={newOffer.discountType}
                         onChange={e => setNewOffer({...newOffer, discountType: e.target.value as any})}
                       >
@@ -4257,18 +4232,18 @@ export default function AdminPanel() {
 
                   <div className="grid grid-cols-2 gap-6">
                    <div className="space-y-3">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">Benefit Value</label>
+                      <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] font-mono">Benefit Value</label>
                       <input 
                         type="number"
-                        className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 font-black"
+                        className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-[#E21E26]/40 font-black"
                         value={newOffer.discountAmount || 0}
                         onChange={e => setNewOffer({...newOffer, discountAmount: parseInt(e.target.value) || 0})}
                       />
                     </div>
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">Target Scope</label>
+                      <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] font-mono">Target Scope</label>
                       <select 
-                        className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-[11px] text-white outline-none font-black appearance-none"
+                        className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-[11px] text-[#111111] outline-none font-black appearance-none"
                         value={newOffer.targetType}
                         onChange={e => setNewOffer({...newOffer, targetType: e.target.value as any, categoryId: '', subCategoryId: '', productIds: []})}
                       >
@@ -4282,9 +4257,9 @@ export default function AdminPanel() {
 
                   {newOffer.targetType === 'category' && (
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">Primary Vector (Category)</label>
+                      <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] font-mono">Primary Vector (Category)</label>
                       <select 
-                        className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-[11px] text-white outline-none font-black appearance-none"
+                        className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-[11px] text-[#111111] outline-none font-black appearance-none"
                         value={newOffer.categoryId}
                         onChange={e => setNewOffer({...newOffer, categoryId: e.target.value})}
                       >
@@ -4296,11 +4271,11 @@ export default function AdminPanel() {
 
                   {newOffer.targetType === 'products' && (
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">Product Matrix (IDs)</label>
+                      <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] font-mono">Product Matrix (IDs)</label>
                       <div className="relative">
                         <input 
                           placeholder="Select multiple products..."
-                          className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 font-bold"
+                          className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-[#E21E26]/40 font-bold"
                           readOnly
                           onClick={() => {
                             // Quick toggle logic could go here - for now let's use a simpler prompt/multiselect if needed
@@ -4310,7 +4285,7 @@ export default function AdminPanel() {
                         />
                         <div className="flex flex-wrap gap-2 mt-3">
                           {newOffer.productIds.map(id => (
-                            <span key={id} onClick={() => setNewOffer({...newOffer, productIds: newOffer.productIds.filter(pid => pid !== id)})} className="px-3 py-1 bg-white/10 rounded-full text-[9px] font-bold cursor-pointer hover:bg-red-500/20">
+                            <span key={id} onClick={() => setNewOffer({...newOffer, productIds: newOffer.productIds.filter(pid => pid !== id)})} className="px-3 py-1 bg-[#ECECEC] rounded-full text-[9px] font-bold cursor-pointer hover:bg-red-500/20">
                               {id.slice(0, 8)} ⨯
                             </span>
                           ))}
@@ -4321,19 +4296,19 @@ export default function AdminPanel() {
 
                   <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">Manifest Time</label>
+                      <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] font-mono">Manifest Time</label>
                       <input 
                         type="datetime-local" 
-                        className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-[11px] text-white outline-none"
+                        className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-[11px] text-[#111111] outline-none"
                         value={newOffer.startTime}
                         onChange={e => setNewOffer({...newOffer, startTime: e.target.value})}
                       />
                     </div>
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] font-mono">Termination Node</label>
+                      <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] font-mono">Termination Node</label>
                       <input 
                         type="datetime-local" 
-                        className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-[11px] text-white outline-none font-black"
+                        className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-[11px] text-[#111111] outline-none font-black"
                         value={newOffer.endTime}
                         onChange={e => setNewOffer({...newOffer, endTime: e.target.value})}
                       />
@@ -4347,10 +4322,10 @@ export default function AdminPanel() {
                   <div className="p-8 bg-blue-500/5 border border-blue-500/20 rounded-[3rem] space-y-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <Bell size={24} className="text-secondary" />
+                        <Bell size={24} className="text-[#E21E26]" />
                         <div>
-                          <h4 className="text-sm font-black text-white uppercase tracking-widest">Universal Echo</h4>
-                          <p className="text-[9px] text-white/40 font-bold uppercase tracking-widest">Broadcast Alert On Deployment</p>
+                          <h4 className="text-sm font-black text-[#111111] uppercase tracking-widest">Universal Echo</h4>
+                          <p className="text-[9px] text-[#6B7280] font-bold uppercase tracking-widest">Broadcast Alert On Deployment</p>
                         </div>
                       </div>
                       <input 
@@ -4364,21 +4339,21 @@ export default function AdminPanel() {
                     {newOffer.sendPush && (
                       <motion.div 
                         initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                        className="space-y-4 pt-4 border-t border-white/5"
+                        className="space-y-4 pt-4 border-t border-[#ECECEC]"
                       >
                         <div className="space-y-2">
-                          <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Broadcast Header</label>
+                          <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Broadcast Header</label>
                           <input 
-                            className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-secondary/20"
+                            className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[13px] text-[#111111] outline-none focus:border-[#E21E26]/20"
                             value={newOffer.pushTitle}
                             placeholder="🔥 MEGA SALE Pulse Detected!"
                             onChange={e => setNewOffer({...newOffer, pushTitle: e.target.value})}
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Neural Payload</label>
+                          <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Neural Payload</label>
                           <textarea 
-                            className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none focus:border-secondary/20 h-24 resize-none"
+                            className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[13px] text-[#111111] outline-none focus:border-[#E21E26]/20 h-24 resize-none"
                             value={newOffer.pushBody}
                             placeholder="Inject campaign narrative..."
                             onChange={e => setNewOffer({...newOffer, pushBody: e.target.value})}
@@ -4386,9 +4361,9 @@ export default function AdminPanel() {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Redirect Logic</label>
+                            <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Redirect Logic</label>
                             <select 
-                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[11px] text-white outline-none appearance-none font-bold"
+                              className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[11px] text-[#111111] outline-none appearance-none font-bold"
                               value={newOffer.redirectType}
                               onChange={e => setNewOffer({...newOffer, redirectType: e.target.value as any, redirectId: ''})}
                             >
@@ -4399,9 +4374,9 @@ export default function AdminPanel() {
                             </select>
                           </div>
                    <div className="space-y-2">
-                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Vector ID</label>
+                            <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Vector ID</label>
                             <input 
-                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[11px] text-white outline-none"
+                              className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[11px] text-[#111111] outline-none"
                               value={newOffer.redirectId}
                               placeholder="ID or URL"
                               onChange={e => setNewOffer({...newOffer, redirectId: e.target.value})}
@@ -4413,13 +4388,13 @@ export default function AdminPanel() {
                   </div>
 
                   {/* Details Page Panel */}
-                  <div className="p-8 bg-secondary/5 border border-secondary/20 rounded-[3rem] space-y-6">
+                  <div className="p-8 bg-[#E21E26]/5 border border-[#E21E26]/20 rounded-[3rem] space-y-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <FileText size={24} className="text-primary" />
                         <div>
-                          <h4 className="text-sm font-black text-white uppercase tracking-widest">Immersive Portal</h4>
-                          <p className="text-[9px] text-white/40 font-bold uppercase tracking-widest">Genesis Custom Details Page</p>
+                          <h4 className="text-sm font-black text-[#111111] uppercase tracking-widest">Immersive Portal</h4>
+                          <p className="text-[9px] text-[#6B7280] font-bold uppercase tracking-widest">Genesis Custom Details Page</p>
                         </div>
                       </div>
                       <input 
@@ -4433,20 +4408,20 @@ export default function AdminPanel() {
                     {newOffer.hasDetailsPage && (
                       <motion.div 
                         initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                        className="space-y-4 pt-4 border-t border-white/5"
+                        className="space-y-4 pt-4 border-t border-[#ECECEC]"
                       >
                        <div className="space-y-2">
-                          <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Manifesto Title</label>
+                          <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Manifesto Title</label>
                           <input 
-                            className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none"
+                            className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[13px] text-[#111111] outline-none"
                             value={newOffer.detailsTitle}
                             onChange={e => setNewOffer({...newOffer, detailsTitle: e.target.value})}
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Narrative Content</label>
+                          <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Narrative Content</label>
                           <textarea 
-                            className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-[13px] text-white outline-none h-32 resize-none"
+                            className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[13px] text-[#111111] outline-none h-32 resize-none"
                             value={newOffer.detailsDescription}
                             onChange={e => setNewOffer({...newOffer, detailsDescription: e.target.value})}
                           />
@@ -4465,13 +4440,13 @@ export default function AdminPanel() {
               <div className="flex items-center gap-6 mt-12">
                 <button 
                   onClick={() => setIsAdding(false)}
-                  className="flex-1 py-8 bg-white/5 text-white/40 rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] hover:bg-white/10 transition-all"
+                  className="flex-1 py-8 bg-[#ECECEC] text-[#6B7280] rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] hover:bg-[#ECECEC] transition-all"
                 >
                   Abort Mission
                 </button>
                 <button 
                   onClick={handleCreateOffer}
-                  className="flex-[2] py-8 bg-secondary text-black rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-[0_15px_40px_rgba(255,215,0,0.2)] hover:scale-[1.02] active:scale-95 transition-all"
+                  className="flex-[2] py-8 bg-[#E21E26] text-white rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-[0_15px_40px_rgba(255,215,0,0.2)] hover:scale-[1.02] active:scale-95 transition-all"
                 >
                   Authorize Deployment
                 </button>
@@ -4486,25 +4461,25 @@ export default function AdminPanel() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsAdding(false)}
-              className="absolute inset-0 bg-black/90 backdrop-blur-3xl"
+              className="absolute inset-0 bg-black/5 backdrop-blur-3xl"
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-xl bg-[#050E21] border border-white/10 rounded-[3.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] p-12 overflow-hidden"
+              className="relative w-full max-w-xl bg-[#F5F5F7] border border-[#ECECEC] rounded-[3.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] p-12 overflow-hidden"
             >
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-secondary to-transparent opacity-40" />
-              <h3 className="font-display font-black text-2xl text-white mb-10 flex items-center gap-4 uppercase tracking-[0.2em]">
-                  <Percent size={28} className="text-secondary" /> Manifest Token
+              <h3 className="font-display font-black text-2xl text-[#111111] mb-10 flex items-center gap-4 uppercase tracking-[0.2em]">
+                  <Percent size={28} className="text-[#E21E26]" /> Manifest Token
               </h3>
 
               <div className="space-y-6">
                   <div className="space-y-3">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Token Access Code</label>
+                      <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2 font-mono">Token Access Code</label>
                       <input 
                           placeholder="e.g. MEGA500..." 
-                          className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-lg text-white outline-none focus:border-secondary/40 font-black tracking-widest transition-all text-center uppercase"
+                          className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-lg text-[#111111] outline-none focus:border-[#E21E26]/40 font-black tracking-widest transition-all text-center uppercase"
                           value={newCoupon.code}
                           onChange={e => setNewCoupon({...newCoupon, code: e.target.value.toUpperCase()})}
                       />
@@ -4512,9 +4487,9 @@ export default function AdminPanel() {
 
                   <div className="grid grid-cols-2 gap-6">
                       <div className="space-y-3">
-                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Protocol Type</label>
+                          <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2 font-mono">Protocol Type</label>
                           <select 
-                              className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 text-center font-black appearance-none"
+                              className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-[#E21E26]/40 text-center font-black appearance-none"
                               value={newCoupon.type}
                               onChange={e => setNewCoupon({...newCoupon, type: e.target.value as any})}
                           >
@@ -4523,10 +4498,10 @@ export default function AdminPanel() {
                           </select>
                       </div>
                       <div className="space-y-3">
-                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Index Value</label>
+                          <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2 font-mono">Index Value</label>
                           <input 
                               type="number" 
-                              className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 text-center font-black"
+                              className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-[#E21E26]/40 text-center font-black"
                               value={newCoupon.value || 0}
                               onChange={e => setNewCoupon({...newCoupon, value: parseInt(e.target.value) || 0})}
                           />
@@ -4535,19 +4510,19 @@ export default function AdminPanel() {
 
                   <div className="grid grid-cols-2 gap-6">
                       <div className="space-y-3">
-                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Min Threshold (৳)</label>
+                          <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2 font-mono">Min Threshold (৳)</label>
                           <input 
                               type="number" 
-                              className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 text-center font-black"
+                              className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-[#E21E26]/40 text-center font-black"
                               value={newCoupon.minOrder || 0}
                               onChange={e => setNewCoupon({...newCoupon, minOrder: parseInt(e.target.value) || 0})}
                           />
                       </div>
                       <div className="space-y-3">
-                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Usage Limit</label>
+                          <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2 font-mono">Usage Limit</label>
                           <input 
                               type="number" 
-                              className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 text-center font-black"
+                              className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-[#E21E26]/40 text-center font-black"
                               value={newCoupon.usageLimit || 0}
                               onChange={e => setNewCoupon({...newCoupon, usageLimit: parseInt(e.target.value) || 0})}
                           />
@@ -4555,10 +4530,10 @@ export default function AdminPanel() {
                   </div>
 
                   <div className="space-y-3">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Expiration Chronology</label>
+                      <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2 font-mono">Expiration Chronology</label>
                       <input 
                           type="date" 
-                          className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 text-center font-black"
+                          className="w-full px-8 py-5 bg-[#FFFFFF] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-[#E21E26]/40 text-center font-black"
                           value={newCoupon.expiryDate}
                           onChange={e => setNewCoupon({...newCoupon, expiryDate: e.target.value})}
                       />
@@ -4566,7 +4541,7 @@ export default function AdminPanel() {
 
                   <button 
                       onClick={handleCreateCoupon}
-                      className="w-full py-6 mt-4 bg-secondary text-black rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-secondary/20 hover:scale-[1.02] active:scale-95 transition-all"
+                      className="w-full py-6 mt-4 bg-[#E21E26] text-white rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-[#E21E26]/20 hover:scale-[1.02] active:scale-95 transition-all"
                   >
                       Register Token
                   </button>
@@ -4582,20 +4557,20 @@ export default function AdminPanel() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsAdding(false)}
-              className="absolute inset-0 bg-black/90 backdrop-blur-3xl"
+              className="absolute inset-0 bg-black/5 backdrop-blur-3xl"
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-2xl bg-[#050E21] border border-white/10 rounded-[3.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.8)] p-12 overflow-y-auto max-h-[90vh] scrollbar-hide"
+              className="relative w-full max-w-2xl bg-white border border-[#ECECEC] rounded-[3.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.1)] p-12 overflow-y-auto max-h-[90vh] scrollbar-hide"
             >
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-secondary to-transparent opacity-40" />
+              <div className="absolute top-0 left-0 w-full h-1 bg-[#E21E26] opacity-40" />
               <div className="flex justify-between items-start mb-10">
-                <h3 className="font-display font-black text-2xl text-white flex items-center gap-4 uppercase tracking-[0.2em]">
-                    <Layout size={28} className="text-secondary" /> {editingPageId ? 'Refactor Node' : 'Initialize Node'}
+                <h3 className="font-display font-black text-2xl text-[#111111] flex items-center gap-4 uppercase tracking-[0.2em]">
+                    <Layout size={28} className="text-[#E21E26]" /> {editingPageId ? 'Edit Page' : 'Create Page'}
                 </h3>
-                <button onClick={() => setIsAdding(false)} className="p-2 bg-white/5 border border-white/10 rounded-xl text-white/40 hover:text-white">
+                <button onClick={() => setIsAdding(false)} className="p-2 bg-[#F9FAFB] border border-[#ECECEC] rounded-xl text-[#6B7280] hover:text-[#111111]">
                   <X size={20} />
                 </button>
               </div>
@@ -4603,19 +4578,19 @@ export default function AdminPanel() {
               <div className="space-y-6">
                   <div className="grid grid-cols-2 gap-6">
                       <div className="space-y-3">
-                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Matrix Header (Title)</label>
+                          <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2 font-mono">Page Title</label>
                           <input 
                               placeholder="e.g. Privacy Policy..." 
-                              className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 font-bold transition-all"
+                              className="w-full px-8 py-5 bg-[#F9FAFB] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-[#E21E26]/40 font-bold transition-all"
                               value={newPage.title}
                               onChange={e => setNewPage({...newPage, title: e.target.value})}
                           />
                       </div>
                       <div className="space-y-3">
-                          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Routing Vector (Slug)</label>
+                          <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2 font-mono">Page URL (Slug)</label>
                           <input 
                               placeholder="e.g. privacy-policy" 
-                              className="w-full px-8 py-5 bg-black/40 border border-white/5 rounded-3xl text-sm text-white outline-none focus:border-secondary/40 font-mono transition-all"
+                              className="w-full px-8 py-5 bg-[#F9FAFB] border border-[#ECECEC] rounded-3xl text-sm text-[#111111] outline-none focus:border-[#E21E26]/40 font-mono transition-all"
                               value={newPage.slug}
                               onChange={e => setNewPage({...newPage, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})}
                           />
@@ -4623,49 +4598,49 @@ export default function AdminPanel() {
                   </div>
 
                   <div className="space-y-3">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] ml-2 font-mono">Narrative Payload (Markdown Content)</label>
+                      <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2 font-mono">Page Content (Markdown supports formatting)</label>
                       <textarea 
                           placeholder="Enter page content in markdown format..." 
-                          className="w-full px-8 py-6 bg-black/40 border border-white/5 rounded-[2.5rem] text-sm text-white/80 outline-none focus:border-secondary/40 h-64 resize-none leading-relaxed font-sans"
+                          className="w-full px-8 py-6 bg-[#F9FAFB] border border-[#ECECEC] rounded-[2.5rem] text-sm text-[#111111] outline-none focus:border-[#E21E26]/40 h-64 resize-none leading-relaxed font-sans"
                           value={newPage.content}
                           onChange={e => setNewPage({...newPage, content: e.target.value})}
                       />
                   </div>
 
-                  <div className="bg-black/20 p-8 rounded-[2.5rem] border border-white/5 space-y-4">
-                      <h4 className="text-[10px] font-black text-secondary uppercase tracking-[0.3em] flex items-center gap-2">
-                          <Search size={14} /> Cognitive Extraction (SEO)
+                  <div className="bg-[#F9FAFB] p-8 rounded-[2.5rem] border border-[#ECECEC] space-y-4">
+                      <h4 className="text-[10px] font-black text-[#E21E26] uppercase tracking-[0.3em] flex items-center gap-2">
+                          <Search size={14} /> SEO Details
                       </h4>
                       <div className="grid grid-cols-1 gap-4">
                           <input 
-                              placeholder="SEO Master Title" 
-                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-xs text-white"
+                              placeholder="SEO Meta Title" 
+                              className="w-full px-6 py-4 bg-white border border-[#ECECEC] rounded-2xl text-xs text-[#111111]"
                               value={newPage.seoTitle}
                               onChange={e => setNewPage({...newPage, seoTitle: e.target.value})}
                           />
                           <textarea 
-                              placeholder="SEO Meta Narrative" 
-                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-xs text-white h-20 resize-none"
+                              placeholder="SEO Meta Description (optional)" 
+                              className="w-full px-6 py-4 bg-white border border-[#ECECEC] rounded-2xl text-xs text-[#111111] h-20 resize-none"
                               value={newPage.seoDescription}
                               onChange={e => setNewPage({...newPage, seoDescription: e.target.value})}
                           />
                           <input 
                               placeholder="Keywords (comma separated)" 
-                              className="w-full px-6 py-4 bg-black/40 border border-white/5 rounded-2xl text-xs text-white"
+                              className="w-full px-6 py-4 bg-white border border-[#ECECEC] rounded-2xl text-xs text-[#111111]"
                               value={newPage.seoKeywords}
                               onChange={e => setNewPage({...newPage, seoKeywords: e.target.value})}
                           />
                       </div>
                   </div>
 
-                  <div className="flex items-center justify-between px-6 py-4 bg-white/5 border border-white/5 rounded-[2rem]">
+                  <div className="flex items-center justify-between px-6 py-4 bg-[#F9FAFB] border border-[#ECECEC] rounded-[2rem]">
                       <div className="flex items-center gap-3">
-                          <Eye size={18} className="text-secondary" />
-                          <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">Global Visibility</span>
+                          <Eye size={18} className="text-[#E21E26]" />
+                          <span className="text-[10px] font-black text-[#6B7280] uppercase tracking-widest">Visibility</span>
                       </div>
                       <button 
                           onClick={() => setNewPage({...newPage, isVisible: !newPage.isVisible})}
-                          className={`w-12 h-6 rounded-full transition-all relative ${newPage.isVisible ? 'bg-secondary' : 'bg-white/10'}`}
+                          className={`w-12 h-6 rounded-full transition-all relative ${newPage.isVisible ? 'bg-[#E21E26]' : 'bg-[#ECECEC]'}`}
                       >
                           <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${newPage.isVisible ? 'right-1' : 'left-1'}`} />
                       </button>
@@ -4673,9 +4648,9 @@ export default function AdminPanel() {
 
                   <button 
                       onClick={handleAddPage}
-                      className="w-full py-6 bg-secondary text-black rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-secondary/30 hover:scale-[1.02] transition-all active:scale-95 mt-4"
+                      className="w-full py-6 bg-[#E21E26] text-white rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-xl shadow-[#E21E26]/20 hover:scale-[1.02] transition-all active:scale-95 mt-4"
                   >
-                      {editingPageId ? 'Commit Shift' : 'Initialize Node'}
+                      {editingPageId ? 'Save Changes' : 'Create Page'}
                   </button>
               </div>
             </motion.div>

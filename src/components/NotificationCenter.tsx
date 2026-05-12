@@ -81,7 +81,7 @@ export default function NotificationCenter() {
       case 'order': return <Package className="text-primary" size={16} />;
       case 'promo': return <Tag className="text-orange-500" size={16} />;
       case 'payment': return <CreditCard className="text-blue-500" size={16} />;
-      default: return <Info className="text-slate-400" size={16} />;
+      default: return <Info className="text-[#6B7280]" size={16} />;
     }
   };
 
@@ -114,10 +114,10 @@ export default function NotificationCenter() {
               <div className="flex-1 min-w-0 pr-2">
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest px-2 py-0.5 bg-blue-50 rounded-full">System</span>
-                  <span className="text-[10px] text-slate-400 font-bold">Now</span>
+                  <span className="text-[10px] text-[#6B7280] font-bold">Now</span>
                 </div>
                 <h4 className="text-sm font-bold text-slate-800 truncate leading-snug">{activeToast.title}</h4>
-                <p className="text-[11px] text-slate-500 truncate leading-relaxed">{activeToast.message}</p>
+                <p className="text-[11px] text-[#6B7280] truncate leading-relaxed">{activeToast.message}</p>
               </div>
             </motion.div>
           )}
@@ -128,7 +128,7 @@ export default function NotificationCenter() {
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2 rounded-full hover:bg-slate-100 transition-colors"
       >
-        <Bell size={20} className="text-slate-600" />
+        <Bell size={20} className="text-[#6B7280]" />
         {unreadCount > 0 && (
           <span className="absolute top-1 right-1 h-3.5 w-3.5 bg-red-500 text-white text-[8px] flex items-center justify-center rounded-full border-2 border-white font-black">
             {unreadCount}
@@ -145,16 +145,16 @@ export default function NotificationCenter() {
                animate={{ opacity: 1 }}
                exit={{ opacity: 0 }}
                onClick={() => setIsOpen(false)}
-               className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[45] md:hidden"
+               className="fixed inset-0 bg-[#121212]/40 backdrop-blur-sm z-[45] md:hidden"
             />
             
             <motion.div
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="fixed inset-x-4 top-24 md:absolute md:inset-auto md:right-0 md:top-full md:mt-3 w-auto md:w-96 bg-white rounded-[2.5rem] md:rounded-3xl shadow-2xl border border-slate-100 z-50 overflow-hidden font-sans"
+              className="fixed inset-x-4 top-24 md:absolute md:inset-auto md:right-0 md:top-full md:mt-3 w-auto md:w-96 bg-white rounded-[2.5rem] md:rounded-3xl shadow-2xl border border-[#ECECEC] z-50 overflow-hidden font-sans"
             >
-            <div className="px-5 py-4 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
+            <div className="px-5 py-4 border-b border-slate-50 bg-[#F5F5F7]/50 flex items-center justify-between">
               <h3 className="font-bold text-sm text-slate-800">Notifications</h3>
               {unreadCount > 0 && (
                 <button 
@@ -176,21 +176,21 @@ export default function NotificationCenter() {
                 notifications.map((notif) => (
                   <div 
                     key={notif.id} 
-                    className={`p-4 border-b border-slate-50 relative group transition-colors hover:bg-slate-50 ${!notif.read ? 'bg-primary/5' : ''}`}
+                    className={`p-4 border-b border-slate-50 relative group transition-colors hover:bg-[#F5F5F7] ${!notif.read ? 'bg-primary/5' : ''}`}
                     onClick={() => handleMarkAsRead(notif.id)}
                   >
                     <div className="flex gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 rounded-2xl bg-white border border-[#ECECEC] shadow-sm flex items-center justify-center flex-shrink-0">
                         {getTypeIcon(notif.type)}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-0.5">
-                           <span className="text-[10px] text-slate-400 font-bold">
+                           <span className="text-[10px] text-[#6B7280] font-bold">
                              {notif.createdAt?.toDate ? format(notif.createdAt.toDate(), 'h:mm a') : 'Now'}
                            </span>
                         </div>
                         <h4 className="text-xs font-bold text-slate-800 mb-0.5">{notif.title}</h4>
-                        <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">{notif.message}</p>
+                        <p className="text-[11px] text-[#6B7280] line-clamp-2 leading-relaxed">{notif.message}</p>
                         
                         {notif.link && (
                           <Link to={notif.link} onClick={() => setIsOpen(false)} className="mt-2 inline-flex items-center gap-1 text-[10px] font-black text-primary uppercase tracking-widest hover:underline">
@@ -207,10 +207,10 @@ export default function NotificationCenter() {
               )}
             </div>
 
-             <div className="p-3 bg-slate-50/50 text-center border-t border-slate-50">
+             <div className="p-3 bg-[#F5F5F7]/50 text-center border-t border-slate-50">
                 <button 
                   onClick={() => NotificationService.clearNotifications(notifications)}
-                  className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-primary transition-colors"
+                  className="text-[10px] font-black text-[#6B7280] uppercase tracking-widest hover:text-primary transition-colors"
                 >
                   Clear History
                 </button>

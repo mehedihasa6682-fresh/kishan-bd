@@ -23,14 +23,14 @@ export default function PWAInstall() {
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 50, opacity: 0 }}
-        className="fixed bottom-24 left-4 right-4 z-[100] bg-[#050E21] border border-[#D4AF37]/30 p-4 rounded-[2.5rem] flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.5)] md:max-w-md md:left-auto md:right-8"
+        className="fixed bottom-24 left-4 right-4 z-[100] bg-[#F5F5F7] border border-[#D50000]/30 p-4 rounded-[2.5rem] flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.5)] md:max-w-md md:left-auto md:right-8"
       >
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-2xl flex items-center justify-center shrink-0 shadow-inner">
+          <div className="w-12 h-12 bg-[#D50000]/10 border border-[#D50000]/30 rounded-2xl flex items-center justify-center shrink-0 shadow-inner">
             {appSettings.logo ? (
                 <img src={appSettings.logo} className="w-8 h-8 object-contain" alt="Logo" />
             ) : (
-                <Download size={24} className="text-[#D4AF37]" />
+                <Download size={24} className="text-[#D50000]" />
             )}
           </div>
           <div>
@@ -42,7 +42,7 @@ export default function PWAInstall() {
         <div className="flex items-center gap-3">
             <button 
               onClick={pwa.install}
-              className="bg-[#D4AF37] text-black px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest flex items-center gap-2 shadow-[0_10px_20px_rgba(212,175,55,0.2)] active:scale-90 transition-all border border-white/20"
+              className="bg-[#D50000] text-black px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest flex items-center gap-2 shadow-[0_10px_20px_rgba(212,175,55,0.2)] active:scale-90 transition-all border border-white/20"
             >
               ইনস্টল
             </button>

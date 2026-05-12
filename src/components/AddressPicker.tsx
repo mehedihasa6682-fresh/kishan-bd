@@ -173,23 +173,23 @@ export default function AddressPicker({ onSave, onClose, initialData }: AddressP
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[9999] bg-zinc-950 flex flex-col md:max-w-md md:mx-auto md:relative md:h-[90vh] md:rounded-[3rem] md:shadow-2xl overflow-hidden border-x border-white/5"
+      className="fixed inset-0 z-[9999] bg-white flex flex-col md:max-w-md md:mx-auto md:relative md:h-[90vh] md:rounded-[3rem] md:shadow-2xl overflow-hidden border-x border-[#ECECEC]"
     >
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 z-[1001] p-5 flex items-center justify-between">
         <button 
           onClick={onClose}
-          className="w-12 h-12 bg-black/40 backdrop-blur-md rounded-2xl shadow-xl flex items-center justify-center text-white border border-white/10 active:scale-95 transition-all"
+          className="w-12 h-12 bg-white rounded-2xl shadow-xl flex items-center justify-center text-[#111111] border border-[#ECECEC] active:scale-95 transition-all hover:bg-[#F9FAFB]"
         >
           <X size={24} />
         </button>
         <div className="relative flex-1 mx-4">
-             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
+             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6B7280]">
                 <Search size={18} />
              </div>
              <input 
-                placeholder="Search global grid..."
-                className="w-full bg-black/40 backdrop-blur-md rounded-2xl py-3.5 pl-12 pr-4 text-xs shadow-2xl border border-white/10 outline-none focus:border-primary text-white font-medium"
+                placeholder="Search delivery location..."
+                className="w-full bg-white rounded-2xl py-3.5 pl-12 pr-4 text-xs shadow-2xl border border-[#ECECEC] outline-none focus:border-primary text-[#111111] font-medium"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 onKeyDown={async (e) => {
@@ -241,7 +241,7 @@ export default function AddressPicker({ onSave, onClose, initialData }: AddressP
         <button 
           onClick={locateMe}
           disabled={locating}
-          className="absolute bottom-24 right-5 z-[1001] w-14 h-14 bg-primary rounded-2xl shadow-2xl flex items-center justify-center text-black active:scale-95 transition-all border-4 border-black"
+          className="absolute bottom-24 right-5 z-[1001] w-14 h-14 bg-primary rounded-2xl shadow-2xl flex items-center justify-center text-white active:scale-95 transition-all border-4 border-white"
         >
           <Navigation2 size={28} className={locating ? 'animate-pulse' : ''} />
         </button>
@@ -249,19 +249,19 @@ export default function AddressPicker({ onSave, onClose, initialData }: AddressP
         {/* Manual Input Toggle Button */}
         <button 
           onClick={() => setManualMode(!manualMode)}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-[1001] bg-white/10 backdrop-blur-md text-white px-8 py-3.5 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3 border border-white/10"
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-[1001] bg-white text-[#111111] px-8 py-3.5 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3 border border-[#ECECEC]"
         >
           {manualMode ? <MapIcon size={18} className="text-primary" /> : <Search size={18} className="text-primary" />}
-          {manualMode ? 'View Terrain' : 'Manual Coordinates'}
+          {manualMode ? 'View Map' : 'Select Manually'}
         </button>
       </div>
 
 
       {/* Form Section (Bottom Sheet Style) */}
-      <div className="flex-1 bg-zinc-950 rounded-t-[3.5rem] -mt-10 relative z-[1002] shadow-[0_-20px_50px_rgba(0,0,0,0.5)] px-8 pt-10 pb-12 overflow-y-auto no-scrollbar border-t border-white/10">
-        <div className="w-16 h-1.5 bg-white/10 rounded-full mx-auto mb-8"></div>
+      <div className="flex-1 bg-white rounded-t-[3.5rem] -mt-10 relative z-[1002] shadow-[0_-20px_50px_rgba(0,0,0,0.1)] px-8 pt-10 pb-12 overflow-y-auto no-scrollbar border-t border-[#ECECEC]">
+        <div className="w-16 h-1.5 bg-[#ECECEC] rounded-full mx-auto mb-8"></div>
         
-        <h3 className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-6 ml-1">Drop Zone Classification</h3>
+        <h3 className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] mb-6 ml-1">Address Details</h3>
         
         {/* Address Type Selectors */}
         <div className="flex gap-4 mb-10">
@@ -275,8 +275,8 @@ export default function AddressPicker({ onSave, onClose, initialData }: AddressP
               onClick={() => setData(prev => ({ ...prev, type: type.id as any }))}
               className={`flex-1 py-4 px-2 rounded-2xl flex flex-col items-center justify-center gap-2 font-black transition-all border ${
                 data.type === type.id 
-                ? 'bg-primary border-primary text-black shadow-2xl shadow-primary/20 scale-105' 
-                : 'bg-white/5 border-white/5 text-white/40'
+                ? 'bg-primary border-primary text-white shadow-xl shadow-primary/20 scale-105' 
+                : 'bg-[#F9FAFB] border-[#ECECEC] text-[#6B7280]'
               }`}
             >
               <type.icon size={20} />
@@ -289,12 +289,12 @@ export default function AddressPicker({ onSave, onClose, initialData }: AddressP
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-4">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Personal Identifier</label>
+              <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Receiver Name</label>
               <div className="relative group">
-                <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" />
+                <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6B7280]/40 group-focus-within:text-primary transition-colors" />
                 <input 
-                  placeholder="Receiver Name"
-                  className="input-field pl-12"
+                  placeholder="Full Name"
+                  className="input-field pl-12 bg-[#F9FAFB] border-[#ECECEC] text-[#111111]"
                   value={data.firstName}
                   onChange={e => setData(prev => ({ ...prev, firstName: e.target.value }))}
                 />
@@ -304,25 +304,25 @@ export default function AddressPicker({ onSave, onClose, initialData }: AddressP
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Signal Core (Phone)</label>
+              <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Phone Number</label>
               <div className="relative group">
-                <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" />
+                <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6B7280]/40 group-focus-within:text-primary transition-colors" />
                 <input 
                   placeholder="017xxxxxxxx"
-                  className="input-field pl-12"
+                  className="input-field pl-12 bg-[#F9FAFB] border-[#ECECEC] text-[#111111]"
                   value={data.phone}
                   onChange={e => setData(prev => ({ ...prev, phone: e.target.value }))}
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Digital Tag (Email)</label>
+              <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Email (Optional)</label>
               <div className="relative group">
-                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" />
+                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6B7280]/40 group-focus-within:text-primary transition-colors" />
                 <input 
                   type="email"
-                  placeholder="user@neuron.io"
-                  className="input-field pl-12"
+                  placeholder="user@example.com"
+                  className="input-field pl-12 bg-[#F9FAFB] border-[#ECECEC] text-[#111111]"
                   value={data.email}
                   onChange={e => setData(prev => ({ ...prev, email: e.target.value }))}
                 />
@@ -331,10 +331,10 @@ export default function AddressPicker({ onSave, onClose, initialData }: AddressP
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Sector Manifest (Address)</label>
+            <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Delivery Address</label>
             <textarea 
-              placeholder={loading ? 'Scanning terrain...' : 'Sector, Road, Grid Coordinates...'}
-              className="input-field h-28 resize-none leading-relaxed py-4"
+              placeholder={loading ? 'Checking address...' : 'Street, Building, Flat...'}
+              className="input-field h-28 resize-none leading-relaxed py-4 bg-[#F9FAFB] border-[#ECECEC] text-[#111111]"
               value={data.address}
               onChange={e => setData(prev => ({ ...prev, address: e.target.value }))}
             />
@@ -342,22 +342,22 @@ export default function AddressPicker({ onSave, onClose, initialData }: AddressP
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Elevation (Floor)</label>
+              <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Floor Number</label>
               <div className="relative group">
-                <Building size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" />
+                <Building size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6B7280]/40 group-focus-within:text-primary transition-colors" />
                 <input 
-                  placeholder="Level 04"
-                  className="input-field pl-12"
+                  placeholder="e.g. 4th Floor"
+                  className="input-field pl-12 bg-[#F9FAFB] border-[#ECECEC] text-[#111111]"
                   value={data.floorNo}
                   onChange={e => setData(prev => ({ ...prev, floorNo: e.target.value }))}
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Unit ID (Apartment)</label>
+              <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Flat / Apt</label>
               <input 
-                placeholder="ID-402"
-                className="input-field px-6"
+                placeholder="e.g. A-4"
+                className="input-field px-6 bg-[#F9FAFB] border-[#ECECEC] text-[#111111]"
                 value={data.apartment}
                 onChange={e => setData(prev => ({ ...prev, apartment: e.target.value }))}
               />
@@ -367,9 +367,9 @@ export default function AddressPicker({ onSave, onClose, initialData }: AddressP
           <button 
             onClick={handleSave}
             disabled={loading}
-            className="w-full bg-primary hover:bg-primary-dark text-black font-black py-5 rounded-[2.5rem] shadow-2xl shadow-primary/30 active:scale-95 transition-all mt-8 uppercase text-xs tracking-[0.3em]"
+            className="w-full bg-primary text-white font-black py-5 rounded-[2.5rem] shadow-xl shadow-primary/20 active:scale-95 transition-all mt-8 uppercase text-xs tracking-[0.3em] hover:bg-[#B71C1C]"
           >
-            Authenticate Location
+            Save Address
           </button>
         </div>
       </div>

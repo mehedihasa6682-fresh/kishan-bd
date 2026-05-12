@@ -121,7 +121,7 @@ export default function Navbar() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 28, opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="fixed top-0 left-0 right-0 z-[60] bg-slate-900 text-white h-7 overflow-hidden"
+            className="fixed top-0 left-0 right-0 z-[60] bg-[#121212] text-white h-7 overflow-hidden"
           >
             <div className="max-w-md mx-auto h-full px-4 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -134,7 +134,7 @@ export default function Navbar() {
       </AnimatePresence>
 
       <nav 
-        className={`fixed ${appSettings.announcementBar ? 'top-7' : 'top-0'} left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-[#050E21]/95 shadow-lg py-2' : 'bg-[#050E21]/80 shadow-sm py-3'} border-b border-[#D4AF37]/30 px-4 h-auto backdrop-blur-md`}
+        className={`fixed ${appSettings.announcementBar ? 'top-7' : 'top-0'} left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-[#FFFFFF]/95 shadow-lg py-2 border-b border-[#ECECEC]' : `bg-[#FFFFFF]/95 shadow-sm pt-3 pb-2 ${(location.pathname === '/' || location.pathname === '/discounts') ? 'border-b-0' : 'border-b border-[#ECECEC]'}`} px-4 h-auto backdrop-blur-md`}
         style={{ borderStyle: 'solid', fontFamily: 'Outfit, sans-serif' }}
       >
         <div className="max-w-6xl mx-auto w-full">
@@ -153,17 +153,17 @@ export default function Navbar() {
                     <img src={appSettings.logo} className="h-7 w-auto object-contain" alt="Logo" />
                 ) : (
                     <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center shadow-lg border border-white/10">
+                        <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center shadow-lg border border-primary/10">
                             <span className="text-white font-black text-xs">{appSettings.appName ? appSettings.appName[0] : 'S'}</span>
                         </div>
-                        <span className="font-display font-black text-sm tracking-tight text-white">{appSettings.appName || 'সদাই ভাই'}</span>
+                        <span className="font-display font-black text-sm tracking-tight text-[#111111]">{appSettings.appName || 'সদাই ভাই'}</span>
                     </div>
                 )}
             </Link>
 
             <div className="flex items-center gap-6">
               {/* Desktop Navigation Links */}
-              <div className="hidden md:flex items-center gap-6 mr-4 border-r border-white/5 pr-6">
+              <div className="hidden md:flex items-center gap-6 mr-4 border-r border-[#ECECEC] pr-6">
                 {[
                   { label: language === 'bn' ? 'হোম' : 'Home', path: '/' },
                   { label: language === 'bn' ? 'ক্যাটাগরি' : 'Categories', path: '/products' },
@@ -177,7 +177,7 @@ export default function Navbar() {
                     key={link.path} 
                     to={link.path}
                     className={`text-[10px] font-black uppercase tracking-widest transition-colors ${
-                      location.pathname === link.path ? 'text-primary' : 'text-white/60 hover:text-white'
+                      location.pathname === link.path ? 'text-primary' : 'text-[#6B7280] hover:text-[#111111]'
                     }`}
                   >
                     {link.label} {link.suffix && <span className="text-primary ml-0.5">{link.suffix}</span>}
@@ -188,7 +188,7 @@ export default function Navbar() {
               <InstallButton />
               <button 
                 onClick={toggleLanguage}
-                className="w-7 h-7 flex items-center justify-center bg-white/10 rounded-lg text-white hover:bg-white/20 transition-all border border-white/10"
+                className="w-7 h-7 flex items-center justify-center bg-white rounded-lg text-[#111111] hover:bg-[#ECECEC] transition-all border border-[#E5E7EB]"
                 title={language === 'bn' ? 'Switch to English' : 'বাংলায় দেখুন'}
               >
                 <span className="text-[9px] font-bold">
@@ -198,7 +198,7 @@ export default function Navbar() {
               
               <button 
                 onClick={() => setIsDrawerOpen(true)}
-                className="w-7 h-7 flex items-center justify-center bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-lg text-[#D4AF37] hover:bg-[#D4AF37]/20 transition-all shadow-[0_0_15px_rgba(212,175,55,0.1)]"
+                className="w-7 h-7 md:hidden flex items-center justify-center bg-primary/10 border border-primary/30 rounded-lg text-primary hover:bg-primary/20 transition-all"
               >
                 <Menu size={16} />
               </button>
@@ -207,16 +207,16 @@ export default function Navbar() {
 
           {/* Row 2: Search Bar - When scrolled on Home/Discounts, icons move here */}
           {(location.pathname === '/' || location.pathname === '/discounts') && (
-            <div className="flex items-center gap-3">
-              <form ref={searchRef} onSubmit={handleSearch} className="relative group flex-1 md:max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary transition-colors" size={16} />
+            <div className="flex justify-center items-center gap-3 w-full">
+              <form ref={searchRef} onSubmit={handleSearch} className="relative group w-full md:max-w-2xl">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280] group-focus-within:text-primary transition-colors" size={16} />
                 <input 
                   type="text" 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
                   placeholder={language === 'bn' ? "আপনি কী খুঁজছেন?" : "What are you looking for?"}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-12 text-[11px] text-white placeholder:text-white/20 outline-none focus:bg-white/10 focus:border-primary/40 transition-all font-medium"
+                  className="w-full bg-white border border-[#E5E7EB] rounded-xl py-2.5 pl-10 pr-12 text-[11px] text-[#111111] placeholder:text-[#6B7280]/50 outline-none focus:bg-white focus:border-primary/40 transition-all font-medium"
                 />
                 
                 <AnimatePresence>
@@ -225,7 +225,7 @@ export default function Navbar() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
-                      className="absolute top-full left-0 right-0 mt-2 bg-[#050E21] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-[100] backdrop-blur-xl"
+                      className="absolute top-full left-0 right-0 mt-2 bg-white border border-[#E5E7EB] rounded-2xl shadow-2xl overflow-hidden z-[100]"
                     >
                       {suggestions.map((p) => (
                         <button
@@ -240,23 +240,23 @@ export default function Navbar() {
                             }
                             navigate(`/product/${p.id}`);
                           }}
-                          className="w-full flex items-center gap-3 p-3 hover:bg-white/5 transition-colors border-b border-white/5 last:border-0 text-left group"
+                          className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors border-b border-[#ECECEC] last:border-0 text-left group"
                         >
-                          <div className="w-10 h-10 rounded-lg overflow-hidden bg-white/5 flex-shrink-0">
+                          <div className="w-10 h-10 rounded-lg overflow-hidden bg-white flex-shrink-0">
                             <img src={p.image || appSettings.logo} alt="" className="w-full h-full object-cover" />
                           </div>
                           <div className="flex-1 min-w-0">
-                             <p className="text-[10px] font-bold text-white group-hover:text-primary transition-colors truncate">
+                             <p className="text-[10px] font-bold text-[#111111] group-hover:text-primary transition-colors truncate">
                                {language === 'bn' ? (p.name || p.nameEn) : (p.nameEn || p.name)}
                              </p>
-                             <p className="text-[8px] text-white/40 uppercase tracking-widest">{p.category}</p>
+                             <p className="text-[8px] text-[#6B7280] uppercase tracking-widest">{p.category}</p>
                           </div>
-                          <ChevronRight size={12} className="text-white/20 group-hover:text-primary transition-colors" />
+                          <ChevronRight size={12} className="text-[#6B7280]/20 group-hover:text-primary transition-colors" />
                         </button>
                       ))}
                       <button
                         type="submit"
-                        className="w-full p-3 bg-primary/10 text-primary text-[9px] font-black uppercase tracking-widest hover:bg-primary/20 transition-all"
+                        className="w-full p-3 bg-primary/5 text-primary text-[9px] font-black uppercase tracking-widest hover:bg-primary/10 transition-all font-display"
                       >
                          {language === 'bn' ? 'সবগুলো দেখুন' : 'See All Results'}
                       </button>
@@ -282,7 +282,7 @@ export default function Navbar() {
                 <InstallButton />
                 <button 
                     onClick={() => setIsDrawerOpen(true)}
-                    className="w-9 h-9 flex items-center justify-center bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-xl text-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.1)]"
+                    className="w-9 h-9 flex items-center justify-center bg-primary/10 border border-primary/30 rounded-xl text-primary shadow-[0_0_15px_rgba(212,175,55,0.1)]"
                 >
                     <Menu size={18} />
                 </button>
@@ -304,25 +304,25 @@ export default function Navbar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsDrawerOpen(false)}
-              className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm"
+              className="fixed inset-0 z-[70] bg-[#FFFFFF] backdrop-blur-sm"
             />
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed right-0 top-0 bottom-0 z-[80] w-[280px] bg-[#050E21]/95 backdrop-blur-2xl border-l border-[#D4AF37]/20 shadow-2xl flex flex-col"
+              className="fixed right-0 top-0 bottom-0 z-[80] w-[280px] bg-white backdrop-blur-2xl border-l border-[#ECECEC] shadow-2xl flex flex-col"
             >
-              <div className="p-6 border-b border-white/5 flex items-center justify-between">
+              <div className="p-6 border-b border-[#ECECEC] flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
                      <Layout size={20} className="text-primary" />
                   </div>
-                  <span className="font-display font-black text-xs uppercase tracking-widest text-white">{language === 'bn' ? 'মেনু' : 'Menu'}</span>
+                  <span className="font-display font-black text-xs uppercase tracking-widest text-[#111111]">{language === 'bn' ? 'মেনু' : 'Menu'}</span>
                 </div>
                 <button 
                   onClick={() => setIsDrawerOpen(false)}
-                  className="w-8 h-8 flex items-center justify-center bg-white/5 rounded-lg text-white/40 hover:text-white transition-colors"
+                  className="w-8 h-8 flex items-center justify-center bg-white rounded-lg text-[#6B7280] hover:text-[#111111] transition-colors"
                 >
                   <X size={18} />
                 </button>
@@ -330,14 +330,14 @@ export default function Navbar() {
 
               <div className="flex-1 overflow-y-auto p-6 space-y-8">
                 {/* Install App Promotion */}
-                <div className="p-4 bg-[#D4AF37]/10 rounded-2xl border border-[#D4AF37]/20 mb-2 flex items-center justify-between">
+                <div className="p-4 bg-primary/10 rounded-2xl border border-primary/20 mb-2 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                     <div className="w-8 h-8 bg-[#D4AF37] rounded-lg flex items-center justify-center">
-                        <ShoppingBag size={16} className="text-black" />
+                     <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                        <ShoppingBag size={16} className="text-white" />
                      </div>
                      <div className="flex flex-col">
-                        <span className="text-[10px] font-black text-white uppercase tracking-wider">{language === 'bn' ? 'অ্যাপ নেই?' : 'No App?'}</span>
-                        <span className="text-[8px] text-white/40 uppercase tracking-widest">{language === 'bn' ? 'ইনস্টল করুন' : 'Install Now'}</span>
+                        <span className="text-[10px] font-black text-[#111111] uppercase tracking-wider">{language === 'bn' ? 'অ্যাপ নেই?' : 'No App?'}</span>
+                        <span className="text-[8px] text-[#6B7280] uppercase tracking-widest">{language === 'bn' ? 'ইনস্টল করুন' : 'Install Now'}</span>
                      </div>
                   </div>
                   <InstallButton />
@@ -345,19 +345,19 @@ export default function Navbar() {
 
                 {/* Main Links */}
                 <div className="space-y-3">
-                   <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] ml-2">{language === 'bn' ? 'অ্যাকাউন্ট' : 'Account'}</p>
+                   <p className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2">{language === 'bn' ? 'অ্যাকাউন্ট' : 'Account'}</p>
                    {menuItems.map((item, idx) => (
                       <Link 
                         key={idx} 
                         to={item.path}
-                        className="flex items-center justify-between p-4 bg-white/5 hover:bg-primary/10 rounded-2xl border border-white/5 hover:border-primary/20 transition-all group"
+                        className="flex items-center justify-between p-4 bg-white hover:bg-primary/5 rounded-2xl border border-[#ECECEC] hover:border-primary/20 transition-all group"
                       >
                          <div className="flex items-center gap-4">
-                            <item.icon size={18} className="text-white/40 group-hover:text-primary transition-colors" />
-                            <span className="text-[13px] font-bold text-white group-hover:text-primary-light transition-colors">{item.label}</span>
+                            <item.icon size={18} className="text-[#6B7280] group-hover:text-primary transition-colors" />
+                            <span className="text-[13px] font-bold text-[#111111] group-hover:text-primary transition-colors">{item.label}</span>
                          </div>
                          {item.count !== undefined && item.count > 0 && (
-                            <span className="bg-primary text-black text-[9px] font-black px-2 py-0.5 rounded-full shadow-lg shadow-primary/20">{item.count}</span>
+                            <span className="bg-primary text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-lg shadow-primary/20">{item.count}</span>
                          )}
                       </Link>
                    ))}
@@ -365,17 +365,17 @@ export default function Navbar() {
 
                 {/* Policies & Dynamic Pages */}
                 <div className="space-y-3">
-                   <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] ml-2">{language === 'bn' ? 'অন্যান্য' : 'Others'}</p>
+                   <p className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.3em] ml-2">{language === 'bn' ? 'অন্যান্য' : 'Others'}</p>
                    {policyItems.map((item, idx) => {
                       const exists = dynamicPages.some(p => p.slug === item.slug);
                       return (
                          <Link 
                            key={idx} 
                            to={exists ? `/page/${item.slug}` : '/#'}
-                           className={`flex items-center gap-4 p-4 ${exists ? 'bg-white/5 hover:bg-secondary/10 border border-white/5 hover:border-secondary/20 transition-all group' : 'opacity-40 cursor-not-allowed'} rounded-2xl`}
+                           className={`flex items-center gap-4 p-4 ${exists ? 'bg-white hover:bg-gray-100 border border-[#ECECEC] transition-all group' : 'opacity-40 cursor-not-allowed'} rounded-2xl`}
                          >
-                            <item.icon size={18} className={`text-white/40 ${exists ? 'group-hover:text-secondary transition-colors' : ''}`} />
-                            <span className={`text-[13px] font-bold text-white ${exists ? 'group-hover:text-secondary-light transition-colors' : ''}`}>{item.label}</span>
+                            <item.icon size={18} className={`text-[#6B7280] ${exists ? 'group-hover:text-[#111111] transition-colors' : ''}`} />
+                            <span className={`text-[13px] font-bold text-[#111111] ${exists ? 'group-hover:text-[#D50000] transition-colors' : ''}`}>{item.label}</span>
                          </Link>
                       );
                    })}
@@ -385,18 +385,18 @@ export default function Navbar() {
                       <Link 
                         key={page.id} 
                         to={`/page/${page.slug}`}
-                        className="flex items-center gap-4 p-4 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/5 hover:border-white/20 transition-all group"
+                        className="flex items-center gap-4 p-4 bg-white hover:bg-gray-100 rounded-2xl border border-[#ECECEC] transition-all group"
                       >
-                         <Layout size={18} className="text-white/40 group-hover:text-white transition-colors" />
-                         <span className="text-[13px] font-bold text-white group-hover:text-white transition-colors">{page.title}</span>
+                         <Layout size={18} className="text-[#6B7280] group-hover:text-[#111111] transition-colors" />
+                         <span className="text-[13px] font-bold text-[#111111] group-hover:text-[#111111] transition-colors">{page.title}</span>
                       </Link>
                    ))}
                 </div>
               </div>
 
-              <div className="p-8 bg-black/40 border-t border-white/5 text-center">
-                 <p className="text-[9px] font-black text-white/10 uppercase tracking-[0.5em]">{appSettings.appName || 'সদাই ভাই'}</p>
-                 <p className="text-[8px] text-white/5 mt-2 font-mono">v3.0.4 Premium Elite</p>
+              <div className="p-8 bg-[#FFFFFF]/80 border-t border-[#ECECEC] text-center">
+                 <p className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.5em]">{appSettings.appName || 'সদাই ভাই'}</p>
+                 <p className="text-[8px] text-[#6B7280]/30 mt-2 font-mono">v3.0.4 Premium Elite</p>
               </div>
             </motion.div>
           </>

@@ -123,7 +123,7 @@ export default function Auth() {
             uid: user.uid,
             email: user.email,
             displayName: user.displayName,
-            photoURL: user.photoURL,
+            photoURL: user.photoURL || null,
             role: 'customer',
             createdAt: serverTimestamp(),
             lastLogin: serverTimestamp()
@@ -133,10 +133,12 @@ export default function Auth() {
         }
       } else {
         try {
-          await updateDoc(doc(db, 'users', user.uid), {
-            lastLogin: serverTimestamp(),
-            photoURL: user.photoURL || docSnap.data().photoURL
-          });
+          const updateData: any = { lastLogin: serverTimestamp() };
+          const photoURL = user.photoURL || docSnap.data().photoURL;
+          if (photoURL !== undefined) {
+            updateData.photoURL = photoURL || null;
+          }
+          await updateDoc(doc(db, 'users', user.uid), updateData);
         } catch (err) {
           handleFirestoreError(err, OperationType.UPDATE, `users/${user.uid}`);
         }
@@ -153,35 +155,35 @@ export default function Auth() {
       <div className="flex flex-col items-center mb-8">
         <div className="mb-6">
           {settings.logo ? (
-            <img src={settings.logo} className="w-20 h-20 object-contain drop-shadow-2xl" alt={settings.appName} />
+            <img src={settings.logo} className="w-20 h-20 object-contain drop-shadow-xl" alt={settings.appName} />
           ) : (
-            <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-3xl flex items-center justify-center text-primary shadow-xl">
+            <div className="w-16 h-16 bg-[#F9FAFB] border border-[#ECECEC] rounded-3xl flex items-center justify-center text-primary shadow-sm">
               {isResetting ? <Mail size={32} /> : (isLogin ? <LogIn size={32} /> : <UserPlus size={32} />)}
             </div>
           )}
         </div>
-        <h2 className="text-2xl font-display font-bold text-white">
-          {isResetting ? 'Reset Password' : (isLogin ? `Log in to ${settings.appName || 'সদাই ভাই'}` : 'Create Account')}
+        <h2 className="text-2xl font-display font-black text-[#111111] uppercase tracking-tight">
+          {isResetting ? 'Restore Access' : (isLogin ? `Log in to ${settings.appName || 'সদাই ভাই'}` : 'Create Account')}
         </h2>
-        <p className="text-white/40 text-xs font-medium mt-1">
-          {isResetting ? 'Enter your email to receive a reset link' : (isLogin ? 'Login to your account' : 'Join our grocery community')}
+        <p className="text-[#6B7280] text-[10px] font-black uppercase tracking-[0.2em] mt-2">
+          {isResetting ? 'Enter your email to receive a reset link' : (isLogin ? 'Access your digital pantry' : 'Join Shwapno Fresh')}
         </p>
       </div>
 
       {!isLogin && !isResetting && (
         <div className="flex flex-wrap gap-2 mb-6">
-          <button 
-            onClick={() => setRole('customer')}
-            className={`flex-1 min-w-[100px] py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-              role === 'customer' ? 'bg-primary text-black border-primary' : 'bg-white/5 text-white/40 border-white/5'
-            }`}
-          >
+            <button 
+              onClick={() => setRole('customer')}
+              className={`flex-1 min-w-[100px] py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                role === 'customer' ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'bg-[#F9FAFB] text-[#6B7280] border-[#ECECEC]'
+              }`}
+            >
             Customer
           </button>
-          <button 
+            <button 
             onClick={() => setRole('seller')}
             className={`flex-1 min-w-[100px] py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-              role === 'seller' ? 'bg-primary text-black border-primary shadow-lg shadow-primary/20' : 'bg-white/5 text-white/40 border-white/5'
+              role === 'seller' ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'bg-[#F9FAFB] text-[#6B7280] border-[#ECECEC]'
             }`}
           >
             Seller
@@ -189,7 +191,7 @@ export default function Auth() {
           <button 
             onClick={() => setRole('rider')}
             className={`flex-1 min-w-[100px] py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-              role === 'rider' ? 'bg-primary text-black border-primary shadow-lg shadow-primary/20' : 'bg-white/5 text-white/40 border-white/5'
+              role === 'rider' ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'bg-[#F9FAFB] text-[#6B7280] border-[#ECECEC]'
             }`}
           >
             Rider
@@ -200,11 +202,11 @@ export default function Auth() {
       <form onSubmit={isResetting ? handleResetPassword : handleManualAuth} className="space-y-4">
         {!isLogin && !isResetting && (
           <div className="relative group">
-            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary transition-colors" size={18} />
+            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6B7280]/40 group-focus-within:text-primary transition-colors" size={18} />
             <input 
               required
               placeholder="Your Full Name"
-              className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/5 rounded-3xl text-sm outline-none focus:border-primary transition-all text-white"
+              className="input-field pl-12 font-bold"
               value={name}
               onChange={e => setName(e.target.value)}
             />
@@ -215,33 +217,33 @@ export default function Auth() {
           <>
             {role === 'seller' && (
               <div className="relative group">
-                <Store className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary transition-colors" size={18} />
+                <Store className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6B7280]/40 group-focus-within:text-primary transition-colors" size={18} />
                 <input 
                   required
                   placeholder="Store Name"
-                  className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/5 rounded-3xl text-sm outline-none focus:border-primary transition-all text-white"
+                  className="input-field pl-12 font-bold"
                   value={storeName}
                   onChange={e => setStoreName(e.target.value)}
                 />
               </div>
             )}
             <div className="relative group">
-              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary transition-colors" size={18} />
+              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6B7280]/40 group-focus-within:text-primary transition-colors" size={18} />
               <input 
                 required
                 placeholder="Phone Number"
-                className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/5 rounded-3xl text-sm outline-none focus:border-primary transition-all text-white"
+                className="input-field pl-12 font-bold"
                 value={phone}
                 onChange={e => setPhone(e.target.value)}
               />
             </div>
             {role === 'seller' && (
               <div className="relative group">
-                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary transition-colors" size={18} />
+                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6B7280]/40 group-focus-within:text-primary transition-colors" size={18} />
                 <input 
                   required
                   placeholder="Farm/Store Address"
-                  className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/5 rounded-3xl text-sm outline-none focus:border-primary transition-all text-white"
+                  className="input-field pl-12 font-bold"
                   value={address}
                   onChange={e => setAddress(e.target.value)}
                 />
@@ -251,12 +253,12 @@ export default function Auth() {
         )}
 
         <div className="relative group">
-          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary transition-colors" size={18} />
+          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6B7280]/40 group-focus-within:text-primary transition-colors" size={18} />
           <input 
             required
             type="email"
             placeholder="Email Address"
-            className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/5 rounded-3xl text-sm outline-none focus:border-primary transition-all text-white"
+            className="input-field pl-12 font-bold"
             value={email}
             onChange={e => setEmail(e.target.value)}
           />
@@ -264,12 +266,12 @@ export default function Auth() {
 
         {!isResetting && (
           <div className="relative group">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary transition-colors" size={18} />
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6B7280]/40 group-focus-within:text-primary transition-colors" size={18} />
             <input 
               required
               type="password"
               placeholder="Password"
-              className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/5 rounded-3xl text-sm outline-none focus:border-primary transition-all text-white"
+              className="input-field pl-12 font-bold"
               value={password}
               onChange={e => setPassword(e.target.value)}
             />
@@ -281,7 +283,7 @@ export default function Auth() {
             <button 
               type="button"
               onClick={() => setIsResetting(true)}
-              className="text-[10px] font-bold text-primary hover:underline uppercase tracking-widest"
+              className="text-[10px] font-black text-primary hover:underline uppercase tracking-widest"
             >
               Forgot Password?
             </button>
@@ -294,9 +296,9 @@ export default function Auth() {
         <button 
           type="submit"
           disabled={loading}
-          className="w-full py-4 bg-primary text-black rounded-[2rem] font-bold text-sm shadow-xl hover:bg-primary-dark transition-all active:scale-[0.98] flex items-center justify-center gap-2 group disabled:opacity-50"
+          className="w-full py-5 bg-primary text-white rounded-[2rem] font-black text-[11px] uppercase tracking-[0.3em] shadow-xl hover:bg-[#B71C1C] transition-all active:scale-[0.98] flex items-center justify-center gap-2 group disabled:opacity-50"
         >
-          {loading ? 'Processing...' : (isResetting ? 'Send Reset Link' : (isLogin ? 'Login Account' : 'Register Now'))}
+          {loading ? 'Processing...' : (isResetting ? 'Send Reset Link' : (isLogin ? 'Access Account' : 'Register Now'))}
           <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
         </button>
 
@@ -304,7 +306,7 @@ export default function Auth() {
           <button 
             type="button"
             onClick={() => setIsResetting(false)}
-            className="w-full text-center text-xs text-white/40 font-bold hover:text-white transition-colors"
+            className="w-full text-center text-xs text-[#6B7280] font-black uppercase tracking-widest hover:text-[#111111] transition-colors"
           >
             Back to Login
           </button>
@@ -312,27 +314,27 @@ export default function Auth() {
       </form>
 
       <div className="my-8 flex items-center gap-4">
-        <div className="flex-1 h-[1px] bg-white/5" />
-        <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">or continue with</span>
-        <div className="flex-1 h-[1px] bg-white/5" />
+        <div className="flex-1 h-[1px] bg-[#ECECEC]" />
+        <span className="text-[10px] font-black text-[#6B7280]/40 uppercase tracking-widest">or continue with</span>
+        <div className="flex-1 h-[1px] bg-[#ECECEC]" />
       </div>
 
       <button 
         onClick={handleGoogleLogin}
         disabled={loading}
-        className="w-full py-4 bg-white/5 border border-white/5 text-white/80 rounded-[2rem] font-bold text-sm shadow-sm hover:border-primary transition-all flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-50"
+        className="w-full py-4 bg-white border border-[#ECECEC] text-[#111111] rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] shadow-sm hover:border-primary transition-all flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-50"
       >
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5 shadow-sm rounded-full" alt="Google" />
-        Google Account
+        Google Auth
       </button>
 
-      <p className="mt-8 text-center text-xs text-white/40 font-medium">
-        {isLogin ? "Don't have an account?" : "Already have an account?"}
+      <p className="mt-8 text-center text-[10px] text-[#6B7280] font-black uppercase tracking-widest">
+        {isLogin ? "No account?" : "Have an account?"}
         <button 
           onClick={() => setIsLogin(!isLogin)}
-          className="ml-1 text-primary font-bold hover:underline"
+          className="ml-2 text-primary font-black hover:underline"
         >
-          {isLogin ? 'Register' : 'Login'}
+          {isLogin ? 'Join Now' : 'Sign In'}
         </button>
       </p>
     </div>

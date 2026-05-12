@@ -95,7 +95,7 @@ export default function DealDetails() {
         
         <button 
           onClick={() => navigate(-1)}
-          className="absolute top-6 left-6 p-4 bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl text-white hover:bg-white/10 transition-all z-20"
+          className="absolute top-6 left-6 p-4 bg-[#FFFFFF] backdrop-blur-xl border border-white/10 rounded-2xl text-white hover:bg-white/10 transition-all z-20"
         >
           <ArrowLeft size={24} />
         </button>

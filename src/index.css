@@ -5,15 +5,20 @@
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Outfit", sans-serif;
 
-  --color-primary: #D4AF37;
-  --color-primary-dark: #B8860B;
-  --color-royal-blue: #0A1F44;
-  --color-dark-blue: #050E21;
-  --color-secondary: #0A1F44;
-  --color-accent: #D4AF37;
-  --color-background: #050E21;
-  --color-surface: #0A1F44;
-  --color-card: rgba(255, 255, 255, 0.1);
+  --color-primary: #E21E26;
+  --color-primary-dark: #B71C1C;
+  --color-royal-blue: #FFFFFF;
+  --color-dark-blue: #FFFFFF;
+  --color-secondary: #6B7280;
+  --color-accent: #E21E26;
+  --color-background: #FFFFFF;
+  --color-surface: #FFFFFF;
+  --color-card: #FFFFFF;
+  --color-border: #ECECEC;
+  --color-text-primary: #111111;
+  --color-text-secondary: #6B7280;
+  --color-input: #FFFFFF;
+  --color-input-border: #E5E7EB;
 
   @keyframes bounce-slow {
     0%, 100% { transform: translateY(-10%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
@@ -35,9 +40,7 @@ html, body {
 
 @layer base {
   body {
-    @apply text-white font-sans antialiased;
-    background: linear-gradient(to bottom, var(--color-dark-blue), var(--color-royal-blue));
-    background-attachment: fixed;
+    @apply text-[#111111] font-sans antialiased bg-[#FFFFFF];
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
   }
@@ -55,24 +58,23 @@ html, body {
 
 @layer components {
   .glass-card {
-    @apply backdrop-blur-xl border border-white/20 shadow-2xl rounded-3xl text-white;
-    background: rgba(255, 255, 255, 0.1);
+    @apply bg-white border border-[#ECECEC] shadow-sm rounded-3xl text-[#111111];
   }
   
   .btn-primary {
-    @apply bg-primary hover:bg-primary-dark text-black font-bold py-3 px-6 rounded-2xl transition-all duration-300 shadow-[0_0_15px_rgba(212,175,55,0.3)] active:scale-95 flex items-center justify-center gap-2;
+    @apply bg-[#121212] hover:bg-black text-white font-bold py-3 px-6 rounded-2xl transition-all duration-300 shadow-md active:scale-95 flex items-center justify-center gap-2;
   }
 
   .btn-secondary {
-    @apply bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-6 rounded-2xl transition-all duration-300 border border-white/10 shadow-md active:scale-95 flex items-center justify-center gap-2;
+    @apply bg-white hover:bg-gray-50 text-[#111111] font-semibold py-3 px-6 rounded-2xl transition-all duration-300 border border-[#E5E7EB] shadow-sm active:scale-95 flex items-center justify-center gap-2;
   }
 
   .input-field {
-    @apply w-full bg-white/5 border border-white/20 rounded-2xl py-3 px-4 text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-white/30 backdrop-blur-md;
+    @apply w-full bg-[#F9FAFB] border border-[#ECECEC] rounded-2xl py-3 px-4 text-[#111111] focus:ring-2 focus:ring-[#E21E26] focus:border-transparent outline-none transition-all placeholder:text-[#6B7280]/40 font-medium;
   }
 
   .card-container {
-    @apply bg-white/10 border border-white/20 rounded-3xl p-5 shadow-xl backdrop-blur-md;
+    @apply bg-white border border-[#ECECEC] rounded-3xl p-5 shadow-sm;
   }
 
   .scrollbar-hide::-webkit-scrollbar {

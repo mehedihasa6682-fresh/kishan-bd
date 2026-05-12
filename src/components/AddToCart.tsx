@@ -52,7 +52,7 @@ export const AddToCart: React.FC<AddToCartProps> = ({
   };
 
   return (
-    <div className="w-full relative h-10 overflow-hidden rounded-xl border border-[#D4AF37]/30 bg-[#D4AF37]/10 backdrop-blur-md shadow-lg group-hover:border-[#D4AF37]/60 transition-all">
+    <div className="w-full relative h-10 overflow-hidden rounded-xl border border-[#ECECEC] bg-white shadow-sm group-hover:border-primary/30 transition-all">
       <AnimatePresence mode="wait">
         {!isAdded ? (
           <motion.button
@@ -60,12 +60,12 @@ export const AddToCart: React.FC<AddToCartProps> = ({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            whileHover={{ backgroundColor: 'rgba(212, 175, 55, 0.2)' }}
+            whileHover={{ backgroundColor: '#E21E26', color: '#FFFFFF' }}
             whileTap={{ scale: 0.95 }}
             onClick={handleAddClick}
-            className="w-full h-full flex items-center justify-center text-[12px] font-black uppercase tracking-[0.3em] text-[#D4AF37]"
+            className="w-full h-full flex items-center justify-center text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:text-white transition-colors"
           >
-            Add
+            Add to Bag
           </motion.button>
         ) : (
           <motion.div
@@ -73,12 +73,12 @@ export const AddToCart: React.FC<AddToCartProps> = ({
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, y: 10 }}
-            className="w-full h-full flex items-center justify-between px-1"
+            className="w-full h-full flex items-center justify-between px-1 bg-primary"
           >
             <motion.button
               whileTap={{ scale: 0.8 }}
               onClick={handleDecrement}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-white/60 hover:bg-white/10 hover:text-white transition-colors"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-white/80 hover:bg-white/20 hover:text-white transition-colors"
             >
               <Minus size={16} strokeWidth={3} />
             </motion.button>
@@ -88,7 +88,7 @@ export const AddToCart: React.FC<AddToCartProps> = ({
                 key={quantity}
                 initial={{ y: 5, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                className="text-sm font-black text-[#D4AF37] drop-shadow-[0_0_10px_rgba(212,175,55,0.6)]"
+                className="text-sm font-black text-white"
               >
                 {quantity}
               </motion.span>
@@ -97,7 +97,7 @@ export const AddToCart: React.FC<AddToCartProps> = ({
             <motion.button
               whileTap={{ scale: 0.8 }}
               onClick={handleIncrement}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-[#D4AF37] hover:bg-[#D4AF37]/20 transition-colors"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-white/80 hover:bg-white/20 hover:text-white transition-colors"
             >
               <Plus size={16} strokeWidth={3} />
             </motion.button>

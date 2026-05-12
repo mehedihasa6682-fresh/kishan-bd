@@ -52,7 +52,7 @@ export default function TrackingMap({ status, riderLocation, destination }: Trac
       <div className="absolute inset-0 flex items-center justify-between px-10">
         <div className="relative">
             <div className={`w-4 h-4 rounded-full border-2 border-white shadow-md ${progress >= 40 ? 'bg-primary' : 'bg-slate-300'}`} />
-            <span className="absolute top-6 left-1/2 -translate-x-1/2 text-[8px] font-bold text-slate-400 whitespace-nowrap">Warehouse</span>
+            <span className="absolute top-6 left-1/2 -translate-x-1/2 text-[8px] font-bold text-[#6B7280] whitespace-nowrap">Warehouse</span>
         </div>
 
         <motion.div 
@@ -73,21 +73,21 @@ export default function TrackingMap({ status, riderLocation, destination }: Trac
 
         <div className="relative">
             <div className={`w-4 h-4 rounded-full border-2 border-white shadow-md ${progress >= 100 ? 'bg-green-500' : 'bg-slate-300'}`} />
-            <span className="absolute top-6 left-1/2 -translate-x-1/2 text-[8px] font-bold text-slate-400 whitespace-nowrap">Home</span>
+            <span className="absolute top-6 left-1/2 -translate-x-1/2 text-[8px] font-bold text-[#6B7280] whitespace-nowrap">Home</span>
             {progress >= 100 && <CheckCircle2 size={12} className="absolute -top-4 left-1/2 -translate-x-1/2 text-green-500" />}
         </div>
       </div>
 
       {/* Status Tags */}
       <div className="absolute bottom-4 left-6 right-6 flex justify-between">
-          <div className="bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-slate-100 flex items-center gap-2 shadow-sm">
+          <div className="bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-[#ECECEC] flex items-center gap-2 shadow-sm">
               <Navigation2 size={10} className="text-primary rotate-45" />
-              <span className="text-[9px] font-black uppercase text-slate-600 tracking-wider">
+              <span className="text-[9px] font-black uppercase text-[#6B7280] tracking-wider">
                   {status === 'shipped' ? `Live: ${distance} away` : `Distance: ${distance}`}
               </span>
           </div>
-          <div className="bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-slate-100 flex items-center gap-2 shadow-sm">
-              <span className="text-[9px] font-black uppercase text-slate-600 tracking-wider">ETA: 12 min</span>
+          <div className="bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-[#ECECEC] flex items-center gap-2 shadow-sm">
+              <span className="text-[9px] font-black uppercase text-[#6B7280] tracking-wider">ETA: 12 min</span>
           </div>
       </div>
     </div>

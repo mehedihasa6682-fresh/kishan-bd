@@ -105,7 +105,7 @@ export default function Products() {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-7xl mx-auto pb-10 px-2"
+      className="max-w-7xl mx-auto pb-10 px-2 min-h-screen bg-white"
     >
       <Helmet>
         <title>{selectedCategory.title === 'All' ? 'Products' : dData(selectedCategory.title, selectedCategory.titleEn)} - {t('app.name') || 'সদাই ভাই'}</title>
@@ -113,31 +113,31 @@ export default function Products() {
         <meta property="og:title" content={`${selectedCategory.title === 'All' ? 'Products' : dData(selectedCategory.title, selectedCategory.titleEn)} - Store`} />
       </Helmet>
       <div className="px-5 mb-6">
-        <h1 className="font-display font-bold text-2xl mb-6 text-white">Explore Products</h1>
+        <h1 className="font-display font-bold text-2xl mb-6 text-[#111111]">Explore Products</h1>
         
         <div className="flex gap-3 mb-6">
           <div className="relative flex-1 group">
-            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary transition-colors" />
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6B7280]/40 group-focus-within:text-primary transition-colors" />
             <input
               type="text"
               placeholder={t('home.search_placeholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/5 rounded-2xl shadow-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm text-white"
+              className="w-full pl-11 pr-4 py-3 bg-[#F9FAFB] border border-[#ECECEC] rounded-2xl shadow-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm text-[#111111]"
             />
           </div>
           <div className="relative">
             <select
               value={sortBy}
               onChange={(e: any) => setSortBy(e.target.value)}
-              className="appearance-none p-3 pr-8 bg-white/5 border border-white/5 rounded-2xl shadow-sm text-xs font-bold outline-none focus:ring-2 focus:ring-primary transition-all text-white/60"
+              className="appearance-none p-3 pr-8 bg-[#F9FAFB] border border-[#ECECEC] rounded-2xl shadow-sm text-xs font-bold outline-none focus:ring-2 focus:ring-primary transition-all text-[#6B7280]"
             >
-              <option value="default" className="bg-black text-white">Default</option>
-              <option value="priceLow" className="bg-black text-white">Price: Low to High</option>
-              <option value="priceHigh" className="bg-black text-white">Price: High to Low</option>
-              <option value="rating" className="bg-black text-white">Top Rated</option>
+              <option value="default" className="bg-white text-[#111111]">Default</option>
+              <option value="priceLow" className="bg-white text-[#111111]">Price: Low to High</option>
+              <option value="priceHigh" className="bg-white text-[#111111]">Price: High to Low</option>
+              <option value="rating" className="bg-white text-[#111111]">Top Rated</option>
             </select>
-            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280]/40 pointer-events-none" />
           </div>
         </div>
 
@@ -153,11 +153,11 @@ export default function Products() {
             }`}
           >
             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
-              selectedCategory.title === 'All' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'bg-white/5 border border-white/5 text-white/60'
+              selectedCategory.title === 'All' ? 'bg-primary text-white shadow-lg' : 'bg-[#F9FAFB] border border-[#ECECEC] text-[#6B7280]'
             }`}>
               <Filter size={20} />
             </div>
-            <span className="text-[10px] font-bold text-white/80">All</span>
+            <span className={`text-[10px] font-bold ${selectedCategory.title === 'All' ? 'text-primary' : 'text-[#6B7280]'}`}>All</span>
           </button>
 
           {categoriesToShow.map((cat) => (
@@ -172,7 +172,7 @@ export default function Products() {
               }`}
             >
               <div className={`w-14 h-14 rounded-2xl overflow-hidden transition-all ${
-                selectedCategory.title === cat.title ? 'ring-2 ring-primary ring-offset-2 ring-offset-black shadow-lg shadow-primary/20' : 'bg-white/5 border border-white/5'
+                selectedCategory.title === cat.title ? 'ring-2 ring-primary ring-offset-2 ring-offset-white shadow-md' : 'bg-[#F9FAFB] border border-[#ECECEC]'
               }`}>
                 <img 
                   src={cat.image || appSettings.logo} 
@@ -181,7 +181,7 @@ export default function Products() {
                   alt={dData(cat.title, cat.titleEn)} 
                 />
               </div>
-              <span className="text-[10px] font-bold whitespace-nowrap text-white/80">{dData(cat.title, cat.titleEn)}</span>
+              <span className={`text-[10px] font-bold whitespace-nowrap ${selectedCategory.title === cat.title ? 'text-primary' : 'text-[#6B7280]'}`}>{dData(cat.title, cat.titleEn)}</span>
             </button>
           ))}
         </div>
@@ -199,8 +199,8 @@ export default function Products() {
                         onClick={() => setSelectedSubCategory('All')}
                         className={`px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all border ${
                             selectedSubCategory === 'All'
-                                ? 'bg-primary text-black border-primary shadow-lg shadow-primary/20'
-                                : 'bg-white/5 text-white/40 border-white/5 hover:border-white/20'
+                                ? 'bg-[#121212] text-white border-[#121212] shadow-sm'
+                                : 'bg-white text-[#6B7280] border-[#ECECEC] hover:border-primary'
                         }`}
                     >
                         Everything
@@ -211,8 +211,8 @@ export default function Products() {
                             onClick={() => setSelectedSubCategory(sub)}
                             className={`px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all border ${
                                 selectedSubCategory === sub
-                                    ? 'bg-primary text-black border-primary shadow-lg shadow-primary/20'
-                                    : 'bg-white/5 text-white/40 border-white/5 hover:border-white/20'
+                                    ? 'bg-[#121212] text-white border-[#121212] shadow-sm'
+                                    : 'bg-white text-[#6B7280] border-[#ECECEC] hover:border-primary'
                             }`}
                         >
                             {dData(sub, subCategoriesEn[index])}

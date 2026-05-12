@@ -138,46 +138,46 @@ export default function SellerDashboard() {
 
   if (role === 'customer' && !isPending) {
     return (
-      <div className="max-w-md mx-auto px-8 pt-20">
+      <div className="max-w-md mx-auto px-8 pt-20 min-h-screen bg-white">
         <div className="text-center mb-10">
-          <div className="w-20 h-20 bg-primary/10 rounded-[2rem] flex items-center justify-center text-primary mx-auto mb-6">
+          <div className="w-20 h-20 bg-[#E21E26]/10 rounded-[2rem] flex items-center justify-center text-[#E21E26] mx-auto mb-6">
             <Store size={40} />
           </div>
-          <h2 className="text-2xl font-display font-bold text-slate-900 mb-2">Sell on Our Platform</h2>
-          <p className="text-slate-500 text-sm leading-relaxed">
+          <h2 className="text-2xl font-display font-bold text-[#111111] mb-2">Sell on Our Platform</h2>
+          <p className="text-[#6B7280] text-sm leading-relaxed">
             Reach thousands of customers directly. Join our community of verified sellers.
           </p>
         </div>
 
         <form onSubmit={handleApply} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Store / Farm Name</label>
+            <label className="text-[10px] font-black text-[#6B7280] uppercase tracking-widest ml-1">Store / Farm Name</label>
             <input 
               required
               placeholder="e.g. Green Valley Farm"
-              className="w-full px-5 py-4 bg-white border border-slate-100 rounded-[1.5rem] shadow-sm text-sm outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+              className="w-full px-5 py-4 bg-white border border-[#ECECEC] rounded-[1.5rem] shadow-sm text-sm outline-none focus:ring-2 focus:ring-[#E21E26] focus:border-transparent transition-all"
               value={shopName}
               onChange={e => setShopName(e.target.value)}
             />
           </div>
           
-          <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 space-y-4 mb-6">
+          <div className="bg-[#F9FAFB] p-6 rounded-3xl border border-[#ECECEC] space-y-4 mb-6">
             <div className="flex gap-4">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-[#E21E26]/10 flex items-center justify-center text-[#E21E26] flex-shrink-0">
                 <CheckCircle2 size={16} />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-slate-900">Direct Sales</h4>
-                <p className="text-[10px] text-slate-400">Set your prices and manage inventory.</p>
+                <h4 className="text-xs font-bold text-[#111111]">Direct Sales</h4>
+                <p className="text-[10px] text-[#6B7280]">Set your prices and manage inventory.</p>
               </div>
             </div>
             <div className="flex gap-4">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-[#E21E26]/10 flex items-center justify-center text-[#E21E26] flex-shrink-0">
                 <CheckCircle2 size={16} />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-slate-900">Verified Badge</h4>
-                <p className="text-[10px] text-slate-400">Build trust with verified merchant status.</p>
+                <h4 className="text-xs font-bold text-[#111111]">Verified Badge</h4>
+                <p className="text-[10px] text-[#6B7280]">Build trust with verified merchant status.</p>
               </div>
             </div>
           </div>
@@ -185,12 +185,12 @@ export default function SellerDashboard() {
           <button 
             type="submit"
             disabled={isApplying}
-            className="w-full btn-primary py-5 rounded-[2rem] shadow-2xl shadow-primary/20 text-lg flex items-center justify-center gap-2"
+            className="w-full bg-[#121212] text-white py-5 rounded-[2rem] shadow-xl text-lg flex items-center justify-center gap-2 hover:bg-black transition-all"
           >
             {isApplying ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Apply to be a Seller'}
           </button>
 
-          <Link to="/" className="block text-center text-slate-400 text-xs font-bold hover:text-primary transition-colors">
+          <Link to="/" className="block text-center text-[#6B7280] text-xs font-bold hover:text-[#E21E26] transition-colors">
             Maybe Later
           </Link>
         </form>
@@ -200,26 +200,26 @@ export default function SellerDashboard() {
 
   if (!isVerified || isPending) {
       return (
-          <div className="max-w-md mx-auto px-10 pt-20 text-center">
+          <div className="max-w-md mx-auto px-10 pt-20 text-center min-h-screen bg-white">
               <div className="w-20 h-20 bg-orange-50 rounded-[2rem] flex items-center justify-center text-orange-500 mx-auto mb-6">
                   <AlertCircle size={40} />
               </div>
-              <h2 className="text-2xl font-display font-bold text-slate-900 mb-2">Pending Verification</h2>
-              <p className="text-slate-500 text-sm leading-relaxed mb-10">
+              <h2 className="text-2xl font-display font-bold text-[#111111] mb-2">Pending Verification</h2>
+              <p className="text-[#6B7280] text-sm leading-relaxed mb-10">
                   Awesome! You've registered as a seller. Our admin team will verify your store details shortly. You'll get access to the dashboard once verified.
               </p>
-              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 text-left space-y-3">
+              <div className="bg-[#F9FAFB] p-6 rounded-3xl border border-[#ECECEC] text-left space-y-3">
                   <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-primary rounded-full" />
-                      <span className="text-xs font-bold text-slate-600">Store Profile Created</span>
+                      <div className="w-2 h-2 bg-[#E21E26] rounded-full" />
+                      <span className="text-xs font-bold text-[#111111]">Store Profile Created</span>
                   </div>
                   <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-slate-200 rounded-full" />
-                      <span className="text-xs font-bold text-slate-400">Admin Review (In Progress)</span>
+                      <div className="w-2 h-2 bg-gray-200 rounded-full" />
+                      <span className="text-xs font-bold text-[#6B7280]">Admin Review (In Progress)</span>
                   </div>
                   <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-slate-200 rounded-full" />
-                      <span className="text-xs font-bold text-slate-400">Merchant Activation</span>
+                      <div className="w-2 h-2 bg-gray-200 rounded-full" />
+                      <span className="text-xs font-bold text-[#6B7280]">Merchant Activation</span>
                   </div>
               </div>
           </div>
@@ -230,18 +230,18 @@ export default function SellerDashboard() {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen bg-slate-50/50"
+      className="min-h-screen bg-white"
     >
       <div className="max-w-4xl mx-auto px-5 pb-12">
         <div className="flex items-center justify-between mt-6 mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center shadow-xl">
+            <div className="w-12 h-12 bg-[#E21E26] text-white rounded-2xl flex items-center justify-center shadow-lg">
               <Store size={28} />
             </div>
             <div>
-              <h1 className="font-display font-bold text-2xl mb-1">Seller Console</h1>
-              <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] leading-none flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" /> Verified Merchant
+              <h1 className="font-display font-bold text-[#111111] text-2xl mb-1">Seller Console</h1>
+              <p className="text-[#E21E26] text-[10px] font-black uppercase tracking-[0.2em] leading-none flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 bg-[#E21E26] rounded-full animate-pulse" /> Verified Merchant
               </p>
             </div>
           </div>
@@ -249,14 +249,14 @@ export default function SellerDashboard() {
           <div className="flex items-center gap-2">
             <Link 
               to="/" 
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-500 hover:text-primary transition-colors shadow-sm"
+              className="flex items-center gap-2 px-4 py-2 bg-[#F9FAFB] border border-[#ECECEC] rounded-xl text-xs font-bold text-[#6B7280] hover:text-[#111111] transition-colors shadow-sm"
             >
               <ArrowLeft size={14} />
               Back to Shop
             </Link>
             <button 
                 onClick={() => setIsAdding(true)}
-                className="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
+                className="w-10 h-10 bg-[#121212] text-white rounded-xl flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
             >
               <Plus size={20} />
             </button>
@@ -269,37 +269,37 @@ export default function SellerDashboard() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="fixed inset-0 z-50 flex items-center justify-center px-5 bg-slate-900/40 backdrop-blur-sm"
+                className="fixed inset-0 z-50 flex items-center justify-center px-5 bg-[#121212]/40 backdrop-blur-sm"
               >
                   <div className="bg-white w-full max-w-sm rounded-[2.5rem] shadow-2xl overflow-hidden p-6">
                       <div className="flex justify-between items-center mb-6">
                         <h3 className="font-display font-bold text-xl">New Product</h3>
-                        <button onClick={() => setIsAdding(false)} className="text-slate-400"><X /></button>
+                        <button onClick={() => setIsAdding(false)} className="text-[#6B7280]"><X /></button>
                       </div>
                       <form onSubmit={handleAddProduct} className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
-                        <input required placeholder="Product Name (Bangla)" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs" value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} />
-                        <input placeholder="Product Name (English)" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs" value={newProduct.nameEn} onChange={e => setNewProduct({...newProduct, nameEn: e.target.value})} />
+                        <input required placeholder="Product Name (Bangla)" className="w-full px-4 py-3 bg-[#F5F5F7] border border-[#ECECEC] rounded-2xl text-xs" value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} />
+                        <input placeholder="Product Name (English)" className="w-full px-4 py-3 bg-[#F5F5F7] border border-[#ECECEC] rounded-2xl text-xs" value={newProduct.nameEn} onChange={e => setNewProduct({...newProduct, nameEn: e.target.value})} />
                         
-                        <textarea placeholder="Description (Bangla)" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs h-20 resize-none" value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} />
-                        <textarea placeholder="Description (English)" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs h-20 resize-none" value={newProduct.descriptionEn} onChange={e => setNewProduct({...newProduct, descriptionEn: e.target.value})} />
+                        <textarea placeholder="Description (Bangla)" className="w-full px-4 py-3 bg-[#F5F5F7] border border-[#ECECEC] rounded-2xl text-xs h-20 resize-none" value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} />
+                        <textarea placeholder="Description (English)" className="w-full px-4 py-3 bg-[#F5F5F7] border border-[#ECECEC] rounded-2xl text-xs h-20 resize-none" value={newProduct.descriptionEn} onChange={e => setNewProduct({...newProduct, descriptionEn: e.target.value})} />
                         
                         <div className="grid grid-cols-2 gap-3">
-                            <input required type="number" placeholder="Price (৳)" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} />
-                            <input required type="number" placeholder="Initial Stock" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs outline-none" value={newProduct.stockQuantity} onChange={e => setNewProduct({...newProduct, stockQuantity: e.target.value})} />
+                            <input required type="number" placeholder="Price (৳)" className="w-full px-4 py-3 bg-[#F5F5F7] border border-[#ECECEC] rounded-2xl text-xs outline-none" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} />
+                            <input required type="number" placeholder="Initial Stock" className="w-full px-4 py-3 bg-[#F5F5F7] border border-[#ECECEC] rounded-2xl text-xs outline-none" value={newProduct.stockQuantity} onChange={e => setNewProduct({...newProduct, stockQuantity: e.target.value})} />
                         </div>
-                        <input placeholder="WhatsApp (+8801...)" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-sans outline-none" value={newProduct.whatsappNumber} onChange={e => setNewProduct({...newProduct, whatsappNumber: e.target.value})} />
+                        <input placeholder="WhatsApp (+8801...)" className="w-full px-4 py-3 bg-[#F5F5F7] border border-[#ECECEC] rounded-2xl text-xs font-sans outline-none" value={newProduct.whatsappNumber} onChange={e => setNewProduct({...newProduct, whatsappNumber: e.target.value})} />
 
-                            <select className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs" value={newProduct.unit} onChange={e => setNewProduct({...newProduct, unit: e.target.value})}>
+                            <select className="w-full px-4 py-3 bg-[#F5F5F7] border border-[#ECECEC] rounded-2xl text-xs" value={newProduct.unit} onChange={e => setNewProduct({...newProduct, unit: e.target.value})}>
                                 <option value="kg">Per kg</option>
                                 <option value="pcs">Per pcs</option>
                                 <option value="litre">Per litre</option>
                             </select>
-                        <select required className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs" value={newProduct.category} onChange={e => setNewProduct({...newProduct, category: e.target.value, subCategory: ''})}>
+                        <select required className="w-full px-4 py-3 bg-[#F5F5F7] border border-[#ECECEC] rounded-2xl text-xs" value={newProduct.category} onChange={e => setNewProduct({...newProduct, category: e.target.value, subCategory: ''})}>
                             <option value="">Select Category</option>
                             {categories.map(c => <option key={c.id} value={c.title}>{c.title}</option>)}
                         </select>
                         {newProduct.category && (
-                            <select required className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs" value={newProduct.subCategory} onChange={e => setNewProduct({...newProduct, subCategory: e.target.value})}>
+                            <select required className="w-full px-4 py-3 bg-[#F5F5F7] border border-[#ECECEC] rounded-2xl text-xs" value={newProduct.subCategory} onChange={e => setNewProduct({...newProduct, subCategory: e.target.value})}>
                                 <option value="">Select Sub-Category</option>
                                 {categories.find(c => c.title === newProduct.category)?.subCategories?.map((sub: string) => (
                                     <option key={sub} value={sub}>{sub}</option>
@@ -311,7 +311,7 @@ export default function SellerDashboard() {
                             currentImage={newProduct.image}
                             onUpload={(base64) => setNewProduct({...newProduct, image: base64})}
                         />
-                        <button type="submit" className="w-full btn-primary py-4 rounded-3xl font-bold shadow-xl shadow-primary/20">Submit for Approval</button>
+                        <button type="submit" className="w-full bg-[#121212] text-white py-4 rounded-3xl font-bold shadow-xl shadow-black/10 hover:bg-black transition-all">Submit for Approval</button>
                       </form>
                   </div>
               </motion.div>
@@ -319,13 +319,13 @@ export default function SellerDashboard() {
       </AnimatePresence>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-slate-100/50 p-1 rounded-2xl mb-8">
+      <div className="flex gap-1 bg-[#F9FAFB] p-1 rounded-2xl mb-8 border border-[#ECECEC]">
         {(['orders', 'products', 'analytics'] as const).map(tab => (
             <button 
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                    activeTab === tab ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'
+                    activeTab === tab ? 'bg-[#111111] text-white shadow-md' : 'text-[#6B7280] hover:text-[#111111]'
                 }`}
             >
                 {tab}
@@ -342,49 +342,49 @@ export default function SellerDashboard() {
             className="space-y-6"
           >
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm">
-                <div className="w-10 h-10 bg-primary/5 rounded-xl flex items-center justify-center text-primary mb-4">
+              <div className="bg-white p-5 rounded-[2rem] border border-[#ECECEC] shadow-sm">
+                <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-[#E21E26] mb-4">
                   <DollarSign size={20} />
                 </div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Revenue</p>
-                <h3 className="text-xl font-display font-bold text-slate-900">৳{formatCurrency(stats.revenue)}</h3>
+                <p className="text-[10px] font-black text-[#6B7280] uppercase tracking-widest mb-1">Total Revenue</p>
+                <h3 className="text-xl font-display font-bold text-[#111111]">৳{formatCurrency(stats.revenue)}</h3>
                 <span className="text-[9px] font-bold text-green-500">Completed Payouts</span>
               </div>
-              <div className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm">
+              <div className="bg-white p-5 rounded-[2rem] border border-[#ECECEC] shadow-sm">
                 <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 mb-4">
                   <ShoppingBag size={20} />
                 </div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Orders</p>
-                <h3 className="text-xl font-display font-bold text-slate-900">{stats.orderCount}</h3>
+                <p className="text-[10px] font-black text-[#6B7280] uppercase tracking-widest mb-1">Total Orders</p>
+                <h3 className="text-xl font-display font-bold text-[#111111]">{stats.orderCount}</h3>
                 <span className="text-[9px] font-bold text-blue-500">{orders.filter(o => o.status === 'pending').length} new pending</span>
               </div>
-              <div className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm">
+              <div className="bg-white p-5 rounded-[2rem] border border-[#ECECEC] shadow-sm">
                 <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500 mb-4">
                   <Users size={20} />
                 </div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Customers</p>
-                <h3 className="text-xl font-display font-bold text-slate-900">{stats.customerCount}</h3>
+                <p className="text-[10px] font-black text-[#6B7280] uppercase tracking-widest mb-1">Customers</p>
+                <h3 className="text-xl font-display font-bold text-[#111111]">{stats.customerCount}</h3>
                 <span className="text-[9px] font-bold text-orange-500">Unique Buyers</span>
               </div>
-              <div className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm">
+              <div className="bg-white p-5 rounded-[2rem] border border-[#ECECEC] shadow-sm">
                 <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-green-500 mb-4">
                   <Activity size={20} />
                 </div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Success Rate</p>
-                <h3 className="text-xl font-display font-bold text-slate-900">{stats.successRate}%</h3>
+                <p className="text-[10px] font-black text-[#6B7280] uppercase tracking-widest mb-1">Success Rate</p>
+                <h3 className="text-xl font-display font-bold text-[#111111]">{stats.successRate}%</h3>
                 <span className="text-[9px] font-bold text-green-500">Delivery accuracy</span>
               </div>
             </div>
 
-            <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm">
+            <div className="bg-white p-8 rounded-[3rem] border border-[#ECECEC] shadow-sm">
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h3 className="font-display font-bold text-lg">Revenue Growth</h3>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Weekly performance visualization</p>
+                  <p className="text-[10px] text-[#6B7280] font-bold uppercase tracking-widest">Weekly performance visualization</p>
                 </div>
                 <div className="flex gap-2">
-                  <div className="flex items-center gap-2 px-3 py-1 bg-slate-50 rounded-lg text-[9px] font-bold text-slate-400">
-                    <div className="w-2 h-2 bg-primary rounded-full" /> Revenue (৳)
+                  <div className="flex items-center gap-2 px-3 py-1 bg-[#F5F5F7] rounded-lg text-[9px] font-bold text-[#6B7280]">
+                    <div className="w-2 h-2 bg-[#E21E26] rounded-full" /> Revenue (৳)
                   </div>
                 </div>
               </div>
@@ -424,25 +424,25 @@ export default function SellerDashboard() {
               </div>
             </div>
 
-            <div className="bg-slate-900 p-8 rounded-[3rem] text-white overflow-hidden relative">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
+            <div className="bg-[#121212] p-8 rounded-[3rem] text-white overflow-hidden relative border border-white/5">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#E21E26]/20 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
               <div className="relative z-10">
                 <div className="flex justify-between items-start mb-4">
-                    <Wallet className="text-primary" size={32} />
+                    <Wallet className="text-[#E21E26]" size={32} />
                     <div className="text-right">
                          <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1">Withdrawable</p>
                          <h4 className="text-2xl font-display font-bold text-white leading-none">৳{formatCurrency(stats.revenue)}</h4>
                     </div>
                 </div>
-                <h3 className="text-xl font-display font-bold mb-2">Payout Settings</h3>
-                <p className="text-slate-400 text-[10px] leading-relaxed max-w-xs mb-6">
+                <h3 className="text-xl font-display font-bold mb-2 text-white">Payout Settings</h3>
+                <p className="text-white/60 text-[10px] leading-relaxed max-w-xs mb-6">
                   Revenue is calculated from delivered orders. Request a payout once it reaches ৳500.
                 </p>
                 <div className="flex flex-col gap-3">
                     <div className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/10">
                         <div>
                             <span className="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Current Method</span>
-                            <p className="text-sm font-bold">{(profile as any)?.paymentMethod || 'Not Configured'}</p>
+                            <p className="text-sm font-bold text-white">{(profile as any)?.paymentMethod || 'Not Configured'}</p>
                         </div>
                         <button 
                             onClick={async () => {
@@ -460,7 +460,7 @@ export default function SellerDashboard() {
                                     }
                                 }
                             }}
-                            className="text-[10px] font-black text-primary uppercase underline"
+                            className="text-[10px] font-black text-[#E21E26] uppercase underline"
                         >
                             Change
                         </button>
@@ -482,7 +482,7 @@ export default function SellerDashboard() {
                               }
                             }
                         }}
-                        className={`w-full py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl transition-all ${stats.revenue >= 500 ? 'bg-primary text-white shadow-primary/20 hover:scale-[1.02]' : 'bg-white/5 text-white/20 cursor-not-allowed uppercase'}`}
+                        className={`w-full py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl transition-all ${stats.revenue >= 500 ? 'bg-[#E21E26] text-white shadow-[#E21E26]/20 hover:scale-[1.02]' : 'bg-white/5 text-white/20 cursor-not-allowed uppercase'}`}
                     >
                         Request Payout
                     </button>
@@ -501,23 +501,23 @@ export default function SellerDashboard() {
 
             <div className="space-y-4">
               {orders.map((order) => (
-                <div key={order.id} className="bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group">
+                <div key={order.id} className="bg-white p-5 rounded-[2.5rem] border border-[#ECECEC] shadow-sm relative overflow-hidden group">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h4 className="font-bold text-sm text-slate-800">#{order.id.slice(-6)}</h4>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-1">{order.customerName}</p>
+                      <h4 className="font-bold text-sm text-[#111111]">#{order.id.slice(-6)}</h4>
+                      <p className="text-[10px] text-[#6B7280] font-bold uppercase tracking-widest leading-none mt-1">{order.customerName}</p>
                     </div>
                     <div className="text-right">
-                        <span className="text-lg font-display font-bold text-slate-900 leading-none">৳{formatCurrency(order.total || 0)}</span>
-                        <p className="text-[9px] font-black text-primary uppercase mt-1">{order.status}</p>
+                        <span className="text-lg font-display font-bold text-[#111111] leading-none">৳{formatCurrency(order.total || 0)}</span>
+                        <p className="text-[9px] font-black text-[#E21E26] uppercase mt-1">{order.status}</p>
                     </div>
                   </div>
                   
                   <div className="space-y-2 mb-6">
                       {(order.items || []).filter((i: any) => i.sellerId === user?.uid).map((item: any, idx: number) => (
-                          <div key={idx} className="flex justify-between items-center text-[11px] font-bold text-slate-600">
+                          <div key={idx} className="flex justify-between items-center text-[11px] font-bold text-[#6B7280]">
                               <span>{item.quantity || 0}x {item.name}</span>
-                              <span className="text-slate-400">৳{formatCurrency((item.price || 0) * (item.quantity || 0))}</span>
+                              <span className="text-[#6B7280]">৳{formatCurrency((item.price || 0) * (item.quantity || 0))}</span>
                           </div>
                       ))}
                   </div>
@@ -526,7 +526,7 @@ export default function SellerDashboard() {
                     {order.status === 'verified' && (
                         <button 
                             onClick={() => sellerService.updateOrderStatus(order.id, 'confirmed')}
-                            className="flex-1 py-3 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20"
+                            className="flex-1 py-3 bg-[#E21E26] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#E21E26]/20"
                         >
                             Accept Order
                         </button>
@@ -534,12 +534,12 @@ export default function SellerDashboard() {
                     {order.status === 'confirmed' && (
                         <button 
                             onClick={() => sellerService.updateOrderStatus(order.id, 'ready_for_pickup')}
-                            className="flex-1 py-3 bg-secondary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-secondary/20"
+                            className="flex-1 py-3 bg-[#111111] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-black/20"
                         >
                             Ready for Pickup
                         </button>
                     )}
-                    <button className="px-4 py-3 bg-slate-50 text-slate-400 rounded-2xl">
+                    <button className="px-4 py-3 bg-[#F9FAFB] text-[#6B7280] border border-[#ECECEC] rounded-2xl hover:text-[#111111] transition-colors">
                         <Truck size={16} />
                     </button>
                   </div>
@@ -548,7 +548,7 @@ export default function SellerDashboard() {
               {orders.length === 0 && (
                 <div className="text-center py-20 bg-white rounded-[2.5rem] border border-dashed border-slate-200">
                     <Clock className="mx-auto text-slate-200 mb-4" size={40} />
-                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">No orders in queue</p>
+                    <p className="text-[#6B7280] text-[10px] font-black uppercase tracking-widest">No orders in queue</p>
                 </div>
               )}
             </div>
@@ -558,17 +558,17 @@ export default function SellerDashboard() {
         {activeTab === 'products' && (
             <motion.div key="products" className="space-y-4">
                 <h2 className="font-display font-bold text-lg px-1">My Catalogue</h2>
-                <div className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden divide-y divide-slate-50">
+                <div className="bg-white rounded-[2.5rem] border border-[#ECECEC] overflow-hidden divide-y divide-slate-50">
                     {products.map((prod) => (
                         <div key={prod.id} className="p-5 flex flex-col gap-4 group">
                             <div className="flex items-center gap-4">
-                                <div className="w-14 h-14 bg-slate-50 rounded-2xl overflow-hidden flex-shrink-0">
+                                <div className="w-14 h-14 bg-[#F5F5F7] rounded-2xl overflow-hidden flex-shrink-0">
                                     <img src={prod.image} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <h4 className="font-bold text-sm text-slate-800 truncate">{prod.name}</h4>
                                     <div className="flex items-center gap-2 mt-1">
-                                        <span className="text-[10px] font-bold text-primary">৳{formatCurrency(prod.price)}/{prod.unit}</span>
+                                        <span className="text-[10px] font-bold text-[#E21E26]">৳{formatCurrency(prod.price)}/{prod.unit}</span>
                                         <span className={`text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider ${
                                             prod.status === 'approved' ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'
                                         }`}>
@@ -587,12 +587,12 @@ export default function SellerDashboard() {
                                 </div>
                             </div>
                             
-                            <div className="flex items-center justify-between gap-4 bg-slate-50 p-2 px-4 rounded-2xl border border-slate-100">
+                            <div className="flex items-center justify-between gap-4 bg-[#F9FAFB] p-2 px-4 rounded-2xl border border-[#ECECEC]">
                                 <div className="flex items-center gap-3">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stock:</span>
+                                    <span className="text-[10px] font-black text-[#6B7280] uppercase tracking-widest">Stock:</span>
                                     <input 
                                         type="number" 
-                                        className="w-16 bg-white border border-slate-200 rounded-lg text-xs font-bold px-2 py-1 outline-none focus:ring-1 focus:ring-primary"
+                                        className="w-16 bg-white border border-[#ECECEC] rounded-lg text-xs font-bold px-2 py-1 outline-none focus:ring-1 focus:ring-[#E21E26]"
                                         value={prod.stockQuantity || 0}
                                         onChange={(e) => sellerService.updateStock(prod.id, Number(e.target.value), prod.isOutOfStock || false)}
                                     />
@@ -603,7 +603,7 @@ export default function SellerDashboard() {
                                     </span>
                                     <button 
                                         onClick={() => sellerService.updateStock(prod.id, prod.stockQuantity || 0, !prod.isOutOfStock)}
-                                        className={`w-10 h-5 rounded-full relative transition-colors duration-300 ${prod.isOutOfStock ? 'bg-slate-300' : 'bg-primary'}`}
+                                        className={`w-10 h-5 rounded-full relative transition-colors duration-300 ${prod.isOutOfStock ? 'bg-gray-200' : 'bg-[#E21E26]'}`}
                                     >
                                         <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-300 ${prod.isOutOfStock ? 'left-0.5' : 'left-5.5'}`} />
                                     </button>

@@ -73,10 +73,10 @@ export default function Home() {
   };
 
   const featureCards = appSettings.featureButtons || [
-    { title: 'Summer FEST', icon: 'zap', color: 'from-[#0A1F44] to-[#1a3a6a]', path: '/discounts' },
-    { title: 'All Offers', icon: 'gift', color: 'from-[#D4AF37] to-[#B8860B]', path: '/discounts' },
-    { title: 'Unilever', icon: 'award', color: 'from-[#0A1F44] to-[#1a3a6a]', path: '/products?brand=unilever' },
-    { title: 'Big Save', icon: 'shopping-cart', color: 'from-[#D4AF37] to-[#B8860B]', path: '/discounts' },
+    { title: 'Summer FEST', icon: 'zap', color: 'from-[#111111] to-[#333333]', path: '/discounts' },
+    { title: 'Offers', icon: 'gift', color: 'from-primary to-[#B71C1C]', path: '/discounts' },
+    { title: 'Unilever', icon: 'award', color: 'from-[#111111] to-[#333333]', path: '/products?brand=unilever' },
+    { title: 'Big Save', icon: 'shopping-cart', color: 'from-primary to-[#B71C1C]', path: '/discounts' },
   ];
 
   const activeOffers = offers.filter(offer => {
@@ -100,7 +100,7 @@ export default function Home() {
     if (banners.length > 0) {
       const interval = setInterval(() => {
         setActiveBanner((prev) => (prev + 1) % banners.length);
-      }, 5000);
+      }, 3000);
       return () => clearInterval(interval);
     }
   }, [banners.length]);
@@ -128,7 +128,7 @@ export default function Home() {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-7xl mx-auto relative min-h-screen pb-32 px-2 md:px-6"
+      className="max-w-7xl mx-auto relative min-h-screen pb-32 bg-[#F9FAFB]"
     >
       <Helmet>
         <title>{appSettings.appName || 'সদাই ভাই'} - আধুনিক গ্রোছারি শপিং</title>
@@ -136,15 +136,15 @@ export default function Home() {
 
       {/* Hero Banner Slider */}
       {banners.length > 0 && (
-        <div className="px-1 md:px-0 mt-2 md:mt-6">
-          <div className="relative h-48 md:h-[450px] lg:h-[500px] rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 group">
-            <AnimatePresence mode="wait">
+        <div className="w-full">
+          <div className="relative h-56 md:h-[450px] lg:h-[500px] overflow-hidden group">
+            <AnimatePresence initial={false}>
               <motion.div
                 key={activeBanner}
-                initial={{ opacity: 0, scale: 1.05 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 className="absolute inset-0"
               >
                 {/* Responsive Image logic */}
@@ -164,28 +164,28 @@ export default function Home() {
                 
                 {/* Banner Content Overlay */}
                 {(banners[activeBanner % banners.length]?.title || banners[activeBanner % banners.length]?.subtitle) && (
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent flex flex-col justify-end p-6 md:p-12">
-                    {banners[activeBanner % banners.length]?.title && (
-                      <motion.h2 
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.3 }}
-                        className="text-2xl md:text-5xl font-display font-black text-white mb-2 md:mb-4 tracking-tight"
-                      >
-                        {banners[activeBanner % banners.length].title}
-                      </motion.h2>
-                    )}
-                    {banners[activeBanner % banners.length]?.subtitle && (
-                      <motion.p 
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.4 }}
-                        className="text-[10px] md:text-lg text-white/80 font-bold uppercase tracking-[0.2em]"
-                      >
-                        {banners[activeBanner % banners.length].subtitle}
-                      </motion.p>
-                    )}
-                  </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex flex-col justify-end p-6 md:p-12">
+                      {banners[activeBanner % banners.length]?.title && (
+                        <motion.h2 
+                          initial={{ y: 20, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          transition={{ delay: 0.3 }}
+                          className="text-2xl md:text-5xl font-display font-black text-white mb-2 md:mb-4 tracking-tight"
+                        >
+                          {banners[activeBanner % banners.length].title}
+                        </motion.h2>
+                      )}
+                      {banners[activeBanner % banners.length]?.subtitle && (
+                        <motion.p 
+                          initial={{ y: 20, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          transition={{ delay: 0.4 }}
+                          className="text-[10px] md:text-lg text-white/90 font-bold uppercase tracking-[0.2em]"
+                        >
+                          {banners[activeBanner % banners.length].subtitle}
+                        </motion.p>
+                      )}
+                    </div>
                 )}
               </motion.div>
             </AnimatePresence>
@@ -203,7 +203,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Feature Cards Horizontal Scroll */}
       <div className="flex gap-3 overflow-x-auto px-4 py-6 scrollbar-hide">
         {featureCards.map((card: any, i: number) => (
           <motion.div
@@ -211,13 +210,13 @@ export default function Home() {
             whileHover={{ y: -3 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate(card.path)}
-            className={`flex-shrink-0 w-20 h-20 glass-card bg-gradient-to-br ${card.color} flex flex-col items-center justify-center gap-1.5 p-1.5 relative overflow-hidden group cursor-pointer`}
+            className={`flex-shrink-0 w-20 h-20 bg-white border border-[#ECECEC] shadow-sm flex flex-col items-center justify-center gap-1.5 p-1.5 rounded-2xl relative overflow-hidden group cursor-pointer`}
           >
-            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative z-10 text-white drop-shadow-md">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#E21E26]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative z-10 text-primary drop-shadow-sm group-hover:scale-110 transition-transform">
               {getIcon(card.icon)}
             </div>
-            <span className="text-[8px] font-black uppercase tracking-wider text-center relative z-10 text-white drop-shadow-sm leading-tight">
+            <span className="text-[8px] font-black uppercase tracking-wider text-center relative z-10 text-[#111111] leading-tight">
               {card.title}
             </span>
           </motion.div>
@@ -228,7 +227,7 @@ export default function Home() {
       {categories.length > 0 && (
         <div className="px-4 mb-8">
           <div className="flex items-center justify-between mb-6 px-1">
-            <h2 className="text-lg font-display font-black text-white tracking-tight uppercase">{t('home.favourite_categories')}</h2>
+            <h2 className="text-lg font-display font-black text-[#111111] tracking-tight uppercase">{t('home.favourite_categories')}</h2>
             <Link to="/products" className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline">{t('home.see_all')}</Link>
           </div>
           <div className="grid grid-cols-3 md:grid-cols-6 gap-x-3 gap-y-4">
@@ -240,14 +239,14 @@ export default function Home() {
               >
                 <motion.div
                   whileTap={{ scale: 0.95 }}
-                  className="glass-card h-24 relative overflow-hidden rounded-2xl border-white/20 transition-all group-hover:border-primary/40 group-hover:shadow-[0_0_15px_rgba(212,175,55,0.1)]"
+                  className="bg-white h-24 relative overflow-hidden rounded-2xl border border-[#ECECEC] transition-all group-hover:border-primary/40 group-hover:shadow-lg shadow-sm"
                 >
                   <img src={cat.image || appSettings.logo} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={cat.title} />
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-all" />
+                  <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-all" />
                 </motion.div>
                 
                 <div className="text-center px-0.5">
-                  <span className="text-[9px] font-black uppercase tracking-[0.05em] text-white/70 group-hover:text-primary transition-colors leading-tight block truncate">
+                  <span className="text-[9px] font-black uppercase tracking-[0.05em] text-[#6B7280] group-hover:text-primary transition-colors leading-tight block truncate">
                     {dData(cat.title, cat.titleEn)}
                   </span>
                 </div>
@@ -263,8 +262,8 @@ export default function Home() {
           <>
             <div className="flex items-center justify-between mb-8 px-1">
               <div className="flex items-center gap-3">
-                <Sparkles size={24} className="text-secondary animate-pulse" />
-                <h2 className="text-xl font-display font-black text-white tracking-tight uppercase">
+                <Sparkles size={24} className="text-primary animate-pulse" />
+                <h2 className="text-xl font-display font-black text-[#111111] tracking-tight uppercase">
                   {activeOffers[0].title}
                 </h2>
               </div>
@@ -281,7 +280,7 @@ export default function Home() {
         ) : (
           <>
             <div className="flex items-center justify-between mb-8 px-1">
-              <h2 className="text-xl font-display font-black text-white tracking-tight uppercase">
+              <h2 className="text-xl font-display font-black text-[#111111] tracking-tight uppercase">
                 Recommended for you
               </h2>
               <Link to="/products" className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline">See All</Link>
@@ -299,7 +298,7 @@ export default function Home() {
       {activeOffers.length > 0 && (
         <div className="mb-24 px-4 overflow-hidden">
           <div className="flex items-center justify-between mb-8 px-1">
-            <h2 className="text-xl font-display font-black text-white tracking-tight uppercase">
+            <h2 className="text-xl font-display font-black text-[#111111] tracking-tight uppercase">
               More recommendations
             </h2>
             <Link to="/products" className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline">See All</Link>

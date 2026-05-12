@@ -353,7 +353,7 @@ function BrokenUrlPage() {
                     </div>
                     
                     {settings.brokenUrlAction === 'suggest' && (
-                        <div className="p-6 bg-black/40 border border-white/5 rounded-3xl space-y-4">
+                        <div className="p-6 bg-[#FFFFFF] border border-white/5 rounded-3xl space-y-4">
                             <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Cognitive Suggestion</p>
                             <div className="space-y-3">
                                 <button 
@@ -388,6 +388,7 @@ function BrokenUrlPage() {
 
 function RoutesContent() {
   const { role, dataLoading } = useContext(AuthContext);
+  const { settings } = useSettings();
   const location = useLocation();
   const [navLoading, setNavLoading] = useState(false);
   const isDashboardRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/seller') || location.pathname.startsWith('/rider');
@@ -399,8 +400,16 @@ function RoutesContent() {
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
+  // Adjust padding depending on the Navbar state
+  let contentPadding = 'pt-[90px] md:pt-[100px]';
+  if (['/', '/discounts'].includes(location.pathname)) {
+    contentPadding = settings.announcementBar ? 'pt-[124px] md:pt-[124px]' : 'pt-[96px] md:pt-[96px]';
+  } else {
+    contentPadding = settings.announcementBar ? 'pt-[88px] md:pt-[88px]' : 'pt-[60px] md:pt-[60px]';
+  }
+
   return (
-    <div className={`flex flex-col min-h-screen bg-background ${isDashboardRoute ? '' : 'pb-24 md:pb-0'}`}>
+    <div className={`flex flex-col min-h-screen bg-[#F9FAFB] ${isDashboardRoute ? '' : 'pb-24 md:pb-0'}`}>
       <AnimatePresence>
         {dataLoading && <LoadingScreen />}
       </AnimatePresence>
@@ -424,7 +433,7 @@ function RoutesContent() {
       {!isDashboardRoute && <Navbar />}
       <QuickCheckoutToast />
       
-      <main className="flex-1 overflow-x-hidden">
+      <main className={`flex-1 overflow-x-hidden`}>
         <AnimatePresence mode="wait">
           <motion.div 
             key={location.pathname}

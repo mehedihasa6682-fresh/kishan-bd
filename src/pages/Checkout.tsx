@@ -219,20 +219,20 @@ export default function Checkout() {
 
   if (success) {
       return (
-          <div className="max-w-md mx-auto px-5 pt-20 text-center pb-20">
+          <div className="max-w-md mx-auto px-5 pt-4 text-center pb-20 min-h-screen bg-white">
               <motion.div 
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="w-24 h-24 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_50px_rgba(212,175,55,0.3)] relative overflow-hidden group"
+                className="w-24 h-24 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl relative overflow-hidden group"
               >
                   <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent animate-pulse" />
-                  <CheckCircle size={48} className="text-black relative z-10" />
+                  <CheckCircle size={48} className="text-white relative z-10" />
               </motion.div>
               
-              <h2 className="text-3xl font-display font-black mb-3 text-white uppercase tracking-tighter">Order Placed!</h2>
-              <div className="bg-primary/10 border border-primary/20 p-5 rounded-[2rem] mb-10 overflow-hidden relative group">
+              <h2 className="text-3xl font-display font-black mb-3 text-[#111111] uppercase tracking-tighter">Order Placed!</h2>
+              <div className="bg-primary/5 border border-primary/10 p-5 rounded-[2rem] mb-10 overflow-hidden relative group">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700" />
-                  <p className="text-white/60 text-[11px] font-bold leading-relaxed relative z-10 text-center">
+                  <p className="text-[#6B7280] text-[11px] font-bold leading-relaxed relative z-10 text-center">
                       অর্ডারটি সফলভাবে সম্পন্ন হয়েছে। আমাদের এডমিন আপনার পেমেন্ট যাচাই (Verify) করার পর অফিসিয়াল মেমো দিয়ে দিবে। দয়া করে অপেক্ষা করুন।
                   </p>
                   <div className="mt-4 flex items-center justify-center gap-3 relative z-10">
@@ -249,24 +249,24 @@ export default function Checkout() {
                 <div className="grid grid-cols-2 gap-4">
                     <Link 
                         to="/orders" 
-                        className="py-5 bg-white/5 border border-white/10 rounded-[1.5rem] text-[10px] font-black text-white/40 uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-white/10 transition-all font-mono"
+                        className="py-5 bg-[#F9FAFB] border border-[#ECECEC] rounded-[1.5rem] text-[10px] font-black text-[#6B7280] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#F3F4F6] transition-all font-mono"
                     >
                         [ VIEW_ORDERS ]
                     </Link>
                     <Link 
                         to="/" 
-                        className="py-5 bg-white/5 border border-white/10 rounded-[1.5rem] text-[10px] font-black text-white/40 uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-white/10 transition-all font-mono"
+                        className="py-5 bg-[#F9FAFB] border border-[#ECECEC] rounded-[1.5rem] text-[10px] font-black text-[#6B7280] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#F3F4F6] transition-all font-mono"
                     >
                         [ BACK_HOME ]
                     </Link>
                 </div>
               </div>
 
-              <div className="mt-12 p-6 bg-white/5 border border-white/5 rounded-3xl backdrop-blur-xl">
-                 <p className="text-[10px] font-black text-white/30 uppercase tracking-widest leading-relaxed">
+              <div className="mt-12 p-6 bg-[#F9FAFB] border border-[#ECECEC] rounded-3xl shadow-sm">
+                 <p className="text-[10px] font-black text-[#6B7280] uppercase tracking-widest leading-relaxed">
                     Order ID: <span className="text-primary font-mono">{orderId?.slice(-12).toUpperCase()}</span>
                  </p>
-                 <p className="text-[8px] font-black text-white/10 uppercase tracking-widest mt-2">Status: Pending Verification</p>
+                 <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-2">Status: Pending Verification</p>
               </div>
           </div>
       )
@@ -276,13 +276,13 @@ export default function Checkout() {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-md mx-auto px-5 pb-10"
+      className="max-w-md mx-auto px-5 pb-10 min-h-screen bg-white"
     >
       <div className="flex items-center gap-4 mb-8 pt-4">
-        <button onClick={() => step === 2 ? setStep(1) : navigate(-1)} className="w-10 h-10 bg-white/5 border border-white/5 rounded-xl flex items-center justify-center text-white">
+        <button onClick={() => step === 2 ? setStep(1) : navigate(-1)} className="w-10 h-10 bg-[#F9FAFB] border border-[#ECECEC] rounded-xl flex items-center justify-center text-[#111111]">
           <ArrowLeft size={20} />
         </button>
-        <h1 className="font-display font-bold text-2xl text-white">
+        <h1 className="font-display font-bold text-2xl text-[#111111]">
             {step === 1 ? "Checkout Details" : "Payment Options"}
         </h1>
       </div>
@@ -293,7 +293,7 @@ export default function Checkout() {
                 {/* Delivery Address */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Contact & Delivery</h3>
+                        <h3 className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.2em]">Contact & Delivery</h3>
                         {savedAddresses.length > 0 && !isEditingAddress && (
                             <button 
                                 onClick={() => setIsEditingAddress(true)}
@@ -304,12 +304,12 @@ export default function Checkout() {
                         )}
                     </div>
                     
-                    <div className="glass-card p-5 border border-white/5 bg-white/5 space-y-4">
+                    <div className="glass-card p-5 border border-[#ECECEC] bg-white space-y-4 shadow-sm rounded-2xl">
                         {isEditingAddress ? (
                             <div className="space-y-4">
                                 {savedAddresses.length > 0 && (
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Select Saved Address</label>
+                                        <label className="text-[10px] font-bold text-[#6B7280] uppercase tracking-widest">Select Saved Address</label>
                                         <div className="grid grid-cols-1 gap-2">
                                             {savedAddresses.map((addr, idx) => (
                                                 <button 
@@ -327,7 +327,7 @@ export default function Checkout() {
                                                         setSelectedAddressIndex(idx);
                                                         setIsEditingAddress(false);
                                                     }}
-                                                    className="text-left p-3 rounded-xl border border-white/5 bg-white/5 text-[11px] font-medium text-white/60 hover:border-primary transition-all"
+                                                    className="text-left p-3 rounded-xl border border-[#ECECEC] bg-[#F9FAFB] text-[11px] font-medium text-[#111111] hover:border-primary transition-all"
                                                 >
                                                     {typeof addr === 'string' ? addr : (addr?.address || 'Saved Location')}
                                                 </button>
@@ -337,7 +337,7 @@ export default function Checkout() {
                                                     setSelectedAddressIndex('new');
                                                     setAddress('');
                                                 }}
-                                                className="text-center p-3 rounded-xl border border-dashed border-white/20 text-[10px] font-bold text-primary"
+                                                className="text-center p-3 rounded-xl border border-dashed border-primary/40 text-[10px] font-bold text-primary"
                                             >
                                                 + Use Different Address
                                             </button>
@@ -345,30 +345,30 @@ export default function Checkout() {
                                     </div>
                                 )}
 
-                                <div className="space-y-4 pt-2 border-t border-white/5">
+                                <div className="space-y-4 pt-2 border-t border-[#ECECEC]">
                                     <button 
                                         type="button"
                                         onClick={() => setShowAddressPicker(true)}
-                                        className="w-full flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-2xl hover:border-primary transition-all group"
+                                        className="w-full flex items-center justify-between p-4 bg-[#F9FAFB] border border-[#ECECEC] rounded-2xl hover:border-primary transition-all group"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-black shadow-sm group-hover:scale-110 transition-transform">
+                                            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-sm group-hover:scale-110 transition-transform">
                                                 <MapIcon size={20} />
                                             </div>
                                             <div className="text-left">
-                                                <p className="text-[11px] font-black text-white uppercase tracking-tight">Pin Location on Map</p>
-                                                <p className="text-[9px] text-white/40 font-medium italic">Better for accurate delivery</p>
+                                                <p className="text-[11px] font-black text-[#111111] uppercase tracking-tight">Pin Location on Map</p>
+                                                <p className="text-[9px] text-[#6B7280] font-medium italic">Better for accurate delivery</p>
                                             </div>
                                         </div>
-                                        <div className="w-6 h-6 rounded-full bg-white/5 border border-white/5 flex items-center justify-center text-white/20">
+                                        <div className="w-6 h-6 rounded-full bg-white border border-[#ECECEC] flex items-center justify-center text-gray-300">
                                             <ChevronRight size={14} />
                                         </div>
                                     </button>
                                     
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-none block mb-1">Select Area (For Delivery Charge)</label>
+                                        <label className="text-[10px] font-bold text-[#6B7280] uppercase tracking-widest leading-none block mb-1 ml-1">Select Area (For Delivery Charge)</label>
                                         <select 
-                                            className="input-field py-3 font-bold"
+                                            className="w-full bg-[#F9FAFB] border border-[#ECECEC] rounded-2xl px-4 py-3.5 text-xs font-bold text-[#111111] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                                             value={selectedAreaId}
                                             onChange={e => {
                                                 const area = deliveryAreas.find(a => a.id === e.target.value);
@@ -376,37 +376,37 @@ export default function Checkout() {
                                                 if (area) setDeliveryFee(area.fee);
                                             }}
                                         >
-                                            <option value="" className="bg-black text-white">Choose your location</option>
+                                            <option value="" className="bg-white text-[#111111]">Choose your location</option>
                                             {deliveryAreas.map(area => (
-                                                <option key={area.id} value={area.id} className="bg-black text-white">{area.name} (৳{formatCurrency(area.fee)})</option>
+                                                <option key={area.id} value={area.id} className="bg-white text-[#111111]">{area.name} (৳{formatCurrency(area.fee)})</option>
                                             ))}
                                         </select>
-                                        <p className="text-[9px] text-white/40 font-medium italic mt-1 ml-1">Delivery charge varies based on your location.</p>
+                                        <p className="text-[9px] text-[#6B7280] font-medium italic mt-1 ml-2">Delivery charge varies based on your location.</p>
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Full Name</label>
+                                        <label className="text-[10px] font-bold text-[#6B7280] uppercase tracking-widest ml-1">Full Name</label>
                                         <input 
                                             placeholder="Your Name"
-                                            className="input-field"
+                                            className="w-full bg-[#F9FAFB] border border-[#ECECEC] rounded-2xl px-4 py-3.5 text-xs font-bold text-[#111111] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                                             value={customerName}
                                             onChange={e => setCustomerName(e.target.value)}
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Phone Number</label>
+                                        <label className="text-[10px] font-bold text-[#6B7280] uppercase tracking-widest ml-1">Phone Number</label>
                                         <input 
                                             type="tel"
                                             placeholder="017xxxxxxxx"
-                                            className="input-field"
+                                            className="w-full bg-[#F9FAFB] border border-[#ECECEC] rounded-2xl px-4 py-3.5 text-xs font-bold text-[#111111] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                                             value={phone}
                                             onChange={e => setPhone(e.target.value)}
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Delivery Address</label>
+                                        <label className="text-[10px] font-bold text-[#6B7280] uppercase tracking-widest ml-1">Delivery Address</label>
                                         <textarea 
                                             placeholder="Sector, Road, House No..."
-                                            className="input-field h-24 resize-none"
+                                            className="w-full bg-[#F9FAFB] border border-[#ECECEC] rounded-2xl px-4 py-3.5 text-xs font-bold text-[#111111] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all h-24 resize-none"
                                             value={address}
                                             onChange={e => setAddress(e.target.value)}
                                         />
@@ -414,13 +414,13 @@ export default function Checkout() {
                                     {selectedAddressIndex !== 'new' && (
                                         <button 
                                             onClick={() => setIsEditingAddress(false)}
-                                            className="w-full py-3 bg-white/5 rounded-xl text-[10px] font-bold text-white/40"
+                                            className="w-full py-3 bg-[#F9FAFB] rounded-xl text-[10px] font-bold text-[#6B7280]"
                                         >
                                             Cancel
                                         </button>
                                     )}
 
-                                    <div className="pt-2 border-t border-white/5">
+                                    <div className="pt-2 border-t border-[#ECECEC]">
                                         <button 
                                             onClick={() => {
                                                 const formatW = (w: any) => w >= 1000 ? `${w / 1000}KG` : `${w}g`;
@@ -429,7 +429,7 @@ export default function Checkout() {
                                                     : `Hello, I want to order the following items:\n${items.map(i => `- ${i.name} ${i.selectedWeight ? `(${formatW(i.selectedWeight)})` : ''} (x${i.quantity})`).join('\n')}\nTotal: ৳${total}`;
                                                 window.open(`https://wa.me/${appSettings.whatsappNumber?.replace(/\+/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
                                             }}
-                                            className="w-full py-4 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center justify-center gap-3 text-green-500 hover:bg-green-500/20 transition-all group"
+                                            className="w-full py-4 bg-green-50 border border-green-200 rounded-2xl flex items-center justify-center gap-3 text-green-600 hover:bg-green-100 transition-all group"
                                         >
                                             <div className="w-8 h-8 rounded-lg bg-green-500 flex items-center justify-center text-white shadow-lg shadow-green-500/20 group-hover:scale-110 transition-transform">
                                                 <Phone size={16} />
@@ -448,17 +448,17 @@ export default function Checkout() {
                                     <div className="flex items-center gap-2 mb-2">
                                         <span className={`px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest ${
                                             addressDetails.type === 'Home' ? 'bg-primary/10 text-primary' :
-                                            addressDetails.type === 'Office' ? 'bg-blue-500/10 text-blue-500' : 'bg-orange-500/10 text-orange-500'
+                                            addressDetails.type === 'Office' ? 'bg-blue-100 text-blue-600' : 'bg-orange-100 text-orange-600'
                                         }`}>
                                             {addressDetails.type || 'Home'}
                                         </span>
                                         {addressDetails.floorNo && (
-                                            <span className="bg-white/10 text-white/40 px-2 py-0.5 rounded-lg text-[8px] font-bold uppercase tracking-widest">
+                                            <span className="bg-[#F9FAFB] text-[#6B7280] px-2 py-0.5 rounded-lg text-[8px] font-bold uppercase tracking-widest border border-[#ECECEC]">
                                                 Floor: {addressDetails.floorNo}
                                             </span>
                                         )}
                                         {addressDetails.apartment && (
-                                            <span className="bg-white/10 text-white/40 px-2 py-0.5 rounded-lg text-[8px] font-bold uppercase tracking-widest">
+                                            <span className="bg-[#F9FAFB] text-[#6B7280] px-2 py-0.5 rounded-lg text-[8px] font-bold uppercase tracking-widest border border-[#ECECEC]">
                                                 Apt: {addressDetails.apartment}
                                             </span>
                                         )}
@@ -469,12 +469,12 @@ export default function Checkout() {
                                         <MapPin size={16} />
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-xs font-bold text-white">{customerName}</p>
-                                        <p className="text-[10px] text-white/40 font-medium">{phone}</p>
+                                        <p className="text-xs font-bold text-[#111111]">{customerName}</p>
+                                        <p className="text-[10px] text-[#6B7280] font-medium">{phone}</p>
                                     </div>
                                 </div>
-                                <div className="p-4 bg-white/5 rounded-3xl border border-white/5 shadow-inner">
-                                    <p className="text-[11px] text-white/80 font-medium leading-[1.6]">{address}</p>
+                                <div className="p-4 bg-[#F9FAFB] rounded-3xl border border-[#ECECEC]">
+                                    <p className="text-[11px] text-[#111111] font-medium leading-[1.6]">{address}</p>
                                 </div>
                             </div>
                         )}
@@ -485,10 +485,10 @@ export default function Checkout() {
                     <button 
                         disabled={!phone || !address || !customerName}
                         onClick={() => setStep(2)}
-                        className={`w-full py-5 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-2xl ${
+                        className={`w-full py-5 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-xl ${
                             (!phone || !address || !customerName) 
-                            ? 'bg-white/5 text-white/20 border border-white/5' 
-                            : 'bg-primary text-black shadow-primary/30 active:scale-95'
+                            ? 'bg-gray-100 text-gray-400 border border-gray-200' 
+                            : 'bg-[#121212] text-white active:scale-95'
                         }`}
                     >
                         <span>Next Step</span>
@@ -503,7 +503,7 @@ export default function Checkout() {
             <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="space-y-6">
                 {/* Payment Method */}
                 <div className="space-y-4">
-                    <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Select Payment Method</h3>
+                    <h3 className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.2em]">Select Payment Method</h3>
                     <div className="grid grid-cols-2 gap-3">
                         {[
                         { id: 'cod', label: 'Cash on Delivery', icon: CreditCard },
@@ -516,21 +516,21 @@ export default function Checkout() {
                             onClick={() => setPaymentMethod(method.id as any)}
                             className={`p-5 rounded-[2rem] border text-center transition-all flex flex-col items-center justify-center gap-3 group relative overflow-hidden ${
                                 paymentMethod === method.id 
-                                ? 'border-primary bg-primary/10 shadow-[0_0_20px_rgba(212,175,55,0.15)] scale-[1.02]' 
-                                : 'border-white/5 bg-white/5 hover:border-white/20'
+                                ? 'border-primary bg-primary/5 shadow-sm scale-[1.02]' 
+                                : 'border-[#ECECEC] bg-white hover:border-primary/40'
                             }`}
                         >
                             {paymentMethod === method.id && (
-                                <div className="absolute top-0 right-0 w-8 h-8 bg-primary text-black flex items-center justify-center rounded-bl-2xl">
-                                    <div className="w-1 h-1 bg-black rounded-full" />
+                                <div className="absolute top-0 right-0 w-8 h-8 bg-primary text-white flex items-center justify-center rounded-bl-2xl">
+                                    <div className="w-1 h-1 bg-white rounded-full" />
                                 </div>
                             )}
                             {method.img ? (
                                 <img src={method.img} className={`h-12 object-contain transition-all ${paymentMethod === method.id ? 'scale-110' : 'opacity-60 group-hover:opacity-100'}`} alt={method.label} />
                             ) : (
-                                <method.icon className={`h-10 w-10 ${paymentMethod === method.id ? 'text-primary' : 'text-white/20'}`} />
+                                <method.icon className={`h-10 w-10 ${paymentMethod === method.id ? 'text-primary' : 'text-gray-300'}`} />
                             )}
-                            <span className={`text-[9px] font-black uppercase tracking-widest ${paymentMethod === method.id ? 'text-white' : 'text-white/20'}`}>{method.label}</span>
+                            <span className={`text-[9px] font-black uppercase tracking-widest ${paymentMethod === method.id ? 'text-[#111111]' : 'text-[#6B7280]'}`}>{method.label}</span>
                         </button>
 
                         ))}
@@ -544,53 +544,53 @@ export default function Checkout() {
                                 exit={{ height: 0, opacity: 0 }}
                                 className="overflow-hidden"
                             >
-                                <div className="bg-white/5 border border-white/10 p-6 rounded-3xl space-y-4 shadow-xl">
-                                    <div className="flex justify-between items-center bg-white/10 p-3 rounded-2xl border border-white/5">
+                                <div className="bg-[#F9FAFB] border border-[#ECECEC] p-6 rounded-3xl space-y-4 shadow-sm">
+                                    <div className="flex justify-between items-center bg-white p-3 rounded-2xl border border-[#ECECEC]">
                                         <div className="flex flex-col">
-                                            <span className="text-[10px] font-bold uppercase opacity-60 text-white/60">Send Money to Personal</span>
+                                            <span className="text-[10px] font-bold uppercase text-[#6B7280]">Send Money to Personal</span>
                                             <span className="text-sm font-black tracking-widest text-primary">
                                                 {paymentMethod === 'bkash' ? appSettings.bkashNumber || '01700-000000' :
                                                  paymentMethod === 'nagad' ? appSettings.nagadNumber || '01700-000000' :
                                                  paymentMethod === 'rocket' ? appSettings.rocketNumber || '01700-000000' : '01700-000000'}
                                             </span>
                                         </div>
-                                        <div className="px-2 py-1 bg-primary/20 rounded-lg">
+                                        <div className="px-2 py-1 bg-primary/10 rounded-lg">
                                             <span className="text-[10px] font-bold text-primary">PERSONAL</span>
                                         </div>
                                     </div>
                                     
                                     <div className="space-y-3">
                                         <div>
-                                            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1 block">Payment Phone Number (Sender)</label>
+                                            <label className="text-[10px] font-bold text-[#6B7280] uppercase tracking-widest mb-1 block ml-1">Payment Phone Number (Sender)</label>
                                             <input 
                                                 required
                                                 placeholder="e.g. 017XXXXXXXX"
-                                                className="w-full bg-white/5 border border-white/10 px-4 py-4 rounded-2xl text-xs outline-none focus:border-primary transition-all text-white font-sans"
+                                                className="w-full bg-white border border-[#ECECEC] px-4 py-4 rounded-2xl text-xs outline-none focus:border-primary transition-all text-[#111111] font-sans"
                                                 value={paymentNumber}
                                                 onChange={e => setPaymentNumber(e.target.value)}
                                             />
                                         </div>
                                         
                                         <div>
-                                            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1 block">
-                                                Transaction ID {paymentScreenshot ? <span className="text-primary/40 italic">(Optional)</span> : ''}
+                                            <label className="text-[10px] font-bold text-[#6B7280] uppercase tracking-widest mb-1 block ml-1">
+                                                Transaction ID {paymentScreenshot ? <span className="text-gray-400 italic">(Optional)</span> : ''}
                                             </label>
                                             <input 
                                                 placeholder={paymentScreenshot ? "Enter TrxID (Optional)" : "Enter TrxID after payment"}
-                                                className="w-full bg-white/5 border border-white/10 px-4 py-4 rounded-2xl text-xs outline-none focus:border-primary transition-all text-white font-mono"
+                                                className="w-full bg-white border border-[#ECECEC] px-4 py-4 rounded-2xl text-xs outline-none focus:border-primary transition-all text-[#111111] font-mono"
                                                 value={transactionId}
                                                 onChange={e => setTransactionId(e.target.value)}
                                             />
                                         </div>
                                         
                                         <div>
-                                            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1 block">
-                                                Or Upload Payment Screenshot {transactionId ? <span className="text-primary/40 italic">(Optional)</span> : ''}
+                                            <label className="text-[10px] font-bold text-[#6B7280] uppercase tracking-widest mb-1 block ml-1">
+                                                Or Upload Payment Screenshot {transactionId ? <span className="text-gray-400 italic">(Optional)</span> : ''}
                                             </label>
                                             <ImageUpload 
                                                 currentImage={paymentScreenshot}
                                                 onUpload={(base64) => setPaymentScreenshot(base64)}
-                                                className="bg-white/5 border-white/10 rounded-2xl"
+                                                className="bg-white border-[#ECECEC] rounded-2xl"
                                             />
                                         </div>
                                     </div>
@@ -602,46 +602,46 @@ export default function Checkout() {
 
                 {/* Coupon Section */}
                 <div className="space-y-4">
-                    <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Have a Coupon?</h3>
+                    <h3 className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.2em]">Have a Coupon?</h3>
                     <div className="flex gap-2">
                         <input 
                             placeholder="Enter Code (e.g. FRESH10)"
-                            className="flex-1 bg-white/5 border border-white/10 px-4 py-3 rounded-2xl text-[11px] font-mono outline-none focus:border-primary text-white"
+                            className="flex-1 bg-[#F9FAFB] border border-[#ECECEC] px-4 py-3 rounded-2xl text-[11px] font-mono outline-none focus:border-primary text-[#111111]"
                             value={couponCode}
                             onChange={e => setCouponCode(e.target.value.toUpperCase())}
                         />
                         <button 
                             disabled={couponLoading || !couponCode}
                             onClick={handleApplyCoupon}
-                            className="px-6 bg-primary text-black rounded-2xl text-[10px] font-black uppercase tracking-widest disabled:opacity-50"
+                            className="px-6 bg-[#121212] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-black transition-colors"
                         >
                             {couponLoading ? '...' : 'APPLY'}
                         </button>
                     </div>
-                    {couponError && <p className="text-[9px] text-red-500 font-bold ml-2">{couponError}</p>}
+                    {couponError && <p className="text-[9px] text-primary font-bold ml-2">{couponError}</p>}
                 </div>
 
                 {/* Order Summary */}
                 <div className="space-y-4">
-                    <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Order Summary</h3>
-                    <div className="bg-white/5 rounded-3xl p-6 border border-white/5 shadow-sm space-y-4">
-                        <div className="flex justify-between text-xs font-bold text-white">
-                            <span className="text-white/40">{t('cart.subtotal')}</span>
-                            <span className="text-white">৳{formatCurrency(subtotal || 0)}</span>
+                    <h3 className="text-[10px] font-black text-[#6B7280] uppercase tracking-[0.2em]">Order Summary</h3>
+                    <div className="bg-white rounded-3xl p-6 border border-[#ECECEC] shadow-sm space-y-4">
+                        <div className="flex justify-between text-xs font-bold text-[#111111]">
+                            <span className="text-[#6B7280]">{t('cart.subtotal')}</span>
+                            <span className="text-[#111111]">৳{formatCurrency(subtotal || 0)}</span>
                         </div>
                         {(discount || 0) > 0 && (
-                            <div className="flex justify-between text-xs font-bold text-primary animate-pulse">
+                            <div className="flex justify-between text-xs font-bold text-primary">
                                 <span>Discount Applied</span>
                                 <span>-৳{formatCurrency(discount)}</span>
                             </div>
                         )}
-                        <div className="flex justify-between text-xs font-bold text-white">
-                            <span className="text-white/40">{t('cart.delivery')}</span>
-                            <span className="text-white">৳{formatCurrency(deliveryFee || 0)}</span>
+                        <div className="flex justify-between text-xs font-bold text-[#111111]">
+                            <span className="text-[#6B7280]">{t('cart.delivery')}</span>
+                            <span className="text-[#111111]">৳{formatCurrency(deliveryFee || 0)}</span>
                         </div>
-                        <div className="border-t border-white/5 pt-4 flex justify-between items-center">
-                            <span className="font-display font-bold text-white">{t('cart.total')}</span>
-                            <span className="text-2xl font-display font-bold text-primary shadow-[0_0_20px_rgba(212,175,55,0.2)]">৳{formatCurrency(total || 0)}</span>
+                        <div className="border-t border-[#ECECEC] pt-4 flex justify-between items-center">
+                            <span className="font-display font-bold text-[#111111]">{t('cart.total')}</span>
+                            <span className="text-2xl font-display font-bold text-primary">৳{formatCurrency(total || 0)}</span>
                         </div>
                     </div>
                 </div>
@@ -649,14 +649,14 @@ export default function Checkout() {
                 <button 
                     disabled={loading}
                     onClick={handlePlaceOrder}
-                    className="btn-primary w-full py-5 rounded-[2rem] shadow-2xl shadow-primary/30 mt-4 text-lg disabled:opacity-50"
+                    className="btn-primary w-full py-5 rounded-[2rem] shadow-xl mt-4 text-lg disabled:opacity-50 bg-[#121212] text-white hover:bg-black"
                 >
                     {loading ? 'Confirming Order...' : "Complete Order"}
                 </button>
             </motion.div>
         )}
 
-        <p className="text-[10px] text-slate-400 text-center font-medium mt-2">
+        <p className="text-[10px] text-[#6B7280] text-center font-medium mt-2">
             Securely processed via {appSettings.appName || 'সদাই ভাই'} Cloud. Verified for 100% freshness.
         </p>
       </div>

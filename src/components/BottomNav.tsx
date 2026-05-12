@@ -16,7 +16,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 px-6 pb-4 pt-3 h-20 bg-[#050E21]/90 border-t border-white/10 flex md:hidden justify-around items-center backdrop-blur-xl rounded-t-[2.5rem] shadow-[0_-15px_40px_rgba(0,0,0,0.5)]">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 px-6 pb-4 pt-3 h-20 bg-[#FFFFFF]/95 border-t border-[#ECECEC] flex md:hidden justify-around items-center backdrop-blur-xl rounded-t-[2.5rem] shadow-[0_-15px_40px_rgba(0,0,0,0.05)]">
       {tabs.map((tab) => {
         const isActive = location.pathname === tab.path;
         const Icon = tab.icon;
@@ -27,15 +27,15 @@ export default function BottomNav() {
               <motion.div
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="w-16 h-16 bg-[#D4AF37] rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(212,175,55,0.4)] border-4 border-[#050E21] relative group"
+                className="w-16 h-16 bg-primary rounded-full flex items-center justify-center shadow-lg border-4 border-white relative group"
               >
-                <div className="absolute inset-0 bg-white/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                <Icon size={26} strokeWidth={2.5} className="text-[#050E21]" />
+                <div className="absolute inset-0 bg-white/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                <Icon size={26} strokeWidth={2.5} className="text-white" />
                 {items.length > 0 && (
                   <motion.span 
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 bg-white text-[#D4AF37] text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center border-2 border-[#D4AF37] shadow-lg"
+                    className="absolute -top-1 -right-1 bg-[#111111] text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-lg"
                   >
                     {items.length.toString().padStart(2, '0')}
                   </motion.span>
@@ -55,19 +55,19 @@ export default function BottomNav() {
               <Icon
                 size={22}
                 className={`transition-all duration-300 ${
-                  isActive ? 'text-[#D4AF37] scale-110 drop-shadow-[0_0_10px_rgba(212,175,55,0.4)]' : 'text-white/40 group-hover:text-white/70'
+                  isActive ? 'text-primary scale-110 drop-shadow-[0_0_10px_rgba(213,0,0,0.2)]' : 'text-[#6B7280] group-hover:text-[#111111]'
                 }`}
               />
               {isActive && (
                 <motion.div
                   layoutId="activeTabIndicator"
-                  className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-[#D4AF37] rounded-full shadow-[0_0_10px_rgba(212,175,55,1)]"
+                  className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full"
                 />
               )}
             </div>
             <span
               className={`text-[9px] font-black uppercase tracking-[0.1em] transition-colors duration-300 ${
-                isActive ? 'text-[#D4AF37]' : 'text-white/40'
+                isActive ? 'text-primary' : 'text-[#6B7280]'
               }`}
             >
               {tab.label}
