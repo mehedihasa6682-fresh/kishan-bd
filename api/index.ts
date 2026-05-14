@@ -615,16 +615,12 @@ app.get("/api/vapid-public-key", (req, res) => {
 });
 
 // Helper for local dev only
+// Environment check
+const isVercel = !!(process.env.VERCEL || process.env.NOW_REGION);
+const isProd = process.env.NODE_ENV === "production";
+
 async function startServer() {
-  const isVercel = !!(process.env.VERCEL || process.env.NOW_REGION || process.env.FUNCTIONS_EMULATOR);
-  const isProd = process.env.NODE_ENV === "production";
-
-  if (isVercel) {
-    console.log("Running in Serverless environment - Port listener bypassed.");
-    return;
-  }
-
-  if (!isProd) {
+  if (!isProd && !isVercel) {
     try {
       const { createServer: createViteServer } = await import('vite');
       const vite = await createViteServer({
@@ -640,7 +636,8 @@ async function startServer() {
     } catch (err) {
       console.error("Failed to start Vite dev server:", err);
     }
-  } else {
+  } else if (!isVercel) {
+    // Local production server (not Vercel)
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
@@ -652,9 +649,13 @@ async function startServer() {
     app.listen(Number(PORT), "0.0.0.0", () => {
       console.log(`Production server running on port ${PORT}`);
     });
+  } else {
+    console.log("Running in Vercel Serverless environment.");
+    // No listen() or static setup needed here as vercel.json handles it.
   }
 }
 
+// Always call startServer to initialize dev server if needed
 startServer().catch(err => console.error("Server Start Error:", err));
 
 app.get("/api/test-telegram", async (req, res) => {
