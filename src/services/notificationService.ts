@@ -10,6 +10,13 @@ export interface AppNotification {
   read: boolean;
   createdAt: any;
   link?: string;
+  banner?: string;
+  scheduleTime?: string;
+  detailsDescription?: string;
+  hasDetailsPage?: boolean;
+  detailsTitle?: string;
+  detailsBanner?: string;
+  detailsCTA?: string;
   duration?: number; // duration in seconds
 }
 
@@ -17,13 +24,23 @@ export const NotificationService = {
   // Add a new in-app notification
   async sendNotification(data: Omit<AppNotification, 'id' | 'createdAt' | 'read'>) {
     try {
-      await addDoc(collection(db, 'notifications'), {
+      const docRef = await addDoc(collection(db, 'notifications'), {
         ...data,
         read: false,
         createdAt: serverTimestamp(),
       });
+
+      // If it has a details page, update the link to point to it
+      if (data.hasDetailsPage) {
+        await updateDoc(doc(db, 'notifications', docRef.id), {
+          link: `/details/notification/${docRef.id}`
+        });
+      }
+
+      return docRef.id;
     } catch (error) {
       console.error("Error sending notification:", error);
+      return null;
     }
   },
 

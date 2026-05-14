@@ -166,7 +166,7 @@ export default function Auth() {
           {isResetting ? 'Restore Access' : (isLogin ? `Log in to ${settings.appName || 'সদাই ভাই'}` : 'Create Account')}
         </h2>
         <p className="text-[#6B7280] text-[10px] font-black uppercase tracking-[0.2em] mt-2">
-          {isResetting ? 'Enter your email to receive a reset link' : (isLogin ? 'Access your digital pantry' : 'Join Shwapno Fresh')}
+          {isResetting ? 'Enter your email to receive a reset link' : (isLogin ? 'Access your digital pantry' : 'Join সদাই ভাই')}
         </p>
       </div>
 

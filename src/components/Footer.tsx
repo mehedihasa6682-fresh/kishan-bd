@@ -26,8 +26,8 @@ export default function Footer() {
         <div className="flex flex-col items-center justify-center gap-10">
           {/* Brand Logo or App Name */}
           <div className="flex flex-col items-center gap-4">
-             {appSettings.logo ? (
-                 <img src={appSettings.logo} className="h-12 w-auto object-contain mb-2" alt="Footer Logo" />
+             {(appSettings.logo || '/logo.png') ? (
+                 <img src={appSettings.logo || '/logo.png'} className="h-12 w-auto object-contain mb-2" alt="Footer Logo" />
              ) : null}
              <h2 className="text-2xl font-display font-black text-[#111111] uppercase tracking-tighter">
                {appName}

@@ -61,13 +61,13 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           "description": "Premium grocery shopping experience with fresh products and fast delivery.",
           "icons": [
             {
-              "src": data.logo || "https://cdn-icons-png.flaticon.com/512/3081/3081840.png",
+              "src": data.logo || "/logo.png",
               "sizes": "192x192",
               "type": "image/png",
               "purpose": "any maskable"
             },
             {
-              "src": data.logo || "https://cdn-icons-png.flaticon.com/512/3081/3081840.png",
+              "src": data.logo || "/logo.png",
               "sizes": "512x512",
               "type": "image/png",
               "purpose": "any maskable"

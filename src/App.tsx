@@ -27,6 +27,7 @@ import Wishlist from './pages/Wishlist';
 import RiderDashboard from './pages/RiderDashboard';
 import Discounts from './pages/Discounts';
 import DynamicPage from './pages/DynamicPage';
+import DynamicDetails from './pages/DynamicDetails';
 import DealDetails from './pages/DealDetails';
 
 // Components
@@ -453,7 +454,8 @@ function RoutesContent() {
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/discounts" element={<Discounts />} />
             <Route path="/page/:slug" element={<DynamicPage />} />
-            <Route path="/deal/:id" element={<DealDetails />} />
+            <Route path="/deal/:id" element={<DynamicDetails typeOverride="deal" />} />
+            <Route path="/details/:type/:id" element={<DynamicDetails />} />
             
             {/* Seller/Apply Routes */}
             <Route path="/seller/*" element={role ? <SellerDashboard /> : <Navigate to="/profile" />} />

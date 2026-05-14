@@ -411,7 +411,7 @@ app.post("/api/admin/bulk-push", async (req, res) => {
     // Fetch app settings for branding
     const settingsSnap = await db.collection('settings').doc('app').get();
     const appSettings = settingsSnap.exists ? settingsSnap.data() : {};
-    const appLogo = appSettings?.logo || 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png';
+    const appLogo = appSettings?.logo || '/logo.png';
     const appName = appSettings?.appName || 'সদাই ভাই';
 
     let query: any = db.collection('fcmTokens');

@@ -35,31 +35,31 @@ export default defineConfig(({ mode }) => {
           prefer_related_applications: false,
           icons: [
             {
-              src: 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png',
+              src: '/logo.png',
               sizes: '144x144',
               type: 'image/png',
               purpose: 'any'
             },
             {
-              src: 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png',
+              src: '/logo.png',
               sizes: '192x192',
               type: 'image/png',
               purpose: 'any'
             },
             {
-              src: 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png',
+              src: '/logo.png',
               sizes: '384x384',
               type: 'image/png',
               purpose: 'any'
             },
             {
-              src: 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png',
+              src: '/logo.png',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'any'
             },
             {
-              src: 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png',
+              src: '/logo.png',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'maskable'
@@ -71,14 +71,14 @@ export default defineConfig(({ mode }) => {
               short_name: 'পণ্য',
               description: 'সকল গ্রোছারি পণ্য দেখুন',
               url: '/products',
-              icons: [{ src: 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png', sizes: '192x192' }]
+              icons: [{ src: '/logo.png', sizes: '192x192' }]
             },
             {
               name: 'আমার অর্ডার',
               short_name: 'অর্ডার',
               description: 'আপনার অর্ডারের অবস্থা দেখুন',
               url: '/orders',
-              icons: [{ src: 'https://cdn-icons-png.flaticon.com/512/3500/3500833.png', sizes: '192x192' }]
+              icons: [{ src: '/logo.png', sizes: '192x192' }]
             }
           ],
           screenshots: [

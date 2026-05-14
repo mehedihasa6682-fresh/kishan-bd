@@ -131,7 +131,44 @@ export default function Home() {
       className="max-w-7xl mx-auto relative min-h-screen pb-32 bg-[#F9FAFB]"
     >
       <Helmet>
-        <title>{appSettings.appName || 'সদাই ভাই'} - আধুনিক গ্রোছারি শপিং</title>
+        <title>{appSettings.appName || 'সদাই ভাই'} - অনলাইন গ্রোছারি শপ</title>
+        <meta name="description" content="সদাই ভাই - আপনার নিত্যপ্রয়োজনীয় সবজি, মাছ ও মাংসের নির্ভরযোগ্য অনলাইন বাজার। টাটকা পণ্য দ্রুত ডেলিভারি সরাসরি আপনার দুয়ারে।" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Store",
+            "name": appSettings.appName || "সদাই ভাই",
+            "image": appSettings.logo || "/logo.png",
+            "@id": "https://sodaibhai.vercel.app/",
+            "url": "https://sodaibhai.vercel.app/",
+            "telephone": appSettings.whatsappNumber || "",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Dhaka City",
+              "addressLocality": "Dhaka",
+              "addressRegion": "Dhaka",
+              "postalCode": "1200",
+              "addressCountry": "BD"
+            },
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": 23.8103,
+              "longitude": 90.4125
+            },
+            "openingHoursSpecification": [
+              {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+                "opens": "08:00",
+                "closes": "22:00"
+              }
+            ],
+            "sameAs": [
+              "https://www.facebook.com/sodaibhai",
+              "https://www.instagram.com/sodaibhai"
+            ]
+          })}
+        </script>
       </Helmet>
 
       {/* Hero Banner Slider */}

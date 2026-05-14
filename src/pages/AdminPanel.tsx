@@ -8,7 +8,8 @@ import {
   Layers, Camera, ChevronRight, Store, X, Clock, Bell,
   ArrowLeft, User, Box, Gift, Image as ImageIcon, FileText,
   MessageSquare, Package, Eye, EyeOff, MapPin, Phone, Globe,
-  TrendingUp, ArrowUpRight, Zap, Percent, ReceiptText, Sparkles, Monitor, Smartphone, Tablet
+  TrendingUp, ArrowUpRight, Zap, Percent, ReceiptText, Sparkles, Monitor, Smartphone, Tablet,
+  Mail, Info, Send
 } from 'lucide-react';
 import { adminService } from '../services/adminService';
 import { formatCurrency } from '../lib/utils';
@@ -517,8 +518,15 @@ export default function AdminPanel() {
         createdAt: serverTimestamp(),
       });
       
-      // If push enabled, trigger notification via API
+      // If push enabled, trigger notification via API and local service
       if (newOffer.sendPush) {
+        const redirectPath = newOffer.hasDetailsPage ? `/deal/${offerRef.id}` : 
+                     newOffer.redirectType === 'deal' ? `/products?offer=${offerRef.id}` : 
+                     newOffer.redirectType === 'category' ? `/products?category=${newOffer.categoryId}` :
+                     newOffer.redirectType === 'product' ? `/product/${newOffer.redirectId}` :
+                     newOffer.redirectId || '/';
+
+        // 1. External Push
         await fetch('/api/broadcast-fcm', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -528,14 +536,20 @@ export default function AdminPanel() {
               body: newOffer.pushBody || `Limited time ${newOffer.type} offer started. Don't miss out! ⏰`
             },
             data: { 
-              url: newOffer.hasDetailsPage ? `/deal/${offerRef.id}` : 
-                   newOffer.redirectType === 'deal' ? `/products?offer=${offerRef.id}` : 
-                   newOffer.redirectType === 'category' ? `/products?category=${newOffer.categoryId}` :
-                   newOffer.redirectType === 'product' ? `/product/${newOffer.redirectId}` :
-                   newOffer.redirectId || '/',
+              url: redirectPath,
               offerId: offerRef.id
             }
           })
+        });
+
+        // 2. In-App Notification
+        const { NotificationService } = await import('../services/notificationService');
+        await NotificationService.sendNotification({
+          userId: 'all',
+          title: newOffer.pushTitle || `🔥 ${newOffer.title} Deal is LIVE!`,
+          message: newOffer.pushBody || `Limited time ${newOffer.type} offer started.`,
+          type: 'promo',
+          link: redirectPath
         });
       }
 
@@ -2673,10 +2687,10 @@ export default function AdminPanel() {
                     <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/5 rounded-full -ml-16 -mb-16 blur-2xl group-hover:bg-primary/10 transition-all duration-700" />
                     <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-[#111111] uppercase tracking-widest relative z-10">
                         <Bell size={24} className="text-primary" />
-                        Targeted Frequency
+                        Targeted Frequency & Matrix
                     </h3>
-                    <div className="space-y-6 max-w-lg relative z-10">
-                        <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-6 relative z-10">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
                              <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">UID (Clear for All)</label>
                              <input 
@@ -2698,56 +2712,116 @@ export default function AdminPanel() {
                              </select>
                           </div>
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Transmission Header</label>
-                            <input 
-                                placeholder="Core notification title..." 
-                                className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] outline-none focus:border-primary/40 font-bold tracking-wide"
-                                id="notifTitle"
-                            />
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Transmission Header</label>
+                                <input 
+                                    placeholder="Core notification title..." 
+                                    className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] outline-none focus:border-primary/40 font-bold tracking-wide"
+                                    id="notifTitle"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Visual Heritage (Banner URL)</label>
+                                <input 
+                                    placeholder="https://example.com/banner.jpg" 
+                                    className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] outline-none focus:border-primary/40 font-medium"
+                                    id="notifBanner"
+                                />
+                            </div>
                         </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Redirect Vector (Link)</label>
+                                <input 
+                                    placeholder="/products, /category/id..." 
+                                    className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] outline-none focus:border-primary/40 font-medium"
+                                    id="notifLink"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Temporal Node (Schedule)</label>
+                                <input 
+                                    type="datetime-local" 
+                                    className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] outline-none focus:border-primary/40 font-bold"
+                                    id="notifSchedule"
+                                />
+                            </div>
+                        </div>
+
                         <div className="space-y-2">
-                            <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Detailed Narrative</label>
+                            <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Transmission Narrative (Message)</label>
                             <textarea 
-                                placeholder="Message encryption body..." 
-                                className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] h-32 outline-none focus:border-primary/40 resize-none font-medium leading-relaxed"
+                                placeholder="Core message payload..." 
+                                className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] h-20 outline-none focus:border-primary/40 resize-none font-medium leading-relaxed"
                                 id="notifMessage"
                             />
                         </div>
+
+                        <div className="bg-[#FFFFFF] p-6 rounded-3xl border border-[#ECECEC] space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                                        <Layout size={16} />
+                                    </div>
+                                    <span className="text-[10px] font-black text-[#111111] uppercase tracking-widest">Generate Immersive Details Page</span>
+                                </div>
+                                <input type="checkbox" id="notifHasDetails" className="w-6 h-6 rounded-lg accent-primary" />
+                            </div>
+                            <textarea 
+                                placeholder="Details page description (supports rich text concepts)..." 
+                                className="w-full px-6 py-4 bg-[#F9FAFB] border border-[#ECECEC] rounded-2xl text-xs text-[#111111] h-32 outline-none focus:border-primary/40 resize-none font-medium leading-relaxed"
+                                id="notifDetailsDesc"
+                            />
+                        </div>
+
                         <div className="pt-2">
                             <button 
                                 onClick={async () => {
                                     const uid = (document.getElementById('targetUserId') as HTMLInputElement).value;
                                     const title = (document.getElementById('notifTitle') as HTMLInputElement).value;
                                     const msg = (document.getElementById('notifMessage') as HTMLInputElement).value;
+                                    const banner = (document.getElementById('notifBanner') as HTMLInputElement).value;
+                                    const link = (document.getElementById('notifLink') as HTMLInputElement).value;
+                                    const schedule = (document.getElementById('notifSchedule') as HTMLInputElement).value;
                                     const type = (document.getElementById('notifType') as HTMLSelectElement).value as any;
+                                    const hasDetails = (document.getElementById('notifHasDetails') as HTMLInputElement).checked;
+                                    const detailsDesc = (document.getElementById('notifDetailsDesc') as HTMLTextAreaElement).value;
                                     
                                     if(title && msg) {
                                         const { NotificationService } = await import('../services/notificationService');
                                         
+                                        const payload = {
+                                            userId: uid || 'all',
+                                            title,
+                                            message: msg,
+                                            type: type,
+                                            banner: banner || undefined,
+                                            link: link || undefined,
+                                            scheduleTime: schedule || undefined,
+                                            hasDetailsPage: hasDetails,
+                                            detailsDescription: detailsDesc || undefined,
+                                            detailsTitle: title, // Same as notification title for consistency
+                                            detailsBanner: banner || undefined
+                                        };
+
                                         if (uid) {
-                                            await NotificationService.sendNotification({
-                                                userId: uid,
-                                                title,
-                                                message: msg,
-                                                type: type
-                                            });
+                                            await NotificationService.sendNotification(payload);
                                             alert('Pulse Sent to Target Citizen!');
                                         } else {
                                             if (confirm('Authorize Global Broadcast to ALL citizens?')) {
-                                              await NotificationService.sendNotification({
-                                                  userId: 'all',
-                                                  title,
-                                                  message: msg,
-                                                  type: type
-                                              });
+                                              await NotificationService.sendNotification(payload);
                                               alert(`Universal Pulse Transmitted!`);
                                             }
                                         }
                                         
-                                        (document.getElementById('targetUserId') as HTMLInputElement).value = '';
-                                        (document.getElementById('notifTitle') as HTMLInputElement).value = '';
-                                        (document.getElementById('notifMessage') as HTMLInputElement).value = '';
+                                        // Reset form
+                                        ['targetUserId', 'notifTitle', 'notifMessage', 'notifBanner', 'notifLink', 'notifSchedule', 'notifDetailsDesc'].forEach(id => {
+                                            (document.getElementById(id) as any).value = '';
+                                        });
+                                        (document.getElementById('notifHasDetails') as HTMLInputElement).checked = false;
                                     } else {
                                         alert('Validation Error: Header and Narrative Required');
                                     }
@@ -2841,6 +2915,101 @@ export default function AdminPanel() {
                             className="w-full py-5 bg-primary text-black rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all active:scale-95 mt-4"
                         >
                             Authorize Site Configuration
+                        </button>
+                    </div>
+                </div>
+
+                <div className="bg-[#D50000]/5 p-10 rounded-[3rem] border border-[#D50000]/20 shadow-2xl relative group overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#D50000]/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-[#D50000]/20 transition-all duration-700" />
+                    <h3 className="font-display font-black text-xl mb-8 flex items-center gap-4 text-[#111111] uppercase tracking-widest relative z-10">
+                        <Mail size={24} className="text-[#D50000]" />
+                        Neural BCC Email Marketing
+                    </h3>
+                    <div className="space-y-6 relative z-10 max-w-xl">
+                        <div className="p-4 bg-white/50 border border-[#D50000]/10 rounded-2xl flex items-start gap-4">
+                            <Info size={18} className="text-[#D50000] shrink-0 mt-1" />
+                            <p className="text-[10px] text-[#6B7280] leading-relaxed font-medium">This protocol triggers your device's native mail application with all recipients pre-filled in the BCC field. This ensures total privacy as no recipient can see others' identities.</p>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Target Audience</label>
+                                <select 
+                                    id="settingsEmailTarget"
+                                    className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-[10px] outline-none font-black text-[#6B7280] uppercase tracking-widest cursor-pointer"
+                                    onChange={(e) => {
+                                        const customBox = document.getElementById('settingsCustomEmailBox');
+                                        if (e.target.value === 'custom') customBox?.classList.remove('hidden');
+                                        else customBox?.classList.add('hidden');
+                                    }}
+                                >
+                                    <option value="all">Broadcast to All Users</option>
+                                    <option value="no-push">Non-Push Subscribers (Email Only)</option>
+                                    <option value="custom">Custom Node List (Manual)</option>
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Campaign Header (Subject)</label>
+                                <input 
+                                    id="settingsEmailSubject"
+                                    placeholder="Exclusive Update..." 
+                                    className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] outline-none focus:border-[#D50000]/40 font-bold"
+                                />
+                            </div>
+                        </div>
+
+                        <div id="settingsCustomEmailBox" className="hidden space-y-2">
+                            <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Manual Email Nodes (Comma Separated)</label>
+                            <textarea 
+                                id="settingsCustomEmails"
+                                placeholder="node1@mail.com, node2@mail.com..." 
+                                className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-xs text-[#111111] h-20 outline-none focus:border-[#D50000]/40 resize-none font-mono"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[9px] font-black text-[#6B7280] uppercase tracking-[0.2em] ml-2">Broadcast Narrative (Message Body)</label>
+                            <textarea 
+                                id="settingsEmailBody"
+                                placeholder="Enter your marketing payload here..." 
+                                className="w-full px-6 py-4 bg-[#FFFFFF] border border-[#ECECEC] rounded-2xl text-sm text-[#111111] h-32 outline-none focus:border-[#D50000]/40 resize-none font-medium leading-relaxed"
+                            />
+                        </div>
+
+                        <button 
+                            onClick={() => {
+                                const target = (document.getElementById('settingsEmailTarget') as HTMLSelectElement).value;
+                                const subject = (document.getElementById('settingsEmailSubject') as HTMLInputElement).value;
+                                const body = (document.getElementById('settingsEmailBody') as HTMLTextAreaElement).value;
+                                const customEmails = (document.getElementById('settingsCustomEmails') as HTMLTextAreaElement).value;
+
+                                if (!subject || !body) return alert('Protocol Error: Subject and Body required');
+
+                                let bccList: string[] = [];
+                                if (target === 'all') {
+                                    bccList = sellers.filter(u => u.email).map(u => u.email);
+                                } else if (target === 'no-push') {
+                                    bccList = sellers.filter(u => u.email && !u.pushEnabled).map(u => u.email);
+                                } else if (target === 'custom') {
+                                    bccList = customEmails.split(',').map(e => e.trim()).filter(e => e);
+                                }
+
+                                if (bccList.length === 0) return alert('No valid targets identified for this sector');
+
+                                if (confirm(`Authorize BCC transmission to ${bccList.length} nodes?`)) {
+                                    const bcc = bccList.join(',');
+                                    const mailtoUrl = `mailto:?bcc=${bcc}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                                    window.open(mailtoUrl, '_blank');
+                                    
+                                    // Reset fields
+                                    (document.getElementById('settingsEmailSubject') as HTMLInputElement).value = '';
+                                    (document.getElementById('settingsEmailBody') as HTMLTextAreaElement).value = '';
+                                }
+                            }}
+                            className="group flex items-center justify-center gap-3 w-full py-5 bg-[#111111] text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] shadow-xl hover:bg-[#D50000] transition-all active:scale-95"
+                        >
+                            <Send size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                            Initialize BCC Broadcast
                         </button>
                     </div>
                 </div>

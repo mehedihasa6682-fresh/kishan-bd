@@ -162,7 +162,7 @@ export default function ProductDetails() {
       className="max-w-md mx-auto min-h-screen bg-white"
     >
       <Helmet>
-        <title>{dData(product.name, product.nameEn)} - Shwapno</title>
+        <title>{dData(product.name, product.nameEn)} - {appSettings.appName || 'সদাই ভাই'}</title>
         <meta name="description" content={product.seoDescription || dData(product.description, product.descriptionEn) || `Fresh ${dData(product.name, product.nameEn)} delivered to your door.`} />
       </Helmet>
 

@@ -16,8 +16,8 @@ export const LoadingScreen: React.FC = () => {
       >
         <div className="w-24 h-24 bg-[#F9FAFB] rounded-[2.5rem] flex items-center justify-center shadow-sm mb-6 relative overflow-hidden group border border-[#ECECEC]">
           <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent animate-pulse" />
-          {settings.logo ? (
-            <img src={settings.logo} className="w-16 h-16 object-contain relative z-10" alt={settings.appName} />
+          {(settings.logo || '/logo.png') ? (
+            <img src={settings.logo || '/logo.png'} className="w-16 h-16 object-contain relative z-10" alt={settings.appName} />
           ) : (
             <ShoppingBasket size={48} className="text-primary relative z-10" />
           )}

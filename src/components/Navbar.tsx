@@ -149,8 +149,8 @@ export default function Navbar() {
             className="flex items-center justify-between w-full overflow-hidden"
           >
             <Link to="/" className="flex items-center gap-2">
-                {appSettings.logo ? (
-                    <img src={appSettings.logo} className="h-7 w-auto object-contain" alt="Logo" />
+                {(appSettings.logo || '/logo.png') ? (
+                    <img src={appSettings.logo || '/logo.png'} className="h-7 w-auto object-contain" alt="Logo" />
                 ) : (
                     <div className="flex items-center gap-2">
                         <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center shadow-lg border border-primary/10">
@@ -243,7 +243,7 @@ export default function Navbar() {
                           className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors border-b border-[#ECECEC] last:border-0 text-left group"
                         >
                           <div className="w-10 h-10 rounded-lg overflow-hidden bg-white flex-shrink-0">
-                            <img src={p.image || appSettings.logo} alt="" className="w-full h-full object-cover" />
+                            <img src={p.image || appSettings.logo || '/logo.png'} alt="" className="w-full h-full object-cover" />
                           </div>
                           <div className="flex-1 min-w-0">
                              <p className="text-[10px] font-bold text-[#111111] group-hover:text-primary transition-colors truncate">
@@ -404,8 +404,8 @@ export default function Navbar() {
       </AnimatePresence>
       {/* Dynamic Spacer */}
       <div className={`${(location.pathname === '/' || location.pathname === '/discounts') 
-        ? (appSettings.announcementBar ? 'h-[110px]' : 'h-[90px]') 
-        : (appSettings.announcementBar ? 'h-[75px]' : 'h-[55px]')}`} />
+        ? (appSettings.announcementBar ? 'h-[100px]' : 'h-[80px]') 
+        : (appSettings.announcementBar ? 'h-[65px]' : 'h-[45px]')}`} />
     </>
   );
 }

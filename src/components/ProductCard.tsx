@@ -82,7 +82,7 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
                     className="aspect-square rounded-xl overflow-hidden mb-2 cursor-pointer bg-white relative"
                     onClick={() => navigate(`/product/${product.id}`)}
                 >
-                    <img src={product.image || appSettings.logo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={product.name} />
+                    <img src={product.image || appSettings.logo || '/logo.png'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={product.name} />
                     {effective.promotion && (
                         <div className="absolute top-1 right-1 flex flex-col items-end gap-1 z-10 scale-75 origin-top-right">
                              <div className="bg-primary text-white rounded-lg px-2 py-1 flex items-center gap-1 animate-pulse shrink-0">
@@ -156,7 +156,7 @@ export default function ProductCard({ product, variant = 'grid' }: ProductCardPr
                 className="relative aspect-square rounded-xl overflow-hidden mb-2 cursor-pointer bg-white"
                 onClick={() => navigate(`/product/${product.id}`)}
             >
-                <img src={product.image || appSettings.logo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={product.name} />
+                <img src={product.image || appSettings.logo || '/logo.png'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={product.name} />
                 
                 {effective.promotion && (
                     <div className="absolute top-1 right-1 flex flex-col items-end gap-1 z-10 overflow-hidden">
